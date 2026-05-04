@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import App from './App'
 import { LoginPage } from './pages/LoginPage'
@@ -19,7 +19,7 @@ describe('App Component', () => {
 })
 
 describe('LoginPage', () => {
-  it('shows an error when the form is submitted without credentials', async () => {
+  it('shows field errors when the form is submitted without credentials', async () => {
     render(
       <MemoryRouter>
         <LoginPage />
@@ -28,12 +28,12 @@ describe('LoginPage', () => {
     const submitButton = screen.getByRole('button', { name: /sign in/i })
     fireEvent.click(submitButton)
     
-    // Wait for the error to appear
-    await screen.findByRole('alert')
-    expect(screen.getByRole('alert').textContent).toMatch(/please enter your email and password/i)
+    // Check for field-level error messages
+    await screen.findByText(/email is required/i)
+    expect(screen.getByText(/password is required/i)).toBeDefined()
   })
 
-  it('shows an error when the email address is invalid', async () => {
+  it('shows field error when the email address is invalid', async () => {
     render(
       <MemoryRouter>
         <LoginPage />
@@ -48,13 +48,40 @@ describe('LoginPage', () => {
     const submitButton = screen.getByRole('button', { name: /sign in/i })
     fireEvent.click(submitButton)
     
+    await screen.findByText(/please enter a valid email address/i)
+    expect(screen.getByText(/please enter a valid email address/i)).toBeDefined()
+  })
+
+  it('submits successfully with valid credentials', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    render(
+      <MemoryRouter>
+        <LoginPage onSubmit={onSubmit} />
+      </MemoryRouter>
+    )
+    
+    fireEvent.change(screen.getByPlaceholderText(/email address/i), {
+      target: { value: 'user@example.com' },
+    })
+    fireEvent.change(screen.getByPlaceholderText(/password/i), {
+      target: { value: 'Password123!' },
+    })
+    
+    const submitButton = screen.getByRole('button', { name: /sign in/i })
+    fireEvent.click(submitButton)
+    
     await screen.findByRole('alert')
-    expect(screen.getByRole('alert').textContent).toMatch(/please enter a valid email address/i)
+    expect(screen.getByRole('alert').textContent).toMatch(/signing you in/i)
+    expect(onSubmit).toHaveBeenCalledWith({
+      email: 'user@example.com',
+      password: 'Password123!',
+      remember: false,
+    })
   })
 })
 
 describe('SignupPage', () => {
-  it('shows an error when required fields are missing', async () => {
+  it('shows field errors when required fields are missing', async () => {
     render(
       <MemoryRouter>
         <SignupPage />
@@ -63,11 +90,13 @@ describe('SignupPage', () => {
     const submitButton = screen.getByRole('button', { name: /create account/i })
     fireEvent.click(submitButton)
     
-    await screen.findByRole('alert')
-    expect(screen.getByRole('alert').textContent).toMatch(/please fill in all fields/i)
+    // Check for field-level error messages
+    await screen.findByText(/first name is required/i)
+    expect(screen.getByText(/email is required/i)).toBeDefined()
+    expect(screen.getByText(/password is required/i)).toBeDefined()
   })
 
-  it('shows an error when the email address is invalid', async () => {
+  it('shows field error when the email address is invalid', async () => {
     render(
       <MemoryRouter>
         <SignupPage />
@@ -93,11 +122,11 @@ describe('SignupPage', () => {
     const submitButton = screen.getByRole('button', { name: /create account/i })
     fireEvent.click(submitButton)
     
-    await screen.findByRole('alert')
-    expect(screen.getByRole('alert').textContent).toMatch(/please enter a valid work email address/i)
+    await screen.findByText(/please enter a valid work email address/i)
+    expect(screen.getByText(/please enter a valid work email address/i)).toBeDefined()
   })
 
-  it('shows an error when passwords do not match', async () => {
+  it('shows field error when passwords do not match', async () => {
     render(
       <MemoryRouter>
         <SignupPage />
@@ -123,8 +152,38 @@ describe('SignupPage', () => {
     const submitButton = screen.getByRole('button', { name: /create account/i })
     fireEvent.click(submitButton)
     
-    await screen.findByRole('alert')
-    expect(screen.getByRole('alert').textContent).toMatch(/passwords do not match/i)
+    await screen.findByText(/passwords do not match/i)
+    expect(screen.getByText(/passwords do not match/i)).toBeDefined()
+  })
+
+  it('shows field error when password is too short', async () => {
+    render(
+      <MemoryRouter>
+        <SignupPage />
+      </MemoryRouter>
+    )
+    
+    fireEvent.change(screen.getByLabelText(/first name/i), {
+      target: { value: 'Jane' },
+    })
+    fireEvent.change(screen.getByLabelText(/last name/i), {
+      target: { value: 'Doe' },
+    })
+    fireEvent.change(screen.getByLabelText(/work email address/i), {
+      target: { value: 'jane.doe@example.com' },
+    })
+    fireEvent.change(screen.getByLabelText(/^password$/i), {
+      target: { value: '123' },
+    })
+    fireEvent.change(screen.getByLabelText(/confirm password/i), {
+      target: { value: '123' },
+    })
+    
+    const submitButton = screen.getByRole('button', { name: /create account/i })
+    fireEvent.click(submitButton)
+    
+    await screen.findByText(/password must be at least 8 characters/i)
+    expect(screen.getByText(/password must be at least 8 characters/i)).toBeDefined()
   })
 
   it('submits valid signup data and displays a success message', async () => {
@@ -154,7 +213,7 @@ describe('SignupPage', () => {
     const submitButton = screen.getByRole('button', { name: /create account/i })
     fireEvent.click(submitButton)
     
-    expect(onSubmit).toHaveBeenCalledTimes(1)
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     expect(onSubmit).toHaveBeenCalledWith({
       firstName: 'Jane',
       lastName: 'Doe',
