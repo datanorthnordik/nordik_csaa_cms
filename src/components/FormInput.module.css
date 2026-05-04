@@ -1,0 +1,76 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #7a1f24;
+  letter-spacing: 0.2px;
+}
+
+.inputWrap {
+  position: relative;
+  display: block;
+  border-radius: 6px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.outlined {
+  background: #fff;
+  border: 1px solid #d8d8dc;
+}
+
+.filled {
+  background: #eef0f3;
+  border: 1px solid transparent;
+}
+
+.inputWrap:focus-within {
+  border-color: #7a1f24;
+  box-shadow: 0 0 0 3px rgba(122, 31, 36, 0.12);
+}
+
+.input {
+  width: 100%;
+  display: block;
+  border: none;
+  outline: none;
+  background: transparent;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 15px;
+  color: #1f1f23;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+.hasToggle {
+  padding-right: 40px;
+}
+
+.input::placeholder {
+  color: #9a9aa3;
+}
+
+.toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  padding: 4px;
+  color: #6b6b73;
+  cursor: pointer;
+}
+
+.toggle:hover {
+  color: #1f1f23;
+}
