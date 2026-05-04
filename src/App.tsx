@@ -1,32 +1,16 @@
-import { useState } from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
 import './App.css'
 
-type Route = 'login' | 'signup'
-
 function App() {
-  const [route, setRoute] = useState<Route>('login')
-
-  if (route === 'signup') {
-    return (
-      <SignupPage
-        onSubmit={(values) => {
-          console.log('signup', values)
-        }}
-        onSignIn={() => setRoute('login')}
-      />
-    )
-  }
-
   return (
-    <LoginPage
-      onSubmit={(values) => {
-        console.log('login', values)
-      }}
-      onCreateAccount={() => setRoute('signup')}
-      onForgotPassword={() => console.log('forgot password')}
-    />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 

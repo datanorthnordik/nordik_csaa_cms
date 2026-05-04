@@ -1,52 +1,38 @@
 import { useState } from 'react'
-import type { FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
 import { AuthLayout } from '../components/AuthLayout'
 import { FormInput } from '../components/FormInput'
 import { AuthAlert } from '../components/AuthAlert'
 import type { AlertState } from '../components/AuthAlert'
-import { isValidEmail } from '../lib/validation'
 import styles from '../styles/LoginPage.module.css'
 
 type LoginValues = { email: string; password: string; remember: boolean }
 
 type LoginPageProps = {
   onSubmit?: (values: LoginValues) => void | Promise<void>
-  onCreateAccount?: () => void
-  onForgotPassword?: () => void
 }
 
-export function LoginPage({
-  onSubmit,
-  onCreateAccount,
-  onForgotPassword,
-}: LoginPageProps) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [remember, setRemember] = useState(false)
+export function LoginPage({ onSubmit }: LoginPageProps) {
+  const navigate = useNavigate()
   const [alert, setAlert] = useState<AlertState | null>(null)
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<LoginValues>({
+    defaultValues: {
+      email: '',
+      password: '',
+      remember: false
+    },
+    mode: 'onSubmit'
+  })
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+  const emailValue = watch('email')
+  const passwordValue = watch('password')
+
+  async function onSubmitForm(values: LoginValues) {
     setAlert(null)
 
-    if (!email || !password) {
-      setAlert({
-        type: 'error',
-        message: 'Please enter your email and password.',
-      })
-      return
-    }
-
-    if (!isValidEmail(email)) {
-      setAlert({
-        type: 'error',
-        message: 'Please enter a valid email address.',
-      })
-      return
-    }
-
     try {
-      await onSubmit?.({ email, password, remember })
+      await onSubmit?.(values)
       setAlert({ type: 'success', message: 'Signing you in…' })
     } catch (err) {
       setAlert({
@@ -63,30 +49,43 @@ export function LoginPage({
 
       <AuthAlert alert={alert} />
 
-      <form className={styles.form} onSubmit={handleSubmit} noValidate>
+      <form className={styles.form} onSubmit={handleSubmit(onSubmitForm)} noValidate>
         <FormInput
           type="email"
           placeholder="Email Address"
           variant="filled"
           autoComplete="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          {...register('email', { 
+            required: 'Email is required',
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: 'Please enter a valid email address'
+            }
+          })}
         />
+        {errors.email && (
+          <div className={styles.error} role="alert">
+            {errors.email.message}
+          </div>
+        )}
 
         <FormInput
           type="password"
           placeholder="Password"
           variant="filled"
           autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          {...register('password', { required: 'Password is required' })}
         />
+        {errors.password && (
+          <div className={styles.error} role="alert">
+            {errors.password.message}
+          </div>
+        )}
 
         <label className={styles.remember}>
           <input
             type="checkbox"
-            checked={remember}
-            onChange={(e) => setRemember(e.target.checked)}
+            {...register('remember')}
           />
           <span>Remember Me</span>
         </label>
@@ -98,7 +97,7 @@ export function LoginPage({
         <button
           type="button"
           className={styles.forgot}
-          onClick={onForgotPassword}
+          onClick={() => console.log('forgot password')}
         >
           Forgot password
         </button>
@@ -111,7 +110,7 @@ export function LoginPage({
       <button
         type="button"
         className={styles.secondary}
-        onClick={onCreateAccount}
+        onClick={() => navigate('/signup')}
       >
         CREATE NEW ACCOUNT
       </button>

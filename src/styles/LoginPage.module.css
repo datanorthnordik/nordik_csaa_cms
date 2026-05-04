@@ -13,6 +13,13 @@
   gap: 14px;
 }
 
+.error {
+  color: #d32f2f;
+  font-size: 12px;
+  margin-top: -8px;
+  margin-bottom: 8px;
+}
+
 .remember {
   display: flex;
   align-items: center;

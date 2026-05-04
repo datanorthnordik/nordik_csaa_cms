@@ -1,10 +1,10 @@
 import { useState } from 'react'
-import type { FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useForm } from 'react-hook-form'
 import { AuthLayout } from '../components/AuthLayout'
 import { FormInput } from '../components/FormInput'
 import { AuthAlert } from '../components/AuthAlert'
 import type { AlertState } from '../components/AuthAlert'
-import { isValidEmail } from '../lib/validation'
 import styles from '../styles/SignupPage.module.css'
 
 export type SignupValues = {
@@ -17,51 +17,27 @@ export type SignupValues = {
 
 type SignupPageProps = {
   onSubmit?: (values: SignupValues) => void | Promise<void>
-  onSignIn?: () => void
 }
 
-export function SignupPage({ onSubmit, onSignIn }: SignupPageProps) {
-  const [values, setValues] = useState<SignupValues>({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  })
+export function SignupPage({ onSubmit }: SignupPageProps) {
+  const navigate = useNavigate()
   const [alert, setAlert] = useState<AlertState | null>(null)
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<SignupValues>({
+    defaultValues: {
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    },
+    mode: 'onSubmit'
+  })
 
-  function update<K extends keyof SignupValues>(key: K, value: SignupValues[K]) {
-    setValues((prev) => ({ ...prev, [key]: value }))
-  }
+  const passwordValue = watch('password')
+  const confirmPasswordValue = watch('confirmPassword')
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+  async function onSubmitForm(values: SignupValues) {
     setAlert(null)
-
-    const { firstName, lastName, email, password, confirmPassword } = values
-
-    if (!firstName || !lastName || !email || !password || !confirmPassword) {
-      setAlert({ type: 'error', message: 'Please fill in all fields.' })
-      return
-    }
-    if (!isValidEmail(email)) {
-      setAlert({
-        type: 'error',
-        message: 'Please enter a valid work email address.',
-      })
-      return
-    }
-    if (password.length < 8) {
-      setAlert({
-        type: 'error',
-        message: 'Password must be at least 8 characters.',
-      })
-      return
-    }
-    if (password !== confirmPassword) {
-      setAlert({ type: 'error', message: 'Passwords do not match.' })
-      return
-    }
 
     try {
       await onSubmit?.(values)
@@ -92,46 +68,71 @@ export function SignupPage({ onSubmit, onSignIn }: SignupPageProps) {
 
       <AuthAlert alert={alert} />
 
-      <form className={styles.form} onSubmit={handleSubmit} noValidate>
+      <form className={styles.form} onSubmit={handleSubmit(onSubmitForm)} noValidate>
         <div className={styles.row}>
           <FormInput
             label="First Name"
             autoComplete="given-name"
-            value={values.firstName}
-            onChange={(e) => update('firstName', e.target.value)}
+            {...register('firstName', { required: 'First name is required' })}
           />
           <FormInput
             label="Last Name"
             autoComplete="family-name"
-            value={values.lastName}
-            onChange={(e) => update('lastName', e.target.value)}
+            {...register('lastName', { required: 'Last name is required' })}
           />
         </div>
+        {(errors.firstName || errors.lastName) && (
+          <div className={styles.error} role="alert">
+            {errors.firstName?.message || errors.lastName?.message}
+          </div>
+        )}
 
         <FormInput
           label="Work Email Address"
           type="email"
           autoComplete="email"
-          value={values.email}
-          onChange={(e) => update('email', e.target.value)}
+          {...register('email', { 
+            required: 'Email is required',
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: 'Please enter a valid work email address'
+            }
+          })}
         />
+        {errors.email && (
+          <div className={styles.error} role="alert">
+            {errors.email.message}
+          </div>
+        )}
 
         <div className={styles.row}>
           <FormInput
             label="Password"
             type="password"
             autoComplete="new-password"
-            value={values.password}
-            onChange={(e) => update('password', e.target.value)}
+            {...register('password', { 
+              required: 'Password is required',
+              minLength: {
+                value: 8,
+                message: 'Password must be at least 8 characters'
+              }
+            })}
           />
           <FormInput
             label="Confirm Password"
             type="password"
             autoComplete="new-password"
-            value={values.confirmPassword}
-            onChange={(e) => update('confirmPassword', e.target.value)}
+            {...register('confirmPassword', { 
+              required: 'Please confirm your password',
+              validate: (value) => value === watch('password') || 'Passwords do not match'
+            })}
           />
         </div>
+        {(errors.password || errors.confirmPassword) && (
+          <div className={styles.error} role="alert">
+            {errors.password?.message || errors.confirmPassword?.message}
+          </div>
+        )}
 
         <button type="submit" className={styles.primary}>
           CREATE ACCOUNT
@@ -142,7 +143,7 @@ export function SignupPage({ onSubmit, onSignIn }: SignupPageProps) {
 
       <p className={styles.footer}>
         Already have an account?{' '}
-        <button type="button" className={styles.link} onClick={onSignIn}>
+        <button type="button" className={styles.link} onClick={() => navigate('/')}>
           Sign In
         </button>
       </p>
