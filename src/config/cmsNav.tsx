@@ -20,17 +20,17 @@ export type CmsNavItemConfig = {
 }
 
 export const cmsNavItems: CmsNavItemConfig[] = [
-  { key: 'dashboard', label: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-  { key: 'pages', label: 'Pages', icon: <PagesIcon />, path: '/pages' },
-  { key: 'events', label: 'Events', icon: <EventsIcon />, path: '/events' },
-  { key: 'newsletters', label: 'Newsletters', icon: <NewslettersIcon />, path: '/newsletters' },
-  { key: 'press', label: 'Press Entries', icon: <PressIcon />, path: '/press' },
-  { key: 'memorial', label: 'Memorial Entries', icon: <MemorialIcon />, path: '/memorial' },
-  { key: 'resources', label: 'Resources', icon: <ResourcesIcon />, path: '/resources' },
-  { key: 'media', label: 'Media Library', icon: <MediaIcon />, path: '/media' },
+  { key: 'dashboard', label: 'Dashboard', icon: <DashboardIcon />, path: '' },
+  { key: 'pages', label: 'Pages', icon: <PagesIcon />, path: '' },
+  { key: 'events', label: 'Events', icon: <EventsIcon />, path: '' },
+  { key: 'newsletters', label: 'Newsletters', icon: <NewslettersIcon />, path: '' },
+  { key: 'press', label: 'Press Entries', icon: <PressIcon />, path: '' },
+  { key: 'memorial', label: 'Memorial Entries', icon: <MemorialIcon />, path: '' },
+  { key: 'resources', label: 'Resources', icon: <ResourcesIcon />, path: '' },
+  { key: 'media', label: 'Media Library', icon: <MediaIcon />, path: '' },
 ]
 
 export const cmsFooterItems: CmsNavItemConfig[] = [
-  { key: 'settings', label: 'Settings', icon: <SettingsIcon />, path: '/settings' },
+  { key: 'settings', label: 'Settings', icon: <SettingsIcon />, path: '' },
   { key: 'logout', label: 'Logout', icon: <LogoutIcon /> },
 ]
