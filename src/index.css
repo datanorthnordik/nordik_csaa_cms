@@ -1,11 +1,44 @@
 :root {
-  --color-text: #1f1f23;
-  --color-text-muted: #6b6b73;
+  /* Surfaces */
   --color-bg: #f4f4f6;
   --color-surface: #ffffff;
+  --color-surface-alt: #eef0f3;
+
+  /* Text */
+  --color-text: #1f1f23;
+  --color-text-muted: #6b6b73;
+  --color-text-placeholder: #9a9aa3;
+
+  /* Borders */
   --color-border: #e5e5e8;
+  --color-border-soft: #ececec;
+  --color-border-input: #d8d8dc;
+
+  /* Brand */
   --color-primary: #7a1f24;
   --color-primary-hover: #65191d;
+  --color-primary-tint: rgba(122, 31, 36, 0.06);
+  --color-primary-tint-strong: rgba(122, 31, 36, 0.08);
+  --color-focus-ring: rgba(122, 31, 36, 0.12);
+  --color-on-primary: #ffffff;
+
+  /* Status — error */
+  --color-error: #d32f2f;
+  --color-error-strong: #b3261e;
+  --color-error-bg: #fee2e2;
+  --color-error-text: #991b1b;
+  --color-error-border: #fecaca;
+
+  /* Status — success */
+  --color-success-bg: #d1fae5;
+  --color-success-text: #065f46;
+  --color-success-border: #a7f3d0;
+
+  /* Overlays & shadows */
+  --color-overlay: rgba(0, 0, 0, 0.4);
+  --color-overlay-soft: rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 6px 10px -2px rgba(0, 0, 0, 0.04);
+  --shadow-drawer: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
 

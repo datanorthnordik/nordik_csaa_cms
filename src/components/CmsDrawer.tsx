@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { TicketIcon } from './icons'
 import styles from './CmsDrawer.module.css'
 
 export type DrawerNavItem = {
@@ -88,12 +89,7 @@ export function CmsDrawer({
               className={styles.submitTicket}
               onClick={onSubmitTicket}
             >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M21 7v4a2 2 0 0 0-2 2 2 2 0 0 0 2 2v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4a2 2 0 0 0 2-2 2 2 0 0 0-2-2V7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                <line x1="13" y1="5" x2="13" y2="7" />
-                <line x1="13" y1="11" x2="13" y2="13" />
-                <line x1="13" y1="17" x2="13" y2="19" />
-              </svg>
+              <TicketIcon />
               Submit Ticket
             </button>
           )}

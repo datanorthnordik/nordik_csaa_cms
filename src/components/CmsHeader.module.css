@@ -4,7 +4,7 @@
   justify-content: space-between;
   height: 64px;
   padding: 0 24px;
-  background: #fff;
+  background: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -42,7 +42,7 @@
 }
 
 .iconButton:hover {
-  background: rgba(122, 31, 36, 0.08);
+  background: var(--color-primary-tint-strong);
 }
 
 .iconButton:focus-visible {
@@ -65,7 +65,7 @@
 }
 
 .menuButton:hover {
-  background: rgba(0, 0, 0, 0.05);
+  background: var(--color-overlay-soft);
 }
 
 @media (max-width: 768px) {

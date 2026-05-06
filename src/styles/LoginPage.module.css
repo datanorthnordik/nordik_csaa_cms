@@ -1,7 +1,7 @@
 .title {
   font-size: 18px;
   font-weight: 600;
-  color: #1f1f23;
+  color: var(--color-text);
   text-align: center;
   margin: 8px 0 20px;
   letter-spacing: 0;
@@ -14,7 +14,7 @@
 }
 
 .error {
-  color: #d32f2f;
+  color: var(--color-error);
   font-size: 12px;
   margin-top: -8px;
   margin-bottom: 8px;
@@ -25,7 +25,7 @@
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: #1f1f23;
+  color: var(--color-text);
   cursor: pointer;
   user-select: none;
 }
@@ -33,7 +33,7 @@
 .remember input[type='checkbox'] {
   width: 16px;
   height: 16px;
-  accent-color: #7a1f24;
+  accent-color: var(--color-primary);
   cursor: pointer;
   margin: 0;
 }
@@ -42,8 +42,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #7a1f24;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
   border: none;
   border-radius: 6px;
   padding: 12px;
@@ -56,13 +56,13 @@
 }
 
 .primary:hover {
-  background: #65191d;
+  background: var(--color-primary-hover);
 }
 
 .forgot {
   background: transparent;
   border: none;
-  color: #7a1f24;
+  color: var(--color-primary);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -81,7 +81,7 @@
   align-items: center;
   justify-content: center;
   margin: 20px 0;
-  color: #9a9aa3;
+  color: var(--color-text-placeholder);
   font-size: 12px;
   letter-spacing: 1px;
 }
@@ -91,7 +91,7 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: #e5e5e8;
+  background: var(--color-border);
 }
 
 .divider span {
@@ -102,9 +102,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
-  color: #7a1f24;
-  border: 1.5px solid #7a1f24;
+  background: var(--color-surface);
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
   border-radius: 6px;
   padding: 12px;
   font-size: 14px;
@@ -116,6 +116,6 @@
 }
 
 .secondary:hover {
-  background: #7a1f24;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
 }
