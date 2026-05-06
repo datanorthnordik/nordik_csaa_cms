@@ -1,0 +1,35 @@
+{
+  "languageSwitcher": {
+    "label": "Select language"
+  },
+  "meta": {
+    "reactLogoAlt": "React logo",
+    "viteLogoAlt": "Vite logo"
+  },
+  "hero": {
+    "title": "Get started",
+    "description": {
+      "before": "Edit",
+      "after": "and save to test"
+    },
+    "counter": "Count is {{count}}"
+  },
+  "sections": {
+    "docs": {
+      "title": "Documentation",
+      "subtitle": "Your questions, answered"
+    },
+    "social": {
+      "title": "Connect with us",
+      "subtitle": "Join the Vite community"
+    }
+  },
+  "links": {
+    "vite": "Explore Vite",
+    "react": "Learn more",
+    "github": "GitHub",
+    "discord": "Discord",
+    "x": "X.com",
+    "bluesky": "Bluesky"
+  }
+}
