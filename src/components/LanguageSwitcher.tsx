@@ -4,6 +4,7 @@ import {
   supportedLanguages,
   type SupportedLanguageCode,
 } from '../i18n/config'
+import styles from './LanguageSwitcher.module.css'
 
 export function LanguageSwitcher() {
   const { i18n, t } = useTranslation()
@@ -18,7 +19,7 @@ export function LanguageSwitcher() {
 
   return (
     <div
-      className="language-switcher"
+      className={styles.switcher}
       role="group"
       aria-label={t('languageSwitcher.label')}
     >
@@ -26,7 +27,7 @@ export function LanguageSwitcher() {
         <button
           key={code}
           type="button"
-          className="language-option"
+          className={styles.option}
           aria-pressed={activeLanguage === code}
           onClick={() => handleLanguageChange(code)}
         >
