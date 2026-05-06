@@ -1,10 +1,12 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { AuthLayout } from '../components/AuthLayout'
-import { FormInput } from '../components/FormInput'
+import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import { AuthAlert } from '../components/AuthAlert'
 import type { AlertState } from '../components/AuthAlert'
+import { AuthLayout } from '../components/AuthLayout'
+import { FormInput } from '../components/FormInput'
+import { isValidEmail } from '../lib/validation'
 import styles from '../styles/SignupPage.module.css'
 
 export type SignupValues = {
@@ -21,8 +23,15 @@ type SignupPageProps = {
 
 export function SignupPage({ onSubmit }: SignupPageProps) {
   const navigate = useNavigate()
+  const { i18n, t } = useTranslation()
   const [alert, setAlert] = useState<AlertState | null>(null)
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<SignupValues>({
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    trigger,
+    watch,
+  } = useForm<SignupValues>({
     defaultValues: {
       firstName: '',
       lastName: '',
@@ -30,11 +39,16 @@ export function SignupPage({ onSubmit }: SignupPageProps) {
       password: '',
       confirmPassword: '',
     },
-    mode: 'onSubmit'
+    mode: 'onSubmit',
   })
-
+  const hasErrors = Object.keys(errors).length > 0
   const passwordValue = watch('password')
-  const confirmPasswordValue = watch('confirmPassword')
+
+  useEffect(() => {
+    if (hasErrors) {
+      void trigger()
+    }
+  }, [hasErrors, i18n.language, trigger])
 
   async function onSubmitForm(values: SignupValues) {
     setAlert(null)
@@ -43,8 +57,7 @@ export function SignupPage({ onSubmit }: SignupPageProps) {
       await onSubmit?.(values)
       setAlert({
         type: 'success',
-        message:
-          'Account request submitted. You will receive an email once approved.',
+        message: t('auth.signup.feedback.success'),
       })
     } catch (err) {
       setAlert({
@@ -52,7 +65,7 @@ export function SignupPage({ onSubmit }: SignupPageProps) {
         message:
           err instanceof Error
             ? err.message
-            : 'Could not create account. Please try again.',
+            : t('auth.signup.feedback.errorGeneric'),
       })
     }
   }
@@ -60,10 +73,8 @@ export function SignupPage({ onSubmit }: SignupPageProps) {
   return (
     <AuthLayout>
       <div className={styles.intro}>
-        <h1 className={styles.title}>Create Your Account</h1>
-        <p className={styles.subtitle}>
-          Request access to the administrative console.
-        </p>
+        <h1 className={styles.title}>{t('auth.signup.title')}</h1>
+        <p className={styles.subtitle}>{t('auth.signup.subtitle')}</p>
       </div>
 
       <AuthAlert alert={alert} />
@@ -71,14 +82,18 @@ export function SignupPage({ onSubmit }: SignupPageProps) {
       <form className={styles.form} onSubmit={handleSubmit(onSubmitForm)} noValidate>
         <div className={styles.row}>
           <FormInput
-            label="First Name"
+            label={t('auth.signup.fields.firstName')}
             autoComplete="given-name"
-            {...register('firstName', { required: 'First name is required' })}
+            {...register('firstName', {
+              required: t('auth.validation.firstNameRequired'),
+            })}
           />
           <FormInput
-            label="Last Name"
+            label={t('auth.signup.fields.lastName')}
             autoComplete="family-name"
-            {...register('lastName', { required: 'Last name is required' })}
+            {...register('lastName', {
+              required: t('auth.validation.lastNameRequired'),
+            })}
           />
         </div>
         {(errors.firstName || errors.lastName) && (
@@ -88,15 +103,13 @@ export function SignupPage({ onSubmit }: SignupPageProps) {
         )}
 
         <FormInput
-          label="Work Email Address"
+          label={t('auth.signup.fields.email')}
           type="email"
           autoComplete="email"
-          {...register('email', { 
-            required: 'Email is required',
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: 'Please enter a valid work email address'
-            }
+          {...register('email', {
+            required: t('auth.validation.emailRequired'),
+            validate: (value) =>
+              isValidEmail(value) || t('auth.validation.workEmailInvalid'),
           })}
         />
         {errors.email && (
@@ -107,24 +120,26 @@ export function SignupPage({ onSubmit }: SignupPageProps) {
 
         <div className={styles.row}>
           <FormInput
-            label="Password"
+            label={t('auth.signup.fields.password')}
             type="password"
             autoComplete="new-password"
-            {...register('password', { 
-              required: 'Password is required',
+            {...register('password', {
+              required: t('auth.validation.passwordRequired'),
               minLength: {
                 value: 8,
-                message: 'Password must be at least 8 characters'
-              }
+                message: t('auth.validation.passwordMinLength'),
+              },
             })}
           />
           <FormInput
-            label="Confirm Password"
+            label={t('auth.signup.fields.confirmPassword')}
             type="password"
             autoComplete="new-password"
-            {...register('confirmPassword', { 
-              required: 'Please confirm your password',
-              validate: (value) => value === watch('password') || 'Passwords do not match'
+            {...register('confirmPassword', {
+              required: t('auth.validation.confirmPasswordRequired'),
+              validate: (value) =>
+                value === passwordValue ||
+                t('auth.validation.passwordsDoNotMatch'),
             })}
           />
         </div>
@@ -135,16 +150,16 @@ export function SignupPage({ onSubmit }: SignupPageProps) {
         )}
 
         <button type="submit" className={styles.primary}>
-          CREATE ACCOUNT
+          {t('auth.signup.actions.createAccount')}
         </button>
       </form>
 
       <div className={styles.divider} />
 
       <p className={styles.footer}>
-        Already have an account?{' '}
+        {t('auth.signup.footer.prompt')}{' '}
         <button type="button" className={styles.link} onClick={() => navigate('/')}>
-          Sign In
+          {t('auth.signup.footer.signIn')}
         </button>
       </p>
     </AuthLayout>

@@ -2,34 +2,65 @@
   "languageSwitcher": {
     "label": "Select language"
   },
-  "meta": {
-    "reactLogoAlt": "React logo",
-    "viteLogoAlt": "Vite logo"
-  },
-  "hero": {
-    "title": "Get started",
-    "description": {
-      "before": "Edit",
-      "after": "and save to test"
+  "auth": {
+    "header": {
+      "csaaAlt": "Children of Shingwauk Alumni Association",
+      "nordikAlt": "Nordik Institute"
     },
-    "counter": "Count is {{count}}"
-  },
-  "sections": {
-    "docs": {
-      "title": "Documentation",
-      "subtitle": "Your questions, answered"
+    "formInput": {
+      "showPassword": "Show password",
+      "hidePassword": "Hide password"
     },
-    "social": {
-      "title": "Connect with us",
-      "subtitle": "Join the Vite community"
+    "validation": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "workEmailInvalid": "Please enter a valid work email address",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "confirmPasswordRequired": "Please confirm your password",
+      "passwordsDoNotMatch": "Passwords do not match"
+    },
+    "login": {
+      "title": "Sign in with Email Address",
+      "fields": {
+        "emailPlaceholder": "Email Address",
+        "passwordPlaceholder": "Password"
+      },
+      "rememberMe": "Remember Me",
+      "divider": "OR",
+      "actions": {
+        "signIn": "Sign In",
+        "forgotPassword": "Forgot password?",
+        "createAccount": "Create New Account"
+      },
+      "feedback": {
+        "success": "Signing you in...",
+        "errorGeneric": "Sign in failed. Please try again."
+      }
+    },
+    "signup": {
+      "title": "Create Your Account",
+      "subtitle": "Request access to the administrative console.",
+      "fields": {
+        "firstName": "First Name",
+        "lastName": "Last Name",
+        "email": "Work Email Address",
+        "password": "Password",
+        "confirmPassword": "Confirm Password"
+      },
+      "actions": {
+        "createAccount": "Create Account"
+      },
+      "footer": {
+        "prompt": "Already have an account?",
+        "signIn": "Sign In"
+      },
+      "feedback": {
+        "success": "Account request submitted. You will receive an email once approved.",
+        "errorGeneric": "Could not create account. Please try again."
+      }
     }
-  },
-  "links": {
-    "vite": "Explore Vite",
-    "react": "Learn more",
-    "github": "GitHub",
-    "discord": "Discord",
-    "x": "X.com",
-    "bluesky": "Bluesky"
   }
 }

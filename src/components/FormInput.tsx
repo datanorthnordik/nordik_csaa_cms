@@ -1,5 +1,6 @@
 import { useId, useState } from 'react'
 import type { InputHTMLAttributes } from 'react'
+import { useTranslation } from 'react-i18next'
 import styles from './FormInput.module.css'
 
 type FormInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'id'> & {
@@ -15,6 +16,7 @@ export function FormInput({
   ...rest
 }: FormInputProps) {
   const id = useId()
+  const { t } = useTranslation()
   const isPassword = type === 'password'
   const [revealed, setRevealed] = useState(false)
   const effectiveType = isPassword && revealed ? 'text' : type
@@ -44,8 +46,12 @@ export function FormInput({
           <button
             type="button"
             className={styles.toggle}
-            onClick={() => setRevealed((v) => !v)}
-            aria-label={revealed ? 'Hide password' : 'Show password'}
+            onClick={() => setRevealed((value) => !value)}
+            aria-label={
+              revealed
+                ? t('auth.formInput.hidePassword')
+                : t('auth.formInput.showPassword')
+            }
             tabIndex={-1}
           >
             <EyeIcon open={revealed} />

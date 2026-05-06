@@ -1,11 +1,19 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 24px;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
   padding: 16px 24px;
   background: #fff;
-  border-radius: 12px 12px 0 0;
+  border-bottom: 1px solid #ececec;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
 }
 
 .logo {
@@ -14,10 +22,26 @@
   object-fit: contain;
 }
 
+.controls {
+  display: flex;
+  justify-content: flex-end;
+}
+
 @media (max-width: 480px) {
   .header {
-    gap: 12px;
+    justify-content: center;
+    gap: 14px;
     padding: 12px 16px;
+  }
+
+  .brand,
+  .controls {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .brand {
+    gap: 12px;
   }
 
   .logo {

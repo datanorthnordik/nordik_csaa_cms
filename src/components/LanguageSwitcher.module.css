@@ -1,0 +1,40 @@
+.switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #d8d8de;
+  border-radius: 999px;
+  background: #f7f7f8;
+}
+
+.option {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: #4d4d55;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.option:hover {
+  border-color: #b78d91;
+}
+
+.option[aria-pressed='true'] {
+  background: #7a1f24;
+  color: #fff;
+  border-color: #7a1f24;
+}
+
+.option:focus-visible {
+  outline: 2px solid #7a1f24;
+  outline-offset: 2px;
+}
