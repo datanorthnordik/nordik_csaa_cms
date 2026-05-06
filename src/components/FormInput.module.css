@@ -56,6 +56,11 @@
   color: #9a9aa3;
 }
 
+.input:disabled {
+  color: #777780;
+  cursor: not-allowed;
+}
+
 .toggle {
   position: absolute;
   right: 8px;
@@ -73,4 +78,9 @@
 
 .toggle:hover {
   color: #1f1f23;
+}
+
+.toggle:disabled {
+  color: #9a9aa3;
+  cursor: not-allowed;
 }

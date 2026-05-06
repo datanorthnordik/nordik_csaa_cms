@@ -3,6 +3,7 @@
     "label": "Choisir la langue"
   },
   "auth": {
+    "loading": "Veuillez patienter...",
     "header": {
       "csaaAlt": "Children of Shingwauk Alumni Association",
       "nordikAlt": "Nordik Institute"
@@ -12,13 +13,13 @@
       "hidePassword": "Masquer le mot de passe"
     },
     "validation": {
-      "firstNameRequired": "Le prénom est requis",
+      "firstNameRequired": "Le prenom est requis",
       "lastNameRequired": "Le nom de famille est requis",
       "emailRequired": "L'adresse courriel est requise",
       "emailInvalid": "Veuillez saisir une adresse courriel valide",
       "workEmailInvalid": "Veuillez saisir une adresse courriel professionnelle valide",
       "passwordRequired": "Le mot de passe est requis",
-      "passwordMinLength": "Le mot de passe doit contenir au moins 8 caractères",
+      "passwordMinLength": "Le mot de passe doit contenir au moins 6 caracteres",
       "confirmPasswordRequired": "Veuillez confirmer votre mot de passe",
       "passwordsDoNotMatch": "Les mots de passe ne correspondent pas"
     },
@@ -32,34 +33,34 @@
       "divider": "OU",
       "actions": {
         "signIn": "Se connecter",
-        "forgotPassword": "Mot de passe oublié ?",
-        "createAccount": "Créer un nouveau compte"
+        "forgotPassword": "Mot de passe oublie ?",
+        "createAccount": "Creer un nouveau compte"
       },
       "feedback": {
         "success": "Connexion en cours...",
-        "errorGeneric": "La connexion a échoué. Veuillez réessayer."
+        "errorGeneric": "La connexion a echoue. Veuillez reessayer."
       }
     },
     "signup": {
-      "title": "Créer votre compte",
-      "subtitle": "Demandez l'accès à la console d'administration.",
+      "title": "Creer votre compte",
+      "subtitle": "Demandez l'acces a la console d'administration.",
       "fields": {
-        "firstName": "Prénom",
+        "firstName": "Prenom",
         "lastName": "Nom de famille",
         "email": "Adresse courriel professionnelle",
         "password": "Mot de passe",
         "confirmPassword": "Confirmer le mot de passe"
       },
       "actions": {
-        "createAccount": "Créer le compte"
+        "createAccount": "Creer le compte"
       },
       "footer": {
-        "prompt": "Vous avez déjà un compte ?",
+        "prompt": "Vous avez deja un compte ?",
         "signIn": "Se connecter"
       },
       "feedback": {
-        "success": "La demande de compte a été envoyée. Vous recevrez un courriel une fois la demande approuvée.",
-        "errorGeneric": "Impossible de créer le compte. Veuillez réessayer."
+        "success": "La demande de compte a ete envoyee. Vous recevrez un courriel une fois la demande approuvee.",
+        "errorGeneric": "Impossible de creer le compte. Veuillez reessayer."
       }
     }
   }
