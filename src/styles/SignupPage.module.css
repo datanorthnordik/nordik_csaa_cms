@@ -61,6 +61,11 @@
   background: var(--color-primary-hover);
 }
 
+.primary:disabled {
+  background: #a28386;
+  cursor: not-allowed;
+}
+
 .divider {
   height: 1px;
   background: var(--color-border);
@@ -86,6 +91,11 @@
 
 .link:hover {
   color: var(--color-primary);
+}
+
+.link:disabled {
+  color: #a28386;
+  cursor: not-allowed;
 }
 
 @media (max-width: 480px) {

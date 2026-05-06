@@ -1,28 +1,52 @@
+import axios from 'axios'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { authApi } from '../api/authApi'
 import { AuthAlert } from '../components/AuthAlert'
 import type { AlertState } from '../components/AuthAlert'
 import { AuthLayout } from '../components/AuthLayout'
 import { FormInput } from '../components/FormInput'
+import { Loader } from '../components/Loader'
 import { isValidEmail } from '../lib/validation'
+import { setAuthSession, type AuthSession } from '../store/authSlice'
+import { useAppDispatch } from '../store/hooks'
 import styles from '../styles/LoginPage.module.css'
 
 type LoginValues = { email: string; password: string; remember: boolean }
 
+type LoginSubmitResult = {
+  session?: AuthSession
+}
+
 type LoginPageProps = {
-  onSubmit?: (values: LoginValues) => void | Promise<void>
+  onSubmit?: (
+    values: LoginValues,
+  ) => void | LoginSubmitResult | Promise<void | LoginSubmitResult>
+}
+
+async function submitLogin(values: LoginValues): Promise<LoginSubmitResult> {
+  const response = await authApi.login({
+    email: values.email,
+    password: values.password,
+    rememberMe: values.remember,
+  })
+
+  return {
+    session: response.data,
+  }
 }
 
 export function LoginPage({ onSubmit }: LoginPageProps) {
+  const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const { i18n, t } = useTranslation()
   const [alert, setAlert] = useState<AlertState | null>(null)
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     trigger,
   } = useForm<LoginValues>({
     defaultValues: {
@@ -33,6 +57,7 @@ export function LoginPage({ onSubmit }: LoginPageProps) {
     mode: 'onSubmit',
   })
   const hasErrors = Object.keys(errors).length > 0
+  const handleLogin = onSubmit ?? submitLogin
 
   useEffect(() => {
     if (hasErrors) {
@@ -44,14 +69,28 @@ export function LoginPage({ onSubmit }: LoginPageProps) {
     setAlert(null)
 
     try {
-      await onSubmit?.(values)
+      const result = await handleLogin(values)
+
+      if (result?.session) {
+        dispatch(
+          setAuthSession({
+            session: result.session,
+            rememberMe: values.remember,
+          }),
+        )
+      }
+
       setAlert({ type: 'success', message: t('auth.login.feedback.success') })
-    } catch (err) {
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        return
+      }
+
       setAlert({
         type: 'error',
         message:
-          err instanceof Error
-            ? err.message
+          error instanceof Error
+            ? error.message
             : t('auth.login.feedback.errorGeneric'),
       })
     }
@@ -59,6 +98,8 @@ export function LoginPage({ onSubmit }: LoginPageProps) {
 
   return (
     <AuthLayout>
+      {isSubmitting && <Loader fullscreen label={t('auth.loading')} />}
+
       <h1 className={styles.title}>{t('auth.login.title')}</h1>
 
       <AuthAlert alert={alert} />
@@ -69,6 +110,7 @@ export function LoginPage({ onSubmit }: LoginPageProps) {
           placeholder={t('auth.login.fields.emailPlaceholder')}
           variant="filled"
           autoComplete="email"
+          disabled={isSubmitting}
           {...register('email', {
             required: t('auth.validation.emailRequired'),
             validate: (value) =>
@@ -86,6 +128,7 @@ export function LoginPage({ onSubmit }: LoginPageProps) {
           placeholder={t('auth.login.fields.passwordPlaceholder')}
           variant="filled"
           autoComplete="current-password"
+          disabled={isSubmitting}
           {...register('password', {
             required: t('auth.validation.passwordRequired'),
           })}
@@ -97,17 +140,18 @@ export function LoginPage({ onSubmit }: LoginPageProps) {
         )}
 
         <label className={styles.remember}>
-          <input type="checkbox" {...register('remember')} />
+          <input type="checkbox" disabled={isSubmitting} {...register('remember')} />
           <span>{t('auth.login.rememberMe')}</span>
         </label>
 
-        <button type="submit" className={styles.primary}>
+        <button type="submit" className={styles.primary} disabled={isSubmitting}>
           {t('auth.login.actions.signIn')}
         </button>
 
         <button
           type="button"
           className={styles.forgot}
+          disabled={isSubmitting}
           onClick={() => console.log('forgot password')}
         >
           {t('auth.login.actions.forgotPassword')}
@@ -121,6 +165,7 @@ export function LoginPage({ onSubmit }: LoginPageProps) {
       <button
         type="button"
         className={styles.secondary}
+        disabled={isSubmitting}
         onClick={() => navigate('/signup')}
       >
         {t('auth.login.actions.createAccount')}

@@ -3,6 +3,7 @@
     "label": "Select language"
   },
   "auth": {
+    "loading": "Please wait...",
     "header": {
       "csaaAlt": "Children of Shingwauk Alumni Association",
       "nordikAlt": "Nordik Institute"
@@ -18,7 +19,7 @@
       "emailInvalid": "Please enter a valid email address",
       "workEmailInvalid": "Please enter a valid work email address",
       "passwordRequired": "Password is required",
-      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordMinLength": "Password must be at least 6 characters",
       "confirmPasswordRequired": "Please confirm your password",
       "passwordsDoNotMatch": "Passwords do not match"
     },
