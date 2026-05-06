@@ -59,6 +59,11 @@
   background: #65191d;
 }
 
+.primary:disabled {
+  background: #a28386;
+  cursor: not-allowed;
+}
+
 .forgot {
   background: transparent;
   border: none;
@@ -73,6 +78,12 @@
 
 .forgot:hover {
   text-decoration: underline;
+}
+
+.forgot:disabled {
+  color: #a28386;
+  cursor: not-allowed;
+  text-decoration: none;
 }
 
 .divider {
@@ -118,4 +129,11 @@
 .secondary:hover {
   background: #7a1f24;
   color: #fff;
+}
+
+.secondary:disabled {
+  color: #a28386;
+  border-color: #a28386;
+  background: #fff;
+  cursor: not-allowed;
 }

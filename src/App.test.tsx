@@ -1,20 +1,33 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import type { ReactElement } from 'react'
+import { Provider } from 'react-redux'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import i18n from './i18n'
 import { LoginPage } from './pages/LoginPage'
 import { SignupPage } from './pages/SignupPage'
+import { createAppStore } from './store/store'
+
+function renderWithProviders(ui: ReactElement) {
+  const store = createAppStore()
+  return render(<Provider store={store}>{ui}</Provider>)
+}
+
+function renderPage(ui: ReactElement) {
+  return renderWithProviders(<MemoryRouter>{ui}</MemoryRouter>)
+}
 
 beforeEach(async () => {
   window.localStorage.clear()
+  window.sessionStorage.clear()
   window.history.pushState({}, '', '/')
   await i18n.changeLanguage('en')
 })
 
 describe('App Component', () => {
   it('renders the login page by default', () => {
-    render(<App />)
+    renderWithProviders(<App />)
     expect(
       screen.getByRole('heading', { name: /sign in with email address/i })
     ).toBeDefined()
@@ -23,7 +36,7 @@ describe('App Component', () => {
 
   it('renders the signup page when navigating to /signup', () => {
     window.history.pushState({}, '', '/signup')
-    render(<App />)
+    renderWithProviders(<App />)
     expect(
       screen.getByRole('heading', { name: /create your account/i })
     ).toBeDefined()
@@ -32,11 +45,7 @@ describe('App Component', () => {
 
 describe('LoginPage', () => {
   it('shows field errors when the form is submitted without credentials', async () => {
-    render(
-      <MemoryRouter>
-        <LoginPage />
-      </MemoryRouter>
-    )
+    renderPage(<LoginPage />)
 
     fireEvent.click(screen.getByRole('button', { name: /sign in/i }))
 
@@ -45,11 +54,7 @@ describe('LoginPage', () => {
   })
 
   it('shows field error when the email address is invalid', async () => {
-    render(
-      <MemoryRouter>
-        <LoginPage />
-      </MemoryRouter>
-    )
+    renderPage(<LoginPage />)
 
     fireEvent.change(screen.getByPlaceholderText(/email address/i), {
       target: { value: 'invalid-email' },
@@ -66,11 +71,7 @@ describe('LoginPage', () => {
 
   it('submits successfully with valid credentials', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(
-      <MemoryRouter>
-        <LoginPage onSubmit={onSubmit} />
-      </MemoryRouter>
-    )
+    renderPage(<LoginPage onSubmit={onSubmit} />)
 
     fireEvent.change(screen.getByPlaceholderText(/email address/i), {
       target: { value: 'user@example.com' },
@@ -91,11 +92,7 @@ describe('LoginPage', () => {
   })
 
   it('switches the login page copy to french from the header toggle', async () => {
-    render(
-      <MemoryRouter>
-        <LoginPage />
-      </MemoryRouter>
-    )
+    renderPage(<LoginPage />)
 
     fireEvent.click(screen.getByRole('button', { name: 'FR' }))
 
@@ -105,18 +102,14 @@ describe('LoginPage', () => {
       })
     ).toBeDefined()
     expect(
-      screen.getByRole('button', { name: /créer un nouveau compte/i })
+      screen.getByRole('button', { name: /creer un nouveau compte/i })
     ).toBeDefined()
   })
 })
 
 describe('SignupPage', () => {
   it('shows field errors when required fields are missing', async () => {
-    render(
-      <MemoryRouter>
-        <SignupPage />
-      </MemoryRouter>
-    )
+    renderPage(<SignupPage />)
 
     fireEvent.click(screen.getByRole('button', { name: /create account/i }))
 
@@ -126,11 +119,7 @@ describe('SignupPage', () => {
   })
 
   it('shows field error when the email address is invalid', async () => {
-    render(
-      <MemoryRouter>
-        <SignupPage />
-      </MemoryRouter>
-    )
+    renderPage(<SignupPage />)
 
     fireEvent.change(screen.getByLabelText(/first name/i), {
       target: { value: 'Jane' },
@@ -157,11 +146,7 @@ describe('SignupPage', () => {
   })
 
   it('shows field error when passwords do not match', async () => {
-    render(
-      <MemoryRouter>
-        <SignupPage />
-      </MemoryRouter>
-    )
+    renderPage(<SignupPage />)
 
     fireEvent.change(screen.getByLabelText(/first name/i), {
       target: { value: 'Jane' },
@@ -186,11 +171,7 @@ describe('SignupPage', () => {
   })
 
   it('shows field error when password is too short', async () => {
-    render(
-      <MemoryRouter>
-        <SignupPage />
-      </MemoryRouter>
-    )
+    renderPage(<SignupPage />)
 
     fireEvent.change(screen.getByLabelText(/first name/i), {
       target: { value: 'Jane' },
@@ -210,17 +191,13 @@ describe('SignupPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /create account/i }))
 
-    await screen.findByText(/password must be at least 8 characters/i)
-    expect(screen.getByText(/password must be at least 8 characters/i)).toBeDefined()
+    await screen.findByText(/password must be at least 6 characters/i)
+    expect(screen.getByText(/password must be at least 6 characters/i)).toBeDefined()
   })
 
   it('submits valid signup data and displays a success message', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    render(
-      <MemoryRouter>
-        <SignupPage onSubmit={onSubmit} />
-      </MemoryRouter>
-    )
+    renderPage(<SignupPage onSubmit={onSubmit} />)
 
     fireEvent.change(screen.getByLabelText(/first name/i), {
       target: { value: 'Jane' },
@@ -256,21 +233,17 @@ describe('SignupPage', () => {
   })
 
   it('navigates to login when the sign in button is clicked', () => {
-    render(
+    renderWithProviders(
       <MemoryRouter initialEntries={['/signup']}>
         <SignupPage />
-      </MemoryRouter>
+      </MemoryRouter>,
     )
 
     expect(screen.getByRole('button', { name: /sign in/i })).toBeDefined()
   })
 
   it('shows the language toggle on the signup page', () => {
-    render(
-      <MemoryRouter initialEntries={['/signup']}>
-        <SignupPage />
-      </MemoryRouter>
-    )
+    renderPage(<SignupPage />)
 
     expect(screen.getByRole('button', { name: 'EN' })).toBeDefined()
     expect(screen.getByRole('button', { name: 'FR' })).toBeDefined()

@@ -52,6 +52,7 @@ export function FormInput({
                 ? t('auth.formInput.hidePassword')
                 : t('auth.formInput.showPassword')
             }
+            disabled={rest.disabled}
             tabIndex={-1}
           >
             <EyeIcon open={revealed} />
