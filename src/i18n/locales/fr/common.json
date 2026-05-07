@@ -63,5 +63,18 @@
         "errorGeneric": "Impossible de creer le compte. Veuillez reessayer."
       }
     }
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "pages": "Pages",
+    "events": "Evenements",
+    "newsletters": "Bulletins",
+    "press": "Entrees presse",
+    "memorial": "Entrees memorial",
+    "resources": "Ressources",
+    "media": "Bibliotheque multimedia",
+    "settings": "Parametres",
+    "logout": "Deconnexion",
+    "submitTicket": "Soumettre un ticket"
   }
 }

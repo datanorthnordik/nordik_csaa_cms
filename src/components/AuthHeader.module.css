@@ -5,15 +5,8 @@
   gap: 16px;
   flex-wrap: wrap;
   padding: 16px 24px;
-  background: #fff;
-  border-bottom: 1px solid #ececec;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  flex-wrap: wrap;
+  background: var(--color-surface);
+  border-radius: 12px 12px 0 0;
 }
 
 .logo {

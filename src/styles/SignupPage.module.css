@@ -6,14 +6,14 @@
 .title {
   font-size: 22px;
   font-weight: 700;
-  color: #1f1f23;
+  color: var(--color-text);
   margin: 0 0 6px;
   letter-spacing: -0.2px;
 }
 
 .subtitle {
   font-size: 14px;
-  color: #6b6b73;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
@@ -35,7 +35,7 @@
 }
 
 .error {
-  color: #b3261e;
+  color: var(--color-error-strong);
   font-size: 13px;
   margin: 0;
 }
@@ -44,8 +44,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #7a1f24;
-  color: #fff;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
   border: none;
   border-radius: 6px;
   padding: 12px;
@@ -58,7 +58,7 @@
 }
 
 .primary:hover {
-  background: #65191d;
+  background: var(--color-primary-hover);
 }
 
 .primary:disabled {
@@ -68,21 +68,21 @@
 
 .divider {
   height: 1px;
-  background: #e5e5e8;
+  background: var(--color-border);
   margin: 20px 0 14px;
 }
 
 .footer {
   text-align: center;
   font-size: 14px;
-  color: #6b6b73;
+  color: var(--color-text-muted);
   margin: 0;
 }
 
 .link {
   background: transparent;
   border: none;
-  color: #1f1f23;
+  color: var(--color-text);
   font-weight: 700;
   font-size: 14px;
   cursor: pointer;
@@ -90,7 +90,7 @@
 }
 
 .link:hover {
-  color: #7a1f24;
+  color: var(--color-primary);
 }
 
 .link:disabled {
