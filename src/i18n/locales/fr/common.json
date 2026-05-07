@@ -2,6 +2,13 @@
   "languageSwitcher": {
     "label": "Choisir la langue"
   },
+  "cmsHeader": {
+    "menu": "Ouvrir le menu de navigation",
+    "csaaAlt": "Children of Shingwauk Alumni Association",
+    "nordikAlt": "Nordik Institute",
+    "notifications": "Notifications",
+    "help": "Aide"
+  },
   "auth": {
     "loading": "Veuillez patienter...",
     "header": {
@@ -76,5 +83,244 @@
     "settings": "Parametres",
     "logout": "Deconnexion",
     "submitTicket": "Soumettre un ticket"
+  },
+  "dashboard": {
+    "eyebrow": "Espace admin",
+    "title": "Tableau de bord CSAA CMS",
+    "subtitle": "Utilisez la navigation laterale pour passer entre les outils de contenu. Le module Evenements prend maintenant en charge la liste, l ajout et la modification."
+  },
+  "events": {
+    "common": {
+      "loading": "Chargement...",
+      "select": "Choisir une option",
+      "none": "Aucun"
+    },
+    "status": {
+      "published": "Publie",
+      "draft": "Brouillon"
+    },
+    "dateRanges": {
+      "custom": "Plage personnalisee",
+      "next_30_days": "30 prochains jours",
+      "last_30_days": "30 derniers jours",
+      "today": "Aujourd hui",
+      "this_month": "Ce mois",
+      "upcoming": "A venir"
+    },
+    "sortBy": {
+      "start_at": "Date de debut",
+      "title": "Titre de l evenement",
+      "created_at": "Date de creation",
+      "updated_at": "Date de mise a jour",
+      "published": "Statut de publication"
+    },
+    "sortOrder": {
+      "desc": "Plus recent d abord",
+      "asc": "Plus ancien d abord"
+    },
+    "filters": {
+      "search": "Recherche",
+      "searchPlaceholder": "Rechercher par nom d evenement",
+      "dateRange": "Plage de dates",
+      "startDate": "Date de debut",
+      "endDate": "Date de fin",
+      "sortBy": "Trier par",
+      "sortOrder": "Ordre de tri",
+      "status": "Statut",
+      "apply": "Appliquer les filtres",
+      "reset": "Reinitialiser",
+      "pageSize": "Taille de page"
+    },
+    "list": {
+      "eyebrow": "Evenements / Liste",
+      "title": "Evenements",
+      "subtitle": "Recherchez, filtrez et gerez les evenements depuis un seul endroit.",
+      "create": "Creer un evenement",
+      "resultsLabel": "Affichage de {{start}} a {{end}} sur {{total}} evenements",
+      "columns": {
+        "title": "Titre de l evenement",
+        "categories": "Categories",
+        "status": "Statut",
+        "date": "Date",
+        "actions": "Actions"
+      },
+      "edit": "Modifier l evenement",
+      "noCategory": "Aucune categorie",
+      "emptyTitle": "Aucun evenement ne correspond a ces filtres",
+      "emptyText": "Essayez d elargir la plage de dates, de retirer un filtre de statut ou de creer un nouvel evenement.",
+      "previous": "Precedent",
+      "next": "Suivant",
+      "pageOf": "Page {{page}} sur {{total}}"
+    },
+    "sections": {
+      "general": "Informations generales",
+      "generalHint": "Details de base qui identifient l evenement.",
+      "contact": "Contact de l evenement",
+      "contactHint": "Qui les participants doivent ils contacter pour plus d information ?",
+      "dateAndTime": "Date et heure",
+      "dateAndTimeHint": "Choisissez le type d evenement et si l evenement se repete.",
+      "registration": "Inscription",
+      "registrationHint": "Parametres facultatifs pour les inscriptions.",
+      "media": "Medias et contenu",
+      "mediaHint": "Ajoutez un texte d accroche, une description, des images et des fichiers.",
+      "visibility": "Visibilite et classification",
+      "visibilityHint": "Controlez qui peut voir l evenement et s il doit etre revise.",
+      "location": "Lieu",
+      "locationHint": "Utilisez un lieu enregistre, ajoutez une nouvelle adresse ou reportez le choix.",
+      "actions": "Actions",
+      "actionsHint": "Enregistrez un brouillon, publiez ou mettez l evenement a jour."
+    },
+    "fields": {
+      "title": "Titre",
+      "showTitle": "Afficher le titre",
+      "showTitleHint": "Afficher le titre sur la page publique de l evenement.",
+      "categories": "Categories",
+      "categoriesPlaceholder": "Ateliers, Communaute, Collecte de fonds",
+      "contactName": "Nom du contact",
+      "contactEmail": "Courriel",
+      "contactPhone": "Telephone",
+      "contactExt": "Poste",
+      "contactFax": "Fax",
+      "startDate": "Date de debut",
+      "endDate": "Date de fin",
+      "startTime": "Heure de debut",
+      "endTime": "Heure de fin",
+      "repeatEnabled": "Evenement repetitif",
+      "repeatEnabledHint": "Activez cette option quand l evenement se produit a plusieurs dates.",
+      "recurrenceFrequency": "Frequence",
+      "recurrenceInterval": "Intervalle",
+      "recurrenceUntilDate": "Repetitions jusqu au",
+      "scheduledOccurrences": "Dates planifiees",
+      "scheduledOccurrencesHint": "Ajoutez ici chaque date ou periode distincte.",
+      "registrationEnabled": "Activer l inscription",
+      "registrationEnabledHint": "Collecter les inscriptions avec une periode et une URL dediees.",
+      "registrationStartDate": "Date de debut des inscriptions",
+      "registrationStartTime": "Heure de debut des inscriptions",
+      "registrationEndDate": "Date de fin des inscriptions",
+      "registrationEndTime": "Heure de fin des inscriptions",
+      "registrationUrl": "URL d inscription",
+      "displayImage": "Image d affichage",
+      "showDisplayImage": "Afficher l image a la consultation",
+      "showDisplayImageHint": "Afficher l image sur la page detaillee de l evenement.",
+      "gallery": "Galerie associee",
+      "teaser": "Accroche",
+      "description": "Description",
+      "attachments": "Fichiers additionnels",
+      "privacy": "Confidentialite",
+      "privateAudiences": "Audiences privees",
+      "published": "Publie",
+      "publishedHint": "Les evenements publies passent en ligne immediatement et ignorent la demande de revision.",
+      "requestReview": "Demande de revision / approbation",
+      "requestReviewHint": "Demander a des reviseurs de verifier le brouillon avant publication.",
+      "reviewEmails": "Liste de courriels pour la revision",
+      "reviewEmailsPlaceholder": "reviseur1@example.com, reviseur2@example.com",
+      "locationMode": "Mode de lieu",
+      "savedLocation": "Lieu enregistre",
+      "locationName": "Nom du lieu",
+      "addressLine1": "Adresse ligne 1",
+      "addressLine2": "Adresse ligne 2",
+      "city": "Ville",
+      "provinceState": "Province / Etat",
+      "postalCode": "Code postal",
+      "country": "Pays",
+      "saveAddress": "Enregistrer l adresse",
+      "saveAddressHint": "Rendre cette adresse disponible dans les prochains formulaires."
+    },
+    "eventTypes": {
+      "single_day_all_day": "Une journee, toute la journee",
+      "single_day_partial": "Une journee, partielle",
+      "multi_day_all_day": "Plusieurs jours, toute la journee",
+      "multi_day_partial": "Plusieurs jours, partiels"
+    },
+    "recurrenceTypes": {
+      "scheduled": {
+        "label": "Planifie",
+        "hint": "Se produit a des jours differents sur une certaine periode."
+      },
+      "recurring": {
+        "label": "Recurrence",
+        "hint": "Se produit au meme jour et a la meme heure chaque semaine, mois ou annee."
+      }
+    },
+    "recurrenceFrequency": {
+      "daily": "Quotidien",
+      "weekly": "Hebdomadaire",
+      "monthly": "Mensuel",
+      "yearly": "Annuel"
+    },
+    "privacy": {
+      "public": "Public",
+      "private": "Prive"
+    },
+    "audiences": {
+      "members": "Membres",
+      "public": "Public"
+    },
+    "locationMode": {
+      "none": "Aucun lieu",
+      "to_be_determined": "A determiner",
+      "saved": "Utiliser un lieu enregistre",
+      "new": "Ajouter une nouvelle adresse"
+    },
+    "editor": {
+      "breadcrumbCreate": "Evenements / Creer un evenement",
+      "breadcrumbEdit": "Evenements / Modifier l evenement",
+      "titleCreate": "Creer un evenement",
+      "titleEdit": "Modifier l evenement",
+      "subtitle": "Construisez les details de l evenement, configurez la visibilite et gardez le formulaire reactif selon le type choisi.",
+      "invalidIdTitle": "Lien d evenement invalide",
+      "invalidIdText": "Cette URL de modification ne contient pas d identifiant valide.",
+      "backToList": "Retour a la liste",
+      "loadErrorTitle": "Impossible de charger cet evenement",
+      "addOccurrence": "Ajouter une date",
+      "occurrenceLabel": "Occurrence {{number}}",
+      "removeOccurrence": "Supprimer l occurrence",
+      "saveDraft": "Enregistrer le brouillon",
+      "saveChanges": "Enregistrer les modifications",
+      "publish": "Publier l evenement",
+      "currentDisplayImage": "Image d affichage actuelle",
+      "currentAttachment": "Piece jointe actuelle",
+      "newUpload": "Nouveau televersement",
+      "removeMedia": "Supprimer"
+    },
+    "feedback": {
+      "validation": "Veuillez corriger les champs en erreur avant de continuer.",
+      "created": "Evenement cree avec succes.",
+      "updated": "Evenement mis a jour avec succes.",
+      "attachmentRemoved": "Piece jointe supprimee.",
+      "displayImageRemoved": "Image d affichage supprimee."
+    },
+    "validation": {
+      "titleRequired": "Le titre est requis.",
+      "categoryRequired": "Au moins une categorie est requise.",
+      "teaserRequired": "L accroche est requise.",
+      "startDateRequired": "La date de debut est requise.",
+      "startTimeRequired": "L heure de debut est requise.",
+      "endTimeRequired": "L heure de fin est requise.",
+      "endAfterStart": "L heure de fin doit etre apres l heure de debut.",
+      "endDateRequired": "La date de fin est requise.",
+      "multiDayEndDate": "La date de fin doit etre posterieure a la date de debut.",
+      "privateAudienceRequired": "Selectionnez au moins une audience privee.",
+      "reviewEmailsRequired": "La liste de courriels est requise quand la revision est demandee.",
+      "reviewEmailsInvalid": "Saisissez des adresses valides separees par des virgules.",
+      "savedLocationRequired": "Choisissez un lieu enregistre.",
+      "locationNameRequired": "Le nom du lieu est requis.",
+      "addressLine1Required": "L adresse ligne 1 est requise.",
+      "cityRequired": "La ville est requise.",
+      "provinceRequired": "La province ou l etat est requis.",
+      "postalCodeRequired": "Le code postal est requis.",
+      "countryRequired": "Le pays est requis.",
+      "registrationStartRequired": "La date de debut des inscriptions est requise.",
+      "registrationStartTimeRequired": "L heure de debut des inscriptions est requise.",
+      "registrationEndRequired": "La date de fin des inscriptions est requise.",
+      "registrationEndTimeRequired": "L heure de fin des inscriptions est requise.",
+      "registrationUrlRequired": "L URL d inscription est requise.",
+      "registrationRange": "La fin des inscriptions doit etre apres le debut.",
+      "repeatTypeRequired": "Choisissez si l evenement repetitif est planifie ou recurrent.",
+      "recurrenceFrequencyRequired": "La frequence est requise pour un evenement recurrent.",
+      "recurrenceIntervalRequired": "L intervalle doit etre d au moins 1.",
+      "scheduledOccurrencesRequired": "Ajoutez au moins une occurrence planifiee.",
+      "occurrenceStartDateRequired": "Chaque occurrence a besoin d une date de debut."
+    }
   }
 }

@@ -1,5 +1,6 @@
 import csaaLogo from '../assets/csaa_logo.png'
 import nordikLogo from '../assets/nordik_logo.png'
+import { useTranslation } from 'react-i18next'
 import { BellIcon, HelpIcon, MenuIcon } from './icons'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import styles from './CmsHeader.module.css'
@@ -9,12 +10,14 @@ type CmsHeaderProps = {
 }
 
 export function CmsHeader({ onMenuClick }: CmsHeaderProps) {
+  const { t } = useTranslation()
+
   return (
     <header className={styles.header}>
       <div className={styles.brand}>
         <button
           type="button"
-          aria-label="Open navigation menu"
+          aria-label={t('cmsHeader.menu')}
           className={styles.menuButton}
           onClick={onMenuClick}
         >
@@ -22,22 +25,30 @@ export function CmsHeader({ onMenuClick }: CmsHeaderProps) {
         </button>
         <img
           src={csaaLogo}
-          alt="Children of Shingwauk Alumni Association"
+          alt={t('cmsHeader.csaaAlt')}
           className={styles.logo}
         />
         <img
           src={nordikLogo}
-          alt="Nordik Institute"
+          alt={t('cmsHeader.nordikAlt')}
           className={styles.logo}
         />
       </div>
 
       <div className={styles.actions}>
         <LanguageSwitcher />
-        <button type="button" aria-label="Notifications" className={styles.iconButton}>
+        <button
+          type="button"
+          aria-label={t('cmsHeader.notifications')}
+          className={styles.iconButton}
+        >
           <BellIcon />
         </button>
-        <button type="button" aria-label="Help" className={styles.iconButton}>
+        <button
+          type="button"
+          aria-label={t('cmsHeader.help')}
+          className={styles.iconButton}
+        >
           <HelpIcon />
         </button>
       </div>

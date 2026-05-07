@@ -10,9 +10,11 @@ import authReducer, {
   updateAccessToken,
 } from './authSlice'
 import { loadStoredAuthState, persistAuthState } from './authStorage'
+import eventsReducer from './eventsSlice'
 
 const rootReducer = combineReducers({
   auth: authReducer,
+  events: eventsReducer,
 })
 
 export type RootState = ReturnType<typeof rootReducer>
@@ -34,8 +36,8 @@ export function createAppStore(preloadedState?: Partial<RootState>) {
     preloadedState:
       preloadedState ??
       ({
-      auth: loadStoredAuthState(),
-      } satisfies RootState),
+        auth: loadStoredAuthState(),
+      } satisfies Partial<RootState>),
   })
 }
 

@@ -8,8 +8,8 @@ import {
   cmsFooterItems,
   type CmsNavItemConfig,
 } from '../config/cmsNav'
-import { selectAuthSession } from '../store/authSlice'
-import { useAppSelector } from '../store/hooks'
+import { clearAuthSession, selectAuthSession } from '../store/authSlice'
+import { useAppDispatch, useAppSelector } from '../store/hooks'
 
 type CmsAppShellProps = {
   children?: ReactNode
@@ -24,6 +24,7 @@ export function CmsAppShell({
   onSubmitTicket,
   onLogout,
 }: CmsAppShellProps) {
+  const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const { t } = useTranslation()
   const session = useAppSelector(selectAuthSession)
@@ -31,11 +32,17 @@ export function CmsAppShell({
     ? `${session.firstname} ${session.lastname}`.trim() || undefined
     : undefined
   const userRole = session?.role
+  const handleLogout = onLogout
+    ? onLogout
+    : () => {
+        dispatch(clearAuthSession())
+        navigate('/', { replace: true })
+      }
 
   function toDrawerItem(item: CmsNavItemConfig): DrawerNavItem {
     let onClick: (() => void) | undefined
-    if (item.key === 'logout' && onLogout) {
-      onClick = onLogout
+    if (item.key === 'logout') {
+      onClick = handleLogout
     } else if (item.path) {
       onClick = () => navigate(item.path!)
     }

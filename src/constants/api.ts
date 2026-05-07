@@ -5,4 +5,12 @@ export const API_ROUTES = {
   login: '/api/user/login',
   signup: '/api/user/signup',
   refresh: '/api/user/refresh',
+  events: '/api/events',
+  eventLocations: '/api/events/locations',
+  eventGalleries: '/api/events/galleries',
+  eventById: (id: number | string) => `/api/events/${id}`,
+  eventDocumentById: (id: number | string, mediaId: number | string) =>
+    `/api/events/${id}/documents/${mediaId}`,
+  eventPhotoById: (id: number | string, mediaId: number | string) =>
+    `/api/events/${id}/photos/${mediaId}`,
 } as const
