@@ -2,6 +2,13 @@
   "languageSwitcher": {
     "label": "Select language"
   },
+  "cmsHeader": {
+    "menu": "Open navigation menu",
+    "csaaAlt": "Children of Shingwauk Alumni Association",
+    "nordikAlt": "Nordik Institute",
+    "notifications": "Notifications",
+    "help": "Help"
+  },
   "auth": {
     "loading": "Please wait...",
     "header": {
@@ -76,5 +83,244 @@
     "settings": "Settings",
     "logout": "Logout",
     "submitTicket": "Submit Ticket"
+  },
+  "dashboard": {
+    "eyebrow": "Admin workspace",
+    "title": "CSAA CMS dashboard",
+    "subtitle": "Use the side navigation to move between content tools. Events is now ready for list, add, and edit workflows."
+  },
+  "events": {
+    "common": {
+      "loading": "Loading...",
+      "select": "Select an option",
+      "none": "None"
+    },
+    "status": {
+      "published": "Published",
+      "draft": "Draft"
+    },
+    "dateRanges": {
+      "custom": "Custom range",
+      "next_30_days": "Next 30 days",
+      "last_30_days": "Last 30 days",
+      "today": "Today",
+      "this_month": "This month",
+      "upcoming": "Upcoming"
+    },
+    "sortBy": {
+      "start_at": "Start date",
+      "title": "Event title",
+      "created_at": "Created date",
+      "updated_at": "Updated date",
+      "published": "Publish status"
+    },
+    "sortOrder": {
+      "desc": "Newest first",
+      "asc": "Oldest first"
+    },
+    "filters": {
+      "search": "Search",
+      "searchPlaceholder": "Search by event name",
+      "dateRange": "Date range",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "sortBy": "Sort by",
+      "sortOrder": "Sort order",
+      "status": "Status",
+      "apply": "Apply filters",
+      "reset": "Reset",
+      "pageSize": "Page size"
+    },
+    "list": {
+      "eyebrow": "Events / List",
+      "title": "Events",
+      "subtitle": "Search, filter, and manage event content from one place.",
+      "create": "Create new event",
+      "resultsLabel": "Showing {{start}} to {{end}} of {{total}} events",
+      "columns": {
+        "title": "Event title",
+        "categories": "Categories",
+        "status": "Status",
+        "date": "Date",
+        "actions": "Actions"
+      },
+      "edit": "Edit event",
+      "noCategory": "No category",
+      "emptyTitle": "No events match these filters",
+      "emptyText": "Try widening the date range, clearing a status filter, or creating a new event.",
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {{page}} of {{total}}"
+    },
+    "sections": {
+      "general": "General information",
+      "generalHint": "Basic details that identify the event.",
+      "contact": "Event contact",
+      "contactHint": "Who should attendees contact for more information?",
+      "dateAndTime": "Date and time",
+      "dateAndTimeHint": "Choose the event type and decide whether it repeats.",
+      "registration": "Registration",
+      "registrationHint": "Optional registration settings for event sign-up.",
+      "media": "Media and content",
+      "mediaHint": "Add teaser copy, long description, images, and attachments.",
+      "visibility": "Visibility and classification",
+      "visibilityHint": "Control who can see the event and whether it needs review.",
+      "location": "Location",
+      "locationHint": "Use a saved location, enter a new address, or mark it later.",
+      "actions": "Actions",
+      "actionsHint": "Save a draft, publish, or update the event."
+    },
+    "fields": {
+      "title": "Title",
+      "showTitle": "Display title",
+      "showTitleHint": "Show the title on the public event page.",
+      "categories": "Categories",
+      "categoriesPlaceholder": "Workshops, Community, Fundraiser",
+      "contactName": "Contact name",
+      "contactEmail": "Email",
+      "contactPhone": "Phone",
+      "contactExt": "Extension",
+      "contactFax": "Fax",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "startTime": "Start time",
+      "endTime": "End time",
+      "repeatEnabled": "Repeating event",
+      "repeatEnabledHint": "Turn this on when the event happens on multiple dates.",
+      "recurrenceFrequency": "Frequency",
+      "recurrenceInterval": "Interval",
+      "recurrenceUntilDate": "Repeat until",
+      "scheduledOccurrences": "Scheduled dates",
+      "scheduledOccurrencesHint": "Add each separate event date or period here.",
+      "registrationEnabled": "Enable registration",
+      "registrationEnabledHint": "Collect registrations using a specific signup window and URL.",
+      "registrationStartDate": "Registration start date",
+      "registrationStartTime": "Registration start time",
+      "registrationEndDate": "Registration end date",
+      "registrationEndTime": "Registration end time",
+      "registrationUrl": "Registration URL",
+      "displayImage": "Display image",
+      "showDisplayImage": "Show image when viewing",
+      "showDisplayImageHint": "Display the image on the event detail page.",
+      "gallery": "Attach gallery",
+      "teaser": "Teaser",
+      "description": "Description",
+      "attachments": "Additional files",
+      "privacy": "Privacy",
+      "privateAudiences": "Private audiences",
+      "published": "Published",
+      "publishedHint": "Published events go live immediately and skip request review.",
+      "requestReview": "Request review / approval",
+      "requestReviewHint": "Ask reviewers to check the draft before it is published.",
+      "reviewEmails": "Review email list",
+      "reviewEmailsPlaceholder": "reviewer1@example.com, reviewer2@example.com",
+      "locationMode": "Location mode",
+      "savedLocation": "Saved location",
+      "locationName": "Location name",
+      "addressLine1": "Address line 1",
+      "addressLine2": "Address line 2",
+      "city": "City",
+      "provinceState": "Province / State",
+      "postalCode": "Postal code",
+      "country": "Country",
+      "saveAddress": "Save address",
+      "saveAddressHint": "Make this address available in future event forms."
+    },
+    "eventTypes": {
+      "single_day_all_day": "Single day, all day",
+      "single_day_partial": "Single day, partial day",
+      "multi_day_all_day": "Multi-day, all day",
+      "multi_day_partial": "Multi-day, partial day"
+    },
+    "recurrenceTypes": {
+      "scheduled": {
+        "label": "Scheduled",
+        "hint": "Occurs on different days for any period of time."
+      },
+      "recurring": {
+        "label": "Recurring",
+        "hint": "Occurs on the same day and time every week, month, or year."
+      }
+    },
+    "recurrenceFrequency": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "yearly": "Yearly"
+    },
+    "privacy": {
+      "public": "Public",
+      "private": "Private"
+    },
+    "audiences": {
+      "members": "Members",
+      "public": "Public"
+    },
+    "locationMode": {
+      "none": "No location",
+      "to_be_determined": "To be determined",
+      "saved": "Use saved location",
+      "new": "Add new address"
+    },
+    "editor": {
+      "breadcrumbCreate": "Events / Create new event",
+      "breadcrumbEdit": "Events / Edit event",
+      "titleCreate": "Create new event",
+      "titleEdit": "Edit event",
+      "subtitle": "Build the event details, configure visibility, and keep the form responsive to the event type.",
+      "invalidIdTitle": "Invalid event link",
+      "invalidIdText": "This edit URL is missing a valid event id.",
+      "backToList": "Back to event list",
+      "loadErrorTitle": "We could not load this event",
+      "addOccurrence": "Add another date",
+      "occurrenceLabel": "Occurrence {{number}}",
+      "removeOccurrence": "Remove occurrence",
+      "saveDraft": "Save draft",
+      "saveChanges": "Save changes",
+      "publish": "Publish event",
+      "currentDisplayImage": "Current display image",
+      "currentAttachment": "Current attachment",
+      "newUpload": "New upload",
+      "removeMedia": "Remove"
+    },
+    "feedback": {
+      "validation": "Please fix the highlighted fields before continuing.",
+      "created": "Event created successfully.",
+      "updated": "Event updated successfully.",
+      "attachmentRemoved": "Attachment removed.",
+      "displayImageRemoved": "Display image removed."
+    },
+    "validation": {
+      "titleRequired": "Title is required.",
+      "categoryRequired": "At least one category is required.",
+      "teaserRequired": "Teaser is required.",
+      "startDateRequired": "Start date is required.",
+      "startTimeRequired": "Start time is required.",
+      "endTimeRequired": "End time is required.",
+      "endAfterStart": "End time must be after the start time.",
+      "endDateRequired": "End date is required.",
+      "multiDayEndDate": "End date must be later than the start date.",
+      "privateAudienceRequired": "Select at least one private audience.",
+      "reviewEmailsRequired": "Review email list is required when request review is enabled.",
+      "reviewEmailsInvalid": "Enter valid email addresses separated by commas.",
+      "savedLocationRequired": "Choose a saved location.",
+      "locationNameRequired": "Location name is required.",
+      "addressLine1Required": "Address line 1 is required.",
+      "cityRequired": "City is required.",
+      "provinceRequired": "Province or state is required.",
+      "postalCodeRequired": "Postal code is required.",
+      "countryRequired": "Country is required.",
+      "registrationStartRequired": "Registration start date is required.",
+      "registrationStartTimeRequired": "Registration start time is required.",
+      "registrationEndRequired": "Registration end date is required.",
+      "registrationEndTimeRequired": "Registration end time is required.",
+      "registrationUrlRequired": "Registration URL is required.",
+      "registrationRange": "Registration end must be after the registration start.",
+      "repeatTypeRequired": "Choose whether the repeating event is scheduled or recurring.",
+      "recurrenceFrequencyRequired": "Frequency is required for recurring events.",
+      "recurrenceIntervalRequired": "Interval must be at least 1.",
+      "scheduledOccurrencesRequired": "Add at least one scheduled occurrence.",
+      "occurrenceStartDateRequired": "Each occurrence needs a start date."
+    }
   }
 }

@@ -3,12 +3,14 @@
   flex-direction: column;
   width: 240px;
   flex-shrink: 0;
+  min-height: 0;
   background: var(--color-surface);
   border-right: 1px solid var(--color-border);
   padding: 16px 12px;
   gap: 8px;
   height: 100%;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .profile {

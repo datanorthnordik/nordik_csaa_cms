@@ -78,6 +78,8 @@ export function LoginPage({ onSubmit }: LoginPageProps) {
             rememberMe: values.remember,
           }),
         )
+        navigate('/events', { replace: true })
+        return
       }
 
       setAlert({ type: 'success', message: t('auth.login.feedback.success') })

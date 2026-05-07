@@ -19,9 +19,9 @@ export type CmsNavItemConfig = {
 }
 
 export const cmsNavItems: CmsNavItemConfig[] = [
-  { key: 'dashboard', icon: <DashboardIcon />, path: '' },
+  { key: 'dashboard', icon: <DashboardIcon />, path: '/dashboard' },
   { key: 'pages', icon: <PagesIcon />, path: '' },
-  { key: 'events', icon: <EventsIcon />, path: '' },
+  { key: 'events', icon: <EventsIcon />, path: '/events' },
   { key: 'newsletters', icon: <NewslettersIcon />, path: '' },
   { key: 'press', icon: <PressIcon />, path: '' },
   { key: 'memorial', icon: <MemorialIcon />, path: '' },
