@@ -1,6 +1,7 @@
 import csaaLogo from '../assets/csaa_logo.png'
 import nordikLogo from '../assets/nordik_logo.png'
 import { BellIcon, HelpIcon, MenuIcon } from './icons'
+import { LanguageSwitcher } from './LanguageSwitcher'
 import styles from './CmsHeader.module.css'
 
 type CmsHeaderProps = {
@@ -32,6 +33,7 @@ export function CmsHeader({ onMenuClick }: CmsHeaderProps) {
       </div>
 
       <div className={styles.actions}>
+        <LanguageSwitcher />
         <button type="button" aria-label="Notifications" className={styles.iconButton}>
           <BellIcon />
         </button>

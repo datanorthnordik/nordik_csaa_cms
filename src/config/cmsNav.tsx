@@ -14,23 +14,22 @@ import {
 
 export type CmsNavItemConfig = {
   key: string
-  label: string
   icon: ReactNode
   path?: string
 }
 
 export const cmsNavItems: CmsNavItemConfig[] = [
-  { key: 'dashboard', label: 'Dashboard', icon: <DashboardIcon />, path: '' },
-  { key: 'pages', label: 'Pages', icon: <PagesIcon />, path: '' },
-  { key: 'events', label: 'Events', icon: <EventsIcon />, path: '' },
-  { key: 'newsletters', label: 'Newsletters', icon: <NewslettersIcon />, path: '' },
-  { key: 'press', label: 'Press Entries', icon: <PressIcon />, path: '' },
-  { key: 'memorial', label: 'Memorial Entries', icon: <MemorialIcon />, path: '' },
-  { key: 'resources', label: 'Resources', icon: <ResourcesIcon />, path: '' },
-  { key: 'media', label: 'Media Library', icon: <MediaIcon />, path: '' },
+  { key: 'dashboard', icon: <DashboardIcon />, path: '' },
+  { key: 'pages', icon: <PagesIcon />, path: '' },
+  { key: 'events', icon: <EventsIcon />, path: '' },
+  { key: 'newsletters', icon: <NewslettersIcon />, path: '' },
+  { key: 'press', icon: <PressIcon />, path: '' },
+  { key: 'memorial', icon: <MemorialIcon />, path: '' },
+  { key: 'resources', icon: <ResourcesIcon />, path: '' },
+  { key: 'media', icon: <MediaIcon />, path: '' },
 ]
 
 export const cmsFooterItems: CmsNavItemConfig[] = [
-  { key: 'settings', label: 'Settings', icon: <SettingsIcon />, path: '' },
-  { key: 'logout', label: 'Logout', icon: <LogoutIcon /> },
+  { key: 'settings', icon: <SettingsIcon />, path: '' },
+  { key: 'logout', icon: <LogoutIcon /> },
 ]

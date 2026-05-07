@@ -63,5 +63,18 @@
         "errorGeneric": "Could not create account. Please try again."
       }
     }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "pages": "Pages",
+    "events": "Events",
+    "newsletters": "Newsletters",
+    "press": "Press Entries",
+    "memorial": "Memorial Entries",
+    "resources": "Resources",
+    "media": "Media Library",
+    "settings": "Settings",
+    "logout": "Logout",
+    "submitTicket": "Submit Ticket"
   }
 }

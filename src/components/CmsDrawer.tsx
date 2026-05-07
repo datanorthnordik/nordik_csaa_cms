@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { TicketIcon } from './icons'
 import styles from './CmsDrawer.module.css'
 
@@ -30,6 +31,7 @@ export function CmsDrawer({
   onClose,
   onSubmitTicket,
 }: CmsDrawerProps) {
+  const { t } = useTranslation()
   function renderNavItem(item: DrawerNavItem) {
     const className = `${styles.navItem} ${item.active ? styles.navItemActive : ''}`
 
@@ -90,7 +92,7 @@ export function CmsDrawer({
               onClick={onSubmitTicket}
             >
               <TicketIcon />
-              Submit Ticket
+              {t('nav.submitTicket')}
             </button>
           )}
           {footerItems.map(renderNavItem)}

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { CmsLayout } from './CmsLayout'
 import type { DrawerNavItem } from './CmsDrawer'
 import {
@@ -7,12 +8,12 @@ import {
   cmsFooterItems,
   type CmsNavItemConfig,
 } from '../config/cmsNav'
+import { selectAuthSession } from '../store/authSlice'
+import { useAppSelector } from '../store/hooks'
 
 type CmsAppShellProps = {
   children?: ReactNode
   activeKey?: string
-  userName?: string
-  userRole?: string
   onSubmitTicket?: () => void
   onLogout?: () => void
 }
@@ -20,12 +21,16 @@ type CmsAppShellProps = {
 export function CmsAppShell({
   children,
   activeKey,
-  userName = 'Christopher Masha',
-  userRole = 'System Administrator',
   onSubmitTicket,
   onLogout,
 }: CmsAppShellProps) {
   const navigate = useNavigate()
+  const { t } = useTranslation()
+  const session = useAppSelector(selectAuthSession)
+  const userName = session
+    ? `${session.firstname} ${session.lastname}`.trim() || undefined
+    : undefined
+  const userRole = session?.role
 
   function toDrawerItem(item: CmsNavItemConfig): DrawerNavItem {
     let onClick: (() => void) | undefined
@@ -37,7 +42,7 @@ export function CmsAppShell({
 
     return {
       key: item.key,
-      label: item.label,
+      label: t(`nav.${item.key}`),
       icon: item.icon,
       active: item.key === activeKey,
       onClick,
