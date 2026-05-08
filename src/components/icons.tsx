@@ -1,4 +1,31 @@
-import { Menu, Notifications, Help, ConfirmationNumber, Dashboard, Description, Event, Email, Newspaper, AccountCircle, Folder, Image, Settings, Logout } from '@mui/icons-material';
+import {
+  Menu,
+  Notifications,
+  Help,
+  ConfirmationNumber,
+  Dashboard,
+  Description,
+  Event,
+  Email,
+  Newspaper,
+  AccountCircle,
+  Folder,
+  Image,
+  Settings,
+  Logout,
+  Add,
+  Search,
+  Close,
+  CloudUpload,
+  Download,
+  Delete,
+  Edit,
+  Link as LinkIconMui,
+  CheckCircle,
+  Tune,
+  CollectionsBookmark,
+  AddPhotoAlternate,
+} from '@mui/icons-material';
 import type { CSSProperties } from 'react';
 
 type IconProps = {
@@ -66,4 +93,52 @@ export function SettingsIcon({ size = 18, className }: IconProps) {
 
 export function LogoutIcon({ size = 18, className }: IconProps) {
   return <Logout style={getIconStyle(size)} className={className} />;
+}
+
+export function AddIcon({ size = 18, className }: IconProps) {
+  return <Add style={getIconStyle(size)} className={className} />;
+}
+
+export function SearchIcon({ size = 18, className }: IconProps) {
+  return <Search style={getIconStyle(size)} className={className} />;
+}
+
+export function CloseIcon({ size = 18, className }: IconProps) {
+  return <Close style={getIconStyle(size)} className={className} />;
+}
+
+export function CloudUploadIcon({ size = 22, className }: IconProps) {
+  return <CloudUpload style={getIconStyle(size)} className={className} />;
+}
+
+export function DownloadIcon({ size = 18, className }: IconProps) {
+  return <Download style={getIconStyle(size)} className={className} />;
+}
+
+export function DeleteIcon({ size = 18, className }: IconProps) {
+  return <Delete style={getIconStyle(size)} className={className} />;
+}
+
+export function EditIcon({ size = 14, className }: IconProps) {
+  return <Edit style={getIconStyle(size)} className={className} />;
+}
+
+export function LinkIcon({ size = 14, className }: IconProps) {
+  return <LinkIconMui style={getIconStyle(size)} className={className} />;
+}
+
+export function CheckCircleIcon({ size = 14, className }: IconProps) {
+  return <CheckCircle style={getIconStyle(size)} className={className} />;
+}
+
+export function SpecsIcon({ size = 14, className }: IconProps) {
+  return <Tune style={getIconStyle(size)} className={className} />;
+}
+
+export function GalleryIcon({ size = 14, className }: IconProps) {
+  return <CollectionsBookmark style={getIconStyle(size)} className={className} />;
+}
+
+export function AddPhotoIcon({ size = 22, className }: IconProps) {
+  return <AddPhotoAlternate style={getIconStyle(size)} className={className} />;
 }

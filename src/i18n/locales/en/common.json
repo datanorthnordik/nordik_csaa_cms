@@ -332,5 +332,113 @@
       "scheduledOccurrencesRequired": "Add at least one scheduled occurrence.",
       "occurrenceStartDateRequired": "Each occurrence needs a start date."
     }
+  },
+  "mediaLibrary": {
+    "breadcrumb": {
+      "media": "Media",
+      "galleryLibrary": "Gallery Library"
+    },
+    "title": "Gallery Library",
+    "subtitle": "Organize and manage visual assets for your organization's digital experience.",
+    "searchPlaceholder": "Search assets...",
+    "loading": "Loading galleries...",
+    "empty": {
+      "title": "No galleries yet",
+      "text": "Create your first gallery to start organizing your media assets.",
+      "noMatchTitle": "No galleries match your search",
+      "noMatchText": "We couldn't find galleries matching \"{{term}}\". Try a different search."
+    },
+    "visibility": {
+      "draft": "Draft",
+      "published": "Published",
+      "public": "Public",
+      "internal": "Internal"
+    },
+    "card": {
+      "assetCount_one": "{{count}} Asset",
+      "assetCount_other": "{{count}} Assets",
+      "updatedAt": "Updated {{date}}",
+      "updatedRelative": "Updated {{relative}}",
+      "manage": "Manage Gallery"
+    },
+    "create": {
+      "trigger": "Create New Gallery",
+      "title": "Create New Gallery",
+      "close": "Close create gallery dialog",
+      "cancel": "Cancel",
+      "submit": "Create & Edit",
+      "submitting": "Creating...",
+      "fields": {
+        "name": "Gallery name",
+        "namePlaceholder": "e.g., Annual Stakeholder Meeting 2024",
+        "description": "Description",
+        "descriptionPlaceholder": "Briefly describe the purpose of this gallery...",
+        "visibility": "Visibility",
+        "frontImage": "Front image selection",
+        "frontImageLabel": "Drop image here or browse",
+        "frontImageHint": "Supports PNG, JPG (Max 5MB)"
+      },
+      "errors": {
+        "nameRequired": "Gallery name is required."
+      }
+    }
+  },
+  "galleryManager": {
+    "breadcrumb": {
+      "gallery": "Gallery"
+    },
+    "loading": "Loading gallery...",
+    "assetsLoading": "Loading assets...",
+    "notFound": {
+      "title": "Gallery unavailable",
+      "text": "We couldn't load gallery #{{id}}. It may have been removed or you may not have access.",
+      "back": "Back to Gallery Library"
+    },
+    "header": {
+      "assetsOf": "{{count}} / {{limit}} assets in this gallery",
+      "updatedAt": "Updated {{date}}",
+      "updatedRelative": "Updated {{relative}}",
+      "editDescription": "Edit description",
+      "publish": "Publish Changes"
+    },
+    "thumbnail": {
+      "selected": "Selected"
+    },
+    "uploads": {
+      "title": "Add Images to Gallery",
+      "dropLabel": "Drop image here or browse",
+      "dropHint": "Supports PNG, JPG (Max 5MB)",
+      "maxLabel": "Max {{count}} uploads",
+      "altLabel": "Image details",
+      "altPlaceholder": "Describe the image for accessibility...",
+      "pendingFiles_one": "{{count}} file ready to upload",
+      "pendingFiles_other": "{{count}} files ready to upload",
+      "submit": "Upload"
+    },
+    "selected": {
+      "title": "Selected Image",
+      "close": "Close selected image panel",
+      "uploadedBy": "Uploaded by {{name}}",
+      "uploadedAt": "Uploaded {{date}}",
+      "uploadedLine": "Uploaded by {{name}} • {{date}}",
+      "specs": {
+        "title": "Technical Specs",
+        "dimensions": "Dimensions",
+        "dimensionsValue": "{{width}} × {{height}} px",
+        "fileSize": "File Size",
+        "format": "Format"
+      },
+      "altText": {
+        "title": "Alt-text status",
+        "compliant": "Compliant"
+      },
+      "usage": {
+        "title": "Usage tracking"
+      },
+      "actions": {
+        "download": "Download Original",
+        "delete": "Delete asset"
+      }
+    }
   }
 }

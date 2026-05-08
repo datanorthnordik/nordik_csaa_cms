@@ -332,5 +332,113 @@
       "scheduledOccurrencesRequired": "Ajoutez au moins une occurrence planifiee.",
       "occurrenceStartDateRequired": "Chaque occurrence a besoin d une date de debut."
     }
+  },
+  "mediaLibrary": {
+    "breadcrumb": {
+      "media": "Medias",
+      "galleryLibrary": "Bibliotheque des galeries"
+    },
+    "title": "Bibliotheque des galeries",
+    "subtitle": "Organisez et gerez les ressources visuelles de l experience numerique de votre organisation.",
+    "searchPlaceholder": "Rechercher des ressources...",
+    "loading": "Chargement des galeries...",
+    "empty": {
+      "title": "Aucune galerie pour le moment",
+      "text": "Creez votre premiere galerie pour commencer a organiser vos ressources.",
+      "noMatchTitle": "Aucune galerie ne correspond a votre recherche",
+      "noMatchText": "Aucune galerie trouvee pour \"{{term}}\". Essayez une autre recherche."
+    },
+    "visibility": {
+      "draft": "Brouillon",
+      "published": "Publie",
+      "public": "Public",
+      "internal": "Interne"
+    },
+    "card": {
+      "assetCount_one": "{{count}} ressource",
+      "assetCount_other": "{{count}} ressources",
+      "updatedAt": "Mis a jour le {{date}}",
+      "updatedRelative": "Mis a jour {{relative}}",
+      "manage": "Gerer la galerie"
+    },
+    "create": {
+      "trigger": "Creer une galerie",
+      "title": "Creer une nouvelle galerie",
+      "close": "Fermer la fenetre de creation",
+      "cancel": "Annuler",
+      "submit": "Creer et editer",
+      "submitting": "Creation en cours...",
+      "fields": {
+        "name": "Nom de la galerie",
+        "namePlaceholder": "ex., Reunion annuelle des parties prenantes 2024",
+        "description": "Description",
+        "descriptionPlaceholder": "Decrivez brievement l objectif de cette galerie...",
+        "visibility": "Visibilite",
+        "frontImage": "Image de couverture",
+        "frontImageLabel": "Deposez l image ici ou parcourez",
+        "frontImageHint": "Formats pris en charge : PNG, JPG (max 5 Mo)"
+      },
+      "errors": {
+        "nameRequired": "Le nom de la galerie est requis."
+      }
+    }
+  },
+  "galleryManager": {
+    "breadcrumb": {
+      "gallery": "Galerie"
+    },
+    "loading": "Chargement de la galerie...",
+    "assetsLoading": "Chargement des ressources...",
+    "notFound": {
+      "title": "Galerie indisponible",
+      "text": "Impossible de charger la galerie n {{id}}. Elle a peut-etre ete supprimee ou vous n y avez pas acces.",
+      "back": "Retour a la bibliotheque"
+    },
+    "header": {
+      "assetsOf": "{{count}} / {{limit}} ressources dans cette galerie",
+      "updatedAt": "Mis a jour le {{date}}",
+      "updatedRelative": "Mis a jour {{relative}}",
+      "editDescription": "Modifier la description",
+      "publish": "Publier les modifications"
+    },
+    "thumbnail": {
+      "selected": "Selectionne"
+    },
+    "uploads": {
+      "title": "Ajouter des images a la galerie",
+      "dropLabel": "Deposez l image ici ou parcourez",
+      "dropHint": "Formats pris en charge : PNG, JPG (max 5 Mo)",
+      "maxLabel": "Max {{count}} televersements",
+      "altLabel": "Details de l image",
+      "altPlaceholder": "Decrivez l image pour l accessibilite...",
+      "pendingFiles_one": "{{count}} fichier pret a televerser",
+      "pendingFiles_other": "{{count}} fichiers prets a televerser",
+      "submit": "Televerser"
+    },
+    "selected": {
+      "title": "Image selectionnee",
+      "close": "Fermer le panneau de l image",
+      "uploadedBy": "Televersee par {{name}}",
+      "uploadedAt": "Televersee le {{date}}",
+      "uploadedLine": "Televersee par {{name}} • {{date}}",
+      "specs": {
+        "title": "Specifications techniques",
+        "dimensions": "Dimensions",
+        "dimensionsValue": "{{width}} × {{height}} px",
+        "fileSize": "Taille du fichier",
+        "format": "Format"
+      },
+      "altText": {
+        "title": "Etat du texte alternatif",
+        "compliant": "Conforme"
+      },
+      "usage": {
+        "title": "Suivi des utilisations"
+      },
+      "actions": {
+        "download": "Telecharger l original",
+        "delete": "Supprimer la ressource"
+      }
+    }
   }
 }
