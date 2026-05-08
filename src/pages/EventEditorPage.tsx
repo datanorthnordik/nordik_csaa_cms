@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
 import type {
@@ -59,7 +59,11 @@ const recurrenceFrequencyOptions: RecurrenceFrequency[] = [
 
 type SubmitMode = 'save' | 'draft' | 'publish'
 
-export function EventEditorPage() {
+type EventEditorPageProps = {
+  mode?: 'edit' | 'view'
+}
+
+export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const params = useParams()
@@ -74,6 +78,7 @@ export function EventEditorPage() {
 
   const parsedEventId = params.id ? Number.parseInt(params.id, 10) : null
   const isEditMode = parsedEventId !== null && Number.isFinite(parsedEventId)
+  const isViewMode = mode === 'view' && isEditMode
   const isInvalidEditId = params.id !== undefined && !isEditMode
   const [form, setForm] = useState<EventFormState>(createDefaultEventFormState())
   const [errors, setErrors] = useState<EventFormErrors>({})
@@ -505,14 +510,18 @@ export function EventEditorPage() {
         <div className={styles.header}>
           <div>
             <p className={styles.eyebrow}>
-              {isEditMode
-                ? t('events.editor.breadcrumbEdit')
-                : t('events.editor.breadcrumbCreate')}
+              {isViewMode
+                ? t('events.editor.breadcrumbView')
+                : isEditMode
+                  ? t('events.editor.breadcrumbEdit')
+                  : t('events.editor.breadcrumbCreate')}
             </p>
             <h1 className={styles.title}>
-              {isEditMode
-                ? t('events.editor.titleEdit')
-                : t('events.editor.titleCreate')}
+              {isViewMode
+                ? t('events.editor.titleView')
+                : isEditMode
+                  ? t('events.editor.titleEdit')
+                  : t('events.editor.titleCreate')}
             </h1>
           </div>
           <button
@@ -524,7 +533,7 @@ export function EventEditorPage() {
           </button>
         </div>
 
-        {errorMessages.length > 0 && (
+        {!isViewMode && errorMessages.length > 0 && (
           <div className={styles.errorSummary} role="alert">
             <p className={styles.errorSummaryTitle}>{t('events.feedback.validation')}</p>
             <ul>
@@ -535,13 +544,14 @@ export function EventEditorPage() {
           </div>
         )}
 
-        {saveState.error && (
+        {!isViewMode && saveState.error && (
           <div className={styles.errorSummary} role="alert">
             <p className={styles.errorSummaryTitle}>{saveState.error}</p>
           </div>
         )}
 
-        <div className={styles.layout}>
+        <fieldset className={styles.readOnlyFieldset} disabled={isViewMode}>
+          <div className={styles.layout}>
           <div className={styles.mainColumn}>
             <section className={styles.card}>
               <div className={styles.sectionHeader}>
@@ -1417,38 +1427,50 @@ export function EventEditorPage() {
               </div>
 
               <div className={styles.actionStack}>
-                <button
-                  type="button"
-                  className={styles.secondaryButton}
-                  disabled={isBusy}
-                  onClick={() => void submitForm('draft')}
-                >
-                  {t('events.editor.saveDraft')}
-                </button>
-                <button
-                  type="button"
-                  className={styles.primaryButton}
-                  disabled={isBusy}
-                  onClick={() => void submitForm('save')}
-                >
-                  {isBusy
-                    ? t('events.common.loading')
-                    : t('events.editor.saveChanges')}
-                </button>
-                {!form.published && (
-                  <button
-                    type="button"
-                    className={styles.publishButton}
-                    disabled={isBusy}
-                    onClick={() => void submitForm('publish')}
+                {isViewMode && parsedEventId ? (
+                  <Link
+                    className={`${styles.primaryButton} ${styles.buttonLink}`}
+                    to={`/events/${parsedEventId}/edit`}
                   >
-                    {t('events.editor.publish')}
-                  </button>
+                    {t('events.editor.editEvent')}
+                  </Link>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className={styles.secondaryButton}
+                      disabled={isBusy}
+                      onClick={() => void submitForm('draft')}
+                    >
+                      {t('events.editor.saveDraft')}
+                    </button>
+                    <button
+                      type="button"
+                      className={styles.primaryButton}
+                      disabled={isBusy}
+                      onClick={() => void submitForm('save')}
+                    >
+                      {isBusy
+                        ? t('events.common.loading')
+                        : t('events.editor.saveChanges')}
+                    </button>
+                    {!form.published && (
+                      <button
+                        type="button"
+                        className={styles.publishButton}
+                        disabled={isBusy}
+                        onClick={() => void submitForm('publish')}
+                      >
+                        {t('events.editor.publish')}
+                      </button>
+                    )}
+                  </>
                 )}
               </div>
             </section>
           </aside>
         </div>
+        </fieldset>
       </div>
     </CmsAppShell>
   )

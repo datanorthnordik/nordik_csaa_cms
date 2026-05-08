@@ -317,6 +317,10 @@ export const eventsApi = {
     return response.data
   },
 
+  async deleteEvent(id: number) {
+    await apiClient.delete(API_ROUTES.eventById(id))
+  },
+
   async deleteEventDocument(eventId: number, mediaId: number) {
     await apiClient.delete(API_ROUTES.eventDocumentById(eventId, mediaId))
   },

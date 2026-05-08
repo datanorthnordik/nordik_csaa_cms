@@ -158,6 +158,28 @@
   cursor: not-allowed;
 }
 
+.dangerButton {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  background: var(--color-error-strong);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.dangerButton:hover:not(:disabled) {
+  background: #b42018;
+  transform: translateY(-1px);
+}
+
+.dangerButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .resultsPanel {
   padding: 20px;
   display: grid;
@@ -209,6 +231,11 @@
   color: var(--color-text-muted);
 }
 
+.actionsCell {
+  width: 1%;
+  white-space: nowrap;
+}
+
 .eventTitle,
 .cardTitle {
   font-weight: 700;
@@ -248,6 +275,109 @@
   transform: none;
 }
 
+.actionMenu {
+  display: inline-flex;
+}
+
+.actionMenuTrigger {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.actionMenuTrigger:hover:not(:disabled) {
+  background: var(--color-surface-alt);
+  border-color: rgba(122, 31, 36, 0.22);
+  transform: translateY(-1px);
+}
+
+.actionMenuTrigger:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.actionMenuTrigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.actionMenuPaper {
+  min-width: 180px;
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.actionMenuList {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+}
+
+.actionMenuItem {
+  border-radius: 12px;
+  padding: 10px 12px;
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+}
+
+.actionMenuItem:hover,
+.actionMenuItem:global(.Mui-focusVisible) {
+  background: var(--color-surface-alt);
+}
+
+.actionMenuDanger {
+  color: var(--color-error-strong);
+}
+
+.confirmDialogPaper {
+  width: min(520px, calc(100vw - 32px));
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(122, 31, 36, 0.06), transparent 30%),
+    var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.confirmDialogTitle {
+  padding: 22px 24px 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.confirmDialogContent {
+  padding: 14px 24px 0;
+}
+
+.confirmDialogText {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.confirmDialogEventName {
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.confirmDialogActions {
+  padding: 20px 24px 24px;
+  gap: 12px;
+}
+
 .cardList {
   display: none;
   gap: 14px;
@@ -271,6 +401,12 @@
   margin: 6px 0 0;
   color: var(--color-text-muted);
   font-size: 14px;
+}
+
+.cardActionRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
 }
 
 .emptyState {
@@ -347,6 +483,15 @@
   .pageHeader > button,
   .pagination > button {
     flex: 1 1 0;
+  }
+
+  .confirmDialogActions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .confirmDialogActions > button {
+    width: 100%;
   }
 
   .tableWrap {

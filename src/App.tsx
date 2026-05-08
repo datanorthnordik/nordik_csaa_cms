@@ -21,6 +21,7 @@ function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/events" element={<EventsListPage />} />
           <Route path="/events/new" element={<EventEditorPage />} />
+          <Route path="/events/:id" element={<EventEditorPage mode="view" />} />
           <Route path="/events/:id/edit" element={<EventEditorPage />} />
         </Route>
 

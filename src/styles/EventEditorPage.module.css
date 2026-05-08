@@ -26,6 +26,13 @@
   line-height: 1.08;
 }
 
+.readOnlyFieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.9fr);
@@ -439,7 +446,8 @@
 .primaryButton,
 .secondaryButton,
 .publishButton,
-.linkButton {
+.linkButton,
+.buttonLink {
   border: none;
   border-radius: 12px;
   padding: 12px 18px;
@@ -447,6 +455,13 @@
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.buttonLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
 .primaryButton {
@@ -571,6 +586,7 @@
   }
 
   .actionStack button,
+  .actionStack a,
   .header button {
     width: 100%;
   }
