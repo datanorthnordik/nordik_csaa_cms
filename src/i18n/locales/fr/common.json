@@ -398,11 +398,23 @@
       "assetsOf": "{{count}} / {{limit}} ressources dans cette galerie",
       "updatedAt": "Mis a jour le {{date}}",
       "updatedRelative": "Mis a jour {{relative}}",
-      "editDescription": "Modifier la description",
-      "publish": "Publier les modifications"
+      "editDescription": "Modifier la description"
     },
     "thumbnail": {
-      "selected": "Selectionne"
+      "selected": "Selectionne",
+      "moveLeft": "Deplacer la ressource vers la gauche",
+      "moveRight": "Deplacer la ressource vers la droite",
+      "delete": "Supprimer la ressource"
+    },
+    "actions": {
+      "title": "Actions",
+      "hint": "Enregistrez un brouillon, publiez ou mettez a jour la galerie.",
+      "statusDraft": "Brouillon",
+      "statusPublished": "Publie",
+      "saveDraft": "Enregistrer le brouillon",
+      "saveChanges": "Enregistrer les modifications",
+      "saving": "Enregistrement...",
+      "publish": "Publier la galerie"
     },
     "uploads": {
       "title": "Ajouter des images a la galerie",

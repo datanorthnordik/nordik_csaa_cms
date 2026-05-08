@@ -398,11 +398,23 @@
       "assetsOf": "{{count}} / {{limit}} assets in this gallery",
       "updatedAt": "Updated {{date}}",
       "updatedRelative": "Updated {{relative}}",
-      "editDescription": "Edit description",
-      "publish": "Publish Changes"
+      "editDescription": "Edit description"
     },
     "thumbnail": {
-      "selected": "Selected"
+      "selected": "Selected",
+      "moveLeft": "Move asset earlier",
+      "moveRight": "Move asset later",
+      "delete": "Delete asset"
+    },
+    "actions": {
+      "title": "Actions",
+      "hint": "Save a draft, publish, or update the gallery.",
+      "statusDraft": "Draft",
+      "statusPublished": "Published",
+      "saveDraft": "Save draft",
+      "saveChanges": "Save changes",
+      "saving": "Saving...",
+      "publish": "Publish gallery"
     },
     "uploads": {
       "title": "Add Images to Gallery",

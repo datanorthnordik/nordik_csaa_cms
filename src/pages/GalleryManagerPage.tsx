@@ -14,12 +14,16 @@ import styles from '../styles/GalleryManagerPage.module.css'
 type GalleryManagerPageProps = {
   gallery?: GalleryDetail
   loading?: boolean
+  saving?: boolean
   error?: string
+  onSaveDraft?: () => void
+  onSaveChanges?: () => void
   onPublish?: () => void
   onEditDescription?: () => void
   onUploadAssets?: (files: File[], altText: string) => void
   onDeleteAsset?: (asset: GalleryAsset) => void
   onDownloadAsset?: (asset: GalleryAsset) => void
+  onMoveAsset?: (asset: GalleryAsset, delta: number) => void
   formatRelativeTime?: (isoDate: string) => string
   formatFileSize?: (bytes: number) => string
   formatUploadedAt?: (isoDate: string) => string
@@ -28,12 +32,16 @@ type GalleryManagerPageProps = {
 export function GalleryManagerPage({
   gallery,
   loading = false,
+  saving = false,
   error,
+  onSaveDraft,
+  onSaveChanges,
   onPublish,
   onEditDescription,
   onUploadAssets,
   onDeleteAsset,
   onDownloadAsset,
+  onMoveAsset,
   formatRelativeTime,
   formatFileSize,
   formatUploadedAt,
@@ -137,8 +145,8 @@ export function GalleryManagerPage({
                   <p className={styles.description}>{gallery.description}</p>
                 )}
 
-                <div className={styles.galleryActions}>
-                  {onEditDescription && (
+                {onEditDescription && (
+                  <div className={styles.galleryActions}>
                     <button
                       type="button"
                       className={styles.linkButton}
@@ -147,16 +155,8 @@ export function GalleryManagerPage({
                       <EditIcon />
                       {t('galleryManager.header.editDescription')}
                     </button>
-                  )}
-                  <button
-                    type="button"
-                    className={styles.publishButton}
-                    onClick={onPublish}
-                    disabled={!onPublish}
-                  >
-                    {t('galleryManager.header.publish')}
-                  </button>
-                </div>
+                  </div>
+                )}
               </header>
 
               {error && <p className={styles.errorText}>{error}</p>}
@@ -167,12 +167,34 @@ export function GalleryManagerPage({
                 </div>
               ) : (
                 <div className={styles.assetGrid}>
-                  {gallery.assets.map((asset) => (
+                  {gallery.assets.map((asset, index) => (
                     <AssetThumbnail
                       key={asset.id}
                       asset={asset}
                       selected={asset.id === selectedAssetId}
                       onSelect={(item) => setSelectedAssetId(item.id)}
+                      onMoveLeft={
+                        onMoveAsset && index > 0
+                          ? (item) => onMoveAsset(item, -1)
+                          : undefined
+                      }
+                      onMoveRight={
+                        onMoveAsset &&
+                        gallery.assets &&
+                        index < gallery.assets.length - 1
+                          ? (item) => onMoveAsset(item, 1)
+                          : undefined
+                      }
+                      onDelete={
+                        onDeleteAsset
+                          ? (item) => {
+                              if (item.id === selectedAssetId) {
+                                setSelectedAssetId(null)
+                              }
+                              onDeleteAsset(item)
+                            }
+                          : undefined
+                      }
                     />
                   ))}
                   {showUploadTile && gallery.assetLimit !== undefined && (
@@ -235,6 +257,63 @@ export function GalleryManagerPage({
                     </div>
                   </div>
                 </form>
+              </section>
+
+              <section className={styles.actionsCard}>
+                <div className={styles.actionsHeader}>
+                  <h2 className={styles.actionsTitle}>
+                    {t('galleryManager.actions.title')}
+                  </h2>
+                  <p className={styles.actionsHint}>
+                    {t('galleryManager.actions.hint')}
+                  </p>
+                </div>
+
+                <div className={styles.statusChipRow}>
+                  <span
+                    className={[
+                      styles.statusChip,
+                      gallery.visibility === 'published'
+                        ? styles.statusPublished
+                        : styles.statusDraft,
+                    ].join(' ')}
+                  >
+                    {gallery.visibility === 'published'
+                      ? t('galleryManager.actions.statusPublished')
+                      : t('galleryManager.actions.statusDraft')}
+                  </span>
+                </div>
+
+                <div className={styles.actionStack}>
+                  <button
+                    type="button"
+                    className={styles.secondaryButton}
+                    onClick={onSaveDraft}
+                    disabled={!onSaveDraft || saving}
+                  >
+                    {t('galleryManager.actions.saveDraft')}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.primaryButton}
+                    onClick={onSaveChanges}
+                    disabled={!onSaveChanges || saving}
+                  >
+                    {saving
+                      ? t('galleryManager.actions.saving')
+                      : t('galleryManager.actions.saveChanges')}
+                  </button>
+                  {gallery.visibility !== 'published' && onPublish && (
+                    <button
+                      type="button"
+                      className={styles.publishButton}
+                      onClick={onPublish}
+                      disabled={saving}
+                    >
+                      {t('galleryManager.actions.publish')}
+                    </button>
+                  )}
+                </div>
               </section>
             </div>
 

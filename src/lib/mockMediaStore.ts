@@ -144,11 +144,72 @@ export function useMockMediaStore() {
     [],
   )
 
+  const moveAsset = useCallback(
+    (galleryId: number, asset: GalleryAsset, delta: number) => {
+      const gallery = galleries.get(galleryId)
+      if (!gallery?.assets) {
+        return
+      }
+
+      const fromIndex = gallery.assets.findIndex((item) => item.id === asset.id)
+      const toIndex = fromIndex + delta
+      if (
+        fromIndex === -1 ||
+        toIndex < 0 ||
+        toIndex >= gallery.assets.length
+      ) {
+        return
+      }
+
+      const next = [...gallery.assets]
+      const [moved] = next.splice(fromIndex, 1)
+      next.splice(toIndex, 0, moved)
+
+      const updated: GalleryDetail = {
+        ...gallery,
+        assets: next,
+        updatedAt: nowIso(),
+      }
+
+      galleries.set(galleryId, updated)
+      console.log('[mockMediaStore] moveAsset', {
+        galleryId,
+        assetId: asset.id,
+        fromIndex,
+        toIndex,
+      })
+      notify()
+    },
+    [],
+  )
+
+  const saveGallery = useCallback(
+    (galleryId: number, patch: Partial<Pick<GalleryDetail, 'visibility'>>) => {
+      const gallery = galleries.get(galleryId)
+      if (!gallery) {
+        return
+      }
+
+      const updated: GalleryDetail = {
+        ...gallery,
+        ...patch,
+        updatedAt: nowIso(),
+      }
+
+      galleries.set(galleryId, updated)
+      console.log('[mockMediaStore] saveGallery', { galleryId, patch, updated })
+      notify()
+    },
+    [],
+  )
+
   return {
     galleries: Array.from(galleries.values()).map(summarize),
     createGallery,
     getGallery,
     uploadAssets,
     deleteAsset,
+    moveAsset,
+    saveGallery,
   }
 }

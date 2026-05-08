@@ -83,15 +83,73 @@
   outline-offset: 2px;
 }
 
+.actionsCard {
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface);
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+  box-shadow: var(--shadow-card);
+}
+
+.actionsHeader {
+  display: grid;
+  gap: 4px;
+}
+
+.actionsTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.actionsHint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.statusChipRow {
+  display: flex;
+}
+
+.statusChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.statusDraft {
+  background: #edf2ff;
+  color: #2744b7;
+  border: 1px solid #c6d2ff;
+}
+
+.statusPublished {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border: 1px solid var(--color-success-border);
+}
+
+.actionStack {
+  display: grid;
+  gap: 10px;
+}
+
 .publishButton {
   border: 1.5px solid var(--color-primary);
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--color-surface);
   color: var(--color-primary);
-  padding: 10px 16px;
+  padding: 12px 18px;
   font: inherit;
   font-weight: 700;
-  font-size: 13px;
   cursor: pointer;
   transition: background 0.15s ease, color 0.15s ease;
 }

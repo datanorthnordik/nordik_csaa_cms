@@ -25,6 +25,8 @@ import {
   Tune,
   CollectionsBookmark,
   AddPhotoAlternate,
+  ChevronLeft,
+  ChevronRight,
 } from '@mui/icons-material';
 import type { CSSProperties } from 'react';
 
@@ -141,4 +143,12 @@ export function GalleryIcon({ size = 14, className }: IconProps) {
 
 export function AddPhotoIcon({ size = 22, className }: IconProps) {
   return <AddPhotoAlternate style={getIconStyle(size)} className={className} />;
+}
+
+export function ChevronLeftIcon({ size = 18, className }: IconProps) {
+  return <ChevronLeft style={getIconStyle(size)} className={className} />;
+}
+
+export function ChevronRightIcon({ size = 18, className }: IconProps) {
+  return <ChevronRight style={getIconStyle(size)} className={className} />;
 }
