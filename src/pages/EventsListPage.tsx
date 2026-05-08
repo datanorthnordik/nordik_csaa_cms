@@ -14,10 +14,10 @@ import { useAppDispatch, useAppSelector } from '../store/hooks'
 import type {
   EventDateRange,
   EventListFilters,
+  EventListItem,
   EventSortBy,
   EventSortOrder,
   EventStatus,
-  EventType,
 } from '../api/eventsApi'
 import { formatEventStartDateLabel } from '../lib/eventsDate'
 import styles from '../styles/EventsListPage.module.css'
@@ -133,8 +133,12 @@ export function EventsListPage() {
     dispatch(setEventListFilters({ pageSize, page: 1 }))
   }
 
-  function formatEventDate(startAt: string, eventType: EventType) {
-    return formatEventStartDateLabel(startAt, eventType, {
+  function formatEventDate(item: EventListItem) {
+    if (item.date_display?.trim()) {
+      return item.date_display
+    }
+
+    return formatEventStartDateLabel(item.start_at, item.event_type, {
       localFormatter: formatter,
       calendarFormatter,
     })
@@ -339,7 +343,7 @@ export function EventsListPage() {
                             {t(`events.status.${item.status}`)}
                           </span>
                         </td>
-                        <td>{formatEventDate(item.start_at, item.event_type)}</td>
+                        <td>{formatEventDate(item)}</td>
                         <td>
                           <button
                             type="button"
@@ -362,7 +366,7 @@ export function EventsListPage() {
                       <div>
                         <p className={styles.cardTitle}>{item.title}</p>
                         <p className={styles.cardMeta}>
-                          {formatEventDate(item.start_at, item.event_type)}
+                          {formatEventDate(item)}
                         </p>
                       </div>
                       <span

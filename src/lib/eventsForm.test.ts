@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import type { EventDetailResponse, EventType } from '../api/eventsApi'
-import { buildEventFormStateFromDetail, toInputDate } from './eventsForm'
+import {
+  buildEventFormStateFromDetail,
+  createDefaultEventFormState,
+  toInputDate,
+  validateEventForm,
+} from './eventsForm'
 
 function createEventDetail(
   eventType: EventType,
@@ -82,5 +87,19 @@ describe('buildEventFormStateFromDetail', () => {
     expect(form.endDate).toBe('2026-05-09')
     expect(form.scheduledOccurrences[0]?.startDate).toBe('2026-05-12')
     expect(form.scheduledOccurrences[0]?.endDate).toBe('2026-05-14')
+  })
+})
+
+describe('validateEventForm', () => {
+  it('does not require teaser text when the required fields are present', () => {
+    const form = createDefaultEventFormState()
+    form.title = 'Spring Gathering'
+    form.categoriesText = 'Community'
+    form.startDate = '2026-05-07'
+    form.teaser = '   '
+
+    const errors = validateEventForm(form, (key) => key)
+
+    expect(errors.teaser).toBeUndefined()
   })
 })

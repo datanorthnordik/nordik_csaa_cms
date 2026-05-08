@@ -267,7 +267,6 @@
       "breadcrumbEdit": "Events / Edit event",
       "titleCreate": "Create new event",
       "titleEdit": "Edit event",
-      "subtitle": "Build the event details, configure visibility, and keep the form responsive to the event type.",
       "invalidIdTitle": "Invalid event link",
       "invalidIdText": "This edit URL is missing a valid event id.",
       "backToList": "Back to event list",
@@ -281,6 +280,7 @@
       "currentDisplayImage": "Current display image",
       "currentAttachment": "Current attachment",
       "newUpload": "New upload",
+      "openMedia": "Open file",
       "removeMedia": "Remove"
     },
     "feedback": {

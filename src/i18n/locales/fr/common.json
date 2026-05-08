@@ -267,7 +267,6 @@
       "breadcrumbEdit": "Evenements / Modifier l evenement",
       "titleCreate": "Creer un evenement",
       "titleEdit": "Modifier l evenement",
-      "subtitle": "Construisez les details de l evenement, configurez la visibilite et gardez le formulaire reactif selon le type choisi.",
       "invalidIdTitle": "Lien d evenement invalide",
       "invalidIdText": "Cette URL de modification ne contient pas d identifiant valide.",
       "backToList": "Retour a la liste",
@@ -281,6 +280,7 @@
       "currentDisplayImage": "Image d affichage actuelle",
       "currentAttachment": "Piece jointe actuelle",
       "newUpload": "Nouveau televersement",
+      "openMedia": "Ouvrir le fichier",
       "removeMedia": "Supprimer"
     },
     "feedback": {

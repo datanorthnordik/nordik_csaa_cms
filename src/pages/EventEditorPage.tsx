@@ -39,7 +39,8 @@ import {
   updateEvent,
 } from '../store/eventsSlice'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
-import type { EventType, RecurrenceFrequency } from '../api/eventsApi'
+import type { EventMedia, EventType, RecurrenceFrequency } from '../api/eventsApi'
+import { fetchEventMediaObjectUrl } from '../lib/eventMedia'
 import styles from '../styles/EventEditorPage.module.css'
 
 const eventTypeOptions: EventType[] = [
@@ -76,6 +77,11 @@ export function EventEditorPage() {
   const isInvalidEditId = params.id !== undefined && !isEditMode
   const [form, setForm] = useState<EventFormState>(createDefaultEventFormState())
   const [errors, setErrors] = useState<EventFormErrors>({})
+  const [displayImagePreviewUrl, setDisplayImagePreviewUrl] = useState<string | null>(null)
+  const [attachmentPreviewUrls, setAttachmentPreviewUrls] = useState<string[]>([])
+  const [existingMediaObjectUrls, setExistingMediaObjectUrls] = useState<
+    Record<number, string>
+  >({})
 
   useEffect(() => {
     void dispatch(fetchEventLookups())
@@ -104,10 +110,98 @@ export function EventEditorPage() {
     }
   }, [dispatch])
 
+  useEffect(() => {
+    if (!form.displayImageFile) {
+      setDisplayImagePreviewUrl(null)
+      return
+    }
+
+    const objectUrl = URL.createObjectURL(form.displayImageFile)
+    setDisplayImagePreviewUrl(objectUrl)
+
+    return () => {
+      URL.revokeObjectURL(objectUrl)
+    }
+  }, [form.displayImageFile])
+
+  useEffect(() => {
+    if (!form.attachmentFiles.length) {
+      setAttachmentPreviewUrls([])
+      return
+    }
+
+    const objectUrls = form.attachmentFiles.map((file) => URL.createObjectURL(file))
+    setAttachmentPreviewUrls(objectUrls)
+
+    return () => {
+      objectUrls.forEach((objectUrl) => URL.revokeObjectURL(objectUrl))
+    }
+  }, [form.attachmentFiles])
+
+  const existingMedia = useMemo(
+    () => [
+      ...(form.existingDisplayImage ? [form.existingDisplayImage] : []),
+      ...form.existingAttachments,
+    ],
+    [form.existingDisplayImage, form.existingAttachments],
+  )
+
+  useEffect(() => {
+    if (!existingMedia.length) {
+      setExistingMediaObjectUrls((current) => {
+        Object.values(current).forEach((objectUrl) => URL.revokeObjectURL(objectUrl))
+        return {}
+      })
+      return
+    }
+
+    let cancelled = false
+
+    async function loadExistingMedia() {
+      const loadedEntries = await Promise.all(
+        existingMedia.map(async (media) => {
+          try {
+            const objectUrl = await fetchEventMediaObjectUrl(media)
+            return [media.id, objectUrl] as const
+          } catch {
+            return null
+          }
+        }),
+      )
+
+      const nextUrls = loadedEntries.reduce<Record<number, string>>((result, entry) => {
+        if (entry) {
+          result[entry[0]] = entry[1]
+        }
+        return result
+      }, {})
+
+      if (cancelled) {
+        Object.values(nextUrls).forEach((objectUrl) => URL.revokeObjectURL(objectUrl))
+        return
+      }
+
+      setExistingMediaObjectUrls((current) => {
+        Object.values(current).forEach((objectUrl) => URL.revokeObjectURL(objectUrl))
+        return nextUrls
+      })
+    }
+
+    void loadExistingMedia()
+
+    return () => {
+      cancelled = true
+    }
+  }, [existingMedia])
+
   const isBusy = saveState.status === 'loading'
   const isInitialLoad =
     (isEditMode && detailState.status === 'loading' && !currentEvent) ||
     (lookupsState.status === 'loading' && !savedLocations.length && !galleries.length)
+  const existingDisplayImageUrl = getExistingMediaObjectUrl(
+    form.existingDisplayImage,
+    existingMediaObjectUrls,
+  )
   const errorMessages = useMemo(
     () => Array.from(new Set(Object.values(errors).filter(Boolean))),
     [errors],
@@ -420,7 +514,6 @@ export function EventEditorPage() {
                 ? t('events.editor.titleEdit')
                 : t('events.editor.titleCreate')}
             </h1>
-            <p className={styles.subtitle}>{t('events.editor.subtitle')}</p>
           </div>
           <button
             type="button"
@@ -877,16 +970,32 @@ export function EventEditorPage() {
                 </label>
 
                 {(form.existingDisplayImage || form.displayImageFile) && (
-                  <div className={styles.mediaList}>
+                  <div className={`${styles.mediaList} ${styles.displayImageList}`}>
                     {form.existingDisplayImage && (
-                      <div className={styles.mediaItem}>
-                        <div>
-                          <strong>{form.existingDisplayImage.display_name}</strong>
-                          <p>{t('events.editor.currentDisplayImage')}</p>
+                      <div className={`${styles.mediaItem} ${styles.mediaPreviewCard}`}>
+                        <div className={styles.mediaPreviewSurface}>
+                          {existingDisplayImageUrl ? (
+                            <img
+                              className={styles.mediaPreviewImage}
+                              src={existingDisplayImageUrl}
+                              alt={form.existingDisplayImage.display_name || t('events.fields.displayImage')}
+                            />
+                          ) : (
+                            <div className={styles.mediaPreviewFallback} aria-hidden="true" />
+                          )}
                         </div>
+                        <MediaPreviewFooter
+                          label={t('events.editor.currentDisplayImage')}
+                          title={
+                            form.existingDisplayImage.display_name ||
+                            t('events.fields.displayImage')
+                          }
+                          href={existingDisplayImageUrl}
+                          actionLabel={t('events.editor.openMedia')}
+                        />
                         <button
                           type="button"
-                          className={styles.linkButton}
+                          className={`${styles.linkButton} ${styles.mediaPreviewAction}`}
                           disabled={deletingIds.includes(form.existingDisplayImage.id)}
                           onClick={() =>
                             removeExistingDisplayImage(form.existingDisplayImage!.id)
@@ -900,14 +1009,25 @@ export function EventEditorPage() {
                     )}
 
                     {form.displayImageFile && (
-                      <div className={styles.mediaItem}>
-                        <div>
-                          <strong>{form.displayImageFile.name}</strong>
-                          <p>{t('events.editor.newUpload')}</p>
+                      <div className={`${styles.mediaItem} ${styles.mediaPreviewCard}`}>
+                        <div className={styles.mediaPreviewSurface}>
+                          {displayImagePreviewUrl ? (
+                            <img
+                              className={styles.mediaPreviewImage}
+                              src={displayImagePreviewUrl}
+                              alt={form.displayImageFile.name || t('events.fields.displayImage')}
+                            />
+                          ) : (
+                            <div className={styles.mediaPreviewFallback} aria-hidden="true" />
+                          )}
                         </div>
+                        <MediaPreviewFooter
+                          label={t('events.editor.newUpload')}
+                          title={form.displayImageFile.name || t('events.fields.displayImage')}
+                        />
                         <button
                           type="button"
-                          className={styles.linkButton}
+                          className={`${styles.linkButton} ${styles.mediaPreviewAction}`}
                           onClick={() => updateField('displayImageFile', null)}
                         >
                           {t('events.editor.removeMedia')}
@@ -917,7 +1037,7 @@ export function EventEditorPage() {
                   </div>
                 )}
 
-                <label className={styles.toggleRow}>
+                <label className={`${styles.toggleRow} ${styles.displayImageToggle}`}>
                   <div>
                     <span>{t('events.fields.showDisplayImage')}</span>
                     <p>{t('events.fields.showDisplayImageHint')}</p>
@@ -975,16 +1095,44 @@ export function EventEditorPage() {
                 </label>
 
                 {(form.existingAttachments.length > 0 || form.attachmentFiles.length > 0) && (
-                  <div className={styles.mediaList}>
+                  <div className={styles.mediaGrid}>
                     {form.existingAttachments.map((attachment) => (
-                      <div key={attachment.id} className={styles.mediaItem}>
-                        <div>
-                          <strong>{attachment.display_name}</strong>
-                          <p>{t('events.editor.currentAttachment')}</p>
+                      <div
+                        key={attachment.id}
+                        className={`${styles.mediaItem} ${styles.mediaPreviewCard}`}
+                      >
+                        <div className={styles.mediaPreviewSurface}>
+                          {isPreviewableImage(
+                            attachment.display_name,
+                            attachment.mime_type,
+                          ) && existingMediaObjectUrls[attachment.id] ? (
+                            <img
+                              className={styles.mediaPreviewImage}
+                              src={existingMediaObjectUrls[attachment.id]}
+                              alt={attachment.display_name || t('events.fields.attachments')}
+                            />
+                          ) : (
+                            <div className={styles.documentPreviewFallback} aria-hidden="true">
+                              <span className={styles.documentTypeBadge}>
+                                {getFileTypeBadge(
+                                  attachment.display_name,
+                                  attachment.mime_type,
+                                )}
+                              </span>
+                            </div>
+                          )}
                         </div>
+                        <MediaPreviewFooter
+                          label={t('events.editor.currentAttachment')}
+                          title={
+                            attachment.display_name || t('events.fields.attachments')
+                          }
+                          href={existingMediaObjectUrls[attachment.id]}
+                          actionLabel={t('events.editor.openMedia')}
+                        />
                         <button
                           type="button"
-                          className={styles.linkButton}
+                          className={`${styles.linkButton} ${styles.mediaPreviewAction}`}
                           disabled={deletingIds.includes(attachment.id)}
                           onClick={() => removeExistingAttachment(attachment.id)}
                         >
@@ -996,14 +1144,33 @@ export function EventEditorPage() {
                     ))}
 
                     {form.attachmentFiles.map((file, index) => (
-                      <div key={`${file.name}-${index}`} className={styles.mediaItem}>
-                        <div>
-                          <strong>{file.name}</strong>
-                          <p>{t('events.editor.newUpload')}</p>
+                      <div
+                        key={`${file.name}-${index}`}
+                        className={`${styles.mediaItem} ${styles.mediaPreviewCard}`}
+                      >
+                        <div className={styles.mediaPreviewSurface}>
+                          {isPreviewableImage(file.name, file.type) &&
+                          attachmentPreviewUrls[index] ? (
+                            <img
+                              className={styles.mediaPreviewImage}
+                              src={attachmentPreviewUrls[index]}
+                              alt={file.name || t('events.fields.attachments')}
+                            />
+                          ) : (
+                            <div className={styles.documentPreviewFallback} aria-hidden="true">
+                              <span className={styles.documentTypeBadge}>
+                                {getFileTypeBadge(file.name, file.type)}
+                              </span>
+                            </div>
+                          )}
                         </div>
+                        <MediaPreviewFooter
+                          label={t('events.editor.newUpload')}
+                          title={file.name || t('events.fields.attachments')}
+                        />
                         <button
                           type="button"
-                          className={styles.linkButton}
+                          className={`${styles.linkButton} ${styles.mediaPreviewAction}`}
                           onClick={() => removeNewAttachment(index)}
                         >
                           {t('events.editor.removeMedia')}
@@ -1341,4 +1508,95 @@ function FieldError({ message }: { message?: string }) {
   }
 
   return <span className={styles.fieldError}>{message}</span>
+}
+
+type MediaPreviewFooterProps = {
+  label: string
+  title: string
+  href?: string | null
+  actionLabel?: string
+}
+
+function MediaPreviewFooter({
+  label,
+  title,
+  href,
+  actionLabel,
+}: MediaPreviewFooterProps) {
+  return (
+    <div className={styles.mediaPreviewFooter}>
+      <div className={styles.mediaPreviewMeta}>
+        <p className={styles.mediaPreviewLabel}>{label}</p>
+        <strong className={styles.mediaPreviewTitle}>{title}</strong>
+      </div>
+      {href && actionLabel ? (
+        <a
+          className={`${styles.linkButton} ${styles.mediaPreviewLink}`}
+          href={href}
+          target="_blank"
+          rel="noreferrer"
+        >
+          {actionLabel}
+        </a>
+      ) : null}
+    </div>
+  )
+}
+
+function isPreviewableImage(fileName: string, mimeType?: string) {
+  if (mimeType?.startsWith('image/')) {
+    return true
+  }
+
+  const extension = getFileExtension(fileName)
+  return ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'avif'].includes(
+    extension,
+  )
+}
+
+function getFileTypeBadge(fileName: string, mimeType?: string) {
+  const extension = getFileExtension(fileName)
+  if (extension) {
+    return extension.slice(0, 4).toUpperCase()
+  }
+
+  if (mimeType === 'application/pdf') {
+    return 'PDF'
+  }
+  if (
+    mimeType?.includes('word') ||
+    mimeType?.includes('document')
+  ) {
+    return 'DOC'
+  }
+  if (
+    mimeType?.includes('sheet') ||
+    mimeType?.includes('excel')
+  ) {
+    return 'XLS'
+  }
+  if (
+    mimeType?.includes('presentation') ||
+    mimeType?.includes('powerpoint')
+  ) {
+    return 'PPT'
+  }
+
+  return 'FILE'
+}
+
+function getFileExtension(fileName: string) {
+  const [, extension = ''] = fileName.toLowerCase().match(/\.([^.]+)$/) ?? []
+  return extension
+}
+
+function getExistingMediaObjectUrl(
+  media: EventMedia | null | undefined,
+  mediaUrls: Record<number, string>,
+) {
+  if (!media) {
+    return null
+  }
+
+  return mediaUrls[media.id] ?? null
 }

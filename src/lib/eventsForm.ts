@@ -258,9 +258,6 @@ export function validateEventForm(
   if (!splitCommaList(form.categoriesText).length) {
     errors.categoriesText = t('events.validation.categoryRequired')
   }
-  if (!form.teaser.trim()) {
-    errors.teaser = t('events.validation.teaserRequired')
-  }
   if (!form.startDate) {
     errors.startDate = t('events.validation.startDateRequired')
   }
