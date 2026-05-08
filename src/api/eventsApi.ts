@@ -53,6 +53,8 @@ export type EventMedia = {
   display_name: string
   gcp_object_key: string
   file_url: string
+  fetch_url?: string
+  storage_uri?: string
   mime_type: string
   file_size: number
   sort_order: number
@@ -79,6 +81,7 @@ export type EventListItem = {
   event_type: EventType
   start_at: string
   end_at?: string | null
+  date_display?: string
   created_at: string
   updated_at: string
 }
@@ -128,6 +131,7 @@ export type EventDetailResponse = {
   event_type: EventType
   start_at: string
   end_at?: string | null
+  date_display?: string
   privacy_type: 'public' | 'private'
   private_audiences: string[]
   published: boolean
@@ -169,6 +173,8 @@ export type EventUploadInput = {
   data_base64?: string
   file_url?: string
   object_key?: string
+  gcp_object_key?: string
+  storage_uri?: string
 }
 
 export type EventAddressInput = {
@@ -273,6 +279,14 @@ export const eventsApi = {
     return response.data
   },
 
+  async fetchEventMediaContent(path: string) {
+    const response = await apiClient.get<Blob>(path, {
+      responseType: 'blob',
+      skipErrorToast: true,
+    })
+    return response.data
+  },
+
   async getSavedLocations() {
     const response = await apiClient.get<{ items: EventAddress[] }>(
       API_ROUTES.eventLocations,
@@ -301,6 +315,10 @@ export const eventsApi = {
       payload,
     )
     return response.data
+  },
+
+  async deleteEvent(id: number) {
+    await apiClient.delete(API_ROUTES.eventById(id))
   },
 
   async deleteEventDocument(eventId: number, mediaId: number) {

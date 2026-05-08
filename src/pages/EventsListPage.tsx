@@ -1,10 +1,21 @@
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
+import IconButton from '@mui/material/IconButton'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import toast from 'react-hot-toast'
+import { Trans, useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
 import {
   defaultEventListFilters,
+  deleteEvent as deleteEventAction,
   fetchEvents,
   selectEventList,
   selectEventListFilters,
@@ -14,10 +25,10 @@ import { useAppDispatch, useAppSelector } from '../store/hooks'
 import type {
   EventDateRange,
   EventListFilters,
+  EventListItem,
   EventSortBy,
   EventSortOrder,
   EventStatus,
-  EventType,
 } from '../api/eventsApi'
 import { formatEventStartDateLabel } from '../lib/eventsDate'
 import styles from '../styles/EventsListPage.module.css'
@@ -51,6 +62,10 @@ export function EventsListPage() {
   const filters = useAppSelector(selectEventListFilters)
   const { items, pagination, status, error } = useAppSelector(selectEventList)
   const [draftFilters, setDraftFilters] = useState<EventListFilters>(filters)
+  const [actionMenuAnchorEl, setActionMenuAnchorEl] = useState<HTMLElement | null>(null)
+  const [activeActionItem, setActiveActionItem] = useState<EventListItem | null>(null)
+  const [deleteCandidate, setDeleteCandidate] = useState<EventListItem | null>(null)
+  const [deletingEventId, setDeletingEventId] = useState<number | null>(null)
 
   useEffect(() => {
     setDraftFilters(filters)
@@ -59,6 +74,18 @@ export function EventsListPage() {
   useEffect(() => {
     void dispatch(fetchEvents(filters))
   }, [dispatch, filters])
+
+  useEffect(() => {
+    if (activeActionItem && !items.some((item) => item.id === activeActionItem.id)) {
+      closeActionMenu()
+    }
+  }, [activeActionItem, items])
+
+  useEffect(() => {
+    if (deleteCandidate && !items.some((item) => item.id === deleteCandidate.id)) {
+      closeDeleteDialog()
+    }
+  }, [deleteCandidate, items])
 
   const isLoading = status === 'loading'
   const formatter = useMemo(
@@ -133,14 +160,94 @@ export function EventsListPage() {
     dispatch(setEventListFilters({ pageSize, page: 1 }))
   }
 
-  function formatEventDate(startAt: string, eventType: EventType) {
-    return formatEventStartDateLabel(startAt, eventType, {
+  function openActionMenu(
+    event: React.MouseEvent<HTMLButtonElement>,
+    item: EventListItem,
+  ) {
+    setActionMenuAnchorEl(event.currentTarget)
+    setActiveActionItem(item)
+  }
+
+  function closeActionMenu() {
+    setActionMenuAnchorEl(null)
+    setActiveActionItem(null)
+  }
+
+  function openDeleteDialog(item: EventListItem) {
+    closeActionMenu()
+    setDeleteCandidate(item)
+  }
+
+  function closeDeleteDialog() {
+    if (deleteCandidate && deletingEventId === deleteCandidate.id) {
+      return
+    }
+
+    setDeleteCandidate(null)
+  }
+
+  function formatEventDate(item: EventListItem) {
+    if (item.date_display?.trim()) {
+      return item.date_display
+    }
+
+    return formatEventStartDateLabel(item.start_at, item.event_type, {
       localFormatter: formatter,
       calendarFormatter,
     })
   }
 
+  async function handleDeleteEvent(item: EventListItem) {
+    setDeletingEventId(item.id)
+
+    try {
+      await dispatch(deleteEventAction(item.id)).unwrap()
+      setDeleteCandidate(null)
+
+      const nextPage =
+        pagination && pagination.page > 1 && items.length === 1
+          ? pagination.page - 1
+          : filters.page
+
+      dispatch(setEventListFilters({ page: nextPage }))
+      toast.success(t('events.feedback.deleted'))
+    } catch {
+      return
+    } finally {
+      setDeletingEventId(null)
+    }
+  }
+
+  function renderEventActions(item: EventListItem) {
+    return (
+      <span className={styles.actionMenu}>
+        <IconButton
+          id={`event-actions-trigger-${item.id}`}
+          size="small"
+          className={styles.actionMenuTrigger}
+          aria-controls={
+            activeActionItem?.id === item.id && actionMenuAnchorEl
+              ? 'event-actions-menu'
+              : undefined
+          }
+          aria-expanded={activeActionItem?.id === item.id && actionMenuAnchorEl ? true : undefined}
+          aria-haspopup="menu"
+          aria-label={t('events.list.openActions')}
+          disabled={deletingEventId === item.id}
+          onClick={(event) => openActionMenu(event, item)}
+        >
+          <MoreVertIcon fontSize="small" />
+        </IconButton>
+      </span>
+    )
+  }
+
   const totalItems = pagination?.total_items ?? 0
+  const isActionMenuOpen = Boolean(actionMenuAnchorEl && activeActionItem)
+  const isDeleteDialogOpen = Boolean(deleteCandidate)
+  const isDeleteDialogBusy = Boolean(
+    deleteCandidate && deletingEventId === deleteCandidate.id,
+  )
   const rangeStart =
     pagination && totalItems > 0
       ? (pagination.page - 1) * pagination.page_size + 1
@@ -326,7 +433,7 @@ export function EventsListPage() {
                         <td>
                           <div className={styles.eventTitle}>{item.title}</div>
                         </td>
-                        <td>{item.categories.join(', ') || '—'}</td>
+                        <td>{item.categories.join(', ') || t('events.list.noCategory')}</td>
                         <td>
                           <span
                             className={[
@@ -339,16 +446,8 @@ export function EventsListPage() {
                             {t(`events.status.${item.status}`)}
                           </span>
                         </td>
-                        <td>{formatEventDate(item.start_at, item.event_type)}</td>
-                        <td>
-                          <button
-                            type="button"
-                            className={styles.linkButton}
-                            onClick={() => navigate(`/events/${item.id}/edit`)}
-                          >
-                            {t('events.list.edit')}
-                          </button>
-                        </td>
+                        <td>{formatEventDate(item)}</td>
+                        <td className={styles.actionsCell}>{renderEventActions(item)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -362,7 +461,7 @@ export function EventsListPage() {
                       <div>
                         <p className={styles.cardTitle}>{item.title}</p>
                         <p className={styles.cardMeta}>
-                          {formatEventDate(item.start_at, item.event_type)}
+                          {formatEventDate(item)}
                         </p>
                       </div>
                       <span
@@ -379,13 +478,7 @@ export function EventsListPage() {
                     <p className={styles.cardMeta}>
                       {item.categories.join(', ') || t('events.list.noCategory')}
                     </p>
-                    <button
-                      type="button"
-                      className={styles.linkButton}
-                      onClick={() => navigate(`/events/${item.id}/edit`)}
-                    >
-                      {t('events.list.edit')}
-                    </button>
+                    <div className={styles.cardActionRow}>{renderEventActions(item)}</div>
                   </article>
                 ))}
               </div>
@@ -424,6 +517,127 @@ export function EventsListPage() {
             </div>
           )}
         </section>
+
+        <Menu
+          id="event-actions-menu"
+          anchorEl={actionMenuAnchorEl}
+          open={isActionMenuOpen}
+          onClose={closeActionMenu}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+          slotProps={{
+            paper: {
+              className: styles.actionMenuPaper,
+            },
+            list: {
+              'aria-labelledby': activeActionItem
+                ? `event-actions-trigger-${activeActionItem.id}`
+                : undefined,
+              className: styles.actionMenuList,
+            },
+          }}
+        >
+          <MenuItem
+            className={styles.actionMenuItem}
+            onClick={() => {
+              if (!activeActionItem) {
+                return
+              }
+
+              const item = activeActionItem
+              closeActionMenu()
+              navigate(`/events/${item.id}`)
+            }}
+          >
+            {t('events.list.view')}
+          </MenuItem>
+          <MenuItem
+            className={styles.actionMenuItem}
+            onClick={() => {
+              if (!activeActionItem) {
+                return
+              }
+
+              const item = activeActionItem
+              closeActionMenu()
+              navigate(`/events/${item.id}/edit`)
+            }}
+          >
+            {t('events.list.edit')}
+          </MenuItem>
+          <MenuItem
+            className={`${styles.actionMenuItem} ${styles.actionMenuDanger}`}
+            disabled={activeActionItem ? deletingEventId === activeActionItem.id : false}
+            onClick={() => {
+              if (!activeActionItem) {
+                return
+              }
+
+              openDeleteDialog(activeActionItem)
+            }}
+          >
+            {activeActionItem && deletingEventId === activeActionItem.id
+              ? t('events.common.loading')
+              : t('events.list.delete')}
+          </MenuItem>
+        </Menu>
+
+        <Dialog
+          open={isDeleteDialogOpen}
+          onClose={closeDeleteDialog}
+          slotProps={{
+            paper: {
+              className: styles.confirmDialogPaper,
+            },
+          }}
+        >
+          <DialogTitle className={styles.confirmDialogTitle}>
+            {t('events.list.deleteDialogTitle')}
+          </DialogTitle>
+          <DialogContent className={styles.confirmDialogContent}>
+            <DialogContentText className={styles.confirmDialogText}>
+              <Trans
+                i18nKey="events.list.deleteDialogDescription"
+                values={{
+                  title: deleteCandidate?.title ?? '',
+                }}
+                components={{
+                  eventName: <strong className={styles.confirmDialogEventName} />,
+                }}
+              />
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions className={styles.confirmDialogActions}>
+            <button
+              type="button"
+              className={styles.secondaryButton}
+              disabled={isDeleteDialogBusy}
+              onClick={closeDeleteDialog}
+            >
+              {t('events.list.cancelDelete')}
+            </button>
+            <button
+              type="button"
+              className={styles.dangerButton}
+              disabled={!deleteCandidate || isDeleteDialogBusy}
+              onClick={() => {
+                if (!deleteCandidate) {
+                  return
+                }
+
+                void handleDeleteEvent(deleteCandidate)
+              }}
+            >
+              {isDeleteDialogBusy ? t('events.common.loading') : t('events.list.delete')}
+            </button>
+          </DialogActions>
+        </Dialog>
       </div>
     </CmsAppShell>
   )

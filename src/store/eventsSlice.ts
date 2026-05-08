@@ -163,6 +163,19 @@ export const updateEvent = createAsyncThunk<
   }
 })
 
+export const deleteEvent = createAsyncThunk<
+  number,
+  number,
+  { rejectValue: string }
+>('events/deleteEvent', async (id, thunkApi) => {
+  try {
+    await eventsApi.deleteEvent(id)
+    return id
+  } catch (error) {
+    return thunkApi.rejectWithValue(getApiErrorMessage(error))
+  }
+})
+
 export const deleteEventDocument = createAsyncThunk<
   { eventId: number; mediaId: number },
   { eventId: number; mediaId: number },
@@ -287,6 +300,14 @@ const eventsSlice = createSlice({
       .addCase(updateEvent.rejected, (state, action) => {
         state.save.status = 'failed'
         state.save.error = action.payload ?? 'Could not update the event.'
+      })
+      .addCase(deleteEvent.fulfilled, (state, action) => {
+        state.list.items = state.list.items.filter(
+          (item) => item.id !== action.payload,
+        )
+        if (state.detail.item?.id === action.payload) {
+          state.detail.item = null
+        }
       })
       .addCase(deleteEventDocument.pending, (state, action) => {
         state.mediaDelete.error = null
