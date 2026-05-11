@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
 import type {
@@ -210,6 +211,19 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
   const errorMessages = useMemo(
     () => Array.from(new Set(Object.values(errors).filter(Boolean))),
     [errors],
+  )
+  const breadcrumbItems = useMemo(
+    () => [
+      { label: t('events.breadcrumb.events'), to: '/events' },
+      {
+        label: isViewMode
+          ? t('events.breadcrumb.view')
+          : isEditMode
+            ? t('events.breadcrumb.edit')
+            : t('events.breadcrumb.create'),
+      },
+    ],
+    [isEditMode, isViewMode, t],
   )
 
   function clearErrors(...keys: string[]) {
@@ -507,15 +521,10 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
   return (
     <CmsAppShell activeKey="events">
       <div className={styles.page}>
+        <Breadcrumb items={breadcrumbItems} />
+
         <div className={styles.header}>
           <div>
-            <p className={styles.eyebrow}>
-              {isViewMode
-                ? t('events.editor.breadcrumbView')
-                : isEditMode
-                  ? t('events.editor.breadcrumbEdit')
-                  : t('events.editor.breadcrumbCreate')}
-            </p>
             <h1 className={styles.title}>
               {isViewMode
                 ? t('events.editor.titleView')

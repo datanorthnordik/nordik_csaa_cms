@@ -11,6 +11,7 @@ import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Trans, useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
 import {
@@ -260,9 +261,15 @@ export function EventsListPage() {
   return (
     <CmsAppShell activeKey="events">
       <div className={styles.page}>
+        <Breadcrumb
+          items={[
+            { label: t('events.breadcrumb.events') },
+            { label: t('events.breadcrumb.list') },
+          ]}
+        />
+
         <div className={styles.pageHeader}>
           <div>
-            <p className={styles.eyebrow}>{t('events.list.eyebrow')}</p>
             <h1 className={styles.title}>{t('events.list.title')}</h1>
             <p className={styles.subtitle}>{t('events.list.subtitle')}</p>
           </div>

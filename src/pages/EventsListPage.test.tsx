@@ -75,6 +75,15 @@ beforeEach(async () => {
 })
 
 describe('EventsListPage', () => {
+  it('renders the shared breadcrumb above the events list', async () => {
+    renderPage()
+
+    const breadcrumb = await screen.findByRole('navigation', { name: /breadcrumb/i })
+
+    expect(within(breadcrumb).getByText(/^events$/i)).toBeDefined()
+    expect(within(breadcrumb).getByText(/^list$/i)).toBeDefined()
+  })
+
   it('shows a confirmation dialog before deleting an event', async () => {
     renderPage()
 
