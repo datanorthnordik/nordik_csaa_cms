@@ -6,6 +6,8 @@ import { SignupPage } from './pages/SignupPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { EventsListPage } from './pages/EventsListPage'
 import { EventEditorPage } from './pages/EventEditorPage'
+import { MediaLibraryRoute } from './pages/MediaLibraryRoute'
+import { GalleryManagerRoute } from './pages/GalleryManagerRoute'
 import './App.css'
 
 function App() {
@@ -23,6 +25,8 @@ function App() {
           <Route path="/events/new" element={<EventEditorPage />} />
           <Route path="/events/:id" element={<EventEditorPage mode="view" />} />
           <Route path="/events/:id/edit" element={<EventEditorPage />} />
+          <Route path="/media-library" element={<MediaLibraryRoute />} />
+          <Route path="/media-library/:galleryId" element={<GalleryManagerRoute />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,0 +1,352 @@
+.page {
+  display: grid;
+  gap: 20px;
+}
+
+.layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 20px;
+}
+
+.galleryHeader {
+  display: grid;
+  gap: 10px;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 800;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+.metaRow {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.metaDot {
+  color: var(--color-border-input);
+}
+
+.description {
+  margin: 6px 0 0;
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.55;
+  max-width: 70ch;
+}
+
+.galleryActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.linkButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  color: var(--color-primary);
+  font: inherit;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0;
+}
+
+.linkButton:hover {
+  text-decoration: underline;
+}
+
+.linkButton:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.actionsCard {
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface);
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+  box-shadow: var(--shadow-card);
+}
+
+.actionsHeader {
+  display: grid;
+  gap: 4px;
+}
+
+.actionsTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.actionsHint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.statusChipRow {
+  display: flex;
+}
+
+.statusChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.statusDraft {
+  background: #edf2ff;
+  color: #2744b7;
+  border: 1px solid #c6d2ff;
+}
+
+.statusPublished {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+  border: 1px solid var(--color-success-border);
+}
+
+.actionStack {
+  display: grid;
+  gap: 10px;
+}
+
+.publishButton {
+  border: 1.5px solid var(--color-primary);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-primary);
+  padding: 12px 18px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.publishButton:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.publishButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.assetGrid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+.uploadTile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  aspect-ratio: 1;
+  border: 1.5px dashed var(--color-border-input);
+  border-radius: 14px;
+  background: var(--color-primary-tint);
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: 12px;
+}
+
+.uploadTileLabel {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.uploadSection {
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface);
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+  box-shadow: var(--shadow-card);
+}
+
+.uploadTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.uploadForm {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  align-items: stretch;
+}
+
+.uploadDetails {
+  display: grid;
+  gap: 12px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.required {
+  color: var(--color-error-strong);
+  margin-left: 4px;
+}
+
+.textarea {
+  width: 100%;
+  border: 1px solid var(--color-border-input);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  resize: vertical;
+}
+
+.textarea:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.pendingFiles {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.uploadActions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.primaryButton {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+.primaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.secondaryButton:hover {
+  background: #e6e9ed;
+}
+
+.emptyState {
+  padding: 48px 24px;
+  text-align: center;
+  border: 1px dashed var(--color-border);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(122, 31, 36, 0.04), transparent);
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.emptyText {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.errorText {
+  margin: 0;
+  color: var(--color-error-strong);
+  font-size: 14px;
+}
+
+.loaderWrap {
+  padding: 36px 0;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 1024px) {
+  .layout {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 720px) {
+  .uploadForm {
+    grid-template-columns: 1fr;
+  }
+}

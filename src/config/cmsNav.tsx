@@ -26,7 +26,7 @@ export const cmsNavItems: CmsNavItemConfig[] = [
   { key: 'press', icon: <PressIcon />, path: '' },
   { key: 'memorial', icon: <MemorialIcon />, path: '' },
   { key: 'resources', icon: <ResourcesIcon />, path: '' },
-  { key: 'media', icon: <MediaIcon />, path: '' },
+  { key: 'media', icon: <MediaIcon />, path: '/media-library' },
 ]
 
 export const cmsFooterItems: CmsNavItemConfig[] = [
