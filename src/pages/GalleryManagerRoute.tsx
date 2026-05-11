@@ -9,6 +9,8 @@ export function GalleryManagerRoute() {
     uploadAssets,
     deleteAsset,
     moveAsset,
+    reorderAsset,
+    setGalleryCover,
     saveGallery,
   } = useMockMediaStore()
   const numericId = galleryId ? Number.parseInt(galleryId, 10) : Number.NaN
@@ -17,10 +19,11 @@ export function GalleryManagerRoute() {
   return (
     <GalleryManagerPage
       gallery={gallery}
+      onUpdateGallery={
+        gallery ? (patch) => saveGallery(gallery.id, patch) : undefined
+      }
       onUploadAssets={
-        gallery
-          ? (files, altText) => uploadAssets(gallery.id, files, altText)
-          : undefined
+        gallery ? (uploads) => uploadAssets(gallery.id, uploads) : undefined
       }
       onDeleteAsset={
         gallery ? (asset) => deleteAsset(gallery.id, asset) : undefined
@@ -30,6 +33,15 @@ export function GalleryManagerRoute() {
           ? (asset, delta) => moveAsset(gallery.id, asset, delta)
           : undefined
       }
+      onReorderAsset={
+        gallery
+          ? (fromAsset, toAsset) =>
+              reorderAsset(gallery.id, fromAsset, toAsset)
+          : undefined
+      }
+      onSetCover={
+        gallery ? (file) => setGalleryCover(gallery.id, file) : undefined
+      }
       onDownloadAsset={(asset) => {
         console.log('[GalleryManagerRoute] download requested', asset)
       }}
@@ -38,19 +50,11 @@ export function GalleryManagerRoute() {
           ? () => saveGallery(gallery.id, { visibility: 'draft' })
           : undefined
       }
-      onSaveChanges={
-        gallery
-          ? () => saveGallery(gallery.id, {})
-          : undefined
-      }
       onPublish={
         gallery
           ? () => saveGallery(gallery.id, { visibility: 'published' })
           : undefined
       }
-      onEditDescription={() => {
-        console.log('[GalleryManagerRoute] edit description clicked', gallery)
-      }}
     />
   )
 }

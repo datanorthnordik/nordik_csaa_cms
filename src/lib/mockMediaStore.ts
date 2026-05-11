@@ -20,7 +20,7 @@ function notify() {
 }
 
 function pickFrontImageUrl(detail: GalleryDetail): string | undefined {
-  return detail.assets?.[0]?.fileUrl
+  return detail.coverImage?.fileUrl ?? detail.assets?.[0]?.fileUrl
 }
 
 function summarize(detail: GalleryDetail): GallerySummary {
@@ -31,6 +31,17 @@ function summarize(detail: GalleryDetail): GallerySummary {
     frontImageUrl: pickFrontImageUrl(detail),
     visibility: detail.visibility,
     updatedAt: detail.updatedAt,
+  }
+}
+
+function assetFromFile(file: File, id: number): GalleryAsset {
+  return {
+    id,
+    fileName: file.name,
+    fileUrl: URL.createObjectURL(file),
+    mimeType: file.type,
+    fileSize: file.size,
+    uploadedAt: nowIso(),
   }
 }
 
@@ -66,18 +77,10 @@ export function useMockMediaStore() {
       visibility: input.visibility,
       assetLimit: 20,
       updatedAt: nowIso(),
-      assets: input.frontImage
-        ? [
-            {
-              id: nextId++,
-              fileName: input.frontImage.name,
-              fileUrl: URL.createObjectURL(input.frontImage),
-              mimeType: input.frontImage.type,
-              fileSize: input.frontImage.size,
-              uploadedAt: nowIso(),
-            },
-          ]
-        : [],
+      coverImage: input.frontImage
+        ? assetFromFile(input.frontImage, nextId++)
+        : undefined,
+      assets: [],
     }
     galleries.set(id, detail)
     console.log('[mockMediaStore] createGallery', { input, detail })
@@ -91,13 +94,33 @@ export function useMockMediaStore() {
   )
 
   const uploadAssets = useCallback(
-    (galleryId: number, files: File[], altText: string) => {
+    (
+      galleryId: number,
+      uploads: { file: File; altText: string }[],
+    ) => {
       const gallery = galleries.get(galleryId)
       if (!gallery) {
         return
       }
 
-      const newAssets: GalleryAsset[] = files.map((file) => ({
+      const limit = gallery.assetLimit ?? Number.POSITIVE_INFINITY
+      const currentCount = gallery.assets?.length ?? 0
+      const acceptable = Math.max(0, limit - currentCount)
+      const accepted = uploads.slice(0, acceptable)
+
+      if (accepted.length < uploads.length) {
+        console.warn(
+          '[mockMediaStore] uploadAssets rejected',
+          uploads.length - accepted.length,
+          'file(s) — gallery limit reached',
+        )
+      }
+
+      if (!accepted.length) {
+        return
+      }
+
+      const newAssets: GalleryAsset[] = accepted.map(({ file, altText }) => ({
         id: nextId++,
         fileName: file.name,
         fileUrl: URL.createObjectURL(file),
@@ -116,7 +139,7 @@ export function useMockMediaStore() {
       galleries.set(galleryId, updated)
       console.log('[mockMediaStore] uploadAssets', {
         galleryId,
-        altText,
+        uploads,
         newAssets,
       })
       notify()
@@ -183,8 +206,82 @@ export function useMockMediaStore() {
     [],
   )
 
+  const reorderAsset = useCallback(
+    (galleryId: number, fromAsset: GalleryAsset, toAsset: GalleryAsset) => {
+      const gallery = galleries.get(galleryId)
+      if (!gallery?.assets) {
+        return
+      }
+
+      const fromIndex = gallery.assets.findIndex(
+        (item) => item.id === fromAsset.id,
+      )
+      const toIndex = gallery.assets.findIndex(
+        (item) => item.id === toAsset.id,
+      )
+      if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) {
+        return
+      }
+
+      const next = [...gallery.assets]
+      const [moved] = next.splice(fromIndex, 1)
+      next.splice(toIndex, 0, moved)
+
+      const updated: GalleryDetail = {
+        ...gallery,
+        assets: next,
+        updatedAt: nowIso(),
+      }
+
+      galleries.set(galleryId, updated)
+      console.log('[mockMediaStore] reorderAsset', {
+        galleryId,
+        fromId: fromAsset.id,
+        toId: toAsset.id,
+        fromIndex,
+        toIndex,
+      })
+      notify()
+    },
+    [],
+  )
+
+  const setGalleryCover = useCallback(
+    (galleryId: number, file: File | null) => {
+      const gallery = galleries.get(galleryId)
+      if (!gallery) {
+        return
+      }
+
+      if (gallery.coverImage) {
+        URL.revokeObjectURL(gallery.coverImage.fileUrl)
+      }
+
+      const nextCover = file ? assetFromFile(file, nextId++) : undefined
+
+      const updated: GalleryDetail = {
+        ...gallery,
+        coverImage: nextCover,
+        updatedAt: nowIso(),
+      }
+
+      galleries.set(galleryId, updated)
+      console.log('[mockMediaStore] setGalleryCover', {
+        galleryId,
+        fileName: file?.name ?? null,
+      })
+      notify()
+    },
+    [],
+  )
+
   const saveGallery = useCallback(
-    (galleryId: number, patch: Partial<Pick<GalleryDetail, 'visibility'>>) => {
+    (
+      galleryId: number,
+      patch: Partial<
+        Pick<GalleryDetail, 'visibility' | 'name' | 'description'>
+      >,
+    ) => {
       const gallery = galleries.get(galleryId)
       if (!gallery) {
         return
@@ -210,6 +307,8 @@ export function useMockMediaStore() {
     uploadAssets,
     deleteAsset,
     moveAsset,
+    reorderAsset,
+    setGalleryCover,
     saveGallery,
   }
 }

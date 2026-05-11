@@ -398,7 +398,8 @@
       "assetsOf": "{{count}} / {{limit}} ressources dans cette galerie",
       "updatedAt": "Mis a jour le {{date}}",
       "updatedRelative": "Mis a jour {{relative}}",
-      "editDescription": "Modifier la description"
+      "namePlaceholder": "Nom de la galerie",
+      "descriptionPlaceholder": "Decrivez la galerie..."
     },
     "thumbnail": {
       "selected": "Selectionne",
@@ -406,14 +407,21 @@
       "moveRight": "Deplacer la ressource vers la droite",
       "delete": "Supprimer la ressource"
     },
+    "cover": {
+      "title": "Couverture et description",
+      "hint": "Definissez l image de couverture affichee sur la carte de la galerie et la description visible par les visiteurs.",
+      "descriptionLabel": "Description",
+      "replace": "Remplacer la couverture",
+      "remove": "Retirer la couverture",
+      "dropLabel": "Deposez l image de couverture ici ou parcourez",
+      "dropHint": "Formats pris en charge : PNG, JPG (max 5 Mo)"
+    },
     "actions": {
       "title": "Actions",
-      "hint": "Enregistrez un brouillon, publiez ou mettez a jour la galerie.",
+      "hint": "Enregistrez un brouillon ou publiez la galerie.",
       "statusDraft": "Brouillon",
       "statusPublished": "Publie",
       "saveDraft": "Enregistrer le brouillon",
-      "saveChanges": "Enregistrer les modifications",
-      "saving": "Enregistrement...",
       "publish": "Publier la galerie"
     },
     "uploads": {
@@ -422,9 +430,11 @@
       "dropHint": "Formats pris en charge : PNG, JPG (max 5 Mo)",
       "maxLabel": "Max {{count}} televersements",
       "altLabel": "Details de l image",
+      "altLabelFor": "Details pour {{name}}",
       "altPlaceholder": "Decrivez l image pour l accessibilite...",
-      "pendingFiles_one": "{{count}} fichier pret a televerser",
-      "pendingFiles_other": "{{count}} fichiers prets a televerser",
+      "removeUpload": "Retirer {{name}} de la liste",
+      "limitReached": "Cette galerie est pleine ({{limit}} / {{limit}}). Supprimez une ressource pour en ajouter d autres.",
+      "limitExceeded": "Ajouter ces images depasserait la limite de {{limit}} images ({{count}} au total). Retirez-en pour continuer.",
       "submit": "Televerser"
     },
     "selected": {

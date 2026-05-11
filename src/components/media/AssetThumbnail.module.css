@@ -17,8 +17,28 @@
   border-color: var(--color-primary);
 }
 
+.thumbnail[draggable='true'] {
+  cursor: grab;
+}
+
+.thumbnail[draggable='true']:active {
+  cursor: grabbing;
+}
+
 .selected {
   border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.dragging {
+  opacity: 0.5;
+  transform: scale(0.98);
+  cursor: grabbing;
+}
+
+.dragOver {
+  border-color: var(--color-primary);
+  border-style: dashed;
   box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
