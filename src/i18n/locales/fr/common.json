@@ -131,6 +131,13 @@
       "reset": "Reinitialiser",
       "pageSize": "Taille de page"
     },
+    "breadcrumb": {
+      "events": "Evenements",
+      "list": "Liste",
+      "create": "Creer un evenement",
+      "edit": "Modifier l evenement",
+      "view": "Voir l evenement"
+    },
     "list": {
       "eyebrow": "Evenements / Liste",
       "title": "Evenements",
@@ -269,9 +276,6 @@
       "new": "Ajouter une nouvelle adresse"
     },
     "editor": {
-      "breadcrumbCreate": "Evenements / Creer un evenement",
-      "breadcrumbEdit": "Evenements / Modifier l evenement",
-      "breadcrumbView": "Evenements / Voir l evenement",
       "titleCreate": "Creer un evenement",
       "titleEdit": "Modifier l evenement",
       "titleView": "Voir l evenement",
