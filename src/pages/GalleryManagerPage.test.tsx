@@ -28,6 +28,20 @@ function renderPage(
 
 beforeEach(async () => {
   await i18n.changeLanguage('en')
+  if (typeof URL.createObjectURL !== 'function') {
+    Object.defineProperty(URL, 'createObjectURL', {
+      configurable: true,
+      writable: true,
+      value: vi.fn(() => `blob:mock-${Math.random().toString(36).slice(2)}`),
+    })
+  }
+  if (typeof URL.revokeObjectURL !== 'function') {
+    Object.defineProperty(URL, 'revokeObjectURL', {
+      configurable: true,
+      writable: true,
+      value: vi.fn(),
+    })
+  }
 })
 
 const baseGallery: GalleryDetail = {
@@ -37,32 +51,70 @@ const baseGallery: GalleryDetail = {
   assets: [],
 }
 
+function makeAsset(id: number, fileName: string) {
+  return { id, fileName, fileUrl: `/${fileName}` }
+}
+
+function fileFromName(name: string) {
+  return new File(['x'], name, { type: 'image/jpeg' })
+}
+
 describe('GalleryManagerPage', () => {
   it('renders the not-found state when no gallery is provided', () => {
     renderPage()
     expect(screen.getByText(/gallery unavailable/i)).toBeDefined()
   })
 
-  it('renders gallery name, breadcrumb, and asset counter', () => {
+  it('renders gallery name as an inline-editable input and asset counter', () => {
     renderPage({
-      gallery: { ...baseGallery, assets: [{ id: 9, fileName: 'a.jpg', fileUrl: '/a.jpg' }] },
+      gallery: { ...baseGallery, assets: [makeAsset(9, 'a.jpg')] },
     })
-    expect(screen.getByRole('heading', { name: /summer collection 2024/i })).toBeDefined()
+    expect(screen.getByDisplayValue('Summer Collection 2024')).toBeDefined()
     expect(screen.getByText(/1 \/ 20 assets in this gallery/i)).toBeDefined()
   })
 
-  it('does not render description when it is missing', () => {
+  it('renders an empty description textarea when description is missing', () => {
     renderPage({ gallery: baseGallery })
-    expect(
-      screen.queryByText(/this collection features high-resolution/i),
-    ).toBeNull()
+    const description = screen.getByRole('textbox', {
+      name: /describe the gallery/i,
+    }) as HTMLTextAreaElement
+    expect(description.value).toBe('')
   })
 
-  it('renders description only when present', () => {
-    renderPage({
-      gallery: { ...baseGallery, description: 'My gallery description' },
+  it('commits name changes via onUpdateGallery on blur', () => {
+    const onUpdateGallery = vi.fn()
+    renderPage({ gallery: baseGallery, onUpdateGallery })
+
+    const nameInput = screen.getByDisplayValue('Summer Collection 2024')
+    fireEvent.change(nameInput, { target: { value: 'New Name' } })
+    fireEvent.blur(nameInput)
+
+    expect(onUpdateGallery).toHaveBeenCalledWith({ name: 'New Name' })
+  })
+
+  it('does not call onUpdateGallery when name is unchanged on blur', () => {
+    const onUpdateGallery = vi.fn()
+    renderPage({ gallery: baseGallery, onUpdateGallery })
+
+    const nameInput = screen.getByDisplayValue('Summer Collection 2024')
+    fireEvent.blur(nameInput)
+
+    expect(onUpdateGallery).not.toHaveBeenCalled()
+  })
+
+  it('commits description changes via onUpdateGallery on blur', () => {
+    const onUpdateGallery = vi.fn()
+    renderPage({ gallery: baseGallery, onUpdateGallery })
+
+    const descInput = screen.getByRole('textbox', {
+      name: /describe the gallery/i,
     })
-    expect(screen.getByText(/my gallery description/i)).toBeDefined()
+    fireEvent.change(descInput, { target: { value: 'A summer mood board.' } })
+    fireEvent.blur(descInput)
+
+    expect(onUpdateGallery).toHaveBeenCalledWith({
+      description: 'A summer mood board.',
+    })
   })
 
   it('selecting an asset opens the SelectedImagePanel and conditionally renders blocks', () => {
@@ -109,11 +161,294 @@ describe('GalleryManagerPage', () => {
     expect(screen.getByRole('link', { name: '/home' })).toBeDefined()
   })
 
-  it('disables upload submit until both files and alt-text are provided', () => {
-    const onUploadAssets = vi.fn()
-    renderPage({ gallery: baseGallery, onUploadAssets })
+  it('disables upload submit when no files are pending', () => {
+    renderPage({ gallery: baseGallery, onUploadAssets: vi.fn() })
 
     const submit = screen.getByRole('button', { name: /^upload$/i })
     expect((submit as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('renders a per-image alt-text field for each pending upload', () => {
+    renderPage({ gallery: baseGallery, onUploadAssets: vi.fn() })
+
+    const fileInputs = document.querySelectorAll('input[type="file"]')
+    const dropInput = fileInputs[fileInputs.length - 1] as HTMLInputElement
+    expect(dropInput).toBeTruthy()
+    fireEvent.change(dropInput, {
+      target: { files: [fileFromName('a.jpg'), fileFromName('b.jpg')] },
+    })
+
+    expect(
+      screen.getByRole('textbox', { name: /image details for a\.jpg/i }),
+    ).toBeDefined()
+    expect(
+      screen.getByRole('textbox', { name: /image details for b\.jpg/i }),
+    ).toBeDefined()
+  })
+
+  it('only enables submit when every pending upload has alt-text', () => {
+    const onUploadAssets = vi.fn()
+    renderPage({ gallery: baseGallery, onUploadAssets })
+
+    const fileInputs = document.querySelectorAll('input[type="file"]')
+    const dropInput = fileInputs[fileInputs.length - 1] as HTMLInputElement
+    fireEvent.change(dropInput, {
+      target: { files: [fileFromName('a.jpg'), fileFromName('b.jpg')] },
+    })
+
+    const submit = screen.getByRole('button', { name: /^upload$/i })
+    expect((submit as HTMLButtonElement).disabled).toBe(true)
+
+    fireEvent.change(
+      screen.getByRole('textbox', { name: /image details for a\.jpg/i }),
+      { target: { value: 'first' } },
+    )
+    expect((submit as HTMLButtonElement).disabled).toBe(true)
+
+    fireEvent.change(
+      screen.getByRole('textbox', { name: /image details for b\.jpg/i }),
+      { target: { value: 'second' } },
+    )
+    expect((submit as HTMLButtonElement).disabled).toBe(false)
+
+    fireEvent.click(submit)
+    expect(onUploadAssets).toHaveBeenCalledTimes(1)
+    const arg = onUploadAssets.mock.calls[0][0]
+    expect(arg).toHaveLength(2)
+    expect(arg[0].altText).toBe('first')
+    expect(arg[1].altText).toBe('second')
+  })
+
+  it('enforces the asset limit by clamping dropped files', () => {
+    const fullAssets = Array.from({ length: 19 }, (_, index) =>
+      makeAsset(index + 1, `asset_${index + 1}.jpg`),
+    )
+    renderPage({
+      gallery: { ...baseGallery, assets: fullAssets },
+      onUploadAssets: vi.fn(),
+    })
+
+    const fileInputs = document.querySelectorAll('input[type="file"]')
+    const dropInput = fileInputs[fileInputs.length - 1] as HTMLInputElement
+    fireEvent.change(dropInput, {
+      target: {
+        files: [
+          fileFromName('a.jpg'),
+          fileFromName('b.jpg'),
+          fileFromName('c.jpg'),
+        ],
+      },
+    })
+
+    expect(
+      screen.getAllByRole('textbox', { name: /image details for/i }),
+    ).toHaveLength(1)
+  })
+
+  it('disables the dropzone input when the gallery is already full', () => {
+    const fullAssets = Array.from({ length: 20 }, (_, index) =>
+      makeAsset(index + 1, `asset_${index + 1}.jpg`),
+    )
+    renderPage({
+      gallery: { ...baseGallery, assets: fullAssets },
+      onUploadAssets: vi.fn(),
+    })
+
+    expect(screen.getByRole('alert')).toBeDefined()
+    const fileInputs = document.querySelectorAll('input[type="file"]')
+    const dropInput = fileInputs[fileInputs.length - 1] as HTMLInputElement
+    expect(dropInput.disabled).toBe(true)
+  })
+
+  it('renders Actions card with status chip reflecting visibility', () => {
+    renderPage({
+      gallery: { ...baseGallery, visibility: 'published' },
+    })
+
+    expect(screen.getByRole('heading', { name: /^actions$/i })).toBeDefined()
+    expect(screen.getByText(/^published$/i)).toBeDefined()
+  })
+
+  it('does not render a Save changes button', () => {
+    renderPage({
+      gallery: baseGallery,
+      onSaveDraft: vi.fn(),
+      onPublish: vi.fn(),
+    })
+
+    expect(screen.queryByRole('button', { name: /save changes/i })).toBeNull()
+  })
+
+  it('invokes Save draft and Publish gallery', () => {
+    const onSaveDraft = vi.fn()
+    const onPublish = vi.fn()
+    renderPage({
+      gallery: baseGallery,
+      onSaveDraft,
+      onPublish,
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /save draft/i }))
+    fireEvent.click(screen.getByRole('button', { name: /publish gallery/i }))
+
+    expect(onSaveDraft).toHaveBeenCalledTimes(1)
+    expect(onPublish).toHaveBeenCalledTimes(1)
+  })
+
+  it('renders move/delete overlay buttons only when handlers are provided', () => {
+    const onMoveAsset = vi.fn()
+    const onDeleteAsset = vi.fn()
+    renderPage({
+      gallery: {
+        ...baseGallery,
+        assets: [
+          makeAsset(1, 'a.jpg'),
+          makeAsset(2, 'b.jpg'),
+          makeAsset(3, 'c.jpg'),
+        ],
+      },
+      onMoveAsset,
+      onDeleteAsset,
+    })
+
+    expect(screen.getAllByRole('button', { name: /move asset earlier/i }).length).toBe(2)
+    expect(screen.getAllByRole('button', { name: /move asset later/i }).length).toBe(2)
+    expect(screen.getAllByRole('button', { name: /delete asset/i }).length).toBe(3)
+
+    fireEvent.click(screen.getAllByRole('button', { name: /move asset later/i })[0])
+    expect(onMoveAsset).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 1 }),
+      1,
+    )
+  })
+
+  it('renders the Cover & Description card with an upload dropzone when no cover is set', () => {
+    renderPage({ gallery: baseGallery, onSetCover: vi.fn() })
+
+    expect(
+      screen.getByRole('heading', { name: /cover & description/i }),
+    ).toBeDefined()
+    expect(screen.getByText(/drop cover image here or browse/i)).toBeDefined()
+  })
+
+  it('renders Replace/Remove buttons when a cover image is set', () => {
+    const onSetCover = vi.fn()
+    renderPage({
+      gallery: {
+        ...baseGallery,
+        coverImage: {
+          id: 99,
+          fileName: 'cover.jpg',
+          fileUrl: '/cover.jpg',
+        },
+      },
+      onSetCover,
+    })
+
+    expect(screen.getByRole('button', { name: /remove cover/i })).toBeDefined()
+    expect(screen.getByText(/replace cover/i)).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: /remove cover/i }))
+    expect(onSetCover).toHaveBeenCalledWith(null)
+  })
+
+  it('invokes onSetCover with a file when dropzone receives one', () => {
+    const onSetCover = vi.fn()
+    renderPage({ gallery: baseGallery, onSetCover })
+
+    const fileInputs = document.querySelectorAll('input[type="file"]')
+    // first input is the cover dropzone (no cover set yet)
+    const coverInput = fileInputs[0] as HTMLInputElement
+    const file = fileFromName('new-cover.jpg')
+    fireEvent.change(coverInput, { target: { files: [file] } })
+
+    expect(onSetCover).toHaveBeenCalledTimes(1)
+    expect(onSetCover.mock.calls[0][0]).toBeInstanceOf(File)
+    expect((onSetCover.mock.calls[0][0] as File).name).toBe('new-cover.jpg')
+  })
+
+  it('makes thumbnails draggable only when onReorderAsset is provided', () => {
+    const { rerender } = renderPage({
+      gallery: {
+        ...baseGallery,
+        assets: [makeAsset(1, 'a.jpg'), makeAsset(2, 'b.jpg')],
+      },
+    })
+
+    // Without onReorderAsset, the buttons inside aren't draggable
+    let selectButtons = screen.getAllByRole('button', {
+      name: /^(a\.jpg|b\.jpg)$/i,
+    })
+    expect(selectButtons.length).toBe(2)
+    expect(
+      (selectButtons[0].parentElement as HTMLElement).getAttribute('draggable'),
+    ).toBe('false')
+
+    rerender(
+      <Provider store={createAppStore()}>
+        <MemoryRouter initialEntries={['/media-library/1']}>
+          <Routes>
+            <Route
+              path="/media-library/:galleryId"
+              element={
+                <GalleryManagerPage
+                  gallery={{
+                    ...baseGallery,
+                    assets: [makeAsset(1, 'a.jpg'), makeAsset(2, 'b.jpg')],
+                  }}
+                  onReorderAsset={vi.fn()}
+                />
+              }
+            />
+          </Routes>
+        </MemoryRouter>
+      </Provider>,
+    )
+
+    selectButtons = screen.getAllByRole('button', {
+      name: /^(a\.jpg|b\.jpg)$/i,
+    })
+    expect(
+      (selectButtons[0].parentElement as HTMLElement).getAttribute('draggable'),
+    ).toBe('true')
+  })
+
+  it('invokes onReorderAsset on drop', () => {
+    const onReorderAsset = vi.fn()
+    renderPage({
+      gallery: {
+        ...baseGallery,
+        assets: [
+          makeAsset(1, 'a.jpg'),
+          makeAsset(2, 'b.jpg'),
+          makeAsset(3, 'c.jpg'),
+        ],
+      },
+      onReorderAsset,
+    })
+
+    const thumbs = screen
+      .getAllByRole('button', { name: /^(a\.jpg|b\.jpg|c\.jpg)$/i })
+      .map((btn) => btn.parentElement as HTMLElement)
+
+    const dataTransfer = {
+      data: new Map<string, string>(),
+      effectAllowed: '',
+      dropEffect: '',
+      setData(format: string, value: string) {
+        this.data.set(format, value)
+      },
+      getData(format: string) {
+        return this.data.get(format) ?? ''
+      },
+    }
+
+    fireEvent.dragStart(thumbs[0], { dataTransfer })
+    fireEvent.dragEnter(thumbs[2], { dataTransfer })
+    fireEvent.dragOver(thumbs[2], { dataTransfer })
+    fireEvent.drop(thumbs[2], { dataTransfer })
+
+    expect(onReorderAsset).toHaveBeenCalledTimes(1)
+    expect(onReorderAsset.mock.calls[0][0]).toMatchObject({ id: 1 })
+    expect(onReorderAsset.mock.calls[0][1]).toMatchObject({ id: 3 })
   })
 })

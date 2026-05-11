@@ -40,5 +40,6 @@ export type GalleryDetail = {
   assetLimit?: number
   visibility?: MediaVisibility
   updatedAt?: string
+  coverImage?: GalleryAsset
   assets?: GalleryAsset[]
 }

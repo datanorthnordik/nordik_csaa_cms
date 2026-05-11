@@ -21,12 +21,193 @@
   gap: 10px;
 }
 
-.title {
+.titleRow {
   margin: 0;
   font-size: clamp(1.4rem, 3vw, 2rem);
   font-weight: 800;
   color: var(--color-text);
   line-height: 1.2;
+}
+
+.titleInput {
+  display: block;
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  padding: 6px 10px;
+  margin: -6px -10px;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.titleInput:hover:not(:disabled) {
+  background: var(--color-surface-alt);
+  border-color: var(--color-border);
+}
+
+.titleInput:focus {
+  outline: none;
+  background: var(--color-surface);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.titleInput:disabled {
+  color: var(--color-text);
+  background: transparent;
+  cursor: default;
+}
+
+.descriptionInput {
+  width: 100%;
+  border: 1px solid var(--color-border-input);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.55;
+  resize: vertical;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.descriptionInput::placeholder {
+  color: var(--color-text-placeholder);
+  font-style: italic;
+}
+
+.descriptionInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.descriptionInput:disabled {
+  color: var(--color-text);
+  background: var(--color-surface);
+  cursor: default;
+}
+
+.coverCard {
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface);
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+  box-shadow: var(--shadow-card);
+}
+
+.coverCardHeader {
+  display: grid;
+  gap: 4px;
+}
+
+.coverCardTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.coverCardHint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.coverCardBody {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) 1fr;
+  gap: 20px;
+  align-items: stretch;
+}
+
+.coverArea {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.coverImage {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: 12px;
+  background: var(--color-surface-alt);
+}
+
+.coverActions {
+  display: flex;
+  gap: 8px;
+}
+
+.coverReplaceButton,
+.coverRemoveButton {
+  flex: 1;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  text-align: center;
+}
+
+.coverReplaceButton {
+  border: 1px solid var(--color-primary);
+  background: var(--color-surface);
+  color: var(--color-primary);
+}
+
+.coverReplaceButton:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.coverReplaceButton:focus-within {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.coverRemoveButton {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+}
+
+.coverRemoveButton:hover:not(:disabled) {
+  background: var(--color-error-bg);
+  border-color: var(--color-error-border);
+  color: var(--color-error-strong);
+}
+
+.coverRemoveButton:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.coverRemoveButton:disabled,
+.coverReplaceButton:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.coverDescription {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .coverCardBody {
+    grid-template-columns: 1fr;
+  }
 }
 
 .metaRow {
@@ -40,47 +221,6 @@
 
 .metaDot {
   color: var(--color-border-input);
-}
-
-.description {
-  margin: 6px 0 0;
-  color: var(--color-text);
-  font-size: 14px;
-  line-height: 1.55;
-  max-width: 70ch;
-}
-
-.galleryActions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  margin-top: 6px;
-}
-
-.linkButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: none;
-  background: transparent;
-  color: var(--color-primary);
-  font: inherit;
-  font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  padding: 0;
-}
-
-.linkButton:hover {
-  text-decoration: underline;
-}
-
-.linkButton:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
 }
 
 .actionsCard {
@@ -212,8 +352,6 @@
 .uploadForm {
   display: grid;
   gap: 16px;
-  grid-template-columns: 1fr 1fr;
-  align-items: stretch;
 }
 
 .uploadDetails {
@@ -221,9 +359,102 @@
   gap: 12px;
 }
 
-.field {
+.pendingList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.pendingItem {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+}
+
+.pendingThumb {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--color-surface-alt);
+}
+
+.pendingFields {
   display: grid;
   gap: 6px;
+  min-width: 0;
+}
+
+.pendingFileName {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text);
+  word-break: break-all;
+}
+
+.pendingAltLabel {
+  display: grid;
+  gap: 4px;
+}
+
+.pendingAltInput {
+  width: 100%;
+  border: 1px solid var(--color-border-input);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.pendingAltInput:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.pendingRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.pendingRemove:hover {
+  background: var(--color-error-bg);
+  color: var(--color-error-strong);
+  border-color: var(--color-error-border);
+}
+
+.pendingRemove:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.limitWarning {
+  margin: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--color-error-border);
+  border-radius: 10px;
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+  font-size: 13px;
 }
 
 .fieldLabel {
@@ -237,28 +468,6 @@
 .required {
   color: var(--color-error-strong);
   margin-left: 4px;
-}
-
-.textarea {
-  width: 100%;
-  border: 1px solid var(--color-border-input);
-  border-radius: 12px;
-  padding: 12px 14px;
-  background: var(--color-surface);
-  color: var(--color-text);
-  font: inherit;
-  resize: vertical;
-}
-
-.textarea:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-.pendingFiles {
-  margin: 0;
-  font-size: 12px;
-  color: var(--color-text-muted);
 }
 
 .uploadActions {
@@ -345,8 +554,13 @@
   }
 }
 
-@media (max-width: 720px) {
-  .uploadForm {
-    grid-template-columns: 1fr;
+@media (max-width: 540px) {
+  .pendingItem {
+    grid-template-columns: 64px 1fr auto;
+  }
+
+  .pendingThumb {
+    width: 64px;
+    height: 64px;
   }
 }

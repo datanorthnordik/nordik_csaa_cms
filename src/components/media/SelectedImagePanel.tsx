@@ -139,14 +139,16 @@ export function SelectedImagePanel({
       )}
 
       <footer className={styles.footer}>
-        <button
-          type="button"
+        <a
           className={styles.downloadButton}
+          href={asset.fileUrl}
+          download={asset.fileName}
+          rel="noopener"
           onClick={() => onDownload?.(asset)}
         >
           <DownloadIcon size={16} />
           {t('galleryManager.selected.actions.download')}
-        </button>
+        </a>
         <button
           type="button"
           className={styles.deleteButton}

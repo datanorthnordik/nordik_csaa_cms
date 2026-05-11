@@ -398,7 +398,8 @@
       "assetsOf": "{{count}} / {{limit}} assets in this gallery",
       "updatedAt": "Updated {{date}}",
       "updatedRelative": "Updated {{relative}}",
-      "editDescription": "Edit description"
+      "namePlaceholder": "Gallery name",
+      "descriptionPlaceholder": "Describe the gallery..."
     },
     "thumbnail": {
       "selected": "Selected",
@@ -406,14 +407,21 @@
       "moveRight": "Move asset later",
       "delete": "Delete asset"
     },
+    "cover": {
+      "title": "Cover & Description",
+      "hint": "Set the cover image shown on the gallery card and the description visitors will read.",
+      "descriptionLabel": "Description",
+      "replace": "Replace cover",
+      "remove": "Remove cover",
+      "dropLabel": "Drop cover image here or browse",
+      "dropHint": "Supports PNG, JPG (Max 5MB)"
+    },
     "actions": {
       "title": "Actions",
-      "hint": "Save a draft, publish, or update the gallery.",
+      "hint": "Save a draft or publish the gallery.",
       "statusDraft": "Draft",
       "statusPublished": "Published",
       "saveDraft": "Save draft",
-      "saveChanges": "Save changes",
-      "saving": "Saving...",
       "publish": "Publish gallery"
     },
     "uploads": {
@@ -422,9 +430,11 @@
       "dropHint": "Supports PNG, JPG (Max 5MB)",
       "maxLabel": "Max {{count}} uploads",
       "altLabel": "Image details",
+      "altLabelFor": "Image details for {{name}}",
       "altPlaceholder": "Describe the image for accessibility...",
-      "pendingFiles_one": "{{count}} file ready to upload",
-      "pendingFiles_other": "{{count}} files ready to upload",
+      "removeUpload": "Remove {{name}} from upload list",
+      "limitReached": "This gallery is full ({{limit}} / {{limit}}). Remove an asset to add more.",
+      "limitExceeded": "Adding these images would exceed the {{limit}}-image limit ({{count}} total). Remove some to continue.",
       "submit": "Upload"
     },
     "selected": {

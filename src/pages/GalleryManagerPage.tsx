@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
-import { AddPhotoIcon, CloudUploadIcon, EditIcon } from '../components/icons'
+import { AddPhotoIcon, CloseIcon, CloudUploadIcon } from '../components/icons'
 import { Loader } from '../components/Loader'
 import { AssetThumbnail } from '../components/media/AssetThumbnail'
 import { SelectedImagePanel } from '../components/media/SelectedImagePanel'
@@ -11,22 +11,44 @@ import { UploadDropzone } from '../components/media/UploadDropzone'
 import type { GalleryAsset, GalleryDetail } from '../types/media'
 import styles from '../styles/GalleryManagerPage.module.css'
 
+export type GalleryUpdatePatch = Partial<Pick<GalleryDetail, 'name' | 'description'>>
+
+export type PendingUploadInput = {
+  file: File
+  altText: string
+}
+
 type GalleryManagerPageProps = {
   gallery?: GalleryDetail
   loading?: boolean
   saving?: boolean
   error?: string
+  onUpdateGallery?: (patch: GalleryUpdatePatch) => void
   onSaveDraft?: () => void
-  onSaveChanges?: () => void
   onPublish?: () => void
-  onEditDescription?: () => void
-  onUploadAssets?: (files: File[], altText: string) => void
+  onUploadAssets?: (uploads: PendingUploadInput[]) => void
   onDeleteAsset?: (asset: GalleryAsset) => void
   onDownloadAsset?: (asset: GalleryAsset) => void
   onMoveAsset?: (asset: GalleryAsset, delta: number) => void
+  onReorderAsset?: (fromAsset: GalleryAsset, toAsset: GalleryAsset) => void
+  onSetCover?: (file: File | null) => void
   formatRelativeTime?: (isoDate: string) => string
   formatFileSize?: (bytes: number) => string
   formatUploadedAt?: (isoDate: string) => string
+}
+
+type PendingUpload = {
+  id: string
+  file: File
+  previewUrl: string
+  altText: string
+}
+
+function makePendingId() {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return crypto.randomUUID()
+  }
+  return `${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
 export function GalleryManagerPage({
@@ -34,14 +56,15 @@ export function GalleryManagerPage({
   loading = false,
   saving = false,
   error,
+  onUpdateGallery,
   onSaveDraft,
-  onSaveChanges,
   onPublish,
-  onEditDescription,
   onUploadAssets,
   onDeleteAsset,
   onDownloadAsset,
   onMoveAsset,
+  onReorderAsset,
+  onSetCover,
   formatRelativeTime,
   formatFileSize,
   formatUploadedAt,
@@ -50,8 +73,9 @@ export function GalleryManagerPage({
   const navigate = useNavigate()
   const { galleryId } = useParams()
   const [selectedAssetId, setSelectedAssetId] = useState<number | null>(null)
-  const [pendingFiles, setPendingFiles] = useState<File[]>([])
-  const [altText, setAltText] = useState('')
+  const [pendingUploads, setPendingUploads] = useState<PendingUpload[]>([])
+  const [draggedAssetId, setDraggedAssetId] = useState<number | null>(null)
+  const [dragOverAssetId, setDragOverAssetId] = useState<number | null>(null)
 
   const selectedAsset =
     gallery?.assets && selectedAssetId !== null
@@ -59,18 +83,103 @@ export function GalleryManagerPage({
       : null
 
   const assetCount = gallery?.assets?.length ?? 0
+  const assetLimit = gallery?.assetLimit
+  const remainingSlots =
+    typeof assetLimit === 'number'
+      ? Math.max(0, assetLimit - assetCount - pendingUploads.length)
+      : Infinity
+  const isLimitReached =
+    typeof assetLimit === 'number' && assetCount >= assetLimit
+  const willExceedLimit =
+    typeof assetLimit === 'number' &&
+    assetCount + pendingUploads.length > assetLimit
+  const allAltTextsFilled =
+    pendingUploads.length > 0 &&
+    pendingUploads.every((upload) => upload.altText.trim().length > 0)
   const showUploadTile =
-    typeof gallery?.assetLimit === 'number' && assetCount < gallery.assetLimit
+    typeof assetLimit === 'number' && assetCount < assetLimit
 
-  function handleUpload(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    if (!pendingFiles.length) {
+  function handleFilesDropped(files: File[]) {
+    const accepted =
+      remainingSlots === Infinity ? files : files.slice(0, remainingSlots)
+    const rejected = files.length - accepted.length
+
+    if (rejected > 0) {
+      console.warn(
+        `[GalleryManagerPage] Rejected ${rejected} file(s) — gallery limit reached`,
+      )
+    }
+
+    if (!accepted.length) {
       return
     }
 
-    onUploadAssets?.(pendingFiles, altText.trim())
-    setPendingFiles([])
-    setAltText('')
+    const additions: PendingUpload[] = accepted.map((file) => ({
+      id: makePendingId(),
+      file,
+      previewUrl: URL.createObjectURL(file),
+      altText: '',
+    }))
+
+    setPendingUploads((current) => [...current, ...additions])
+  }
+
+  function updatePendingAlt(id: string, value: string) {
+    setPendingUploads((current) =>
+      current.map((upload) =>
+        upload.id === id ? { ...upload, altText: value } : upload,
+      ),
+    )
+  }
+
+  function removePending(id: string) {
+    setPendingUploads((current) => {
+      const target = current.find((upload) => upload.id === id)
+      if (target) {
+        URL.revokeObjectURL(target.previewUrl)
+      }
+      return current.filter((upload) => upload.id !== id)
+    })
+  }
+
+  function handleUpload(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!pendingUploads.length || !allAltTextsFilled || willExceedLimit) {
+      return
+    }
+
+    onUploadAssets?.(
+      pendingUploads.map((upload) => ({
+        file: upload.file,
+        altText: upload.altText.trim(),
+      })),
+    )
+
+    pendingUploads.forEach((upload) => URL.revokeObjectURL(upload.previewUrl))
+    setPendingUploads([])
+  }
+
+  function commitName(value: string) {
+    if (!onUpdateGallery || !gallery) {
+      return
+    }
+    const trimmed = value.trim()
+    if (!trimmed || trimmed === gallery.name) {
+      return
+    }
+    onUpdateGallery({ name: trimmed })
+  }
+
+  function commitDescription(value: string) {
+    if (!onUpdateGallery || !gallery) {
+      return
+    }
+    const trimmed = value.trim()
+    const current = gallery.description ?? ''
+    if (trimmed === current) {
+      return
+    }
+    onUpdateGallery({ description: trimmed || undefined })
   }
 
   return (
@@ -111,7 +220,24 @@ export function GalleryManagerPage({
           <div className={styles.layout}>
             <div className={styles.main}>
               <header className={styles.galleryHeader}>
-                <h1 className={styles.title}>{gallery.name}</h1>
+                <h1 className={styles.titleRow}>
+                  <input
+                    key={`name-${gallery.id}`}
+                    type="text"
+                    className={styles.titleInput}
+                    defaultValue={gallery.name}
+                    placeholder={t('galleryManager.header.namePlaceholder')}
+                    aria-label={t('galleryManager.header.namePlaceholder')}
+                    disabled={!onUpdateGallery}
+                    onBlur={(event) => commitName(event.target.value)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        event.currentTarget.blur()
+                      }
+                    }}
+                  />
+                </h1>
+
                 <div className={styles.metaRow}>
                   {typeof gallery.assetLimit === 'number' && (
                     <span className={styles.metaItem}>
@@ -141,23 +267,94 @@ export function GalleryManagerPage({
                   )}
                 </div>
 
-                {gallery.description && (
-                  <p className={styles.description}>{gallery.description}</p>
-                )}
-
-                {onEditDescription && (
-                  <div className={styles.galleryActions}>
-                    <button
-                      type="button"
-                      className={styles.linkButton}
-                      onClick={onEditDescription}
-                    >
-                      <EditIcon />
-                      {t('galleryManager.header.editDescription')}
-                    </button>
-                  </div>
-                )}
               </header>
+
+              <section className={styles.coverCard}>
+                <div className={styles.coverCardHeader}>
+                  <h2 className={styles.coverCardTitle}>
+                    {t('galleryManager.cover.title')}
+                  </h2>
+                  <p className={styles.coverCardHint}>
+                    {t('galleryManager.cover.hint')}
+                  </p>
+                </div>
+
+                <div className={styles.coverCardBody}>
+                  <div className={styles.coverArea}>
+                    {gallery.coverImage ? (
+                      <>
+                        <img
+                          src={gallery.coverImage.fileUrl}
+                          alt={
+                            gallery.coverImage.altText ?? gallery.coverImage.fileName
+                          }
+                          className={styles.coverImage}
+                        />
+                        <div className={styles.coverActions}>
+                          <label className={styles.coverReplaceButton}>
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg"
+                              hidden
+                              disabled={!onSetCover}
+                              onChange={(event) => {
+                                const file = event.target.files?.[0]
+                                if (file) {
+                                  onSetCover?.(file)
+                                }
+                                event.target.value = ''
+                              }}
+                            />
+                            {t('galleryManager.cover.replace')}
+                          </label>
+                          <button
+                            type="button"
+                            className={styles.coverRemoveButton}
+                            onClick={() => onSetCover?.(null)}
+                            disabled={!onSetCover}
+                          >
+                            {t('galleryManager.cover.remove')}
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <UploadDropzone
+                        icon={<CloudUploadIcon />}
+                        accept="image/png,image/jpeg"
+                        label={t('galleryManager.cover.dropLabel')}
+                        hint={t('galleryManager.cover.dropHint')}
+                        disabled={!onSetCover}
+                        onFiles={(files) => {
+                          const file = files[0]
+                          if (file) {
+                            onSetCover?.(file)
+                          }
+                        }}
+                      />
+                    )}
+                  </div>
+
+                  <label className={styles.coverDescription}>
+                    <span className={styles.fieldLabel}>
+                      {t('galleryManager.cover.descriptionLabel')}
+                    </span>
+                    <textarea
+                      key={`desc-${gallery.id}`}
+                      className={styles.descriptionInput}
+                      defaultValue={gallery.description ?? ''}
+                      placeholder={t(
+                        'galleryManager.header.descriptionPlaceholder',
+                      )}
+                      aria-label={t(
+                        'galleryManager.header.descriptionPlaceholder',
+                      )}
+                      rows={6}
+                      disabled={!onUpdateGallery}
+                      onBlur={(event) => commitDescription(event.target.value)}
+                    />
+                  </label>
+                </div>
+              </section>
 
               {error && <p className={styles.errorText}>{error}</p>}
 
@@ -195,6 +392,41 @@ export function GalleryManagerPage({
                             }
                           : undefined
                       }
+                      draggable={Boolean(onReorderAsset)}
+                      isDragging={asset.id === draggedAssetId}
+                      isDragOver={
+                        asset.id === dragOverAssetId &&
+                        asset.id !== draggedAssetId
+                      }
+                      onDragStart={(item) => setDraggedAssetId(item.id)}
+                      onDragEnd={() => {
+                        setDraggedAssetId(null)
+                        setDragOverAssetId(null)
+                      }}
+                      onDragEnter={(item) => setDragOverAssetId(item.id)}
+                      onDragLeave={(item) => {
+                        setDragOverAssetId((current) =>
+                          current === item.id ? null : current,
+                        )
+                      }}
+                      onDragDrop={(target) => {
+                        if (
+                          !onReorderAsset ||
+                          draggedAssetId === null ||
+                          draggedAssetId === target.id ||
+                          !gallery.assets
+                        ) {
+                          return
+                        }
+                        const fromAsset = gallery.assets.find(
+                          (item) => item.id === draggedAssetId,
+                        )
+                        if (fromAsset) {
+                          onReorderAsset(fromAsset, target)
+                        }
+                        setDraggedAssetId(null)
+                        setDragOverAssetId(null)
+                      }}
                     />
                   ))}
                   {showUploadTile && gallery.assetLimit !== undefined && (
@@ -221,40 +453,97 @@ export function GalleryManagerPage({
                     multiple
                     label={t('galleryManager.uploads.dropLabel')}
                     hint={t('galleryManager.uploads.dropHint')}
-                    onFiles={(files) => setPendingFiles(files)}
+                    disabled={isLimitReached}
+                    onFiles={handleFilesDropped}
                   />
-                  <div className={styles.uploadDetails}>
-                    <label className={styles.field}>
-                      <span className={styles.fieldLabel}>
-                        {t('galleryManager.uploads.altLabel')}
-                        <span className={styles.required} aria-hidden="true">
-                          *
-                        </span>
-                      </span>
-                      <textarea
-                        className={styles.textarea}
-                        rows={3}
-                        value={altText}
-                        onChange={(event) => setAltText(event.target.value)}
-                        placeholder={t('galleryManager.uploads.altPlaceholder')}
-                      />
-                    </label>
-                    {pendingFiles.length > 0 && (
-                      <p className={styles.pendingFiles}>
-                        {t('galleryManager.uploads.pendingFiles', {
-                          count: pendingFiles.length,
-                        })}
-                      </p>
-                    )}
-                    <div className={styles.uploadActions}>
-                      <button
-                        type="submit"
-                        className={styles.primaryButton}
-                        disabled={!pendingFiles.length || !altText.trim()}
-                      >
-                        {t('galleryManager.uploads.submit')}
-                      </button>
-                    </div>
+
+                  {isLimitReached && (
+                    <p className={styles.limitWarning} role="alert">
+                      {t('galleryManager.uploads.limitReached', {
+                        limit: assetLimit,
+                      })}
+                    </p>
+                  )}
+
+                  {pendingUploads.length > 0 && (
+                    <>
+                      <ul className={styles.pendingList}>
+                        {pendingUploads.map((upload) => (
+                          <li key={upload.id} className={styles.pendingItem}>
+                            <img
+                              src={upload.previewUrl}
+                              alt=""
+                              className={styles.pendingThumb}
+                            />
+                            <div className={styles.pendingFields}>
+                              <p className={styles.pendingFileName}>
+                                {upload.file.name}
+                              </p>
+                              <label className={styles.pendingAltLabel}>
+                                <span className={styles.fieldLabel}>
+                                  {t('galleryManager.uploads.altLabel')}
+                                  <span
+                                    className={styles.required}
+                                    aria-hidden="true"
+                                  >
+                                    *
+                                  </span>
+                                </span>
+                                <textarea
+                                  className={styles.pendingAltInput}
+                                  rows={2}
+                                  value={upload.altText}
+                                  onChange={(event) =>
+                                    updatePendingAlt(upload.id, event.target.value)
+                                  }
+                                  placeholder={t(
+                                    'galleryManager.uploads.altPlaceholder',
+                                  )}
+                                  aria-label={t(
+                                    'galleryManager.uploads.altLabelFor',
+                                    { name: upload.file.name },
+                                  )}
+                                />
+                              </label>
+                            </div>
+                            <button
+                              type="button"
+                              className={styles.pendingRemove}
+                              onClick={() => removePending(upload.id)}
+                              aria-label={t(
+                                'galleryManager.uploads.removeUpload',
+                                { name: upload.file.name },
+                              )}
+                            >
+                              <CloseIcon size={16} />
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+
+                      {willExceedLimit && (
+                        <p className={styles.limitWarning} role="alert">
+                          {t('galleryManager.uploads.limitExceeded', {
+                            count: assetCount + pendingUploads.length,
+                            limit: assetLimit,
+                          })}
+                        </p>
+                      )}
+                    </>
+                  )}
+
+                  <div className={styles.uploadActions}>
+                    <button
+                      type="submit"
+                      className={styles.primaryButton}
+                      disabled={
+                        !pendingUploads.length ||
+                        !allAltTextsFilled ||
+                        willExceedLimit
+                      }
+                    >
+                      {t('galleryManager.uploads.submit')}
+                    </button>
                   </div>
                 </form>
               </section>
@@ -296,23 +585,11 @@ export function GalleryManagerPage({
                   <button
                     type="button"
                     className={styles.primaryButton}
-                    onClick={onSaveChanges}
-                    disabled={!onSaveChanges || saving}
+                    onClick={onPublish}
+                    disabled={!onPublish || saving}
                   >
-                    {saving
-                      ? t('galleryManager.actions.saving')
-                      : t('galleryManager.actions.saveChanges')}
+                    {t('galleryManager.actions.publish')}
                   </button>
-                  {gallery.visibility !== 'published' && onPublish && (
-                    <button
-                      type="button"
-                      className={styles.publishButton}
-                      onClick={onPublish}
-                      disabled={saving}
-                    >
-                      {t('galleryManager.actions.publish')}
-                    </button>
-                  )}
                 </div>
               </section>
             </div>
