@@ -3,22 +3,32 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
+<<<<<<< HEAD
 import {
   DeleteOutlined,
   EditOutlined,
   VisibilityOutlined,
 } from '@mui/icons-material'
+=======
+import DeleteOutlined from '@mui/icons-material/DeleteOutlined'
+import EditOutlined from '@mui/icons-material/EditOutlined'
+import VisibilityOutlined from '@mui/icons-material/VisibilityOutlined'
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
+<<<<<<< HEAD
 import {
   AddIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   SearchIcon,
 } from '../components/icons'
+=======
+import { AddIcon, SearchIcon } from '../components/icons'
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
 import type { PageListItem, PageStatusFilter } from '../api/pagesApi'
@@ -32,14 +42,21 @@ import {
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import styles from '../styles/PagesListPage.module.css'
 
+<<<<<<< HEAD
 type PaginationToken = number | 'ellipsis'
 
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 export function PagesListPage() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const { i18n, t } = useTranslation()
   const filters = useAppSelector(selectPageListFilters)
+<<<<<<< HEAD
   const { items, pagination, status, error } = useAppSelector(selectPageList)
+=======
+  const { items, status, error } = useAppSelector(selectPageList)
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   const [searchInput, setSearchInput] = useState(filters.searchTerm)
   const [deleteCandidate, setDeleteCandidate] = useState<PageListItem | null>(null)
   const [deletingPageId, setDeletingPageId] = useState<number | null>(null)
@@ -58,7 +75,10 @@ export function PagesListPage() {
         dispatch(
           setPageListFilters({
             searchTerm: searchInput,
+<<<<<<< HEAD
             page: 1,
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
           }),
         )
       }
@@ -84,6 +104,7 @@ export function PagesListPage() {
   )
 
   const isLoading = status === 'loading'
+<<<<<<< HEAD
   const totalItems = pagination?.total_items ?? 0
   const rangeStart =
     pagination && totalItems > 0 ? (pagination.page - 1) * pagination.page_size + 1 : 0
@@ -99,12 +120,18 @@ export function PagesListPage() {
 
     dispatch(setPageListFilters({ page: nextPage }))
   }
+=======
+  const totalItems = items.length
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 
   function changeStatus(statusValue: PageStatusFilter) {
     dispatch(
       setPageListFilters({
         status: statusValue,
+<<<<<<< HEAD
         page: 1,
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
       }),
     )
   }
@@ -115,6 +142,7 @@ export function PagesListPage() {
     try {
       await dispatch(deletePageAction(item.id)).unwrap()
       setDeleteCandidate(null)
+<<<<<<< HEAD
 
       const nextPage =
         pagination && pagination.page > 1 && items.length === 1
@@ -122,6 +150,8 @@ export function PagesListPage() {
           : filters.page
 
       dispatch(setPageListFilters({ page: nextPage }))
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
       toast.success(t('pages.feedback.deleted'))
     } catch {
       return
@@ -140,6 +170,7 @@ export function PagesListPage() {
     )
   }
 
+<<<<<<< HEAD
   function buildPaginationTokens(currentPage: number, totalPages: number): PaginationToken[] {
     if (totalPages <= 5) {
       return Array.from({ length: totalPages }, (_, index) => index + 1)
@@ -160,6 +191,8 @@ export function PagesListPage() {
     ? buildPaginationTokens(pagination.page, pagination.total_pages)
     : []
 
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   return (
     <CmsAppShell activeKey="pages">
       <div className={styles.page}>
@@ -347,6 +380,7 @@ export function PagesListPage() {
               <p className={styles.emptyText}>{t('pages.list.emptyText')}</p>
             </div>
           )}
+<<<<<<< HEAD
 
           {pagination && pagination.total_pages > 1 && (
             <footer className={styles.pagination}>
@@ -399,6 +433,8 @@ export function PagesListPage() {
               </div>
             </footer>
           )}
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
         </section>
 
         <Dialog

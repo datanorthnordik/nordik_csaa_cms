@@ -55,6 +55,7 @@ export type EventMedia = {
   gcp_object_key: string
   file_url: string
   fetch_url?: string
+  storage_url?: string
   storage_uri?: string
   mime_type: string
   file_size: number
@@ -358,11 +359,19 @@ export const eventsApi = {
     await apiClient.delete(API_ROUTES.eventById(id))
   },
 
-  async deleteEventDocument(eventId: number, mediaId: number) {
-    await apiClient.delete(API_ROUTES.eventDocumentById(eventId, mediaId))
+  async deleteEventDocument(eventId: number, storageUrl: string) {
+    await apiClient.delete(API_ROUTES.eventDocumentById(eventId), {
+      params: {
+        storage_url: storageUrl,
+      },
+    })
   },
 
-  async deleteEventPhoto(eventId: number, mediaId: number) {
-    await apiClient.delete(API_ROUTES.eventPhotoById(eventId, mediaId))
+  async deleteEventPhoto(eventId: number, storageUrl: string) {
+    await apiClient.delete(API_ROUTES.eventPhotoById(eventId), {
+      params: {
+        storage_url: storageUrl,
+      },
+    })
   },
 }

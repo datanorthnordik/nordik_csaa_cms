@@ -144,7 +144,8 @@
 }
 
 .field input,
-.field textarea {
+.field textarea,
+.field select {
   width: 100%;
   padding: 0.85rem 1rem;
   border: 1px solid #e6d5ce;
@@ -158,6 +159,12 @@
 .field input::placeholder,
 .field textarea::placeholder {
   color: #a2878a;
+}
+
+.fieldHint {
+  margin: 0;
+  color: #816467;
+  font-size: 0.9rem;
 }
 
 .slugField {

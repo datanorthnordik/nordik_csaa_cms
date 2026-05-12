@@ -469,3 +469,40 @@ describe('buildSaveEventRequest', () => {
     expect(request.private_audiences).toEqual([])
   })
 })
+
+describe('buildSaveEventRequest', () => {
+  it('returns multipart-ready event media metadata without base64 content', () => {
+    const displayImageFile = new File(['poster'], 'poster.png', {
+      type: 'image/png',
+    })
+    const attachmentFile = new File(['agenda'], 'agenda.pdf', {
+      type: 'application/pdf',
+    })
+    const form = createDefaultEventFormState()
+
+    form.title = 'Spring Fair'
+    form.categoriesText = 'Events'
+    form.startDate = '2026-05-01'
+    form.displayImageFile = displayImageFile
+    form.attachmentFiles = [attachmentFile]
+
+    const request = buildSaveEventRequest(form)
+
+    expect(request.displayImageFile).toBe(displayImageFile)
+    expect(request.attachmentFiles).toEqual([attachmentFile])
+    expect(request.display_image).toEqual({
+      display_name: 'poster.png',
+      file_name: 'poster.png',
+      mime_type: 'image/png',
+    })
+    expect(request.attachments).toEqual([
+      {
+        display_name: 'agenda.pdf',
+        file_name: 'agenda.pdf',
+        mime_type: 'application/pdf',
+      },
+    ])
+    expect(request.display_image).not.toHaveProperty('data_base64')
+    expect(request.attachments[0]).not.toHaveProperty('data_base64')
+  })
+})

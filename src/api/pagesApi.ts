@@ -13,7 +13,24 @@ export type PageSortBy =
   | 'updated_at'
 export type PageSortOrder = 'asc' | 'desc'
 
+<<<<<<< HEAD
 export type PageListItem = {
+=======
+export type PageParentReference = {
+  id: number
+  page_title: string
+  url_slug: string
+}
+
+type PageParentRelation = {
+  parent_page_id?: number | null
+  parent_id?: number | null
+  parent_page?: PageParentReference | null
+  parent?: PageParentReference | null
+}
+
+export type PageListItem = PageParentRelation & {
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   id: number
   page_title: string
   url_slug: string
@@ -60,7 +77,11 @@ type RawPageListResponse = Omit<PageListResponse, 'items'> & {
   items: PageListItem[] | null
 }
 
+<<<<<<< HEAD
 export type PageDetailResponse = {
+=======
+export type PageDetailResponse = PageParentRelation & {
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   id: number
   page_title: string
   url_slug: string
@@ -92,6 +113,10 @@ export type PageUploadInput = {
 export type SavePagePayload = {
   page_title: string
   url_slug: string
+<<<<<<< HEAD
+=======
+  parent_page_id: number | null
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   status: PageStatus
   hero_image_enabled: boolean
   hero_image?: PageUploadInput
@@ -104,6 +129,16 @@ export type SavePageRequest = SavePagePayload & {
   heroImageFile?: File
 }
 
+<<<<<<< HEAD
+=======
+export type PageParentOption = {
+  id: number
+  page_title: string
+  url_slug: string
+  parent_page_id: number | null
+}
+
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 export type PageMutationResponse = {
   message: string
   page: {
@@ -116,8 +151,11 @@ export type PageMutationResponse = {
 
 function buildListQuery(filters: PageListFilters) {
   const params = new URLSearchParams()
+<<<<<<< HEAD
   params.set('page', String(filters.page))
   params.set('page_size', String(filters.pageSize))
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   params.set('sort_by', filters.sortBy)
   params.set('sort_order', filters.sortOrder)
 
@@ -131,6 +169,7 @@ function buildListQuery(filters: PageListFilters) {
   return params
 }
 
+<<<<<<< HEAD
 export const pagesApi = {
   async listPages(filters: PageListFilters) {
     const response = await apiClient.get<RawPageListResponse>(API_ROUTES.pages, {
@@ -139,6 +178,63 @@ export const pagesApi = {
     return {
       ...response.data,
       items: Array.isArray(response.data.items) ? response.data.items : [],
+=======
+async function fetchAllPageListItems(filters: PageListFilters) {
+  const response = await apiClient.get<RawPageListResponse>(API_ROUTES.pages, {
+    params: buildListQuery(filters),
+  })
+
+  return Array.isArray(response.data.items) ? response.data.items : []
+}
+
+export function resolvePageParentId(page: PageParentRelation) {
+  if (typeof page.parent_page_id === 'number') {
+    return page.parent_page_id
+  }
+
+  if (typeof page.parent_id === 'number') {
+    return page.parent_id
+  }
+
+  if (typeof page.parent_page?.id === 'number') {
+    return page.parent_page.id
+  }
+
+  if (typeof page.parent?.id === 'number') {
+    return page.parent.id
+  }
+
+  return null
+}
+
+export function resolvePageParentSlug(page: PageParentRelation) {
+  return page.parent_page?.url_slug ?? page.parent?.url_slug ?? ''
+}
+
+export const pagesApi = {
+  async listPages(filters: PageListFilters) {
+    const items = await fetchAllPageListItems(filters)
+    const totalItems = items.length
+
+    return {
+      items,
+      pagination: {
+        page: 1,
+        page_size: totalItems,
+        total_items: totalItems,
+        total_pages: 1,
+        has_next: false,
+        has_prev: false,
+      },
+      applied_filters: {
+        page: 1,
+        page_size: totalItems,
+        search_term: filters.searchTerm.trim(),
+        status: filters.status,
+        sort_by: filters.sortBy,
+        sort_order: filters.sortOrder,
+      },
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
     } satisfies PageListResponse
   },
 
@@ -147,6 +243,53 @@ export const pagesApi = {
     return response.data
   },
 
+<<<<<<< HEAD
+=======
+  async listPageParentOptions() {
+    const allItems = await fetchAllPageListItems({
+      page: 1,
+      pageSize: 100,
+      searchTerm: '',
+      status: '',
+      sortBy: 'page_title',
+      sortOrder: 'asc',
+    })
+
+    const missingParentDataIds = allItems
+      .filter(
+        (item) =>
+          item.parent_page_id === undefined &&
+          item.parent_id === undefined &&
+          item.parent_page === undefined &&
+          item.parent === undefined,
+      )
+      .map((item) => item.id)
+
+    const detailedPages = new Map<number, PageDetailResponse>()
+
+    if (missingParentDataIds.length > 0) {
+      const details = await Promise.all(
+        missingParentDataIds.map((id) => pagesApi.getPage(id)),
+      )
+
+      for (const detail of details) {
+        detailedPages.set(detail.id, detail)
+      }
+    }
+
+    return allItems.map((item) => {
+      const source = detailedPages.get(item.id) ?? item
+
+      return {
+        id: item.id,
+        page_title: item.page_title,
+        url_slug: item.url_slug,
+        parent_page_id: resolvePageParentId(source),
+      } satisfies PageParentOption
+    })
+  },
+
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   async fetchPageHeroImageContent(path: string) {
     const response = await apiClient.get<Blob>(path, {
       responseType: 'blob',

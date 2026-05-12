@@ -41,6 +41,10 @@ describe('upload request bodies', () => {
     await pagesApi.createPage({
       page_title: 'Homepage',
       url_slug: '/home',
+<<<<<<< HEAD
+=======
+      parent_page_id: null,
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
       status: 'draft',
       hero_image_enabled: true,
       hero_image: {
@@ -62,6 +66,10 @@ describe('upload request bodies', () => {
       JSON.stringify({
         page_title: 'Homepage',
         url_slug: '/home',
+<<<<<<< HEAD
+=======
+        parent_page_id: null,
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
         status: 'draft',
         hero_image_enabled: true,
         hero_image: {
@@ -76,6 +84,7 @@ describe('upload request bodies', () => {
     expect(((body as FormData).get('hero_image_file') as File).name).toBe('hero.png')
   })
 
+<<<<<<< HEAD
   it('sends page hero update as multipart PUT with hero_image_file', async () => {
     const heroImageFile = new File(['hero'], 'updated-hero.png', {
       type: 'image/png',
@@ -104,6 +113,8 @@ describe('upload request bodies', () => {
     expect(((body).get('hero_image_file') as File).name).toBe('updated-hero.png')
   })
 
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   it('sends gallery image uploads as multipart payload with indexed file fields', async () => {
     const bannerFile = new File(['banner'], 'banner.png', { type: 'image/png' })
     const detailFile = new File(['detail'], 'detail.png', { type: 'image/png' })
@@ -267,6 +278,7 @@ describe('upload request bodies', () => {
     )
   })
 
+<<<<<<< HEAD
   it('sends createEvent with display image as a multipart POST', async () => {
     const posterFile = new File(['poster'], 'poster.png', { type: 'image/png' })
 
@@ -336,5 +348,33 @@ describe('upload request bodies', () => {
     const body = postMock.mock.calls[0]?.[1] as FormData
     expect(body).toBeInstanceOf(FormData)
     expect((body.get('cover_image_file') as File).name).toBe('cover.jpg')
+=======
+  it('deletes event documents using the storage_url query parameter', async () => {
+    await eventsApi.deleteEventDocument(16, 'gs://bucket/events/16/documents/agenda.pdf')
+
+    expect(deleteMock).toHaveBeenCalledTimes(1)
+    expect(deleteMock).toHaveBeenCalledWith(
+      '/api/events/16/document',
+      {
+        params: {
+          storage_url: 'gs://bucket/events/16/documents/agenda.pdf',
+        },
+      },
+    )
+  })
+
+  it('deletes event photos using the storage_url query parameter', async () => {
+    await eventsApi.deleteEventPhoto(16, 'gs://bucket/events/16/photo_274.jpg')
+
+    expect(deleteMock).toHaveBeenCalledTimes(1)
+    expect(deleteMock).toHaveBeenCalledWith(
+      '/api/events/16/photo',
+      {
+        params: {
+          storage_url: 'gs://bucket/events/16/photo_274.jpg',
+        },
+      },
+    )
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   })
 })
