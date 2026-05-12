@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { fetchGalleryObjectUrl } from '../lib/galleryMedia'
-import { fileToBase64 } from '../lib/fileUpload'
 import { MediaLibraryPage } from './MediaLibraryPage'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import {
@@ -97,10 +96,14 @@ export function MediaLibraryRoute() {
           ? {
               file_name: frontImage.name,
               mime_type: frontImage.type || 'application/octet-stream',
-              data_base64: await fileToBase64(frontImage),
               alt_text: values.name.trim(),
             }
           : undefined,
+        ...(frontImage
+          ? {
+              coverImageFile: frontImage,
+            }
+          : {}),
       }
 
       const result = await dispatch(createGallery(payload)).unwrap()

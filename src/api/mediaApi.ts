@@ -1,5 +1,6 @@
 import { API_ROUTES } from '../constants/api'
 import type { GalleryAsset, GalleryDetail, GallerySummary } from '../types/media'
+import { buildMultipartPayload } from './multipartForm'
 import { apiClient } from './apiClient'
 
 type ApiGallerySummary = {
@@ -54,7 +55,6 @@ export type GalleryUploadInput = {
   alt_text?: string
   file_name?: string
   mime_type?: string
-  data_base64?: string
   file_url?: string
   storage_uri?: string
   object_key?: string
@@ -67,6 +67,10 @@ export type SaveGalleryPayload = {
   published: boolean
   cover_image?: GalleryUploadInput
   remove_cover_image?: boolean
+}
+
+export type SaveGalleryRequest = SaveGalleryPayload & {
+  coverImageFile?: File
 }
 
 export type CreateGalleryResponse = {
@@ -82,6 +86,10 @@ export type UpdateGalleryResponse = CreateGalleryResponse
 
 export type UploadGalleryImagesPayload = {
   images: GalleryUploadInput[]
+}
+
+export type UploadGalleryImagesRequest = UploadGalleryImagesPayload & {
+  imageFiles?: Array<File | null | undefined>
 }
 
 export type UploadGalleryImagesResponse = {
@@ -187,18 +195,38 @@ export const mediaApi = {
     return response.data
   },
 
-  async createGallery(payload: SaveGalleryPayload) {
+  async createGallery(request: SaveGalleryRequest) {
+    const { coverImageFile, ...payload } = request
+    const body = coverImageFile
+      ? buildMultipartPayload(payload, [
+          {
+            fieldName: 'cover_image_file',
+            file: coverImageFile,
+            fileName: coverImageFile.name,
+          },
+        ])
+      : payload
     const response = await apiClient.post<CreateGalleryResponse>(
       API_ROUTES.galleries,
-      payload,
+      body,
     )
     return response.data
   },
 
-  async updateGallery(id: number, payload: SaveGalleryPayload) {
+  async updateGallery(id: number, request: SaveGalleryRequest) {
+    const { coverImageFile, ...payload } = request
+    const body = coverImageFile
+      ? buildMultipartPayload(payload, [
+          {
+            fieldName: 'cover_image_file',
+            file: coverImageFile,
+            fileName: coverImageFile.name,
+          },
+        ])
+      : payload
     const response = await apiClient.put<UpdateGalleryResponse>(
       API_ROUTES.galleryById(id),
-      payload,
+      body,
     )
     return response.data
   },
@@ -210,10 +238,22 @@ export const mediaApi = {
     return response.data
   },
 
-  async uploadGalleryImages(id: number, payload: UploadGalleryImagesPayload) {
+  async uploadGalleryImages(id: number, request: UploadGalleryImagesRequest) {
+    const { imageFiles, ...payload } = request
+    const hasFiles = Boolean(imageFiles?.some(Boolean))
+    const body = hasFiles
+      ? buildMultipartPayload(
+          payload,
+          (imageFiles ?? []).map((file, index) => ({
+            fieldName: `images[${index}].file`,
+            file,
+            fileName: file?.name,
+          })),
+        )
+      : payload
     const response = await apiClient.post<UploadGalleryImagesResponse>(
       API_ROUTES.galleryImagesById(id),
-      payload,
+      body,
     )
     return response.data
   },

@@ -89,11 +89,104 @@
     "title": "Tableau de bord CSAA CMS",
     "subtitle": "Utilisez la navigation laterale pour passer entre les outils de contenu. Le module Evenements prend maintenant en charge la liste, l ajout et la modification."
   },
+  "pages": {
+    "common": {
+      "loading": "Chargement..."
+    },
+    "breadcrumb": {
+      "pages": "Pages"
+    },
+    "status": {
+      "draft": "Brouillon",
+      "live": "En ligne"
+    },
+    "filters": {
+      "searchPlaceholder": "Rechercher des pages...",
+      "status": "Filtrer par statut",
+      "allStatuses": "Filtrer par statut"
+    },
+    "list": {
+      "title": "Pages",
+      "subtitle": "Gerez et organisez le contenu statique du site Web.",
+      "create": "Creer une nouvelle page",
+      "total": "Total : {{count}} pages",
+      "resultsLabel": "Affichage de {{start}} a {{end}} sur {{total}} pages",
+      "modifiedBy": "par {{name}}",
+      "unknownEditor": "Editeur inconnu",
+      "view": "Voir la page",
+      "edit": "Modifier la page",
+      "delete": "Supprimer la page",
+      "cancelDelete": "Annuler",
+      "deleteDialogTitle": "Supprimer la page ?",
+      "deleteDialogDescription": "Cette action supprimera definitivement \"{{title}}\" de la liste des pages. Cette action est irreversible.",
+      "emptyTitle": "Aucune page trouvee",
+      "emptyText": "Creez votre premiere page ou ajustez les filtres pour elargir les resultats.",
+      "columns": {
+        "pageTitle": "Titre de la page",
+        "urlSlug": "URL",
+        "status": "Statut",
+        "lastModified": "Derniere modification",
+        "actions": "Actions"
+      }
+    },
+    "sections": {
+      "pageSettings": "Parametres de la page",
+      "metadata": "Metadonnees et SEO",
+      "metadataHint": "Ajoutez un texte utile pour les moteurs de recherche et pour les visiteurs."
+    },
+    "fields": {
+      "pageTitle": "Titre de la page",
+      "pageTitlePlaceholder": "Saisir le titre de la page...",
+      "urlSlug": "URL",
+      "urlSlugPlaceholder": "slug-name",
+      "enableHeroImage": "Activer l image hero",
+      "enableHeroImageHint": "Televersez une image hero et enregistrez sa source avec la page.",
+      "heroImageLabel": "Deposez une image ici ou parcourez",
+      "heroImageHint": "PNG, JPG et WEBP pris en charge.",
+      "heroImageAlt": "Image hero de la page",
+      "seoPageTitle": "Titre SEO",
+      "seoPageTitlePlaceholder": "Titre optimise pour les moteurs de recherche...",
+      "seoPageDescription": "Description SEO",
+      "seoPageDescriptionPlaceholder": "Breve description pour les resultats de recherche..."
+    },
+    "editor": {
+      "breadcrumbCreate": "Creer une nouvelle page",
+      "breadcrumbEdit": "Modifier la page",
+      "breadcrumbView": "Voir la page",
+      "titleCreate": "Creer une nouvelle page",
+      "titleEdit": "Modifier la page",
+      "titleView": "Voir la page",
+      "subtitle": "Pour l instant, cet editeur enregistre uniquement les parametres de la page. La structure detaillee sera ajoutee plus tard.",
+      "invalidIdTitle": "Lien de page invalide",
+      "invalidIdText": "Cette URL ne contient pas un identifiant de page valide.",
+      "loadErrorTitle": "Impossible de charger cette page",
+      "backToList": "Retour aux pages",
+      "editPage": "Modifier la page",
+      "replaceHeroImage": "Remplacer l image",
+      "removeHeroImage": "Supprimer l image",
+      "saveDraft": "Enregistrer comme brouillon",
+      "publish": "Publier la page"
+    },
+    "feedback": {
+      "validation": "Veuillez corriger les champs en surbrillance avant de continuer.",
+      "created": "Page creee avec succes.",
+      "draftSaved": "Page enregistree comme brouillon.",
+      "published": "Page publiee avec succes.",
+      "deleted": "Page supprimee avec succes."
+    },
+    "validation": {
+      "pageTitleRequired": "Le titre de la page est requis.",
+      "urlSlugRequired": "L URL est requise."
+    }
+  },
   "events": {
     "common": {
       "loading": "Chargement...",
       "select": "Choisir une option",
       "none": "Aucun"
+    },
+    "breadcrumb": {
+      "events": "Evenements"
     },
     "status": {
       "published": "Publie",
@@ -269,9 +362,9 @@
       "new": "Ajouter une nouvelle adresse"
     },
     "editor": {
-      "breadcrumbCreate": "Evenements / Creer un evenement",
-      "breadcrumbEdit": "Evenements / Modifier l evenement",
-      "breadcrumbView": "Evenements / Voir l evenement",
+      "breadcrumbCreate": "Creer un evenement",
+      "breadcrumbEdit": "Modifier l evenement",
+      "breadcrumbView": "Voir l evenement",
       "titleCreate": "Creer un evenement",
       "titleEdit": "Modifier l evenement",
       "titleView": "Voir l evenement",

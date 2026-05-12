@@ -1,4 +1,5 @@
 import { API_ROUTES } from '../constants/api'
+import { buildMultipartPayload } from './multipartForm'
 import { apiClient } from './apiClient'
 
 export type PageStatus = 'draft' | 'published'
@@ -55,6 +56,10 @@ export type PageListResponse = {
   }
 }
 
+type RawPageListResponse = Omit<PageListResponse, 'items'> & {
+  items: PageListItem[] | null
+}
+
 export type PageDetailResponse = {
   id: number
   page_title: string
@@ -78,7 +83,6 @@ export type PageDetailResponse = {
 export type PageUploadInput = {
   file_name?: string
   mime_type?: string
-  data_base64?: string
   file_url?: string
   object_key?: string
   gcp_object_key?: string
@@ -94,6 +98,10 @@ export type SavePagePayload = {
   remove_hero_image: boolean
   seo_page_title: string
   seo_page_description: string
+}
+
+export type SavePageRequest = SavePagePayload & {
+  heroImageFile?: File
 }
 
 export type PageMutationResponse = {
@@ -125,10 +133,13 @@ function buildListQuery(filters: PageListFilters) {
 
 export const pagesApi = {
   async listPages(filters: PageListFilters) {
-    const response = await apiClient.get<PageListResponse>(API_ROUTES.pages, {
+    const response = await apiClient.get<RawPageListResponse>(API_ROUTES.pages, {
       params: buildListQuery(filters),
     })
-    return response.data
+    return {
+      ...response.data,
+      items: Array.isArray(response.data.items) ? response.data.items : [],
+    } satisfies PageListResponse
   },
 
   async getPage(id: number) {
@@ -144,13 +155,33 @@ export const pagesApi = {
     return response.data
   },
 
-  async createPage(payload: SavePagePayload) {
-    const response = await apiClient.post<PageMutationResponse>(API_ROUTES.pages, payload)
+  async createPage(request: SavePageRequest) {
+    const { heroImageFile, ...payload } = request
+    const body = heroImageFile
+      ? buildMultipartPayload(payload, [
+          {
+            fieldName: 'hero_image_file',
+            file: heroImageFile,
+            fileName: heroImageFile.name,
+          },
+        ])
+      : payload
+    const response = await apiClient.post<PageMutationResponse>(API_ROUTES.pages, body)
     return response.data
   },
 
-  async updatePage(id: number, payload: SavePagePayload) {
-    const response = await apiClient.put<PageMutationResponse>(API_ROUTES.pageById(id), payload)
+  async updatePage(id: number, request: SavePageRequest) {
+    const { heroImageFile, ...payload } = request
+    const body = heroImageFile
+      ? buildMultipartPayload(payload, [
+          {
+            fieldName: 'hero_image_file',
+            file: heroImageFile,
+            fileName: heroImageFile.name,
+          },
+        ])
+      : payload
+    const response = await apiClient.put<PageMutationResponse>(API_ROUTES.pageById(id), body)
     return response.data
   },
 

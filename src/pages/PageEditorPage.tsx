@@ -13,7 +13,7 @@ import { UploadDropzone } from '../components/media/UploadDropzone'
 import { pagesApi } from '../api/pagesApi'
 import {
   buildPageFormStateFromDetail,
-  buildSavePagePayload,
+  buildSavePageRequest,
   createDefaultPageFormState,
   normalizePageSlugInput,
   validatePageForm,
@@ -252,7 +252,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
     setErrors({})
 
     try {
-      const payload = await buildSavePagePayload(submissionState)
+      const payload = buildSavePageRequest(submissionState)
       const result =
         isEditMode && parsedPageId
           ? await dispatch(updatePage({ id: parsedPageId, payload })).unwrap()

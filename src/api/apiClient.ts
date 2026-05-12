@@ -84,6 +84,14 @@ async function refreshAccessToken() {
 }
 
 apiClient.interceptors.request.use((config) => {
+  if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+    const headers = AxiosHeaders.from(
+      config.headers as AxiosHeaders | RawAxiosHeaders | undefined,
+    )
+    headers.delete('Content-Type')
+    config.headers = headers
+  }
+
   if (shouldSkipAuth(config.url, config.skipAuth)) {
     return config
   }

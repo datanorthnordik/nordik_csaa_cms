@@ -8,11 +8,11 @@ import {
   type DeleteGalleryResponse,
   type ReorderGalleryImagesPayload,
   type ReorderGalleryImagesResponse,
-  type SaveGalleryPayload,
+  type SaveGalleryRequest,
   type UpdateGalleryImagePayload,
   type UpdateGalleryImageResponse,
   type UpdateGalleryResponse,
-  type UploadGalleryImagesPayload,
+  type UploadGalleryImagesRequest,
   type UploadGalleryImagesResponse,
 } from '../api/mediaApi'
 import type { GalleryDetail, GallerySummary } from '../types/media'
@@ -144,7 +144,7 @@ export const fetchGalleryById = createAsyncThunk<
 
 export const createGallery = createAsyncThunk<
   CreateGalleryResponse,
-  SaveGalleryPayload,
+  SaveGalleryRequest,
   { rejectValue: string }
 >('media/createGallery', async (payload, thunkApi) => {
   try {
@@ -156,7 +156,7 @@ export const createGallery = createAsyncThunk<
 
 export const saveGallery = createAsyncThunk<
   UpdateGalleryResponse,
-  { id: number; payload: SaveGalleryPayload },
+  { id: number; payload: SaveGalleryRequest },
   { rejectValue: string }
 >('media/saveGallery', async ({ id, payload }, thunkApi) => {
   try {
@@ -181,7 +181,7 @@ export const deleteGallery = createAsyncThunk<
 
 export const uploadGalleryImages = createAsyncThunk<
   UploadGalleryImagesResponse,
-  { id: number; payload: UploadGalleryImagesPayload },
+  { id: number; payload: UploadGalleryImagesRequest },
   { rejectValue: string }
 >('media/uploadGalleryImages', async ({ id, payload }, thunkApi) => {
   try {

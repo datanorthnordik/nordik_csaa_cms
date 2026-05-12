@@ -1,4 +1,3 @@
-import { Blob } from 'buffer'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { Provider } from 'react-redux'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
@@ -102,7 +101,7 @@ describe('GalleryManagerRoute', () => {
     })
     listGalleriesMock.mockResolvedValue([])
     fetchGalleryContentMock.mockResolvedValue(
-      new Blob(['image'], { type: 'image/jpeg' }),
+      new globalThis.Blob(['image'], { type: 'image/jpeg' }),
     )
   })
 

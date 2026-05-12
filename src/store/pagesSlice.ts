@@ -12,7 +12,7 @@ import {
   type PageListResponse,
   type PageListItem,
   type PageMutationResponse,
-  type SavePagePayload,
+  type SavePageRequest,
 } from '../api/pagesApi'
 import type { RootState } from './store'
 
@@ -95,7 +95,7 @@ export const fetchPageById = createAsyncThunk<
 
 export const createPage = createAsyncThunk<
   PageMutationResponse,
-  SavePagePayload,
+  SavePageRequest,
   { rejectValue: string }
 >('pages/createPage', async (payload, thunkApi) => {
   try {
@@ -107,7 +107,7 @@ export const createPage = createAsyncThunk<
 
 export const updatePage = createAsyncThunk<
   PageMutationResponse,
-  { id: number; payload: SavePagePayload },
+  { id: number; payload: SavePageRequest },
   { rejectValue: string }
 >('pages/updatePage', async ({ id, payload }, thunkApi) => {
   try {
@@ -159,7 +159,7 @@ const pagesSlice = createSlice({
       })
       .addCase(fetchPages.fulfilled, (state, action) => {
         state.list.status = 'succeeded'
-        state.list.items = action.payload.items
+        state.list.items = Array.isArray(action.payload.items) ? action.payload.items : []
         state.list.pagination = action.payload.pagination
         state.list.appliedFilters = action.payload.applied_filters
       })

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
 import type {
@@ -12,7 +13,7 @@ import type {
 import {
   buildEventFormStateFromDetail,
   buildLocationSummary,
-  buildSaveEventPayload,
+  buildSaveEventRequest,
   createDefaultEventFormState,
   createOccurrenceFromMain,
   usesSeparateEndDate,
@@ -438,7 +439,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
     setErrors({})
 
     try {
-      const payload = await buildSaveEventPayload(submissionState)
+      const payload = buildSaveEventRequest(submissionState)
       const result =
         isEditMode && parsedEventId
           ? await dispatch(updateEvent({ id: parsedEventId, payload })).unwrap()
@@ -507,15 +508,21 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
   return (
     <CmsAppShell activeKey="events">
       <div className={styles.page}>
-        <div className={styles.header}>
-          <div>
-            <p className={styles.eyebrow}>
-              {isViewMode
+        <Breadcrumb
+          items={[
+            { label: t('events.breadcrumb.events'), to: '/events' },
+            {
+              label: isViewMode
                 ? t('events.editor.breadcrumbView')
                 : isEditMode
                   ? t('events.editor.breadcrumbEdit')
-                  : t('events.editor.breadcrumbCreate')}
-            </p>
+                  : t('events.editor.breadcrumbCreate'),
+            },
+          ]}
+        />
+
+        <div className={styles.header}>
+          <div>
             <h1 className={styles.title}>
               {isViewMode
                 ? t('events.editor.titleView')

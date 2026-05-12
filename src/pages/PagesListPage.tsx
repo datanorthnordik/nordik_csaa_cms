@@ -4,7 +4,7 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import {
-  DeleteOutline,
+  DeleteOutlined,
   EditOutlined,
   VisibilityOutlined,
 } from '@mui/icons-material'
@@ -278,7 +278,7 @@ export function PagesListPage() {
                               disabled={deletingPageId === item.id}
                               onClick={() => setDeleteCandidate(item)}
                             >
-                              <DeleteOutline fontSize="small" />
+                              <DeleteOutlined fontSize="small" />
                             </button>
                           </div>
                         </td>
@@ -334,7 +334,7 @@ export function PagesListPage() {
                         disabled={deletingPageId === item.id}
                         onClick={() => setDeleteCandidate(item)}
                       >
-                        <DeleteOutline fontSize="small" />
+                        <DeleteOutlined fontSize="small" />
                       </button>
                     </div>
                   </article>

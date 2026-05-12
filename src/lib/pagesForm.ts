@@ -1,9 +1,10 @@
 import type {
   PageDetailResponse,
   PageStatus,
+  PageUploadInput,
   SavePagePayload,
+  SavePageRequest,
 } from '../api/pagesApi'
-import { fileToBase64 } from './fileUpload'
 
 export type PageFormState = {
   pageTitle: string
@@ -84,14 +85,13 @@ export function validatePageForm(
   return errors
 }
 
-export async function buildSavePagePayload(form: PageFormState): Promise<SavePagePayload> {
-  let heroImage = undefined
+export function buildSavePagePayload(form: PageFormState): SavePagePayload {
+  let heroImage: PageUploadInput | undefined
 
   if (form.heroImageEnabled && form.heroImageFile) {
     heroImage = {
       file_name: form.heroImageFile.name,
-      mime_type: form.heroImageFile.type,
-      data_base64: await fileToBase64(form.heroImageFile),
+      mime_type: form.heroImageFile.type || 'application/octet-stream',
     }
   }
 
@@ -104,6 +104,19 @@ export async function buildSavePagePayload(form: PageFormState): Promise<SavePag
     remove_hero_image: !form.heroImageEnabled || form.removeHeroImage,
     seo_page_title: form.seoPageTitle.trim(),
     seo_page_description: form.seoPageDescription.trim(),
+  }
+}
+
+export function buildSavePageRequest(form: PageFormState): SavePageRequest {
+  const payload = buildSavePagePayload(form)
+
+  return {
+    ...payload,
+    ...(form.heroImageEnabled && form.heroImageFile
+      ? {
+          heroImageFile: form.heroImageFile,
+        }
+      : {}),
   }
 }
 

@@ -36,7 +36,11 @@ export function createAppStore(preloadedState?: Partial<RootState>) {
   return configureStore({
     reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().prepend(authPersistenceListener.middleware),
+      getDefaultMiddleware({
+        serializableCheck: {
+          ignoredActionPaths: ['meta.arg'],
+        },
+      }).prepend(authPersistenceListener.middleware),
     preloadedState:
       preloadedState ??
       ({

@@ -2,8 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom'
+import type {
+  GalleryUploadInput,
+  SaveGalleryPayload,
+  SaveGalleryRequest,
+  UploadGalleryImagesRequest,
+} from '../api/mediaApi'
 import { downloadGalleryContent, fetchGalleryObjectUrl } from '../lib/galleryMedia'
-import { fileToBase64 } from '../lib/fileUpload'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import {
   clearCurrentGallery,
@@ -161,7 +166,7 @@ export function GalleryManagerRoute() {
     }
 
     try {
-      const payload = await buildSaveGalleryPayload(rawGallery, patch, options)
+      const payload = buildSaveGalleryRequest(rawGallery, patch, options)
       const result = await dispatch(
         saveGallery({
           id: numericId,
@@ -189,17 +194,7 @@ export function GalleryManagerRoute() {
     }
 
     try {
-      const payload = {
-        images: await Promise.all(
-          uploads.map(async (upload) => ({
-            title: upload.title.trim(),
-            alt_text: upload.details.trim(),
-            file_name: upload.file.name,
-            mime_type: upload.file.type || 'application/octet-stream',
-            data_base64: await fileToBase64(upload.file),
-          })),
-        ),
-      }
+      const payload = buildUploadGalleryImagesRequest(uploads)
 
       const result = await dispatch(
         uploadGalleryImages({
@@ -386,7 +381,7 @@ export function GalleryManagerRoute() {
   )
 }
 
-async function buildSaveGalleryPayload(
+function buildSaveGalleryPayload(
   gallery: GalleryDetail,
   patch: GalleryUpdatePatch,
   options: {
@@ -394,7 +389,7 @@ async function buildSaveGalleryPayload(
     coverFile?: File | null
     removeCover?: boolean
   } = {},
-) {
+): SaveGalleryPayload {
   const name = (patch.name ?? gallery.name).trim()
   const descriptionValue =
     patch.description !== undefined
@@ -409,13 +404,60 @@ async function buildSaveGalleryPayload(
         ? options.published
         : gallery.visibility === 'published',
     cover_image: options.coverFile
-      ? {
-          file_name: options.coverFile.name,
-          mime_type: options.coverFile.type || 'application/octet-stream',
-          data_base64: await fileToBase64(options.coverFile),
-          alt_text: gallery.coverImage?.altText || name,
-        }
+      ? buildGalleryUploadInput(options.coverFile, {
+          altText: gallery.coverImage?.altText || name,
+        })
       : undefined,
     remove_cover_image: options.removeCover ?? false,
+  }
+}
+
+function buildSaveGalleryRequest(
+  gallery: GalleryDetail,
+  patch: GalleryUpdatePatch,
+  options: {
+    published?: boolean
+    coverFile?: File | null
+    removeCover?: boolean
+  } = {},
+): SaveGalleryRequest {
+  const payload = buildSaveGalleryPayload(gallery, patch, options)
+
+  return {
+    ...payload,
+    ...(options.coverFile
+      ? {
+          coverImageFile: options.coverFile,
+        }
+      : {}),
+  }
+}
+
+function buildUploadGalleryImagesRequest(
+  uploads: PendingUploadInput[],
+): UploadGalleryImagesRequest {
+  return {
+    images: uploads.map((upload) =>
+      buildGalleryUploadInput(upload.file, {
+        title: upload.title.trim(),
+        altText: upload.details.trim(),
+      }),
+    ),
+    imageFiles: uploads.map((upload) => upload.file),
+  }
+}
+
+function buildGalleryUploadInput(
+  file: File,
+  options: {
+    title?: string
+    altText?: string
+  } = {},
+): GalleryUploadInput {
+  return {
+    title: options.title,
+    alt_text: options.altText,
+    file_name: file.name,
+    mime_type: file.type || 'application/octet-stream',
   }
 }
