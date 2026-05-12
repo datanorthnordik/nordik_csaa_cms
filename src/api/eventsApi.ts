@@ -1,4 +1,5 @@
 import { API_ROUTES } from '../constants/api'
+import { buildMultipartPayload } from './multipartForm'
 import { apiClient } from './apiClient'
 
 export type EventStatus = 'published' | 'draft'
@@ -170,7 +171,6 @@ export type EventUploadInput = {
   display_name?: string
   file_name?: string
   mime_type?: string
-  data_base64?: string
   file_url?: string
   object_key?: string
   gcp_object_key?: string
@@ -231,6 +231,11 @@ export type SaveEventPayload = {
   occurrences: EventOccurrenceInput[]
   display_image?: EventUploadInput
   attachments: EventUploadInput[]
+}
+
+export type SaveEventRequest = SaveEventPayload & {
+  displayImageFile?: File
+  attachmentFiles?: Array<File | null | undefined>
 }
 
 export type EventMutationResponse = {
@@ -301,18 +306,50 @@ export const eventsApi = {
     return response.data.items
   },
 
-  async createEvent(payload: SaveEventPayload) {
+  async createEvent(request: SaveEventRequest) {
+    const { displayImageFile, attachmentFiles, ...payload } = request
+    const hasFiles = Boolean(displayImageFile) || Boolean(attachmentFiles?.some(Boolean))
+    const body = hasFiles
+      ? buildMultipartPayload(payload, [
+          {
+            fieldName: 'display_image_file',
+            file: displayImageFile,
+            fileName: displayImageFile?.name,
+          },
+          ...(attachmentFiles ?? []).map((file, index) => ({
+            fieldName: `attachments[${index}].file`,
+            file,
+            fileName: file?.name,
+          })),
+        ])
+      : payload
     const response = await apiClient.post<EventMutationResponse>(
       API_ROUTES.events,
-      payload,
+      body,
     )
     return response.data
   },
 
-  async updateEvent(id: number, payload: SaveEventPayload) {
+  async updateEvent(id: number, request: SaveEventRequest) {
+    const { displayImageFile, attachmentFiles, ...payload } = request
+    const hasFiles = Boolean(displayImageFile) || Boolean(attachmentFiles?.some(Boolean))
+    const body = hasFiles
+      ? buildMultipartPayload(payload, [
+          {
+            fieldName: 'display_image_file',
+            file: displayImageFile,
+            fileName: displayImageFile?.name,
+          },
+          ...(attachmentFiles ?? []).map((file, index) => ({
+            fieldName: `attachments[${index}].file`,
+            file,
+            fileName: file?.name,
+          })),
+        ])
+      : payload
     const response = await apiClient.put<EventMutationResponse>(
       API_ROUTES.eventById(id),
-      payload,
+      body,
     )
     return response.data
   },

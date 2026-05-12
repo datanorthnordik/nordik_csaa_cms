@@ -18,7 +18,14 @@
 
 .galleryHeader {
   display: grid;
-  gap: 10px;
+  gap: 12px;
+}
+
+.headerTop {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
 }
 
 .titleRow {
@@ -223,113 +230,10 @@
   color: var(--color-border-input);
 }
 
-.actionsCard {
-  border: 1px solid var(--color-border);
-  border-radius: 18px;
-  background: var(--color-surface);
-  padding: 20px;
-  display: grid;
-  gap: 14px;
-  box-shadow: var(--shadow-card);
-}
-
-.actionsHeader {
-  display: grid;
-  gap: 4px;
-}
-
-.actionsTitle {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--color-text);
-}
-
-.actionsHint {
-  margin: 0;
-  font-size: 13px;
-  color: var(--color-text-muted);
-}
-
-.statusChipRow {
-  display: flex;
-}
-
-.statusChip {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.statusDraft {
-  background: #edf2ff;
-  color: #2744b7;
-  border: 1px solid #c6d2ff;
-}
-
-.statusPublished {
-  background: var(--color-success-bg);
-  color: var(--color-success-text);
-  border: 1px solid var(--color-success-border);
-}
-
-.actionStack {
-  display: grid;
-  gap: 10px;
-}
-
-.publishButton {
-  border: 1.5px solid var(--color-primary);
-  border-radius: 12px;
-  background: var(--color-surface);
-  color: var(--color-primary);
-  padding: 12px 18px;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.publishButton:hover:not(:disabled) {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-}
-
-.publishButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .assetGrid {
   display: grid;
   gap: 16px;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-}
-
-.uploadTile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  aspect-ratio: 1;
-  border: 1.5px dashed var(--color-border-input);
-  border-radius: 14px;
-  background: var(--color-primary-tint);
-  color: var(--color-text-muted);
-  text-align: center;
-  padding: 12px;
-}
-
-.uploadTileLabel {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .uploadSection {
@@ -342,11 +246,22 @@
   box-shadow: var(--shadow-card);
 }
 
+.uploadHeader {
+  display: grid;
+  gap: 4px;
+}
+
 .uploadTitle {
   margin: 0;
   font-size: 16px;
   font-weight: 800;
   color: var(--color-text);
+}
+
+.uploadNote {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
 }
 
 .uploadForm {
@@ -405,6 +320,7 @@
   gap: 4px;
 }
 
+.pendingTextInput,
 .pendingAltInput {
   width: 100%;
   border: 1px solid var(--color-border-input);
@@ -417,6 +333,11 @@
   resize: vertical;
 }
 
+.pendingTextInput {
+  min-height: 40px;
+}
+
+.pendingTextInput:focus,
 .pendingAltInput:focus {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
@@ -473,6 +394,27 @@
 .uploadActions {
   display: flex;
   justify-content: flex-end;
+}
+
+.actionsCard {
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  background: var(--color-surface);
+  padding: 20px;
+  display: flex;
+  justify-content: flex-end;
+  box-shadow: var(--shadow-card);
+}
+
+.actionStack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.actionStack > button {
+  min-width: 180px;
 }
 
 .primaryButton {
@@ -562,5 +504,9 @@
   .pendingThumb {
     width: 64px;
     height: 64px;
+  }
+
+  .actionStack > button {
+    width: 100%;
   }
 }

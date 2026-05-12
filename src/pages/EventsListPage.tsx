@@ -263,7 +263,7 @@ export function EventsListPage() {
       <div className={styles.page}>
         <Breadcrumb
           items={[
-            { label: t('events.breadcrumb.events') },
+            { label: t('events.breadcrumb.events'), to: '/events' },
             { label: t('events.breadcrumb.list') },
           ]}
         />

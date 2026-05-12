@@ -5,6 +5,10 @@ import {
   ChevronRightIcon,
   DeleteIcon,
 } from '../icons'
+import {
+  getGalleryAssetDetails,
+  getGalleryAssetTitle,
+} from '../../lib/galleryAssets'
 import type { GalleryAsset } from '../../types/media'
 import styles from './AssetThumbnail.module.css'
 
@@ -44,6 +48,8 @@ export function AssetThumbnail({
   const { t } = useTranslation()
   const previewUrl = asset.thumbnailUrl ?? asset.fileUrl
   const hasOverlay = Boolean(onMoveLeft || onMoveRight || onDelete)
+  const assetTitle = getGalleryAssetTitle(asset)
+  const assetDetails = getGalleryAssetDetails(asset)
 
   function handleDragStart(event: DragEvent<HTMLDivElement>) {
     event.dataTransfer.effectAllowed = 'move'
@@ -107,18 +113,23 @@ export function AssetThumbnail({
         className={styles.selectArea}
         onClick={() => onSelect?.(asset)}
         aria-pressed={selected}
-        aria-label={asset.altText ?? asset.fileName}
+        aria-label={assetTitle}
       >
         {previewUrl && (
           <img
             src={previewUrl}
-            alt={asset.altText ?? asset.fileName}
+            alt={assetDetails || assetTitle}
             className={styles.image}
             loading="lazy"
             draggable={false}
           />
         )}
       </button>
+
+      <div className={styles.caption}>
+        <p className={styles.captionTitle}>{assetTitle}</p>
+        <p className={styles.captionFileName}>{asset.fileName}</p>
+      </div>
 
       {selected && (
         <span className={styles.selectedBadge}>

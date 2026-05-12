@@ -1,0 +1,404 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.title {
+  margin: 0;
+  color: #241314;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 0.4rem 0 0;
+  color: #76595c;
+  font-size: 0.98rem;
+}
+
+.primaryButton,
+.secondaryButton,
+.deleteButton,
+.paginationButton,
+.pageNumberButton,
+.iconButton,
+.iconButtonDanger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  border: 1px solid transparent;
+  border-radius: 0.75rem;
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.primaryButton {
+  padding: 0.8rem 1.15rem;
+  background: linear-gradient(135deg, #8e0b16, #b1131f);
+  color: #fff7f4;
+  box-shadow: 0 14px 28px rgba(142, 11, 22, 0.22);
+}
+
+.primaryButton:hover {
+  background: linear-gradient(135deg, #790711, #9d0f1a);
+}
+
+.secondaryButton {
+  padding: 0.72rem 1rem;
+  border-color: #ead8d3;
+  background: #fff8f5;
+  color: #5b3e42;
+}
+
+.secondaryButton:hover,
+.paginationButton:hover,
+.pageNumberButton:hover,
+.iconButton:hover,
+.iconButtonDanger:hover {
+  border-color: #d9beb8;
+  background: #fff1ec;
+}
+
+.deleteButton {
+  padding: 0.72rem 1rem;
+  background: #a5111b;
+  color: #fff9f7;
+}
+
+.filterCard,
+.tableCard,
+.mobileCard {
+  border: 1px solid #efd6cf;
+  border-radius: 1rem;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 250, 0.96), rgba(255, 247, 244, 0.96));
+  box-shadow: 0 18px 42px rgba(65, 24, 27, 0.06);
+}
+
+.filterCard {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 220px auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 1rem;
+}
+
+.searchField {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0 0.95rem;
+  min-height: 3rem;
+  border: 1px solid #e8d7d0;
+  border-radius: 0.8rem;
+  background: #fff;
+}
+
+.searchField input,
+.filterSelect select {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #291518;
+  font: inherit;
+}
+
+.searchField input::placeholder {
+  color: #9a7b7f;
+}
+
+.searchIcon {
+  color: #9c1c25;
+}
+
+.filterSelect {
+  padding: 0 0.95rem;
+  min-height: 3rem;
+  display: flex;
+  align-items: center;
+  border: 1px solid #e8d7d0;
+  border-radius: 0.8rem;
+  background: #fff;
+}
+
+.totalCount {
+  margin: 0;
+  justify-self: end;
+  color: #6b4d51;
+  font-size: 0.95rem;
+}
+
+.tableCard {
+  overflow: hidden;
+}
+
+.errorText {
+  margin: 1rem 1rem 0;
+  color: #a4161f;
+}
+
+.loaderWrap,
+.emptyState {
+  padding: 3rem 1.5rem;
+}
+
+.emptyState {
+  text-align: center;
+}
+
+.emptyTitle {
+  margin: 0 0 0.35rem;
+  color: #271619;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.emptyText {
+  margin: 0;
+  color: #7a5e61;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 1.1rem 1rem;
+  border-bottom: 1px solid #f0ddd7;
+  text-align: left;
+}
+
+.table th {
+  color: #7d5c60;
+  font-size: 0.77rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.pageTitleCell {
+  color: #231114;
+  font-weight: 700;
+}
+
+.slugPill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.45rem;
+  border-radius: 0.45rem;
+  background: #fff1ec;
+  color: #a34c56;
+  font-size: 0.9rem;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.77rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.statusBadge::before {
+  content: '';
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.statusPublished {
+  background: #ecfbf2;
+  color: #1c9d57;
+}
+
+.statusDraft {
+  background: #efedf2;
+  color: #6d6875;
+}
+
+.modifiedBy {
+  margin-top: 0.2rem;
+  color: #7a5e61;
+  font-size: 0.88rem;
+}
+
+.actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.iconButton,
+.iconButtonDanger {
+  width: 2.15rem;
+  height: 2.15rem;
+  border-color: #ead9d2;
+  background: #fff;
+  color: #8e0b16;
+}
+
+.iconButtonDanger {
+  color: #b3131d;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.2rem 1.2rem;
+  border-top: 1px solid #f0ddd7;
+}
+
+.paginationSummary {
+  margin: 0;
+  color: #7a5e61;
+  font-size: 0.93rem;
+}
+
+.paginationControls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.paginationButton,
+.pageNumberButton {
+  min-width: 2.2rem;
+  height: 2.2rem;
+  border-color: #e7d4ce;
+  background: #fff;
+  color: #5a3c40;
+}
+
+.pageNumberActive {
+  background: #7e0c15;
+  border-color: #7e0c15;
+  color: #fff;
+}
+
+.ellipsis {
+  min-width: 2rem;
+  text-align: center;
+  color: #87686d;
+}
+
+.cardList {
+  display: none;
+}
+
+.mobileCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1rem;
+}
+
+.mobileCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.mobileCardTitle {
+  margin: 0 0 0.4rem;
+  color: #241314;
+  font-weight: 700;
+}
+
+.mobileCardMeta {
+  color: #64484d;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.deleteButton:disabled,
+.paginationButton:disabled,
+.pageNumberButton:disabled,
+.iconButton:disabled,
+.iconButtonDanger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+@media (max-width: 960px) {
+  .pageHeader,
+  .filterCard,
+  .pagination {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filterCard {
+    grid-template-columns: 1fr;
+  }
+
+  .totalCount {
+    justify-self: start;
+  }
+
+  .paginationControls {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 1rem;
+  }
+
+  .tableWrap {
+    display: none;
+  }
+
+  .cardList {
+    display: grid;
+    gap: 1rem;
+    padding: 1rem;
+  }
+}

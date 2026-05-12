@@ -39,7 +39,7 @@
   flex-direction: column;
   gap: 2px;
   flex: 1;
-  overflow-y: auto;
+  overflow: visible;
 }
 
 .navItem {
@@ -144,6 +144,10 @@
     transform: translateX(-100%);
     transition: transform 0.25s ease;
     box-shadow: var(--shadow-drawer);
+  }
+
+  .nav {
+    overflow-y: auto;
   }
 
   .drawerOpen {

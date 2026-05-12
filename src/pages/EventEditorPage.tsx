@@ -13,7 +13,7 @@ import type {
 import {
   buildEventFormStateFromDetail,
   buildLocationSummary,
-  buildSaveEventPayload,
+  buildSaveEventRequest,
   createDefaultEventFormState,
   createOccurrenceFromMain,
   usesSeparateEndDate,
@@ -452,7 +452,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
     setErrors({})
 
     try {
-      const payload = await buildSaveEventPayload(submissionState)
+      const payload = buildSaveEventRequest(submissionState)
       const result =
         isEditMode && parsedEventId
           ? await dispatch(updateEvent({ id: parsedEventId, payload })).unwrap()
