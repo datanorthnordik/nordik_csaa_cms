@@ -3,11 +3,9 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
-import {
-  DeleteOutlined,
-  EditOutlined,
-  VisibilityOutlined,
-} from '@mui/icons-material'
+import DeleteOutlined from '@mui/icons-material/DeleteOutlined'
+import EditOutlined from '@mui/icons-material/EditOutlined'
+import VisibilityOutlined from '@mui/icons-material/VisibilityOutlined'
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'

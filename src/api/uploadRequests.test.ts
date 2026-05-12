@@ -238,4 +238,32 @@ describe('upload request bodies', () => {
       }),
     )
   })
+
+  it('deletes event documents using the storage_url query parameter', async () => {
+    await eventsApi.deleteEventDocument(16, 'gs://bucket/events/16/documents/agenda.pdf')
+
+    expect(deleteMock).toHaveBeenCalledTimes(1)
+    expect(deleteMock).toHaveBeenCalledWith(
+      '/api/events/16/document',
+      {
+        params: {
+          storage_url: 'gs://bucket/events/16/documents/agenda.pdf',
+        },
+      },
+    )
+  })
+
+  it('deletes event photos using the storage_url query parameter', async () => {
+    await eventsApi.deleteEventPhoto(16, 'gs://bucket/events/16/photo_274.jpg')
+
+    expect(deleteMock).toHaveBeenCalledTimes(1)
+    expect(deleteMock).toHaveBeenCalledWith(
+      '/api/events/16/photo',
+      {
+        params: {
+          storage_url: 'gs://bucket/events/16/photo_274.jpg',
+        },
+      },
+    )
+  })
 })
