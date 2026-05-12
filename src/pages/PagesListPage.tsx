@@ -11,12 +11,7 @@ import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
-import {
-  AddIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  SearchIcon,
-} from '../components/icons'
+import { AddIcon, SearchIcon } from '../components/icons'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
 import type { PageListItem, PageStatusFilter } from '../api/pagesApi'
@@ -30,14 +25,12 @@ import {
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import styles from '../styles/PagesListPage.module.css'
 
-type PaginationToken = number | 'ellipsis'
-
 export function PagesListPage() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const { i18n, t } = useTranslation()
   const filters = useAppSelector(selectPageListFilters)
-  const { items, pagination, status, error } = useAppSelector(selectPageList)
+  const { items, status, error } = useAppSelector(selectPageList)
   const [searchInput, setSearchInput] = useState(filters.searchTerm)
   const [deleteCandidate, setDeleteCandidate] = useState<PageListItem | null>(null)
   const [deletingPageId, setDeletingPageId] = useState<number | null>(null)
@@ -56,7 +49,6 @@ export function PagesListPage() {
         dispatch(
           setPageListFilters({
             searchTerm: searchInput,
-            page: 1,
           }),
         )
       }
@@ -82,27 +74,12 @@ export function PagesListPage() {
   )
 
   const isLoading = status === 'loading'
-  const totalItems = pagination?.total_items ?? 0
-  const rangeStart =
-    pagination && totalItems > 0 ? (pagination.page - 1) * pagination.page_size + 1 : 0
-  const rangeEnd =
-    pagination && totalItems > 0
-      ? Math.min(pagination.page * pagination.page_size, totalItems)
-      : 0
-
-  function changePage(nextPage: number) {
-    if (!pagination || nextPage < 1 || nextPage > pagination.total_pages) {
-      return
-    }
-
-    dispatch(setPageListFilters({ page: nextPage }))
-  }
+  const totalItems = items.length
 
   function changeStatus(statusValue: PageStatusFilter) {
     dispatch(
       setPageListFilters({
         status: statusValue,
-        page: 1,
       }),
     )
   }
@@ -113,13 +90,6 @@ export function PagesListPage() {
     try {
       await dispatch(deletePageAction(item.id)).unwrap()
       setDeleteCandidate(null)
-
-      const nextPage =
-        pagination && pagination.page > 1 && items.length === 1
-          ? pagination.page - 1
-          : filters.page
-
-      dispatch(setPageListFilters({ page: nextPage }))
       toast.success(t('pages.feedback.deleted'))
     } catch {
       return
@@ -137,26 +107,6 @@ export function PagesListPage() {
       </>
     )
   }
-
-  function buildPaginationTokens(currentPage: number, totalPages: number): PaginationToken[] {
-    if (totalPages <= 5) {
-      return Array.from({ length: totalPages }, (_, index) => index + 1)
-    }
-
-    if (currentPage <= 3) {
-      return [1, 2, 3, 'ellipsis', totalPages]
-    }
-
-    if (currentPage >= totalPages - 2) {
-      return [1, 'ellipsis', totalPages - 2, totalPages - 1, totalPages]
-    }
-
-    return [1, 'ellipsis', currentPage, 'ellipsis', totalPages]
-  }
-
-  const paginationTokens = pagination
-    ? buildPaginationTokens(pagination.page, pagination.total_pages)
-    : []
 
   return (
     <CmsAppShell activeKey="pages">
@@ -344,58 +294,6 @@ export function PagesListPage() {
               <p className={styles.emptyTitle}>{t('pages.list.emptyTitle')}</p>
               <p className={styles.emptyText}>{t('pages.list.emptyText')}</p>
             </div>
-          )}
-
-          {pagination && pagination.total_pages > 1 && (
-            <footer className={styles.pagination}>
-              <p className={styles.paginationSummary}>
-                {t('pages.list.resultsLabel', {
-                  start: rangeStart,
-                  end: rangeEnd,
-                  total: totalItems,
-                })}
-              </p>
-
-              <div className={styles.paginationControls}>
-                <button
-                  type="button"
-                  className={styles.paginationButton}
-                  disabled={!pagination.has_prev}
-                  onClick={() => changePage(pagination.page - 1)}
-                >
-                  <ChevronLeftIcon size={18} />
-                </button>
-
-                {paginationTokens.map((token, index) =>
-                  token === 'ellipsis' ? (
-                    <span key={`ellipsis-${index}`} className={styles.ellipsis}>
-                      …
-                    </span>
-                  ) : (
-                    <button
-                      key={token}
-                      type="button"
-                      className={[
-                        styles.pageNumberButton,
-                        token === pagination.page ? styles.pageNumberActive : '',
-                      ].join(' ')}
-                      onClick={() => changePage(token)}
-                    >
-                      {token}
-                    </button>
-                  ),
-                )}
-
-                <button
-                  type="button"
-                  className={styles.paginationButton}
-                  disabled={!pagination.has_next}
-                  onClick={() => changePage(pagination.page + 1)}
-                >
-                  <ChevronRightIcon size={18} />
-                </button>
-              </div>
-            </footer>
           )}
         </section>
 

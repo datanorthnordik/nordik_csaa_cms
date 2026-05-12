@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
+import { getApiErrorMessage } from '../api/apiError'
 import { Breadcrumb } from '../components/Breadcrumb'
 import {
   CloudUploadIcon,
@@ -10,11 +11,18 @@ import {
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
 import { UploadDropzone } from '../components/media/UploadDropzone'
-import { pagesApi } from '../api/pagesApi'
 import {
+  pagesApi,
+  resolvePageParentId,
+  resolvePageParentSlug,
+  type PageParentOption,
+} from '../api/pagesApi'
+import {
+  buildFullPageUrlSlug,
   buildPageFormStateFromDetail,
   buildSavePageRequest,
   createDefaultPageFormState,
+  getDisallowedParentPageIds,
   normalizePageSlugInput,
   validatePageForm,
   type PageFormErrors,
@@ -39,6 +47,8 @@ type PageEditorPageProps = {
   mode?: 'edit' | 'view'
 }
 
+type PageOptionsStatus = 'idle' | 'loading' | 'succeeded' | 'failed'
+
 export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
@@ -58,9 +68,48 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
   const [slugTouched, setSlugTouched] = useState(false)
   const [heroImagePreviewUrl, setHeroImagePreviewUrl] = useState<string | null>(null)
   const [existingHeroObjectUrl, setExistingHeroObjectUrl] = useState<string | null>(null)
+  const [parentPageOptions, setParentPageOptions] = useState<PageParentOption[]>([])
+  const [parentPageOptionsStatus, setParentPageOptionsStatus] =
+    useState<PageOptionsStatus>('idle')
+  const [parentPageOptionsError, setParentPageOptionsError] = useState<string | null>(null)
+  const [initializedPageId, setInitializedPageId] = useState<number | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadParentPageOptions() {
+      setParentPageOptionsStatus('loading')
+      setParentPageOptionsError(null)
+
+      try {
+        const options = await pagesApi.listPageParentOptions()
+        if (cancelled) {
+          return
+        }
+
+        setParentPageOptions(options)
+        setParentPageOptionsStatus('succeeded')
+      } catch (error) {
+        if (cancelled) {
+          return
+        }
+
+        setParentPageOptions([])
+        setParentPageOptionsStatus('failed')
+        setParentPageOptionsError(getApiErrorMessage(error))
+      }
+    }
+
+    void loadParentPageOptions()
+
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   useEffect(() => {
     if (isEditMode && parsedPageId) {
+      setInitializedPageId(null)
       void dispatch(fetchPageById(parsedPageId))
       return
     }
@@ -68,15 +117,72 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
     dispatch(clearCurrentPage())
     setForm(createDefaultPageFormState())
     setSlugTouched(false)
+    setInitializedPageId(null)
   }, [dispatch, isEditMode, parsedPageId])
 
+  const parentPageOptionsById = useMemo(
+    () => new Map(parentPageOptions.map((page) => [page.id, page])),
+    [parentPageOptions],
+  )
+  const currentPageParentId = currentPage ? resolvePageParentId(currentPage) : null
+  const currentPageParentSlug =
+    (currentPageParentId
+      ? parentPageOptionsById.get(currentPageParentId)?.url_slug
+      : '') ||
+    (currentPage ? resolvePageParentSlug(currentPage) : '')
+  const isWaitingForParentContext =
+    Boolean(
+      isEditMode &&
+        currentPage &&
+        currentPageParentId &&
+        !currentPageParentSlug &&
+        parentPageOptionsStatus === 'loading',
+    )
+
   useEffect(() => {
-    if (isEditMode && currentPage) {
-      setForm(buildPageFormStateFromDetail(currentPage))
-      setErrors({})
-      setSlugTouched(true)
+    if (!isEditMode || !currentPage || initializedPageId === currentPage.id) {
+      return
     }
-  }, [currentPage, isEditMode])
+
+    if (isWaitingForParentContext) {
+      return
+    }
+
+    setForm(buildPageFormStateFromDetail(currentPage, currentPageParentSlug))
+    setErrors({})
+    setSlugTouched(true)
+    setInitializedPageId(currentPage.id)
+  }, [
+    currentPage,
+    currentPageParentSlug,
+    initializedPageId,
+    isEditMode,
+    isWaitingForParentContext,
+  ])
+
+  const selectedParentPageId = form.parentPageId
+    ? Number.parseInt(form.parentPageId, 10)
+    : null
+  const selectedParentPageSlug =
+    (selectedParentPageId
+      ? parentPageOptionsById.get(selectedParentPageId)?.url_slug
+      : '') ||
+    (selectedParentPageId === currentPageParentId ? currentPageParentSlug : '')
+  const effectiveUrlSlug = buildFullPageUrlSlug(form.urlSlug, selectedParentPageSlug)
+  const slugPrefix = selectedParentPageSlug
+    ? `${selectedParentPageSlug.replace(/\/+$/, '')}/`
+    : '/'
+  const disallowedParentPageIds = useMemo(
+    () =>
+      isEditMode && parsedPageId
+        ? getDisallowedParentPageIds(parsedPageId, parentPageOptions)
+        : new Set<number>(),
+    [isEditMode, parsedPageId, parentPageOptions],
+  )
+  const availableParentPageOptions = useMemo(
+    () => parentPageOptions.filter((page) => page.id !== parsedPageId),
+    [parentPageOptions, parsedPageId],
+  )
 
   useEffect(() => {
     return () => {
@@ -155,7 +261,9 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
   ])
 
   const isBusy = saveState.status === 'loading'
-  const isInitialLoad = isEditMode && detailState.status === 'loading' && !currentPage
+  const isInitialLoad =
+    (isEditMode && detailState.status === 'loading' && !currentPage) ||
+    isWaitingForParentContext
   const errorMessages = useMemo(
     () => Array.from(new Set(Object.values(errors).filter(Boolean))),
     [errors],
@@ -197,6 +305,10 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
   function handleSlugChange(value: string) {
     setSlugTouched(true)
     updateField('urlSlug', normalizePageSlugInput(value))
+  }
+
+  function handleParentPageChange(value: string) {
+    updateField('parentPageId', value)
   }
 
   function handleStatusToggle(nextPublished: boolean) {
@@ -242,7 +354,10 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
       status: submitMode === 'publish' ? 'published' : 'draft',
     }
 
-    const validationErrors = validatePageForm(submissionState, t)
+    const validationErrors = validatePageForm(submissionState, t, {
+      currentPageId: isEditMode ? parsedPageId : null,
+      pageOptions: parentPageOptions,
+    })
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors)
       toast.error(t('pages.feedback.validation'))
@@ -252,7 +367,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
     setErrors({})
 
     try {
-      const payload = buildSavePageRequest(submissionState)
+      const payload = buildSavePageRequest(submissionState, selectedParentPageSlug)
       const result =
         isEditMode && parsedPageId
           ? await dispatch(updatePage({ id: parsedPageId, payload })).unwrap()
@@ -433,9 +548,31 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
               </label>
 
               <label className={styles.field}>
+                <span>{t('pages.fields.parentPage')}</span>
+                <select
+                  value={form.parentPageId}
+                  onChange={(event) => handleParentPageChange(event.target.value)}
+                  disabled={parentPageOptionsStatus === 'loading'}
+                >
+                  <option value="">{t('pages.fields.noParentPage')}</option>
+                  {availableParentPageOptions.map((page) => (
+                    <option
+                      key={page.id}
+                      value={page.id}
+                      disabled={disallowedParentPageIds.has(page.id)}
+                    >
+                      {`${page.page_title} (${page.url_slug})`}
+                    </option>
+                  ))}
+                </select>
+                <p className={styles.fieldHint}>{t('pages.fields.parentPageHint')}</p>
+                <FieldError message={errors.parentPageId ?? parentPageOptionsError ?? undefined} />
+              </label>
+
+              <label className={styles.field}>
                 <span>{t('pages.fields.urlSlug')}</span>
                 <div className={styles.slugField}>
-                  <span className={styles.slugPrefix}>/</span>
+                  <span className={styles.slugPrefix}>{slugPrefix}</span>
                   <input
                     type="text"
                     value={form.urlSlug}
@@ -443,6 +580,11 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                     onChange={(event) => handleSlugChange(event.target.value)}
                   />
                 </div>
+                <p className={styles.fieldHint}>
+                  {t('pages.fields.fullUrlSlugPreview', {
+                    slug: effectiveUrlSlug || '/',
+                  })}
+                </p>
                 <FieldError message={errors.urlSlug} />
               </label>
             </div>

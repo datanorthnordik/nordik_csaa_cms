@@ -41,6 +41,7 @@ describe('upload request bodies', () => {
     await pagesApi.createPage({
       page_title: 'Homepage',
       url_slug: '/home',
+      parent_page_id: null,
       status: 'draft',
       hero_image_enabled: true,
       hero_image: {
@@ -62,6 +63,7 @@ describe('upload request bodies', () => {
       JSON.stringify({
         page_title: 'Homepage',
         url_slug: '/home',
+        parent_page_id: null,
         status: 'draft',
         hero_image_enabled: true,
         hero_image: {
