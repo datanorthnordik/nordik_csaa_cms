@@ -466,5 +466,32 @@
         "delete": "Delete asset"
       }
     }
+  },
+  "publishing": {
+    "heading": "Publishing Controls",
+    "statusLabel": "Status",
+    "visibilityLabel": "Visibility",
+    "publishOnLabel": "Publish on",
+    "immediately": "Immediately",
+    "working": "Working...",
+    "saveDraft": "Save Draft",
+    "delete": "Move to Trash",
+    "status": {
+      "published": "Published",
+      "draft": "Draft",
+      "scheduled": "Scheduled"
+    },
+    "visibility": {
+      "public": "Public",
+      "private": "Private"
+    },
+    "deleteConfirm": {
+      "defaultTitle": "Are you sure?"
+    }
+  },
+  "confirmDialog": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "working": "Working..."
   }
 }

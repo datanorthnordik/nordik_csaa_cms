@@ -1,8 +1,3 @@
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
-import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
@@ -14,6 +9,8 @@ import { useNavigate } from 'react-router-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
+import { ConfirmDialog } from '../components/cms/ConfirmDialog'
+import { StatusBadge } from '../components/cms/StatusBadge'
 import {
   defaultEventListFilters,
   deleteEvent as deleteEventAction,
@@ -442,16 +439,10 @@ export function EventsListPage() {
                         </td>
                         <td>{item.categories.join(', ') || t('events.list.noCategory')}</td>
                         <td>
-                          <span
-                            className={[
-                              styles.badge,
-                              item.status === 'published'
-                                ? styles.badgePublished
-                                : styles.badgeDraft,
-                            ].join(' ')}
-                          >
-                            {t(`events.status.${item.status}`)}
-                          </span>
+                          <StatusBadge
+                            status={item.status}
+                            label={t(`events.status.${item.status}`)}
+                          />
                         </td>
                         <td>{formatEventDate(item)}</td>
                         <td className={styles.actionsCell}>{renderEventActions(item)}</td>
@@ -471,16 +462,10 @@ export function EventsListPage() {
                           {formatEventDate(item)}
                         </p>
                       </div>
-                      <span
-                        className={[
-                          styles.badge,
-                          item.status === 'published'
-                            ? styles.badgePublished
-                            : styles.badgeDraft,
-                        ].join(' ')}
-                      >
-                        {t(`events.status.${item.status}`)}
-                      </span>
+                      <StatusBadge
+                        status={item.status}
+                        label={t(`events.status.${item.status}`)}
+                      />
                     </div>
                     <p className={styles.cardMeta}>
                       {item.categories.join(', ') || t('events.list.noCategory')}
@@ -595,56 +580,30 @@ export function EventsListPage() {
           </MenuItem>
         </Menu>
 
-        <Dialog
+        <ConfirmDialog
           open={isDeleteDialogOpen}
-          onClose={closeDeleteDialog}
-          slotProps={{
-            paper: {
-              className: styles.confirmDialogPaper,
-            },
-          }}
-        >
-          <DialogTitle className={styles.confirmDialogTitle}>
-            {t('events.list.deleteDialogTitle')}
-          </DialogTitle>
-          <DialogContent className={styles.confirmDialogContent}>
-            <DialogContentText className={styles.confirmDialogText}>
-              <Trans
-                i18nKey="events.list.deleteDialogDescription"
-                values={{
-                  title: deleteCandidate?.title ?? '',
-                }}
-                components={{
-                  eventName: <strong className={styles.confirmDialogEventName} />,
-                }}
-              />
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions className={styles.confirmDialogActions}>
-            <button
-              type="button"
-              className={styles.secondaryButton}
-              disabled={isDeleteDialogBusy}
-              onClick={closeDeleteDialog}
-            >
-              {t('events.list.cancelDelete')}
-            </button>
-            <button
-              type="button"
-              className={styles.dangerButton}
-              disabled={!deleteCandidate || isDeleteDialogBusy}
-              onClick={() => {
-                if (!deleteCandidate) {
-                  return
-                }
-
-                void handleDeleteEvent(deleteCandidate)
+          title={t('events.list.deleteDialogTitle')}
+          body={
+            <Trans
+              i18nKey="events.list.deleteDialogDescription"
+              values={{ title: deleteCandidate?.title ?? '' }}
+              components={{
+                eventName: <strong className={styles.confirmDialogEventName} />,
               }}
-            >
-              {isDeleteDialogBusy ? t('events.common.loading') : t('events.list.delete')}
-            </button>
-          </DialogActions>
-        </Dialog>
+            />
+          }
+          confirmLabel={t('events.list.delete')}
+          cancelLabel={t('events.list.cancelDelete')}
+          destructive
+          busy={isDeleteDialogBusy}
+          onConfirm={() => {
+            if (!deleteCandidate) {
+              return
+            }
+            void handleDeleteEvent(deleteCandidate)
+          }}
+          onClose={closeDeleteDialog}
+        />
       </div>
     </CmsAppShell>
   )

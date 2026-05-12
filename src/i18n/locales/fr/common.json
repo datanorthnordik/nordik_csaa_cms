@@ -466,5 +466,32 @@
         "delete": "Supprimer la ressource"
       }
     }
+  },
+  "publishing": {
+    "heading": "Controles de publication",
+    "statusLabel": "Statut",
+    "visibilityLabel": "Visibilite",
+    "publishOnLabel": "Publier le",
+    "immediately": "Immediatement",
+    "working": "Traitement...",
+    "saveDraft": "Enregistrer le brouillon",
+    "delete": "Mettre a la corbeille",
+    "status": {
+      "published": "Publie",
+      "draft": "Brouillon",
+      "scheduled": "Planifie"
+    },
+    "visibility": {
+      "public": "Public",
+      "private": "Prive"
+    },
+    "deleteConfirm": {
+      "defaultTitle": "Etes-vous sur ?"
+    }
+  },
+  "confirmDialog": {
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "working": "Traitement..."
   }
 }
