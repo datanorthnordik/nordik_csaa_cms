@@ -429,9 +429,13 @@
       "dropLabel": "Drop image here or browse",
       "dropHint": "Supports PNG, JPG (Max 5MB)",
       "maxLabel": "Max {{count}} uploads",
-      "altLabel": "Image details",
-      "altLabelFor": "Image details for {{name}}",
-      "altPlaceholder": "Describe the image for accessibility...",
+      "maxNote": "Maximum {{count}} images per gallery",
+      "titleLabel": "Image title",
+      "titleLabelFor": "Image title for {{name}}",
+      "titlePlaceholder": "Short title shown in the gallery",
+      "detailsLabel": "Image details",
+      "detailsLabelFor": "Image details for {{name}}",
+      "detailsPlaceholder": "Describe the image clearly and simply...",
       "removeUpload": "Remove {{name}} from upload list",
       "limitReached": "This gallery is full ({{limit}} / {{limit}}). Remove an asset to add more.",
       "limitExceeded": "Adding these images would exceed the {{limit}}-image limit ({{count}} total). Remove some to continue.",
@@ -450,9 +454,14 @@
         "fileSize": "File Size",
         "format": "Format"
       },
-      "altText": {
-        "title": "Alt-text status",
-        "compliant": "Compliant"
+      "metadata": {
+        "title": "Image Content",
+        "edit": "Edit",
+        "save": "Save changes",
+        "cancel": "Cancel",
+        "assetTitle": "Title",
+        "assetDetails": "Details",
+        "empty": "No details have been added yet."
       },
       "usage": {
         "title": "Usage tracking"
@@ -461,6 +470,11 @@
         "download": "Download Original",
         "delete": "Delete asset"
       }
+    },
+    "feedback": {
+      "draftSaved": "Gallery saved as draft.",
+      "published": "Gallery published successfully.",
+      "downloadFailed": "Could not download the image right now."
     }
   }
 }

@@ -429,9 +429,13 @@
       "dropLabel": "Deposez l image ici ou parcourez",
       "dropHint": "Formats pris en charge : PNG, JPG (max 5 Mo)",
       "maxLabel": "Max {{count}} televersements",
-      "altLabel": "Details de l image",
-      "altLabelFor": "Details pour {{name}}",
-      "altPlaceholder": "Decrivez l image pour l accessibilite...",
+      "maxNote": "Maximum de {{count}} images par galerie",
+      "titleLabel": "Titre de l image",
+      "titleLabelFor": "Titre de l image pour {{name}}",
+      "titlePlaceholder": "Titre court affiche dans la galerie",
+      "detailsLabel": "Details de l image",
+      "detailsLabelFor": "Details de l image pour {{name}}",
+      "detailsPlaceholder": "Decrivez l image clairement et simplement...",
       "removeUpload": "Retirer {{name}} de la liste",
       "limitReached": "Cette galerie est pleine ({{limit}} / {{limit}}). Supprimez une ressource pour en ajouter d autres.",
       "limitExceeded": "Ajouter ces images depasserait la limite de {{limit}} images ({{count}} au total). Retirez-en pour continuer.",
@@ -450,9 +454,14 @@
         "fileSize": "Taille du fichier",
         "format": "Format"
       },
-      "altText": {
-        "title": "Etat du texte alternatif",
-        "compliant": "Conforme"
+      "metadata": {
+        "title": "Contenu de l image",
+        "edit": "Modifier",
+        "save": "Enregistrer",
+        "cancel": "Annuler",
+        "assetTitle": "Titre",
+        "assetDetails": "Details",
+        "empty": "Aucun detail n a encore ete ajoute."
       },
       "usage": {
         "title": "Suivi des utilisations"
@@ -461,6 +470,11 @@
         "download": "Telecharger l original",
         "delete": "Supprimer la ressource"
       }
+    },
+    "feedback": {
+      "draftSaved": "Galerie enregistree comme brouillon.",
+      "published": "Galerie publiee avec succes.",
+      "downloadFailed": "Impossible de telecharger l'image pour le moment."
     }
   }
 }

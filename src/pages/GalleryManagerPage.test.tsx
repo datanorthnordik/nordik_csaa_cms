@@ -127,17 +127,21 @@ describe('GalleryManagerPage', () => {
             fileName: 'sunset_01.jpg',
             fileUrl: '/sunset.jpg',
             dimensions: { width: 4200, height: 2800 },
-            altText: 'A serene sunset',
+            title: 'Sunset Hero',
+            details: 'A serene sunset',
           },
         ],
       },
     })
 
     expect(screen.queryByText(/^selected image$/i)).toBeNull()
-    fireEvent.click(screen.getByRole('button', { name: /a serene sunset/i }))
-    expect(screen.getByRole('complementary', { name: /selected image/i })).toBeDefined()
+    fireEvent.click(screen.getByRole('button', { name: /sunset hero/i }))
+    expect(
+      screen.getByRole('complementary', { name: /selected image/i }),
+    ).toBeDefined()
     expect(screen.getByText(/dimensions/i)).toBeDefined()
-    expect(screen.getByText(/4200 × 2800 px/i)).toBeDefined()
+    expect(screen.getByText(/4200/i)).toBeDefined()
+    expect(screen.getByText(/2800 px/i)).toBeDefined()
     expect(screen.queryByText(/usage tracking/i)).toBeNull()
   })
 
@@ -150,13 +154,14 @@ describe('GalleryManagerPage', () => {
             id: 2,
             fileName: 'banner.jpg',
             fileUrl: '/banner.jpg',
+            title: 'Homepage Banner',
             usageTracking: [{ label: '/home', path: '/home' }],
           },
         ],
       },
     })
 
-    fireEvent.click(screen.getByRole('button', { name: /banner\.jpg/i }))
+    fireEvent.click(screen.getByRole('button', { name: /homepage banner/i }))
     expect(screen.getByText(/usage tracking/i)).toBeDefined()
     expect(screen.getByRole('link', { name: '/home' })).toBeDefined()
   })
@@ -168,7 +173,7 @@ describe('GalleryManagerPage', () => {
     expect((submit as HTMLButtonElement).disabled).toBe(true)
   })
 
-  it('renders a per-image alt-text field for each pending upload', () => {
+  it('renders a per-image title and details field for each pending upload', () => {
     renderPage({ gallery: baseGallery, onUploadAssets: vi.fn() })
 
     const fileInputs = document.querySelectorAll('input[type="file"]')
@@ -179,14 +184,20 @@ describe('GalleryManagerPage', () => {
     })
 
     expect(
+      screen.getByRole('textbox', { name: /image title for a\.jpg/i }),
+    ).toBeDefined()
+    expect(
       screen.getByRole('textbox', { name: /image details for a\.jpg/i }),
+    ).toBeDefined()
+    expect(
+      screen.getByRole('textbox', { name: /image title for b\.jpg/i }),
     ).toBeDefined()
     expect(
       screen.getByRole('textbox', { name: /image details for b\.jpg/i }),
     ).toBeDefined()
   })
 
-  it('only enables submit when every pending upload has alt-text', () => {
+  it('only enables submit when every pending upload has title and details', () => {
     const onUploadAssets = vi.fn()
     renderPage({ gallery: baseGallery, onUploadAssets })
 
@@ -197,6 +208,17 @@ describe('GalleryManagerPage', () => {
     })
 
     const submit = screen.getByRole('button', { name: /^upload$/i })
+    expect((submit as HTMLButtonElement).disabled).toBe(true)
+
+    const firstTitle = screen.getByRole('textbox', {
+      name: /image title for a\.jpg/i,
+    }) as HTMLInputElement
+    expect(firstTitle.value).toBe('a')
+
+    fireEvent.change(firstTitle, { target: { value: '' } })
+    expect((submit as HTMLButtonElement).disabled).toBe(true)
+
+    fireEvent.change(firstTitle, { target: { value: 'Summer Hero' } })
     expect((submit as HTMLButtonElement).disabled).toBe(true)
 
     fireEvent.change(
@@ -215,8 +237,10 @@ describe('GalleryManagerPage', () => {
     expect(onUploadAssets).toHaveBeenCalledTimes(1)
     const arg = onUploadAssets.mock.calls[0][0]
     expect(arg).toHaveLength(2)
-    expect(arg[0].altText).toBe('first')
-    expect(arg[1].altText).toBe('second')
+    expect(arg[0].title).toBe('Summer Hero')
+    expect(arg[0].details).toBe('first')
+    expect(arg[1].title).toBe('b')
+    expect(arg[1].details).toBe('second')
   })
 
   it('enforces the asset limit by clamping dropped files', () => {
@@ -241,6 +265,9 @@ describe('GalleryManagerPage', () => {
     })
 
     expect(
+      screen.getAllByRole('textbox', { name: /image title for/i }),
+    ).toHaveLength(1)
+    expect(
       screen.getAllByRole('textbox', { name: /image details for/i }),
     ).toHaveLength(1)
   })
@@ -260,13 +287,15 @@ describe('GalleryManagerPage', () => {
     expect(dropInput.disabled).toBe(true)
   })
 
-  it('renders Actions card with status chip reflecting visibility', () => {
+  it('renders status at the top and the upload limit as helper text', () => {
     renderPage({
       gallery: { ...baseGallery, visibility: 'published' },
     })
 
-    expect(screen.getByRole('heading', { name: /^actions$/i })).toBeDefined()
     expect(screen.getByText(/^published$/i)).toBeDefined()
+    expect(screen.getByText(/maximum 20 images per gallery/i)).toBeDefined()
+    expect(screen.queryByRole('heading', { name: /^actions$/i })).toBeNull()
+    expect(screen.queryByText(/max 20 uploads/i)).toBeNull()
   })
 
   it('does not render a Save changes button', () => {
@@ -311,11 +340,19 @@ describe('GalleryManagerPage', () => {
       onDeleteAsset,
     })
 
-    expect(screen.getAllByRole('button', { name: /move asset earlier/i }).length).toBe(2)
-    expect(screen.getAllByRole('button', { name: /move asset later/i }).length).toBe(2)
-    expect(screen.getAllByRole('button', { name: /delete asset/i }).length).toBe(3)
+    expect(
+      screen.getAllByRole('button', { name: /move asset earlier/i }).length,
+    ).toBe(2)
+    expect(
+      screen.getAllByRole('button', { name: /move asset later/i }).length,
+    ).toBe(2)
+    expect(
+      screen.getAllByRole('button', { name: /delete asset/i }).length,
+    ).toBe(3)
 
-    fireEvent.click(screen.getAllByRole('button', { name: /move asset later/i })[0])
+    fireEvent.click(
+      screen.getAllByRole('button', { name: /move asset later/i })[0],
+    )
     expect(onMoveAsset).toHaveBeenCalledWith(
       expect.objectContaining({ id: 1 }),
       1,
@@ -356,7 +393,6 @@ describe('GalleryManagerPage', () => {
     renderPage({ gallery: baseGallery, onSetCover })
 
     const fileInputs = document.querySelectorAll('input[type="file"]')
-    // first input is the cover dropzone (no cover set yet)
     const coverInput = fileInputs[0] as HTMLInputElement
     const file = fileFromName('new-cover.jpg')
     fireEvent.change(coverInput, { target: { files: [file] } })
@@ -364,6 +400,44 @@ describe('GalleryManagerPage', () => {
     expect(onSetCover).toHaveBeenCalledTimes(1)
     expect(onSetCover.mock.calls[0][0]).toBeInstanceOf(File)
     expect((onSetCover.mock.calls[0][0] as File).name).toBe('new-cover.jpg')
+  })
+
+  it('lets users edit an existing asset title and details', () => {
+    const onUpdateAsset = vi.fn()
+    renderPage({
+      gallery: {
+        ...baseGallery,
+        assets: [
+          {
+            id: 7,
+            fileName: 'sunset_01.jpg',
+            fileUrl: '/sunset.jpg',
+            title: 'Sunset Hero',
+            details: 'Warm evening light over the lake.',
+          },
+        ],
+      },
+      onUpdateAsset,
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /sunset hero/i }))
+    fireEvent.click(screen.getByRole('button', { name: /^edit$/i }))
+
+    fireEvent.change(screen.getByRole('textbox', { name: /^title$/i }), {
+      target: { value: 'Sunset Story' },
+    })
+    fireEvent.change(screen.getByRole('textbox', { name: /^details$/i }), {
+      target: { value: 'Updated description for the hero image.' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /save changes/i }))
+
+    expect(onUpdateAsset).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 7 }),
+      {
+        title: 'Sunset Story',
+        details: 'Updated description for the hero image.',
+      },
+    )
   })
 
   it('makes thumbnails draggable only when onReorderAsset is provided', () => {
@@ -374,9 +448,8 @@ describe('GalleryManagerPage', () => {
       },
     })
 
-    // Without onReorderAsset, the buttons inside aren't draggable
     let selectButtons = screen.getAllByRole('button', {
-      name: /^(a\.jpg|b\.jpg)$/i,
+      name: /^(a|b)$/i,
     })
     expect(selectButtons.length).toBe(2)
     expect(
@@ -405,7 +478,7 @@ describe('GalleryManagerPage', () => {
     )
 
     selectButtons = screen.getAllByRole('button', {
-      name: /^(a\.jpg|b\.jpg)$/i,
+      name: /^(a|b)$/i,
     })
     expect(
       (selectButtons[0].parentElement as HTMLElement).getAttribute('draggable'),
@@ -427,7 +500,7 @@ describe('GalleryManagerPage', () => {
     })
 
     const thumbs = screen
-      .getAllByRole('button', { name: /^(a\.jpg|b\.jpg|c\.jpg)$/i })
+      .getAllByRole('button', { name: /^(a|b|c)$/i })
       .map((btn) => btn.parentElement as HTMLElement)
 
     const dataTransfer = {

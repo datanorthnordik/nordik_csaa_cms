@@ -11,10 +11,14 @@ import authReducer, {
 } from './authSlice'
 import { loadStoredAuthState, persistAuthState } from './authStorage'
 import eventsReducer from './eventsSlice'
+import mediaReducer from './mediaSlice'
+import pagesReducer from './pagesSlice'
 
 const rootReducer = combineReducers({
   auth: authReducer,
   events: eventsReducer,
+  media: mediaReducer,
+  pages: pagesReducer,
 })
 
 export type RootState = ReturnType<typeof rootReducer>

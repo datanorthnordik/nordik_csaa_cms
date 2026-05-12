@@ -14,14 +14,25 @@ export type GalleryAsset = {
   id: number
   fileName: string
   fileUrl: string
+  contentPath?: string
+  storageUri?: string
+  objectKey?: string
   thumbnailUrl?: string
   mimeType?: string
   fileSize?: number
+  sortOrder?: number
   dimensions?: GalleryAssetDimensions
+  title?: string
+  details?: string
   altText?: string
   uploadedBy?: string
   uploadedAt?: string
   usageTracking?: GalleryAssetUsage[]
+}
+
+export type GalleryAssetContentPatch = {
+  title: string
+  details: string
 }
 
 export type GallerySummary = {
@@ -29,6 +40,7 @@ export type GallerySummary = {
   name: string
   assetCount?: number
   frontImageUrl?: string
+  frontImagePath?: string
   visibility?: MediaVisibility
   updatedAt?: string
 }
