@@ -493,5 +493,133 @@
     "confirm": "Confirm",
     "cancel": "Cancel",
     "working": "Working..."
+  },
+  "searchFilterBar": {
+    "search": "Search",
+    "searchPlaceholder": "Search...",
+    "apply": "Apply",
+    "reset": "Reset"
+  },
+  "pagination": {
+    "previous": "Previous page",
+    "next": "Next page"
+  },
+  "richText": {
+    "toolbar": "Formatting toolbar",
+    "placeholder": "Start writing...",
+    "bold": "Bold",
+    "italic": "Italic",
+    "underline": "Underline",
+    "bulletList": "Bullet list",
+    "orderedList": "Numbered list",
+    "link": "Insert link",
+    "image": "Insert image",
+    "quote": "Block quote",
+    "linkPrompt": "Enter URL (leave blank to remove link)",
+    "imagePrompt": "Enter image URL"
+  },
+  "press": {
+    "breadcrumb": {
+      "entries": "Press Entries",
+      "create": "Create New Entry",
+      "edit": "Edit Entry"
+    },
+    "list": {
+      "title": "Press Entries",
+      "subtitle": "Manage and organize official media releases.",
+      "create": "+ Create New Press Entry",
+      "columns": {
+        "title": "Release Title",
+        "publishDate": "Publish Date",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "modifiedOn": "Updated {{date}}",
+      "untitled": "Untitled press entry",
+      "resultsLabel": "Showing {{start}} to {{end}} of {{total}} entries",
+      "previous": "Previous page",
+      "next": "Next page",
+      "edit": "Edit press entry",
+      "delete": "Delete",
+      "cancelDelete": "Cancel",
+      "deleteDialogTitle": "Delete press entry?",
+      "deleteDialogDescription": "This will permanently delete <entryName>\"{{title}}\"</entryName>. This action cannot be undone.",
+      "emptyTitle": "No press entries found",
+      "emptyText": "Adjust your filters, or create a new press entry to get started."
+    },
+    "filters": {
+      "search": "Search press entries",
+      "searchPlaceholder": "Search entries...",
+      "status": "Status",
+      "sortBy": "Sort by"
+    },
+    "statusFilter": {
+      "all": "All Status",
+      "published": "Published",
+      "draft": "Draft",
+      "scheduled": "Scheduled"
+    },
+    "sortBy": {
+      "releaseDate": "Release Date",
+      "title": "Title",
+      "updatedAt": "Last Modified"
+    },
+    "feedback": {
+      "deleted": "Press entry deleted",
+      "saved": "Press entry saved",
+      "published": "Press entry published"
+    },
+    "editor": {
+      "loading": "Loading...",
+      "titleCreate": "Create New Press Entry",
+      "titleEdit": "Edit Press Entry",
+      "subtitle": "Compose, edit, and publish official press releases.",
+      "backToList": "← Back to entries",
+      "notFoundTitle": "Press entry not found",
+      "notFoundText": "This press entry may have been deleted or never existed.",
+      "categoryPrompt": "New category name",
+      "deleteConfirmBody": "This will permanently delete \"{{title}}\". This action cannot be undone.",
+      "sections": {
+        "details": "Entry Details",
+        "content": "Content Editor",
+        "media": "Media & Attachments",
+        "mediaLimit": "Max 20MB / file"
+      },
+      "fields": {
+        "title": "Press entry title",
+        "titlePlaceholder": "Enter a compelling title for the press release...",
+        "releaseDate": "Release date",
+        "category": "Category",
+        "categoryPlaceholder": "Select a category",
+        "addCategory": "+ Add",
+        "sourceUrl": "News source link",
+        "sourceUrlPlaceholder": "e.g., https://news-organization.com/article",
+        "contentPlaceholder": "Draft your press release content here..."
+      },
+      "media": {
+        "dropLabel": "Drag and drop files here",
+        "dropHint": "or click to browse from your device",
+        "remove": "Remove file"
+      },
+      "actions": {
+        "publish": "Publish Press Entry",
+        "saveDraft": "Save Draft"
+      },
+      "meta": {
+        "created": "Created",
+        "updated": "Last updated"
+      },
+      "proTip": {
+        "title": "Pro Tip",
+        "body": "Keep titles under 60 characters for optimal display in news feeds and email subjects. Ensure your release date is accurate for embargoed content.",
+        "cta": "View Style Guide →"
+      },
+      "validation": {
+        "summary": "Please correct the highlighted fields.",
+        "titleRequired": "Title is required.",
+        "releaseDateRequired": "Release date is required.",
+        "sourceUrlInvalid": "Please enter a valid URL."
+      }
+    }
   }
 }

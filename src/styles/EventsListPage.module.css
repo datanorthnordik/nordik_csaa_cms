@@ -441,11 +441,6 @@
   flex-wrap: wrap;
 }
 
-.pageNumber {
-  font-size: 14px;
-  color: var(--color-text-muted);
-}
-
 .loaderWrap {
   padding: 24px 0;
   display: flex;

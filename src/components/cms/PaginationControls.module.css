@@ -1,0 +1,40 @@
+.pagination {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.pageButton {
+  min-width: 32px;
+  height: 32px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0 8px;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.pageButton:hover:not(:disabled) {
+  background: var(--color-surface-alt);
+}
+
+.pageButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageButtonActive,
+.pageButtonActive:hover {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-color: var(--color-primary);
+}
+
+.pageEllipsis {
+  padding: 0 6px;
+  color: var(--color-text-muted);
+}

@@ -8,6 +8,8 @@ import { EventsListPage } from './pages/EventsListPage'
 import { EventEditorPage } from './pages/EventEditorPage'
 import { MediaLibraryRoute } from './pages/MediaLibraryRoute'
 import { GalleryManagerRoute } from './pages/GalleryManagerRoute'
+import { PressListPage } from './pages/PressListPage'
+import { PressEditorPage } from './pages/PressEditorPage'
 import './App.css'
 
 function App() {
@@ -27,6 +29,9 @@ function App() {
           <Route path="/events/:id/edit" element={<EventEditorPage />} />
           <Route path="/media-library" element={<MediaLibraryRoute />} />
           <Route path="/media-library/:galleryId" element={<GalleryManagerRoute />} />
+          <Route path="/press" element={<PressListPage />} />
+          <Route path="/press/new" element={<PressEditorPage mode="create" />} />
+          <Route path="/press/:id/edit" element={<PressEditorPage mode="edit" />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -493,5 +493,133 @@
     "confirm": "Confirmer",
     "cancel": "Annuler",
     "working": "Traitement..."
+  },
+  "searchFilterBar": {
+    "search": "Rechercher",
+    "searchPlaceholder": "Rechercher...",
+    "apply": "Appliquer",
+    "reset": "Reinitialiser"
+  },
+  "pagination": {
+    "previous": "Page precedente",
+    "next": "Page suivante"
+  },
+  "richText": {
+    "toolbar": "Barre de mise en forme",
+    "placeholder": "Commencez a ecrire...",
+    "bold": "Gras",
+    "italic": "Italique",
+    "underline": "Souligne",
+    "bulletList": "Liste a puces",
+    "orderedList": "Liste numerotee",
+    "link": "Inserer un lien",
+    "image": "Inserer une image",
+    "quote": "Citation",
+    "linkPrompt": "URL (vide pour retirer le lien)",
+    "imagePrompt": "URL de l image"
+  },
+  "press": {
+    "breadcrumb": {
+      "entries": "Entrees de presse",
+      "create": "Nouvelle entree",
+      "edit": "Modifier l entree"
+    },
+    "list": {
+      "title": "Entrees de presse",
+      "subtitle": "Gerez et organisez les communiques de presse officiels.",
+      "create": "+ Creer une entree",
+      "columns": {
+        "title": "Titre",
+        "publishDate": "Date de publication",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "modifiedOn": "Mise a jour le {{date}}",
+      "untitled": "Entree sans titre",
+      "resultsLabel": "Affichage de {{start}} a {{end}} sur {{total}} entrees",
+      "previous": "Page precedente",
+      "next": "Page suivante",
+      "edit": "Modifier l entree",
+      "delete": "Supprimer",
+      "cancelDelete": "Annuler",
+      "deleteDialogTitle": "Supprimer cette entree ?",
+      "deleteDialogDescription": "Cela supprimera definitivement <entryName>\"{{title}}\"</entryName>. Cette action est irreversible.",
+      "emptyTitle": "Aucune entree trouvee",
+      "emptyText": "Ajustez vos filtres ou creez une nouvelle entree pour commencer."
+    },
+    "filters": {
+      "search": "Rechercher dans les entrees",
+      "searchPlaceholder": "Rechercher...",
+      "status": "Statut",
+      "sortBy": "Trier par"
+    },
+    "statusFilter": {
+      "all": "Tous statuts",
+      "published": "Publie",
+      "draft": "Brouillon",
+      "scheduled": "Planifie"
+    },
+    "sortBy": {
+      "releaseDate": "Date de publication",
+      "title": "Titre",
+      "updatedAt": "Derniere modification"
+    },
+    "feedback": {
+      "deleted": "Entree supprimee",
+      "saved": "Entree enregistree",
+      "published": "Entree publiee"
+    },
+    "editor": {
+      "loading": "Chargement...",
+      "titleCreate": "Creer une entree de presse",
+      "titleEdit": "Modifier l entree",
+      "subtitle": "Composez, modifiez et publiez les communiques officiels.",
+      "backToList": "← Retour a la liste",
+      "notFoundTitle": "Entree introuvable",
+      "notFoundText": "Cette entree a peut-etre ete supprimee ou n a jamais existe.",
+      "categoryPrompt": "Nom de la nouvelle categorie",
+      "deleteConfirmBody": "Cela supprimera definitivement \"{{title}}\". Cette action est irreversible.",
+      "sections": {
+        "details": "Details de l entree",
+        "content": "Editeur de contenu",
+        "media": "Medias et pieces jointes",
+        "mediaLimit": "20 Mo max / fichier"
+      },
+      "fields": {
+        "title": "Titre de l entree",
+        "titlePlaceholder": "Saisissez un titre accrocheur...",
+        "releaseDate": "Date de publication",
+        "category": "Categorie",
+        "categoryPlaceholder": "Choisir une categorie",
+        "addCategory": "+ Ajouter",
+        "sourceUrl": "Lien source",
+        "sourceUrlPlaceholder": "ex. https://organisation-presse.com/article",
+        "contentPlaceholder": "Redigez votre communique ici..."
+      },
+      "media": {
+        "dropLabel": "Glissez-deposez les fichiers ici",
+        "dropHint": "ou cliquez pour parcourir",
+        "remove": "Retirer le fichier"
+      },
+      "actions": {
+        "publish": "Publier l entree",
+        "saveDraft": "Enregistrer le brouillon"
+      },
+      "meta": {
+        "created": "Cree le",
+        "updated": "Derniere modification"
+      },
+      "proTip": {
+        "title": "Astuce",
+        "body": "Limitez les titres a 60 caracteres pour un affichage optimal. Verifiez que la date de publication respecte les embargos.",
+        "cta": "Voir le guide de style →"
+      },
+      "validation": {
+        "summary": "Veuillez corriger les champs en rouge.",
+        "titleRequired": "Le titre est obligatoire.",
+        "releaseDateRequired": "La date de publication est obligatoire.",
+        "sourceUrlInvalid": "URL invalide."
+      }
+    }
   }
 }
