@@ -185,9 +185,6 @@
       "select": "Select an option",
       "none": "None"
     },
-    "breadcrumb": {
-      "events": "Events"
-    },
     "status": {
       "published": "Published",
       "draft": "Draft"
@@ -223,6 +220,13 @@
       "apply": "Apply filters",
       "reset": "Reset",
       "pageSize": "Page size"
+    },
+    "breadcrumb": {
+      "events": "Events",
+      "list": "List",
+      "create": "Create new event",
+      "edit": "Edit event",
+      "view": "View event"
     },
     "list": {
       "eyebrow": "Events / List",

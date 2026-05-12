@@ -185,9 +185,6 @@
       "select": "Choisir une option",
       "none": "Aucun"
     },
-    "breadcrumb": {
-      "events": "Evenements"
-    },
     "status": {
       "published": "Publie",
       "draft": "Brouillon"
@@ -223,6 +220,13 @@
       "apply": "Appliquer les filtres",
       "reset": "Reinitialiser",
       "pageSize": "Taille de page"
+    },
+    "breadcrumb": {
+      "events": "Evenements",
+      "list": "Liste",
+      "create": "Creer un evenement",
+      "edit": "Modifier l evenement",
+      "view": "Voir l evenement"
     },
     "list": {
       "eyebrow": "Evenements / Liste",
@@ -362,9 +366,6 @@
       "new": "Ajouter une nouvelle adresse"
     },
     "editor": {
-      "breadcrumbCreate": "Creer un evenement",
-      "breadcrumbEdit": "Modifier l evenement",
-      "breadcrumbView": "Voir l evenement",
       "titleCreate": "Creer un evenement",
       "titleEdit": "Modifier l evenement",
       "titleView": "Voir l evenement",

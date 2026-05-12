@@ -212,6 +212,19 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
     () => Array.from(new Set(Object.values(errors).filter(Boolean))),
     [errors],
   )
+  const breadcrumbItems = useMemo(
+    () => [
+      { label: t('events.breadcrumb.events'), to: '/events' },
+      {
+        label: isViewMode
+          ? t('events.breadcrumb.view')
+          : isEditMode
+            ? t('events.breadcrumb.edit')
+            : t('events.breadcrumb.create'),
+      },
+    ],
+    [isEditMode, isViewMode, t],
+  )
 
   function clearErrors(...keys: string[]) {
     setErrors((current) => {
