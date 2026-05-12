@@ -10,11 +10,14 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: [],
 <<<<<<< HEAD
+<<<<<<< HEAD
     pool: 'forks',
     poolOptions: {
       forks: {
         maxForks: 2,
 =======
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
     deps: {
       optimizer: {
         web: {
@@ -37,6 +40,9 @@ export default defineConfig({
             'react-router-dom',
           ],
         },
+<<<<<<< HEAD
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
+=======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
       },
     },

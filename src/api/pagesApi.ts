@@ -14,8 +14,11 @@ export type PageSortBy =
 export type PageSortOrder = 'asc' | 'desc'
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export type PageListItem = {
 =======
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 export type PageParentReference = {
   id: number
   page_title: string
@@ -30,6 +33,9 @@ type PageParentRelation = {
 }
 
 export type PageListItem = PageParentRelation & {
+<<<<<<< HEAD
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
+=======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   id: number
   page_title: string
@@ -78,7 +84,11 @@ type RawPageListResponse = Omit<PageListResponse, 'items'> & {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export type PageDetailResponse = {
+=======
+export type PageDetailResponse = PageParentRelation & {
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
 export type PageDetailResponse = PageParentRelation & {
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
@@ -114,6 +124,10 @@ export type SavePagePayload = {
   page_title: string
   url_slug: string
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  parent_page_id: number | null
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
   parent_page_id: number | null
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
@@ -130,7 +144,10 @@ export type SavePageRequest = SavePagePayload & {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 export type PageParentOption = {
   id: number
   page_title: string
@@ -138,6 +155,9 @@ export type PageParentOption = {
   parent_page_id: number | null
 }
 
+<<<<<<< HEAD
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
+=======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 export type PageMutationResponse = {
   message: string
@@ -152,8 +172,11 @@ export type PageMutationResponse = {
 function buildListQuery(filters: PageListFilters) {
   const params = new URLSearchParams()
 <<<<<<< HEAD
+<<<<<<< HEAD
   params.set('page', String(filters.page))
   params.set('page_size', String(filters.pageSize))
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   params.set('sort_by', filters.sortBy)
@@ -170,6 +193,7 @@ function buildListQuery(filters: PageListFilters) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export const pagesApi = {
   async listPages(filters: PageListFilters) {
     const response = await apiClient.get<RawPageListResponse>(API_ROUTES.pages, {
@@ -179,6 +203,8 @@ export const pagesApi = {
       ...response.data,
       items: Array.isArray(response.data.items) ? response.data.items : [],
 =======
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 async function fetchAllPageListItems(filters: PageListFilters) {
   const response = await apiClient.get<RawPageListResponse>(API_ROUTES.pages, {
     params: buildListQuery(filters),
@@ -234,6 +260,9 @@ export const pagesApi = {
         sort_by: filters.sortBy,
         sort_order: filters.sortOrder,
       },
+<<<<<<< HEAD
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
+=======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
     } satisfies PageListResponse
   },
@@ -244,7 +273,10 @@ export const pagesApi = {
   },
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   async listPageParentOptions() {
     const allItems = await fetchAllPageListItems({
       page: 1,
@@ -289,6 +321,9 @@ export const pagesApi = {
     })
   },
 
+<<<<<<< HEAD
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
+=======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   async fetchPageHeroImageContent(path: string) {
     const response = await apiClient.get<Blob>(path, {

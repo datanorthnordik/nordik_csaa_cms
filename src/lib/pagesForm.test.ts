@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 <<<<<<< HEAD
+<<<<<<< HEAD
 import type { PageDetailResponse } from '../api/pagesApi'
 import {
   buildPageFormStateFromDetail,
@@ -8,12 +9,17 @@ import {
   normalizePageSlugInput,
   toPageUrlSlug,
 =======
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 import {
   buildFullPageUrlSlug,
   buildPageFormStateFromDetail,
   buildSavePageRequest,
   createDefaultPageFormState,
   getDisallowedParentPageIds,
+<<<<<<< HEAD
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
+=======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   validatePageForm,
 } from './pagesForm'
@@ -39,6 +45,7 @@ describe('buildSavePageRequest', () => {
       file_name: 'hero.png',
       mime_type: 'image/png',
     })
+<<<<<<< HEAD
 <<<<<<< HEAD
     expect(request.hero_image).not.toHaveProperty('data_base64')
   })
@@ -156,6 +163,8 @@ describe('toPageUrlSlug', () => {
   it('returns empty string when input normalises to empty', () => {
     expect(toPageUrlSlug('!!!')).toBe('')
 =======
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
     expect(request.parent_page_id).toBeNull()
     expect(request.hero_image).not.toHaveProperty('data_base64')
   })
@@ -171,11 +180,15 @@ describe('toPageUrlSlug', () => {
 
     expect(request.parent_page_id).toBe(7)
     expect(request.url_slug).toBe('/about/team')
+<<<<<<< HEAD
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
+=======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   })
 })
 
 describe('buildPageFormStateFromDetail', () => {
+<<<<<<< HEAD
 <<<<<<< HEAD
   function makePageDetail(
     overrides: Partial<PageDetailResponse> = {},
@@ -238,6 +251,8 @@ describe('buildPageFormStateFromDetail', () => {
     expect(form.status).toBe('draft')
     expect(form.heroImageEnabled).toBe(false)
 =======
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   it('strips the parent page slug back to the child segment when editing', () => {
     const form = buildPageFormStateFromDetail(
       {
@@ -299,6 +314,9 @@ describe('parent page validation', () => {
     })
 
     expect(errors.parentPageId).toBe('pages.validation.parentPageCycle')
+<<<<<<< HEAD
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
+=======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   })
 })

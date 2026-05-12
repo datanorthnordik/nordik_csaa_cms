@@ -1,5 +1,9 @@
 import type {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  PageParentOption,
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
   PageParentOption,
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
@@ -10,17 +14,27 @@ import type {
   SavePageRequest,
 } from '../api/pagesApi'
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 import {
   resolvePageParentId as getPageParentId,
   resolvePageParentSlug as getPageParentSlug,
 } from '../api/pagesApi'
+<<<<<<< HEAD
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
+=======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 
 export type PageFormState = {
   pageTitle: string
   urlSlug: string
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+  parentPageId: string
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
   parentPageId: string
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
@@ -41,6 +55,10 @@ export function createDefaultPageFormState(): PageFormState {
     pageTitle: '',
     urlSlug: '',
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    parentPageId: '',
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
     parentPageId: '',
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
@@ -56,11 +74,14 @@ export function createDefaultPageFormState(): PageFormState {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export function buildPageFormStateFromDetail(detail: PageDetailResponse): PageFormState {
   return {
     pageTitle: detail.page_title ?? '',
     urlSlug: stripLeadingSlash(detail.url_slug ?? ''),
 =======
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 export function buildPageFormStateFromDetail(
   detail: PageDetailResponse,
   parentPageSlug = '',
@@ -72,6 +93,9 @@ export function buildPageFormStateFromDetail(
     pageTitle: detail.page_title ?? '',
     urlSlug: stripParentSlugPrefix(detail.url_slug ?? '', effectiveParentSlug),
     parentPageId: resolvedParentId ? String(resolvedParentId) : '',
+<<<<<<< HEAD
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
+=======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
     status: detail.status,
     heroImageEnabled: detail.hero_image_enabled,
@@ -102,10 +126,13 @@ export function toPageUrlSlug(value: string) {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export function validatePageForm(
   form: PageFormState,
   t: (key: string) => string,
 =======
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 export function buildFullPageUrlSlug(value: string, parentPageSlug = '') {
   const normalizedValue = normalizePageSlugInput(value)
   const normalizedParentPath = normalizePagePath(parentPageSlug)
@@ -164,6 +191,9 @@ export function validatePageForm(
     currentPageId?: number | null
     pageOptions?: PageParentOption[]
   } = {},
+<<<<<<< HEAD
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
+=======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 ): PageFormErrors {
   const errors: PageFormErrors = {}
@@ -177,11 +207,14 @@ export function validatePageForm(
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   return errors
 }
 
 export function buildSavePagePayload(form: PageFormState): SavePagePayload {
 =======
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   if (
     options.currentPageId &&
     form.parentPageId &&
@@ -200,6 +233,9 @@ export function buildSavePagePayload(
   form: PageFormState,
   parentPageSlug = '',
 ): SavePagePayload {
+<<<<<<< HEAD
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
+=======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   let heroImage: PageUploadInput | undefined
 
@@ -213,7 +249,12 @@ export function buildSavePagePayload(
   return {
     page_title: form.pageTitle.trim(),
 <<<<<<< HEAD
+<<<<<<< HEAD
     url_slug: toPageUrlSlug(form.urlSlug),
+=======
+    url_slug: buildFullPageUrlSlug(form.urlSlug, parentPageSlug),
+    parent_page_id: form.parentPageId ? Number.parseInt(form.parentPageId, 10) : null,
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
     url_slug: buildFullPageUrlSlug(form.urlSlug, parentPageSlug),
     parent_page_id: form.parentPageId ? Number.parseInt(form.parentPageId, 10) : null,
@@ -228,14 +269,20 @@ export function buildSavePagePayload(
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 export function buildSavePageRequest(form: PageFormState): SavePageRequest {
   const payload = buildSavePagePayload(form)
 =======
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 export function buildSavePageRequest(
   form: PageFormState,
   parentPageSlug = '',
 ): SavePageRequest {
   const payload = buildSavePagePayload(form, parentPageSlug)
+<<<<<<< HEAD
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
+=======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 
   return {
@@ -249,7 +296,10 @@ export function buildSavePageRequest(
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 function wouldCreatePageCycle(
   currentPageId: number,
   candidateParentId: number,
@@ -279,6 +329,9 @@ function normalizePagePath(value: string) {
   return normalized ? `/${normalized}` : ''
 }
 
+<<<<<<< HEAD
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
+=======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 function stripLeadingSlash(value: string) {
   return value.replace(/^\/+/, '')

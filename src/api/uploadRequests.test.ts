@@ -42,6 +42,10 @@ describe('upload request bodies', () => {
       page_title: 'Homepage',
       url_slug: '/home',
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+      parent_page_id: null,
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
       parent_page_id: null,
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
@@ -67,6 +71,10 @@ describe('upload request bodies', () => {
         page_title: 'Homepage',
         url_slug: '/home',
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+        parent_page_id: null,
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
         parent_page_id: null,
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
@@ -84,6 +92,7 @@ describe('upload request bodies', () => {
     expect(((body as FormData).get('hero_image_file') as File).name).toBe('hero.png')
   })
 
+<<<<<<< HEAD
 <<<<<<< HEAD
   it('sends page hero update as multipart PUT with hero_image_file', async () => {
     const heroImageFile = new File(['hero'], 'updated-hero.png', {
@@ -113,6 +122,8 @@ describe('upload request bodies', () => {
     expect(((body).get('hero_image_file') as File).name).toBe('updated-hero.png')
   })
 
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   it('sends gallery image uploads as multipart payload with indexed file fields', async () => {
@@ -279,6 +290,7 @@ describe('upload request bodies', () => {
   })
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   it('sends createEvent with display image as a multipart POST', async () => {
     const posterFile = new File(['poster'], 'poster.png', { type: 'image/png' })
 
@@ -349,6 +361,8 @@ describe('upload request bodies', () => {
     expect(body).toBeInstanceOf(FormData)
     expect((body.get('cover_image_file') as File).name).toBe('cover.jpg')
 =======
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   it('deletes event documents using the storage_url query parameter', async () => {
     await eventsApi.deleteEventDocument(16, 'gs://bucket/events/16/documents/agenda.pdf')
 
@@ -375,6 +389,9 @@ describe('upload request bodies', () => {
         },
       },
     )
+<<<<<<< HEAD
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
+=======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   })
 })

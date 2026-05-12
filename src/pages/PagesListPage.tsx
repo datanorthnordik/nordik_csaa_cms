@@ -4,11 +4,17 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   DeleteOutlined,
   EditOutlined,
   VisibilityOutlined,
 } from '@mui/icons-material'
+=======
+import DeleteOutlined from '@mui/icons-material/DeleteOutlined'
+import EditOutlined from '@mui/icons-material/EditOutlined'
+import VisibilityOutlined from '@mui/icons-material/VisibilityOutlined'
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
 import DeleteOutlined from '@mui/icons-material/DeleteOutlined'
 import EditOutlined from '@mui/icons-material/EditOutlined'
@@ -20,12 +26,16 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
 <<<<<<< HEAD
+<<<<<<< HEAD
 import {
   AddIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   SearchIcon,
 } from '../components/icons'
+=======
+import { AddIcon, SearchIcon } from '../components/icons'
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
 import { AddIcon, SearchIcon } from '../components/icons'
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
@@ -43,8 +53,11 @@ import { useAppDispatch, useAppSelector } from '../store/hooks'
 import styles from '../styles/PagesListPage.module.css'
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 type PaginationToken = number | 'ellipsis'
 
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 export function PagesListPage() {
@@ -53,7 +66,11 @@ export function PagesListPage() {
   const { i18n, t } = useTranslation()
   const filters = useAppSelector(selectPageListFilters)
 <<<<<<< HEAD
+<<<<<<< HEAD
   const { items, pagination, status, error } = useAppSelector(selectPageList)
+=======
+  const { items, status, error } = useAppSelector(selectPageList)
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
   const { items, status, error } = useAppSelector(selectPageList)
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
@@ -76,7 +93,10 @@ export function PagesListPage() {
           setPageListFilters({
             searchTerm: searchInput,
 <<<<<<< HEAD
+<<<<<<< HEAD
             page: 1,
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
           }),
@@ -105,6 +125,7 @@ export function PagesListPage() {
 
   const isLoading = status === 'loading'
 <<<<<<< HEAD
+<<<<<<< HEAD
   const totalItems = pagination?.total_items ?? 0
   const rangeStart =
     pagination && totalItems > 0 ? (pagination.page - 1) * pagination.page_size + 1 : 0
@@ -123,13 +144,19 @@ export function PagesListPage() {
 =======
   const totalItems = items.length
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
+=======
+  const totalItems = items.length
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 
   function changeStatus(statusValue: PageStatusFilter) {
     dispatch(
       setPageListFilters({
         status: statusValue,
 <<<<<<< HEAD
+<<<<<<< HEAD
         page: 1,
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
       }),
@@ -143,6 +170,7 @@ export function PagesListPage() {
       await dispatch(deletePageAction(item.id)).unwrap()
       setDeleteCandidate(null)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
       const nextPage =
         pagination && pagination.page > 1 && items.length === 1
@@ -150,6 +178,8 @@ export function PagesListPage() {
           : filters.page
 
       dispatch(setPageListFilters({ page: nextPage }))
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
       toast.success(t('pages.feedback.deleted'))
@@ -171,6 +201,7 @@ export function PagesListPage() {
   }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   function buildPaginationTokens(currentPage: number, totalPages: number): PaginationToken[] {
     if (totalPages <= 5) {
       return Array.from({ length: totalPages }, (_, index) => index + 1)
@@ -191,6 +222,8 @@ export function PagesListPage() {
     ? buildPaginationTokens(pagination.page, pagination.total_pages)
     : []
 
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
   return (
@@ -381,6 +414,7 @@ export function PagesListPage() {
             </div>
           )}
 <<<<<<< HEAD
+<<<<<<< HEAD
 
           {pagination && pagination.total_pages > 1 && (
             <footer className={styles.pagination}>
@@ -433,6 +467,8 @@ export function PagesListPage() {
               </div>
             </footer>
           )}
+=======
+>>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
 =======
 >>>>>>> 4890b41c5b79edd78ad76b508a3f852018316578
         </section>
