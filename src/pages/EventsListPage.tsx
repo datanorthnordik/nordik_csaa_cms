@@ -261,7 +261,12 @@ export function EventsListPage() {
   return (
     <CmsAppShell activeKey="events">
       <div className={styles.page}>
-        <Breadcrumb items={[{ label: t('events.breadcrumb.events') }]} />
+        <Breadcrumb
+          items={[
+            { label: t('events.breadcrumb.events'), to: '/events' },
+            { label: t('events.breadcrumb.list') },
+          ]}
+        />
 
         <div className={styles.pageHeader}>
           <div>

@@ -521,18 +521,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
   return (
     <CmsAppShell activeKey="events">
       <div className={styles.page}>
-        <Breadcrumb
-          items={[
-            { label: t('events.breadcrumb.events'), to: '/events' },
-            {
-              label: isViewMode
-                ? t('events.editor.breadcrumbView')
-                : isEditMode
-                  ? t('events.editor.breadcrumbEdit')
-                  : t('events.editor.breadcrumbCreate'),
-            },
-          ]}
-        />
+        <Breadcrumb items={breadcrumbItems} />
 
         <div className={styles.header}>
           <div>
