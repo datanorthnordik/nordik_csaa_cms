@@ -11,10 +11,8 @@ export const API_ROUTES = {
   eventById: (id: number | string) => `/api/events/${id}`,
   eventMediaById: (id: number | string, mediaId: number | string) =>
     `/api/events/${id}/media/${mediaId}/content`,
-  eventDocumentById: (id: number | string, mediaId: number | string) =>
-    `/api/events/${id}/documents/${mediaId}`,
-  eventPhotoById: (id: number | string, mediaId: number | string) =>
-    `/api/events/${id}/photos/${mediaId}`,
+  eventDocumentById: (id: number | string) => `/api/events/${id}/document`,
+  eventPhotoById: (id: number | string) => `/api/events/${id}/photo`,
   pages: '/api/pages',
   pageById: (id: number | string) => `/api/pages/${id}`,
   pageHeroById: (id: number | string) => `/api/pages/${id}/hero/content`,

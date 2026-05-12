@@ -137,8 +137,12 @@
     "fields": {
       "pageTitle": "Titre de la page",
       "pageTitlePlaceholder": "Saisir le titre de la page...",
+      "parentPage": "Page parente",
+      "parentPageHint": "Optionnel. Les pages enfants reprennent l URL de leur parent comme prefixe.",
+      "noParentPage": "Aucune page parente",
       "urlSlug": "URL",
       "urlSlugPlaceholder": "slug-name",
+      "fullUrlSlugPreview": "URL finale : {{slug}}",
       "enableHeroImage": "Activer l image hero",
       "enableHeroImageHint": "Televersez une image hero et enregistrez sa source avec la page.",
       "heroImageLabel": "Deposez une image ici ou parcourez",
@@ -176,7 +180,8 @@
     },
     "validation": {
       "pageTitleRequired": "Le titre de la page est requis.",
-      "urlSlugRequired": "L URL est requise."
+      "urlSlugRequired": "L URL est requise.",
+      "parentPageCycle": "Une page ne peut pas utiliser l un de ses propres descendants comme parent."
     }
   },
   "events": {

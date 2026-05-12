@@ -137,8 +137,12 @@
     "fields": {
       "pageTitle": "Page Title",
       "pageTitlePlaceholder": "Enter page title...",
+      "parentPage": "Parent Page",
+      "parentPageHint": "Optional. Child pages inherit their parent URL as a prefix.",
+      "noParentPage": "No parent page",
       "urlSlug": "URL Slug",
       "urlSlugPlaceholder": "slug-name",
+      "fullUrlSlugPreview": "Final URL: {{slug}}",
       "enableHeroImage": "Enable Hero Image",
       "enableHeroImageHint": "Upload a hero image and store its source with the page record.",
       "heroImageLabel": "Drop image here or browse",
@@ -176,7 +180,8 @@
     },
     "validation": {
       "pageTitleRequired": "Page title is required.",
-      "urlSlugRequired": "URL slug is required."
+      "urlSlugRequired": "URL slug is required.",
+      "parentPageCycle": "A page cannot use one of its own descendants as a parent."
     }
   },
   "events": {
