@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
+import { suggestGalleryAssetTitle } from './galleryAssets'
 import type {
   GalleryAsset,
+  GalleryAssetContentPatch,
   GalleryDetail,
   GallerySummary,
   MediaVisibility,
@@ -96,7 +98,7 @@ export function useMockMediaStore() {
   const uploadAssets = useCallback(
     (
       galleryId: number,
-      uploads: { file: File; altText: string }[],
+      uploads: { file: File; title: string; details: string }[],
     ) => {
       const gallery = galleries.get(galleryId)
       if (!gallery) {
@@ -120,13 +122,15 @@ export function useMockMediaStore() {
         return
       }
 
-      const newAssets: GalleryAsset[] = accepted.map(({ file, altText }) => ({
+      const newAssets: GalleryAsset[] = accepted.map(({ file, title, details }) => ({
         id: nextId++,
         fileName: file.name,
         fileUrl: URL.createObjectURL(file),
         mimeType: file.type,
         fileSize: file.size,
-        altText: altText.trim() || undefined,
+        title: title.trim() || suggestGalleryAssetTitle(file.name),
+        details: details.trim() || undefined,
+        altText: details.trim() || undefined,
         uploadedAt: nowIso(),
       }))
 
@@ -162,6 +166,43 @@ export function useMockMediaStore() {
 
       galleries.set(galleryId, updated)
       console.log('[mockMediaStore] deleteAsset', { galleryId, asset })
+      notify()
+    },
+    [],
+  )
+
+  const updateAsset = useCallback(
+    (galleryId: number, assetId: number, patch: GalleryAssetContentPatch) => {
+      const gallery = galleries.get(galleryId)
+      if (!gallery?.assets) {
+        return
+      }
+
+      const nextAssets = gallery.assets.map((asset) => {
+        if (asset.id !== assetId) {
+          return asset
+        }
+
+        const title =
+          patch.title.trim() || suggestGalleryAssetTitle(asset.fileName)
+        const details = patch.details.trim()
+
+        return {
+          ...asset,
+          title,
+          details: details || undefined,
+          altText: details || undefined,
+        }
+      })
+
+      const updated: GalleryDetail = {
+        ...gallery,
+        assets: nextAssets,
+        updatedAt: nowIso(),
+      }
+
+      galleries.set(galleryId, updated)
+      console.log('[mockMediaStore] updateAsset', { galleryId, assetId, patch })
       notify()
     },
     [],
@@ -305,6 +346,7 @@ export function useMockMediaStore() {
     createGallery,
     getGallery,
     uploadAssets,
+    updateAsset,
     deleteAsset,
     moveAsset,
     reorderAsset,

@@ -3,19 +3,30 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
-import { AddPhotoIcon, CloseIcon, CloudUploadIcon } from '../components/icons'
+import { CloseIcon, CloudUploadIcon } from '../components/icons'
 import { Loader } from '../components/Loader'
 import { AssetThumbnail } from '../components/media/AssetThumbnail'
+import { GalleryStatusChip } from '../components/media/GalleryStatusChip'
 import { SelectedImagePanel } from '../components/media/SelectedImagePanel'
 import { UploadDropzone } from '../components/media/UploadDropzone'
-import type { GalleryAsset, GalleryDetail } from '../types/media'
+import {
+  getGalleryAssetDetails,
+  getGalleryAssetTitle,
+  suggestGalleryAssetTitle,
+} from '../lib/galleryAssets'
+import type {
+  GalleryAsset,
+  GalleryAssetContentPatch,
+  GalleryDetail,
+} from '../types/media'
 import styles from '../styles/GalleryManagerPage.module.css'
 
 export type GalleryUpdatePatch = Partial<Pick<GalleryDetail, 'name' | 'description'>>
 
 export type PendingUploadInput = {
   file: File
-  altText: string
+  title: string
+  details: string
 }
 
 type GalleryManagerPageProps = {
@@ -27,6 +38,7 @@ type GalleryManagerPageProps = {
   onSaveDraft?: () => void
   onPublish?: () => void
   onUploadAssets?: (uploads: PendingUploadInput[]) => void
+  onUpdateAsset?: (asset: GalleryAsset, patch: GalleryAssetContentPatch) => void
   onDeleteAsset?: (asset: GalleryAsset) => void
   onDownloadAsset?: (asset: GalleryAsset) => void
   onMoveAsset?: (asset: GalleryAsset, delta: number) => void
@@ -41,7 +53,8 @@ type PendingUpload = {
   id: string
   file: File
   previewUrl: string
-  altText: string
+  title: string
+  details: string
 }
 
 function makePendingId() {
@@ -60,6 +73,7 @@ export function GalleryManagerPage({
   onSaveDraft,
   onPublish,
   onUploadAssets,
+  onUpdateAsset,
   onDeleteAsset,
   onDownloadAsset,
   onMoveAsset,
@@ -93,11 +107,12 @@ export function GalleryManagerPage({
   const willExceedLimit =
     typeof assetLimit === 'number' &&
     assetCount + pendingUploads.length > assetLimit
-  const allAltTextsFilled =
+  const allPendingMetadataFilled =
     pendingUploads.length > 0 &&
-    pendingUploads.every((upload) => upload.altText.trim().length > 0)
-  const showUploadTile =
-    typeof assetLimit === 'number' && assetCount < assetLimit
+    pendingUploads.every(
+      (upload) =>
+        upload.title.trim().length > 0 && upload.details.trim().length > 0,
+    )
 
   function handleFilesDropped(files: File[]) {
     const accepted =
@@ -118,16 +133,21 @@ export function GalleryManagerPage({
       id: makePendingId(),
       file,
       previewUrl: URL.createObjectURL(file),
-      altText: '',
+      title: suggestGalleryAssetTitle(file.name),
+      details: '',
     }))
 
     setPendingUploads((current) => [...current, ...additions])
   }
 
-  function updatePendingAlt(id: string, value: string) {
+  function updatePendingUpload(
+    id: string,
+    field: keyof Pick<PendingUpload, 'title' | 'details'>,
+    value: string,
+  ) {
     setPendingUploads((current) =>
       current.map((upload) =>
-        upload.id === id ? { ...upload, altText: value } : upload,
+        upload.id === id ? { ...upload, [field]: value } : upload,
       ),
     )
   }
@@ -144,14 +164,15 @@ export function GalleryManagerPage({
 
   function handleUpload(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!pendingUploads.length || !allAltTextsFilled || willExceedLimit) {
+    if (!pendingUploads.length || !allPendingMetadataFilled || willExceedLimit) {
       return
     }
 
     onUploadAssets?.(
       pendingUploads.map((upload) => ({
         file: upload.file,
-        altText: upload.altText.trim(),
+        title: upload.title.trim(),
+        details: upload.details.trim(),
       })),
     )
 
@@ -220,6 +241,10 @@ export function GalleryManagerPage({
           <div className={styles.layout}>
             <div className={styles.main}>
               <header className={styles.galleryHeader}>
+                <div className={styles.headerTop}>
+                  <GalleryStatusChip visibility={gallery.visibility} />
+                </div>
+
                 <h1 className={styles.titleRow}>
                   <input
                     key={`name-${gallery.id}`}
@@ -266,7 +291,6 @@ export function GalleryManagerPage({
                     </>
                   )}
                 </div>
-
               </header>
 
               <section className={styles.coverCard}>
@@ -286,7 +310,8 @@ export function GalleryManagerPage({
                         <img
                           src={gallery.coverImage.fileUrl}
                           alt={
-                            gallery.coverImage.altText ?? gallery.coverImage.fileName
+                            getGalleryAssetDetails(gallery.coverImage) ||
+                            getGalleryAssetTitle(gallery.coverImage)
                           }
                           className={styles.coverImage}
                         />
@@ -429,23 +454,22 @@ export function GalleryManagerPage({
                       }}
                     />
                   ))}
-                  {showUploadTile && gallery.assetLimit !== undefined && (
-                    <div className={styles.uploadTile} aria-hidden="true">
-                      <AddPhotoIcon size={28} />
-                      <span className={styles.uploadTileLabel}>
-                        {t('galleryManager.uploads.maxLabel', {
-                          count: gallery.assetLimit,
-                        })}
-                      </span>
-                    </div>
-                  )}
                 </div>
               )}
 
               <section className={styles.uploadSection}>
-                <h2 className={styles.uploadTitle}>
-                  {t('galleryManager.uploads.title')}
-                </h2>
+                <div className={styles.uploadHeader}>
+                  <h2 className={styles.uploadTitle}>
+                    {t('galleryManager.uploads.title')}
+                  </h2>
+                  {typeof assetLimit === 'number' && (
+                    <p className={styles.uploadNote}>
+                      {t('galleryManager.uploads.maxNote', {
+                        count: assetLimit,
+                      })}
+                    </p>
+                  )}
+                </div>
                 <form className={styles.uploadForm} onSubmit={handleUpload}>
                   <UploadDropzone
                     icon={<CloudUploadIcon />}
@@ -481,7 +505,37 @@ export function GalleryManagerPage({
                               </p>
                               <label className={styles.pendingAltLabel}>
                                 <span className={styles.fieldLabel}>
-                                  {t('galleryManager.uploads.altLabel')}
+                                  {t('galleryManager.uploads.titleLabel')}
+                                  <span
+                                    className={styles.required}
+                                    aria-hidden="true"
+                                  >
+                                    *
+                                  </span>
+                                </span>
+                                <input
+                                  type="text"
+                                  className={styles.pendingTextInput}
+                                  value={upload.title}
+                                  onChange={(event) =>
+                                    updatePendingUpload(
+                                      upload.id,
+                                      'title',
+                                      event.target.value,
+                                    )
+                                  }
+                                  placeholder={t(
+                                    'galleryManager.uploads.titlePlaceholder',
+                                  )}
+                                  aria-label={t(
+                                    'galleryManager.uploads.titleLabelFor',
+                                    { name: upload.file.name },
+                                  )}
+                                />
+                              </label>
+                              <label className={styles.pendingAltLabel}>
+                                <span className={styles.fieldLabel}>
+                                  {t('galleryManager.uploads.detailsLabel')}
                                   <span
                                     className={styles.required}
                                     aria-hidden="true"
@@ -492,15 +546,19 @@ export function GalleryManagerPage({
                                 <textarea
                                   className={styles.pendingAltInput}
                                   rows={2}
-                                  value={upload.altText}
+                                  value={upload.details}
                                   onChange={(event) =>
-                                    updatePendingAlt(upload.id, event.target.value)
+                                    updatePendingUpload(
+                                      upload.id,
+                                      'details',
+                                      event.target.value,
+                                    )
                                   }
                                   placeholder={t(
-                                    'galleryManager.uploads.altPlaceholder',
+                                    'galleryManager.uploads.detailsPlaceholder',
                                   )}
                                   aria-label={t(
-                                    'galleryManager.uploads.altLabelFor',
+                                    'galleryManager.uploads.detailsLabelFor',
                                     { name: upload.file.name },
                                   )}
                                 />
@@ -538,7 +596,7 @@ export function GalleryManagerPage({
                       className={styles.primaryButton}
                       disabled={
                         !pendingUploads.length ||
-                        !allAltTextsFilled ||
+                        !allPendingMetadataFilled ||
                         willExceedLimit
                       }
                     >
@@ -548,31 +606,7 @@ export function GalleryManagerPage({
                 </form>
               </section>
 
-              <section className={styles.actionsCard}>
-                <div className={styles.actionsHeader}>
-                  <h2 className={styles.actionsTitle}>
-                    {t('galleryManager.actions.title')}
-                  </h2>
-                  <p className={styles.actionsHint}>
-                    {t('galleryManager.actions.hint')}
-                  </p>
-                </div>
-
-                <div className={styles.statusChipRow}>
-                  <span
-                    className={[
-                      styles.statusChip,
-                      gallery.visibility === 'published'
-                        ? styles.statusPublished
-                        : styles.statusDraft,
-                    ].join(' ')}
-                  >
-                    {gallery.visibility === 'published'
-                      ? t('galleryManager.actions.statusPublished')
-                      : t('galleryManager.actions.statusDraft')}
-                  </span>
-                </div>
-
+              <div className={styles.actionsCard}>
                 <div className={styles.actionStack}>
                   <button
                     type="button"
@@ -591,13 +625,14 @@ export function GalleryManagerPage({
                     {t('galleryManager.actions.publish')}
                   </button>
                 </div>
-              </section>
+              </div>
             </div>
 
             {selectedAsset && (
               <SelectedImagePanel
                 asset={selectedAsset}
                 onClose={() => setSelectedAssetId(null)}
+                onUpdateAsset={onUpdateAsset}
                 onDownload={onDownloadAsset}
                 onDelete={onDeleteAsset}
                 formatFileSize={formatFileSize}

@@ -17,4 +17,17 @@ export const API_ROUTES = {
     `/api/events/${id}/photos/${mediaId}`,
   press: '/api/press',
   pressById: (id: string) => `/api/press/${id}`,
+  pages: '/api/pages',
+  pageById: (id: number | string) => `/api/pages/${id}`,
+  pageHeroById: (id: number | string) => `/api/pages/${id}/hero/content`,
+  galleries: '/api/galleries',
+  galleryById: (id: number | string) => `/api/galleries/${id}`,
+  galleryCoverById: (id: number | string) => `/api/galleries/${id}/cover/content`,
+  galleryImagesById: (id: number | string) => `/api/galleries/${id}/images`,
+  galleryImageById: (id: number | string, imageId: number | string) =>
+    `/api/galleries/${id}/images/${imageId}`,
+  galleryImageContentById: (id: number | string, imageId: number | string) =>
+    `/api/galleries/${id}/images/${imageId}/content`,
+  galleryImageOrderById: (id: number | string) =>
+    `/api/galleries/${id}/images/order`,
 } as const

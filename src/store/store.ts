@@ -11,10 +11,14 @@ import authReducer, {
 } from './authSlice'
 import { loadStoredAuthState, persistAuthState } from './authStorage'
 import eventsReducer from './eventsSlice'
+import mediaReducer from './mediaSlice'
+import pagesReducer from './pagesSlice'
 
 const rootReducer = combineReducers({
   auth: authReducer,
   events: eventsReducer,
+  media: mediaReducer,
+  pages: pagesReducer,
 })
 
 export type RootState = ReturnType<typeof rootReducer>
@@ -32,7 +36,11 @@ export function createAppStore(preloadedState?: Partial<RootState>) {
   return configureStore({
     reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().prepend(authPersistenceListener.middleware),
+      getDefaultMiddleware({
+        serializableCheck: {
+          ignoredActionPaths: ['meta.arg'],
+        },
+      }).prepend(authPersistenceListener.middleware),
     preloadedState:
       preloadedState ??
       ({

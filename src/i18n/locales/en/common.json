@@ -89,6 +89,96 @@
     "title": "CSAA CMS dashboard",
     "subtitle": "Use the side navigation to move between content tools. Events is now ready for list, add, and edit workflows."
   },
+  "pages": {
+    "common": {
+      "loading": "Loading..."
+    },
+    "breadcrumb": {
+      "pages": "Pages"
+    },
+    "status": {
+      "draft": "Draft",
+      "live": "Live"
+    },
+    "filters": {
+      "searchPlaceholder": "Search pages...",
+      "status": "Filter by status",
+      "allStatuses": "Filter by Status"
+    },
+    "list": {
+      "title": "Pages",
+      "subtitle": "Manage and organize static website content.",
+      "create": "Create New Page",
+      "total": "Total: {{count}} Pages",
+      "resultsLabel": "Showing {{start}} to {{end}} of {{total}} pages",
+      "modifiedBy": "by {{name}}",
+      "unknownEditor": "Unknown editor",
+      "view": "View page",
+      "edit": "Edit page",
+      "delete": "Delete page",
+      "cancelDelete": "Cancel",
+      "deleteDialogTitle": "Delete page?",
+      "deleteDialogDescription": "This will permanently delete \"{{title}}\" from the pages list. This action cannot be undone.",
+      "emptyTitle": "No pages found",
+      "emptyText": "Create your first page or adjust the filters to widen the results.",
+      "columns": {
+        "pageTitle": "Page Title",
+        "urlSlug": "URL Slug",
+        "status": "Status",
+        "lastModified": "Last Modified",
+        "actions": "Actions"
+      }
+    },
+    "sections": {
+      "pageSettings": "Page Settings",
+      "metadata": "Metadata & SEO",
+      "metadataHint": "Add search-focused copy that helps people and search engines understand this page."
+    },
+    "fields": {
+      "pageTitle": "Page Title",
+      "pageTitlePlaceholder": "Enter page title...",
+      "urlSlug": "URL Slug",
+      "urlSlugPlaceholder": "slug-name",
+      "enableHeroImage": "Enable Hero Image",
+      "enableHeroImageHint": "Upload a hero image and store its source with the page record.",
+      "heroImageLabel": "Drop image here or browse",
+      "heroImageHint": "Supports PNG, JPG, and WEBP.",
+      "heroImageAlt": "Page hero image",
+      "seoPageTitle": "SEO Page Title",
+      "seoPageTitlePlaceholder": "Search engine optimized title...",
+      "seoPageDescription": "SEO Page Description",
+      "seoPageDescriptionPlaceholder": "Brief description for search results..."
+    },
+    "editor": {
+      "breadcrumbCreate": "Create New Page",
+      "breadcrumbEdit": "Edit Page",
+      "breadcrumbView": "View Page",
+      "titleCreate": "Create New Page",
+      "titleEdit": "Edit Page",
+      "titleView": "View Page",
+      "subtitle": "For now this editor stores page settings only. Page detail structure can be added later.",
+      "invalidIdTitle": "Invalid page link",
+      "invalidIdText": "This page URL is missing a valid page id.",
+      "loadErrorTitle": "We could not load this page",
+      "backToList": "Back to pages",
+      "editPage": "Edit Page",
+      "replaceHeroImage": "Replace image",
+      "removeHeroImage": "Remove image",
+      "saveDraft": "Save as Draft",
+      "publish": "Publish Page"
+    },
+    "feedback": {
+      "validation": "Please fix the highlighted fields before continuing.",
+      "created": "Page created successfully.",
+      "draftSaved": "Page saved as draft.",
+      "published": "Page published successfully.",
+      "deleted": "Page deleted successfully."
+    },
+    "validation": {
+      "pageTitleRequired": "Page title is required.",
+      "urlSlugRequired": "URL slug is required."
+    }
+  },
   "events": {
     "common": {
       "loading": "Loading...",
@@ -276,6 +366,9 @@
       "new": "Add new address"
     },
     "editor": {
+      "breadcrumbCreate": "Create new event",
+      "breadcrumbEdit": "Edit event",
+      "breadcrumbView": "View event",
       "titleCreate": "Create new event",
       "titleEdit": "Edit event",
       "titleView": "View event",
@@ -433,9 +526,13 @@
       "dropLabel": "Drop image here or browse",
       "dropHint": "Supports PNG, JPG (Max 5MB)",
       "maxLabel": "Max {{count}} uploads",
-      "altLabel": "Image details",
-      "altLabelFor": "Image details for {{name}}",
-      "altPlaceholder": "Describe the image for accessibility...",
+      "maxNote": "Maximum {{count}} images per gallery",
+      "titleLabel": "Image title",
+      "titleLabelFor": "Image title for {{name}}",
+      "titlePlaceholder": "Short title shown in the gallery",
+      "detailsLabel": "Image details",
+      "detailsLabelFor": "Image details for {{name}}",
+      "detailsPlaceholder": "Describe the image clearly and simply...",
       "removeUpload": "Remove {{name}} from upload list",
       "limitReached": "This gallery is full ({{limit}} / {{limit}}). Remove an asset to add more.",
       "limitExceeded": "Adding these images would exceed the {{limit}}-image limit ({{count}} total). Remove some to continue.",
@@ -454,9 +551,14 @@
         "fileSize": "File Size",
         "format": "Format"
       },
-      "altText": {
-        "title": "Alt-text status",
-        "compliant": "Compliant"
+      "metadata": {
+        "title": "Image Content",
+        "edit": "Edit",
+        "save": "Save changes",
+        "cancel": "Cancel",
+        "assetTitle": "Title",
+        "assetDetails": "Details",
+        "empty": "No details have been added yet."
       },
       "usage": {
         "title": "Usage tracking"
@@ -465,6 +567,11 @@
         "download": "Download Original",
         "delete": "Delete asset"
       }
+    },
+    "feedback": {
+      "draftSaved": "Gallery saved as draft.",
+      "published": "Gallery published successfully.",
+      "downloadFailed": "Could not download the image right now."
     }
   },
   "publishing": {

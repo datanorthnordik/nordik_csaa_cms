@@ -45,14 +45,15 @@ describe('MediaLibraryPage', () => {
     expect(screen.getByText(/press release assets/i)).toBeDefined()
   })
 
-  it('only renders the visibility badge when visibility is defined', () => {
+  it('renders gallery status in the card body and defaults missing visibility to draft', () => {
     const galleries: GallerySummary[] = [
       { id: 1, name: 'Hidden Gallery' },
       { id: 2, name: 'Public Gallery', visibility: 'public' },
     ]
     renderPage({ galleries })
 
-    expect(screen.queryAllByText(/^public$/i).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getByText(/^draft$/i)).toBeDefined()
+    expect(screen.getByText(/^public$/i)).toBeDefined()
   })
 
   it('opens the create dialog when the trigger is clicked', () => {

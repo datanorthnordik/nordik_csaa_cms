@@ -6,8 +6,10 @@ import {
   type EventOccurrence,
   type EventOccurrenceInput,
   type EventType,
+  type EventUploadInput,
   type RecurrenceFrequency,
   type SaveEventPayload,
+  type SaveEventRequest,
 } from '../api/eventsApi'
 import { isAllDayEventType } from './eventsDate'
 
@@ -453,9 +455,7 @@ export function validateEventForm(
   return errors
 }
 
-export async function buildSaveEventPayload(
-  form: EventFormState,
-): Promise<SaveEventPayload> {
+export function buildSaveEventPayload(form: EventFormState): SaveEventPayload {
   const categories = splitCommaList(form.categoriesText)
   const privateAudiences = [
     form.audienceMembers ? 'members' : '',
@@ -523,11 +523,27 @@ export async function buildSaveEventPayload(
         ? buildOccurrences(form.scheduledOccurrences, form.eventType)
         : [],
     display_image: form.displayImageFile
-      ? await fileToUploadInput(form.displayImageFile)
+      ? fileToUploadInput(form.displayImageFile)
       : undefined,
-    attachments: await Promise.all(
-      form.attachmentFiles.map((file) => fileToUploadInput(file)),
-    ),
+    attachments: form.attachmentFiles.map((file) => fileToUploadInput(file)),
+  }
+}
+
+export function buildSaveEventRequest(form: EventFormState): SaveEventRequest {
+  const payload = buildSaveEventPayload(form)
+
+  return {
+    ...payload,
+    ...(form.displayImageFile
+      ? {
+          displayImageFile: form.displayImageFile,
+        }
+      : {}),
+    ...(form.attachmentFiles.length
+      ? {
+          attachmentFiles: [...form.attachmentFiles],
+        }
+      : {}),
   }
 }
 
@@ -684,30 +700,12 @@ function buildOccurrenceEndAt(
   }
 }
 
-async function fileToUploadInput(file: File) {
+function fileToUploadInput(file: File): EventUploadInput {
   return {
     display_name: file.name,
     file_name: file.name,
     mime_type: file.type || 'application/octet-stream',
-    data_base64: await fileToBase64(file),
   }
-}
-
-function fileToBase64(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onerror = () => reject(new Error('Could not read file'))
-    reader.onload = () => {
-      const result = reader.result
-      if (typeof result !== 'string') {
-        reject(new Error('Could not read file'))
-        return
-      }
-      const [, base64 = ''] = result.split(',')
-      resolve(base64)
-    }
-    reader.readAsDataURL(file)
-  })
 }
 
 function mapLocationMode(choice: EventLocationChoice) {

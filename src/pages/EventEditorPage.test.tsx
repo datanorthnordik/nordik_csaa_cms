@@ -51,4 +51,70 @@ describe('EventEditorPage', () => {
     expect(breadcrumb.textContent).toContain('Events')
     expect(breadcrumb.textContent).toContain('Create new event')
   })
+
+  it('renders the view breadcrumb when mode is view', async () => {
+    mockedGet.mockImplementation((url: string) => {
+      if (url === '/api/events/7') {
+        return Promise.resolve({
+          data: {
+            id: 7,
+            title: 'Spring Fair',
+            show_title: true,
+            categories: ['Community'],
+            event_type: 'single_day_all_day',
+            start_at: '2026-05-07T00:00:00Z',
+            end_at: null,
+            privacy_type: 'public',
+            private_audiences: [],
+            published: true,
+            request_review: false,
+            review_email_list: [],
+            teaser: '',
+            description_html: '',
+            contact_name: '',
+            contact_email: '',
+            contact_phone: '',
+            contact_ext: '',
+            contact_fax: '',
+            location_mode: 'none',
+            address: null,
+            show_display_image_when_viewing: true,
+            gallery_id: null,
+            registration_enabled: false,
+            registration_start_at: null,
+            registration_end_at: null,
+            registration_url: '',
+            repeat_enabled: false,
+            recurrence_type: '',
+            recurrence_frequency: '',
+            recurrence_interval: 1,
+            recurrence_until: null,
+            occurrences: [],
+            display_image: null,
+            attachments: [],
+            created_by: null,
+            created_at: '2026-05-01T12:00:00Z',
+            updated_at: '2026-05-02T12:00:00Z',
+          },
+        })
+      }
+      return Promise.resolve({ data: { items: [] } })
+    })
+
+    renderPage('/events/7')
+
+    const breadcrumb = await screen.findByRole('navigation', { name: /breadcrumb/i })
+    expect(breadcrumb.textContent).toContain('Events')
+    expect(breadcrumb.textContent).toContain('View event')
+  })
+
+  it('renders a back-to-list button on the create route', async () => {
+    renderPage()
+
+    await screen.findByRole('heading', { name: /create new event/i })
+
+    expect(
+      screen.getByRole('button', { name: /back to event list/i }),
+    ).toBeDefined()
+  })
 })
