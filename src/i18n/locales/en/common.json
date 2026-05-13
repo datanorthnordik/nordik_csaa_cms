@@ -73,6 +73,7 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "menus": "Menus",
     "pages": "Pages",
     "events": "Events",
     "newsletters": "Newsletters",
@@ -88,6 +89,81 @@
     "eyebrow": "Admin workspace",
     "title": "CSAA CMS dashboard",
     "subtitle": "Use the side navigation to move between content tools. Events is now ready for list, add, and edit workflows."
+  },
+  "menus": {
+    "common": {
+      "loading": "Loading navigation...",
+      "saving": "Saving..."
+    },
+    "breadcrumb": {
+      "title": "Menus"
+    },
+    "title": "Main Website Navigation",
+    "subtitle": "Configure the structure and hierarchy of the primary site menu.",
+    "status": {
+      "staged": "All changes are currently staged.",
+      "saved": "No unsaved navigation changes."
+    },
+    "actions": {
+      "add": "Add Menu Item",
+      "addToMenu": "Add to Menu",
+      "update": "Update Item",
+      "save": "Save Navigation",
+      "discard": "Discard Changes",
+      "cancel": "Cancel",
+      "edit": "Edit menu item",
+      "remove": "Remove",
+      "moveUp": "Move menu item up",
+      "moveDown": "Move menu item down",
+      "retry": "Retry"
+    },
+    "empty": {
+      "title": "Need a new section?",
+      "text": "Click the add button above to create a menu item and arrange the hierarchy."
+    },
+    "builder": {
+      "types": {
+        "page": "Page",
+        "external": "External Link"
+      },
+      "childCount_one": "{{count}} child item",
+      "childCount_other": "{{count}} child items"
+    },
+    "dialog": {
+      "createTitle": "Add Menu Item",
+      "editTitle": "Edit Menu Item",
+      "description": "Create or update an item for your website navigation.",
+      "fields": {
+        "menuLabel": "Menu Label",
+        "menuLabelPlaceholder": "e.g., Community Outreach",
+        "linkType": "Link Type",
+        "linkTypePage": "Link to Existing Page",
+        "linkTypePageHint": "Connect this navigation item to a published CMS page.",
+        "linkTypeExternal": "External Link",
+        "linkTypeExternalHint": "Send visitors to another website or document URL.",
+        "targetPage": "Target Page",
+        "targetPageHint": "Child pages inherit their parent automatically from the pages table.",
+        "selectPage": "Select a published page...",
+        "externalUrl": "External URL",
+        "externalUrlPlaceholder": "https://example.com/resource",
+        "parentPage": "Parent Page",
+        "parentPageHint": "Optional. Use this when an external link should appear under a parent page.",
+        "noParentPage": "Top-level item",
+        "openInNewTab": "Open in New Tab",
+        "lockedHint": "This item already has child links, so only the label can be changed here."
+      }
+    },
+    "removeDialog": {
+      "title": "Remove menu item?",
+      "single": "This will remove \"{{label}}\" from the menu.",
+      "withChildren": "This will remove \"{{label}}\" and its {{count}} nested child items from the menu."
+    },
+    "feedback": {
+      "saved": "Navigation saved successfully."
+    },
+    "loadError": {
+      "title": "We could not load the menu editor"
+    }
   },
   "pages": {
     "common": {
