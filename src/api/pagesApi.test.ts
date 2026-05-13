@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { pagesApi, type PageListItem } from './pagesApi'
+import { isModulePage, pagesApi, type PageListItem } from './pagesApi'
 
 const { getMock } = vi.hoisted(() => ({
   getMock: vi.fn(),
@@ -16,6 +16,7 @@ function createPageListItem(id: number): PageListItem {
     id,
     page_title: `Page ${id}`,
     url_slug: `/page-${id}`,
+    page_type: 'page',
     parent_page_title: '',
     parent_page_url_slug: '',
     status: 'draft',
@@ -160,5 +161,12 @@ describe('pagesApi.listPageParentOptions', () => {
         parent_id: 4,
       },
     ])
+  })
+})
+
+describe('isModulePage', () => {
+  it('detects module-backed pages', () => {
+    expect(isModulePage({ page_type: 'module' })).toBe(true)
+    expect(isModulePage({ page_type: 'page' })).toBe(false)
   })
 })

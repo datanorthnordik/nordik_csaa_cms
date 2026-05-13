@@ -200,10 +200,15 @@
       "columns": {
         "pageTitle": "Titre de la page",
         "urlSlug": "URL",
+        "type": "Type",
         "status": "Statut",
         "lastModified": "Derniere modification",
         "actions": "Actions"
       }
+    },
+    "types": {
+      "page": "Page",
+      "module": "Module"
     },
     "sections": {
       "pageSettings": "Parametres de la page",
@@ -242,6 +247,8 @@
       "loadErrorTitle": "Impossible de charger cette page",
       "backToList": "Retour aux pages",
       "editPage": "Modifier la page",
+      "moduleManagedTitle": "Page geree par un module",
+      "moduleManagedNotice": "Cette page appartient a un module du CMS. Son contenu est gere dans ce module et ne peut pas etre modifie ici.",
       "replaceHeroImage": "Remplacer l image",
       "removeHeroImage": "Supprimer l image",
       "saveDraft": "Enregistrer comme brouillon",

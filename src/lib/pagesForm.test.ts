@@ -54,6 +54,7 @@ describe('buildPageFormStateFromDetail', () => {
         id: 3,
         page_title: 'Team',
         url_slug: '/about/team',
+        page_type: 'page',
         parent_id: 7,
         status: 'draft',
         hero_image_enabled: false,

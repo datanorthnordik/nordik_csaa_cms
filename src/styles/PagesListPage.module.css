@@ -207,6 +207,34 @@
   font-weight: 700;
 }
 
+.pageTitleStack {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.pageTypeBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pageTypePage {
+  background: #f4ece9;
+  color: #715559;
+}
+
+.pageTypeModule {
+  background: #fdf0d8;
+  color: #9a5d00;
+}
+
 .slugPill {
   display: inline-flex;
   align-items: center;
@@ -340,6 +368,10 @@
 
 .mobileCardMeta {
   color: #64484d;
+}
+
+.mobileCardType {
+  margin-top: 0.55rem;
 }
 
 .visuallyHidden {

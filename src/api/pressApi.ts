@@ -117,7 +117,6 @@ export async function seedPressEntries(): Promise<SeedResult> {
   const result: SeedResult = { success: 0, failed: 0, errors: [] }
 
   for (const item of rawPressReleases) {
-    const dateIso = `${item.publishDate}T12:00:00.000Z`
     const input: PressApiCreateInput = {
       title: item.title,
       release_date: item.publishDate,
