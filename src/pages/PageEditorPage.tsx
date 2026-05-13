@@ -148,12 +148,17 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
       return
     }
 
-    setForm(buildPageFormStateFromDetail(currentPage, currentPageParentSlug))
+    setForm(
+      buildPageFormStateFromDetail(currentPage, {
+        parentPageSlug: currentPageParentSlug,
+      }),
+    )
     setErrors({})
     setSlugTouched(true)
     setInitializedPageId(currentPage.id)
   }, [
     currentPage,
+    currentPageParentId,
     currentPageParentSlug,
     initializedPageId,
     isEditMode,
