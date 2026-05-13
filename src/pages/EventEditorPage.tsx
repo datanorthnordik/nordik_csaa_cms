@@ -15,7 +15,7 @@ import type {
 import {
   buildEventFormStateFromDetail,
   buildLocationSummary,
-  buildSaveEventPayload,
+  buildSaveEventRequest,
   createDefaultEventFormState,
   createOccurrenceFromMain,
   usesSeparateEndDate,
@@ -382,17 +382,30 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
     }))
   }
 
-  async function removeExistingAttachment(mediaId: number) {
+  async function removeExistingAttachment(attachment: EventMedia) {
     if (!isEditMode || !parsedEventId) {
       return
     }
 
     try {
-      await dispatch(deleteEventDocument({ eventId: parsedEventId, mediaId })).unwrap()
-      dispatch(removeLocalAttachment(mediaId))
+      const storageUrl = attachment.storage_url ?? attachment.storage_uri
+      if (!storageUrl) {
+        return
+      }
+
+      await dispatch(
+        deleteEventDocument({
+          eventId: parsedEventId,
+          mediaId: attachment.id,
+          storageUrl,
+        }),
+      ).unwrap()
+      dispatch(removeLocalAttachment(attachment.id))
       setForm((current) => ({
         ...current,
-        existingAttachments: current.existingAttachments.filter((item) => item.id !== mediaId),
+        existingAttachments: current.existingAttachments.filter(
+          (item) => item.id !== attachment.id,
+        ),
       }))
       toast.success(t('events.feedback.attachmentRemoved'))
     } catch {
@@ -400,17 +413,28 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
     }
   }
 
-  async function removeExistingDisplayImage(mediaId: number) {
+  async function removeExistingDisplayImage(media: EventMedia) {
     if (!isEditMode || !parsedEventId) {
       return
     }
 
     try {
-      await dispatch(deleteEventPhoto({ eventId: parsedEventId, mediaId })).unwrap()
-      dispatch(removeLocalDisplayImage(mediaId))
+      const storageUrl = media.storage_url ?? media.storage_uri
+      if (!storageUrl) {
+        return
+      }
+
+      await dispatch(
+        deleteEventPhoto({
+          eventId: parsedEventId,
+          mediaId: media.id,
+          storageUrl,
+        }),
+      ).unwrap()
+      dispatch(removeLocalDisplayImage(media.id))
       setForm((current) => ({
         ...current,
-        existingDisplayImage: current.existingDisplayImage?.id === mediaId
+        existingDisplayImage: current.existingDisplayImage?.id === media.id
           ? null
           : current.existingDisplayImage,
       }))
@@ -446,7 +470,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
     setErrors({})
 
     try {
-      const payload = await buildSaveEventPayload(submissionState)
+      const payload = buildSaveEventRequest(submissionState)
       const result =
         isEditMode && parsedEventId
           ? await dispatch(updateEvent({ id: parsedEventId, payload })).unwrap()
@@ -1026,7 +1050,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                           className={`${styles.linkButton} ${styles.mediaPreviewAction}`}
                           disabled={deletingIds.includes(form.existingDisplayImage.id)}
                           onClick={() =>
-                            removeExistingDisplayImage(form.existingDisplayImage!.id)
+                            removeExistingDisplayImage(form.existingDisplayImage!)
                           }
                         >
                           {deletingIds.includes(form.existingDisplayImage.id)
@@ -1162,7 +1186,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                           type="button"
                           className={`${styles.linkButton} ${styles.mediaPreviewAction}`}
                           disabled={deletingIds.includes(attachment.id)}
-                          onClick={() => removeExistingAttachment(attachment.id)}
+                          onClick={() => removeExistingAttachment(attachment)}
                         >
                           {deletingIds.includes(attachment.id)
                             ? t('events.common.loading')

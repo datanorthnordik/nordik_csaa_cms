@@ -15,7 +15,7 @@ import {
   type EventMutationResponse,
   type EventAddress,
   type Gallery,
-  type SaveEventPayload,
+  type SaveEventRequest,
 } from '../api/eventsApi'
 import type { RootState } from './store'
 
@@ -141,7 +141,7 @@ export const fetchEventLookups = createAsyncThunk<
 
 export const createEvent = createAsyncThunk<
   EventMutationResponse,
-  SaveEventPayload,
+  SaveEventRequest,
   { rejectValue: string }
 >('events/createEvent', async (payload, thunkApi) => {
   try {
@@ -153,7 +153,7 @@ export const createEvent = createAsyncThunk<
 
 export const updateEvent = createAsyncThunk<
   EventMutationResponse,
-  { id: number; payload: SaveEventPayload },
+  { id: number; payload: SaveEventRequest },
   { rejectValue: string }
 >('events/updateEvent', async ({ id, payload }, thunkApi) => {
   try {
@@ -178,11 +178,11 @@ export const deleteEvent = createAsyncThunk<
 
 export const deleteEventDocument = createAsyncThunk<
   { eventId: number; mediaId: number },
-  { eventId: number; mediaId: number },
+  { eventId: number; mediaId: number; storageUrl: string },
   { rejectValue: string }
->('events/deleteEventDocument', async ({ eventId, mediaId }, thunkApi) => {
+>('events/deleteEventDocument', async ({ eventId, mediaId, storageUrl }, thunkApi) => {
   try {
-    await eventsApi.deleteEventDocument(eventId, mediaId)
+    await eventsApi.deleteEventDocument(eventId, storageUrl)
     return { eventId, mediaId }
   } catch (error) {
     return thunkApi.rejectWithValue(getApiErrorMessage(error))
@@ -191,11 +191,11 @@ export const deleteEventDocument = createAsyncThunk<
 
 export const deleteEventPhoto = createAsyncThunk<
   { eventId: number; mediaId: number },
-  { eventId: number; mediaId: number },
+  { eventId: number; mediaId: number; storageUrl: string },
   { rejectValue: string }
->('events/deleteEventPhoto', async ({ eventId, mediaId }, thunkApi) => {
+>('events/deleteEventPhoto', async ({ eventId, mediaId, storageUrl }, thunkApi) => {
   try {
-    await eventsApi.deleteEventPhoto(eventId, mediaId)
+    await eventsApi.deleteEventPhoto(eventId, storageUrl)
     return { eventId, mediaId }
   } catch (error) {
     return thunkApi.rejectWithValue(getApiErrorMessage(error))

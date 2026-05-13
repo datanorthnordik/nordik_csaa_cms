@@ -11,10 +11,23 @@ export const API_ROUTES = {
   eventById: (id: number | string) => `/api/events/${id}`,
   eventMediaById: (id: number | string, mediaId: number | string) =>
     `/api/events/${id}/media/${mediaId}/content`,
-  eventDocumentById: (id: number | string, mediaId: number | string) =>
-    `/api/events/${id}/documents/${mediaId}`,
-  eventPhotoById: (id: number | string, mediaId: number | string) =>
-    `/api/events/${id}/photos/${mediaId}`,
   press: '/api/press',
   pressById: (id: string) => `/api/press/${id}`,
+  eventDocumentById: (id: number | string) => `/api/events/${id}/document`,
+  eventPhotoById: (id: number | string) => `/api/events/${id}/photo`,
+  pages: '/api/pages',
+  pageById: (id: number | string) => `/api/pages/${id}`,
+  pageHeroById: (id: number | string) => `/api/pages/${id}/hero/content`,
+  menuByKey: (key: string) => `/api/menus/${key}`,
+  menuPageOptionsByKey: (key: string) => `/api/menus/${key}/page-options`,
+  galleries: '/api/galleries',
+  galleryById: (id: number | string) => `/api/galleries/${id}`,
+  galleryCoverById: (id: number | string) => `/api/galleries/${id}/cover/content`,
+  galleryImagesById: (id: number | string) => `/api/galleries/${id}/images`,
+  galleryImageById: (id: number | string, imageId: number | string) =>
+    `/api/galleries/${id}/images/${imageId}`,
+  galleryImageContentById: (id: number | string, imageId: number | string) =>
+    `/api/galleries/${id}/images/${imageId}/content`,
+  galleryImageOrderById: (id: number | string) =>
+    `/api/galleries/${id}/images/order`,
 } as const

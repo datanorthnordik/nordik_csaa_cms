@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { GalleryIcon } from '../icons'
 import type { GallerySummary } from '../../types/media'
+import { GalleryStatusChip } from './GalleryStatusChip'
 import styles from './GalleryCard.module.css'
 
 type GalleryCardProps = {
@@ -15,9 +16,6 @@ export function GalleryCard({
   formatRelativeTime,
 }: GalleryCardProps) {
   const { t } = useTranslation()
-  const visibilityLabel = gallery.visibility
-    ? t(`mediaLibrary.visibility.${gallery.visibility}`)
-    : null
 
   return (
     <article className={styles.card}>
@@ -34,13 +32,16 @@ export function GalleryCard({
             <GalleryIcon size={28} />
           </div>
         )}
-        {visibilityLabel && (
-          <span className={styles.visibility}>{visibilityLabel}</span>
-        )}
       </div>
 
       <div className={styles.body}>
-        <h3 className={styles.name}>{gallery.name}</h3>
+        <div className={styles.bodyHeader}>
+          <GalleryStatusChip
+            visibility={gallery.visibility}
+            className={styles.statusChip}
+          />
+          <h3 className={styles.name}>{gallery.name}</h3>
+        </div>
 
         <div className={styles.meta}>
           {typeof gallery.assetCount === 'number' && (

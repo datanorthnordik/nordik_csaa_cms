@@ -64,6 +64,33 @@
   display: block;
 }
 
+.caption {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 28px 12px 10px;
+  background: linear-gradient(180deg, transparent, rgba(31, 31, 35, 0.84));
+  color: #fff;
+  pointer-events: none;
+}
+
+.captionTitle,
+.captionFileName {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.captionTitle {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.captionFileName {
+  font-size: 11px;
+  opacity: 0.82;
+}
+
 .selectedBadge {
   position: absolute;
   top: 8px;
@@ -81,9 +108,8 @@
 
 .overlay {
   position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 8px;
+  right: 8px;
   display: flex;
   gap: 6px;
   padding: 4px;

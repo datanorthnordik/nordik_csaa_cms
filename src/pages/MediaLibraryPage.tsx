@@ -17,13 +17,18 @@ type MediaLibraryPageProps = {
   galleries?: GallerySummary[]
   loading?: boolean
   error?: string
-  onCreate?: (values: CreateGalleryFormValues, frontImage?: File) => void
+  creating?: boolean
+  onCreate?: (
+    values: CreateGalleryFormValues,
+    frontImage?: File,
+  ) => void | boolean | Promise<void | boolean>
 }
 
 export function MediaLibraryPage({
   galleries,
   loading = false,
   error,
+  creating = false,
   onCreate,
 }: MediaLibraryPageProps = {}) {
   const { t } = useTranslation()
@@ -46,12 +51,14 @@ export function MediaLibraryPage({
     )
   }, [galleries, searchTerm])
 
-  function handleCreateSubmit(
+  async function handleCreateSubmit(
     values: CreateGalleryFormValues,
     frontImage?: File,
   ) {
-    onCreate?.(values, frontImage)
-    setIsCreateOpen(false)
+    const result = await onCreate?.(values, frontImage)
+    if (result !== false) {
+      setIsCreateOpen(false)
+    }
   }
 
   return (
@@ -135,6 +142,7 @@ export function MediaLibraryPage({
           open={isCreateOpen}
           onClose={() => setIsCreateOpen(false)}
           onSubmit={handleCreateSubmit}
+          submitting={creating}
         />
       </div>
     </CmsAppShell>

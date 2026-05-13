@@ -73,6 +73,7 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "menus": "Menus",
     "pages": "Pages",
     "events": "Events",
     "newsletters": "Newsletters",
@@ -88,6 +89,176 @@
     "eyebrow": "Admin workspace",
     "title": "CSAA CMS dashboard",
     "subtitle": "Use the side navigation to move between content tools. Events is now ready for list, add, and edit workflows."
+  },
+  "menus": {
+    "common": {
+      "loading": "Loading navigation...",
+      "saving": "Saving..."
+    },
+    "breadcrumb": {
+      "title": "Menus"
+    },
+    "title": "Main Website Navigation",
+    "subtitle": "Configure the structure and hierarchy of the primary site menu.",
+    "status": {
+      "staged": "All changes are currently staged.",
+      "saved": "No unsaved navigation changes."
+    },
+    "actions": {
+      "add": "Add Menu Item",
+      "addToMenu": "Add to Menu",
+      "update": "Update Item",
+      "save": "Save Navigation",
+      "discard": "Discard Changes",
+      "cancel": "Cancel",
+      "edit": "Edit menu item",
+      "remove": "Remove",
+      "moveUp": "Move menu item up",
+      "moveDown": "Move menu item down",
+      "retry": "Retry"
+    },
+    "empty": {
+      "title": "Need a new section?",
+      "text": "Click the add button above to create a menu item and arrange the hierarchy."
+    },
+    "builder": {
+      "types": {
+        "page": "Page",
+        "external": "External Link"
+      },
+      "childCount_one": "{{count}} child item",
+      "childCount_other": "{{count}} child items"
+    },
+    "dialog": {
+      "createTitle": "Add Menu Item",
+      "editTitle": "Edit Menu Item",
+      "description": "Create or update an item for your website navigation.",
+      "fields": {
+        "menuLabel": "Menu Label",
+        "menuLabelPlaceholder": "e.g., Community Outreach",
+        "linkType": "Link Type",
+        "linkTypePage": "Link to Existing Page",
+        "linkTypePageHint": "Connect this navigation item to a published CMS page.",
+        "linkTypeExternal": "External Link",
+        "linkTypeExternalHint": "Send visitors to another website or document URL.",
+        "targetPage": "Target Page",
+        "targetPageHint": "Child pages inherit their parent automatically from the pages table.",
+        "selectPage": "Select a published page...",
+        "externalUrl": "External URL",
+        "externalUrlPlaceholder": "https://example.com/resource",
+        "parentPage": "Parent Page",
+        "parentPageHint": "Optional. Use this when an external link should appear under a parent page.",
+        "noParentPage": "Top-level item",
+        "openInNewTab": "Open in New Tab",
+        "lockedHint": "This item already has child links, so only the label can be changed here."
+      }
+    },
+    "removeDialog": {
+      "title": "Remove menu item?",
+      "single": "This will remove \"{{label}}\" from the menu.",
+      "withChildren": "This will remove \"{{label}}\" and its {{count}} nested child items from the menu."
+    },
+    "feedback": {
+      "saved": "Navigation saved successfully."
+    },
+    "loadError": {
+      "title": "We could not load the menu editor"
+    }
+  },
+  "pages": {
+    "common": {
+      "loading": "Loading..."
+    },
+    "breadcrumb": {
+      "pages": "Pages"
+    },
+    "status": {
+      "draft": "Draft",
+      "live": "Live"
+    },
+    "filters": {
+      "searchPlaceholder": "Search pages...",
+      "status": "Filter by status",
+      "allStatuses": "Filter by Status"
+    },
+    "list": {
+      "title": "Pages",
+      "subtitle": "Manage and organize static website content.",
+      "create": "Create New Page",
+      "total": "Total: {{count}} Pages",
+      "resultsLabel": "Showing {{start}} to {{end}} of {{total}} pages",
+      "modifiedBy": "by {{name}}",
+      "unknownEditor": "Unknown editor",
+      "view": "View page",
+      "edit": "Edit page",
+      "delete": "Delete page",
+      "cancelDelete": "Cancel",
+      "deleteDialogTitle": "Delete page?",
+      "deleteDialogDescription": "This will permanently delete \"{{title}}\" from the pages list. This action cannot be undone.",
+      "emptyTitle": "No pages found",
+      "emptyText": "Create your first page or adjust the filters to widen the results.",
+      "columns": {
+        "pageTitle": "Page Title",
+        "urlSlug": "URL Slug",
+        "status": "Status",
+        "lastModified": "Last Modified",
+        "actions": "Actions"
+      }
+    },
+    "sections": {
+      "pageSettings": "Page Settings",
+      "metadata": "Metadata & SEO",
+      "metadataHint": "Add search-focused copy that helps people and search engines understand this page."
+    },
+    "fields": {
+      "pageTitle": "Page Title",
+      "pageTitlePlaceholder": "Enter page title...",
+      "parentPage": "Parent Page",
+      "parentPageHint": "Optional. Child pages inherit their parent URL as a prefix.",
+      "noParentPage": "No parent page",
+      "urlSlug": "URL Slug",
+      "urlSlugPlaceholder": "slug-name",
+      "fullUrlSlugPreview": "Final URL: {{slug}}",
+      "enableHeroImage": "Enable Hero Image",
+      "enableHeroImageHint": "Upload a hero image and store its source with the page record.",
+      "heroImageLabel": "Drop image here or browse",
+      "heroImageHint": "Supports PNG, JPG, and WEBP.",
+      "heroImageAlt": "Page hero image",
+      "seoPageTitle": "SEO Page Title",
+      "seoPageTitlePlaceholder": "Search engine optimized title...",
+      "seoPageDescription": "SEO Page Description",
+      "seoPageDescriptionPlaceholder": "Brief description for search results..."
+    },
+    "editor": {
+      "breadcrumbCreate": "Create New Page",
+      "breadcrumbEdit": "Edit Page",
+      "breadcrumbView": "View Page",
+      "titleCreate": "Create New Page",
+      "titleEdit": "Edit Page",
+      "titleView": "View Page",
+      "subtitle": "For now this editor stores page settings only. Page detail structure can be added later.",
+      "invalidIdTitle": "Invalid page link",
+      "invalidIdText": "This page URL is missing a valid page id.",
+      "loadErrorTitle": "We could not load this page",
+      "backToList": "Back to pages",
+      "editPage": "Edit Page",
+      "replaceHeroImage": "Replace image",
+      "removeHeroImage": "Remove image",
+      "saveDraft": "Save as Draft",
+      "publish": "Publish Page"
+    },
+    "feedback": {
+      "validation": "Please fix the highlighted fields before continuing.",
+      "created": "Page created successfully.",
+      "draftSaved": "Page saved as draft.",
+      "published": "Page published successfully.",
+      "deleted": "Page deleted successfully."
+    },
+    "validation": {
+      "pageTitleRequired": "Page title is required.",
+      "urlSlugRequired": "URL slug is required.",
+      "parentPageCycle": "A page cannot use one of its own descendants as a parent."
+    }
   },
   "events": {
     "common": {
@@ -276,6 +447,9 @@
       "new": "Add new address"
     },
     "editor": {
+      "breadcrumbCreate": "Create new event",
+      "breadcrumbEdit": "Edit event",
+      "breadcrumbView": "View event",
       "titleCreate": "Create new event",
       "titleEdit": "Edit event",
       "titleView": "View event",
@@ -433,9 +607,13 @@
       "dropLabel": "Drop image here or browse",
       "dropHint": "Supports PNG, JPG (Max 5MB)",
       "maxLabel": "Max {{count}} uploads",
-      "altLabel": "Image details",
-      "altLabelFor": "Image details for {{name}}",
-      "altPlaceholder": "Describe the image for accessibility...",
+      "maxNote": "Maximum {{count}} images per gallery",
+      "titleLabel": "Image title",
+      "titleLabelFor": "Image title for {{name}}",
+      "titlePlaceholder": "Short title shown in the gallery",
+      "detailsLabel": "Image details",
+      "detailsLabelFor": "Image details for {{name}}",
+      "detailsPlaceholder": "Describe the image clearly and simply...",
       "removeUpload": "Remove {{name}} from upload list",
       "limitReached": "This gallery is full ({{limit}} / {{limit}}). Remove an asset to add more.",
       "limitExceeded": "Adding these images would exceed the {{limit}}-image limit ({{count}} total). Remove some to continue.",
@@ -454,9 +632,14 @@
         "fileSize": "File Size",
         "format": "Format"
       },
-      "altText": {
-        "title": "Alt-text status",
-        "compliant": "Compliant"
+      "metadata": {
+        "title": "Image Content",
+        "edit": "Edit",
+        "save": "Save changes",
+        "cancel": "Cancel",
+        "assetTitle": "Title",
+        "assetDetails": "Details",
+        "empty": "No details have been added yet."
       },
       "usage": {
         "title": "Usage tracking"
@@ -465,6 +648,11 @@
         "download": "Download Original",
         "delete": "Delete asset"
       }
+    },
+    "feedback": {
+      "draftSaved": "Gallery saved as draft.",
+      "published": "Gallery published successfully.",
+      "downloadFailed": "Could not download the image right now."
     }
   },
   "publishing": {
