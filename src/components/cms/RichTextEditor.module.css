@@ -1,0 +1,139 @@
+.wrapper {
+  border: 1px solid var(--color-border-input);
+  border-radius: 12px;
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.wrapper.focused {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.wrapper.disabled {
+  background: var(--color-surface-alt);
+  opacity: 0.7;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 8px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+}
+
+.toolbarGroup {
+  display: inline-flex;
+  gap: 2px;
+  padding-right: 6px;
+  margin-right: 6px;
+  border-right: 1px solid var(--color-border);
+}
+
+.toolbarGroup:last-child {
+  border-right: 0;
+  padding-right: 0;
+  margin-right: 0;
+}
+
+.toolbarButton {
+  width: 30px;
+  height: 30px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.toolbarButton:hover:not(:disabled) {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+.toolbarButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.toolbarButtonActive,
+.toolbarButtonActive:hover {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-color: var(--color-primary);
+}
+
+.editor {
+  min-height: 180px;
+  padding: 14px 16px;
+  color: var(--color-text);
+  font: inherit;
+  line-height: 1.55;
+}
+
+.editor:focus {
+  outline: none;
+}
+
+.editor :global(.ProseMirror) {
+  min-height: 160px;
+  outline: none;
+}
+
+.editor :global(.ProseMirror p) {
+  margin: 0 0 12px;
+}
+
+.editor :global(.ProseMirror p:last-child) {
+  margin-bottom: 0;
+}
+
+.editor :global(.ProseMirror p.is-editor-empty:first-child::before) {
+  content: attr(data-placeholder);
+  color: var(--color-text-placeholder);
+  pointer-events: none;
+  height: 0;
+  float: left;
+}
+
+.editor :global(.ProseMirror blockquote) {
+  border-left: 3px solid var(--color-primary);
+  padding-left: 14px;
+  margin: 12px 0;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.editor :global(.ProseMirror ul),
+.editor :global(.ProseMirror ol) {
+  margin: 12px 0;
+  padding-left: 22px;
+}
+
+.editor :global(.ProseMirror a) {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.editor :global(.ProseMirror img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+.italic {
+  font-style: italic;
+}
+
+.underline {
+  text-decoration: underline;
+}
