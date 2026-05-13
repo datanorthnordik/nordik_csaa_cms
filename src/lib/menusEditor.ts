@@ -20,7 +20,7 @@ export type MenuItemDraft = {
   navigation_type: MenuNavigationType
   page_id: string
   external_url: string
-  parent_page_id: string
+  parent_id: string
   open_in_new_tab: boolean
 }
 
@@ -41,7 +41,7 @@ export function createDefaultMenuItemDraft(): MenuItemDraft {
     navigation_type: 'pages',
     page_id: '',
     external_url: '',
-    parent_page_id: '',
+    parent_id: '',
     open_in_new_tab: false,
   }
 }
@@ -67,7 +67,7 @@ export function buildMenuItemDraft(
     navigation_type: item.navigation_type,
     page_id: item.page_id ? String(item.page_id) : '',
     external_url: item.external_url,
-    parent_page_id: item.navigation_type === 'external_link' ? parentPageId : '',
+    parent_id: item.navigation_type === 'external_link' ? parentPageId : '',
     open_in_new_tab: item.open_in_new_tab,
   }
 }
@@ -215,7 +215,7 @@ export function validateMenuItemDraft(
     return 'Items with child links can only change their label.'
   }
 
-  const parentPageId = parseNumericId(draft.parent_page_id)
+  const parentPageId = parseNumericId(draft.parent_id)
   if (parentPageId) {
     const parentItem = findMenuItemByPageId(items, parentPageId)
     const editingLocation =
@@ -375,7 +375,7 @@ function resolveParentPageId(
   pageOptions: MenuPageOption[],
 ): number | null {
   if (draft.navigation_type === 'external_link') {
-    return parseNumericId(draft.parent_page_id)
+    return parseNumericId(draft.parent_id)
   }
 
   const pageId = parseNumericId(draft.page_id)
