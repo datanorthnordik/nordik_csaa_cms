@@ -82,6 +82,23 @@ describe('CmsDrawer', () => {
     expect(screen.getByRole('button', { name: /support/i })).toBeDefined()
   })
 
+  it('nav items remain accessible inside the navWrapper scroll container', () => {
+    renderWithI18n(
+      <CmsDrawer
+        userName="Test User"
+        userRole="Administrator"
+        navItems={navItems}
+        footerItems={footerItems}
+        open
+      />
+    )
+    // Nav items must still be reachable by role even after wrapping in navWrapper div
+    expect(screen.getByRole('link', { name: /home/i })).toBeDefined()
+    expect(screen.getByRole('button', { name: /profile/i })).toBeDefined()
+    // Footer item (rendered outside navWrapper) should also be present
+    expect(screen.getByRole('button', { name: /support/i })).toBeDefined()
+  })
+
   it('calls onClose when the backdrop is clicked and onSubmitTicket when ticket button is clicked', () => {
     const onClose = vi.fn()
     const onSubmitTicket = vi.fn()

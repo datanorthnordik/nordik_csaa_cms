@@ -36,6 +36,26 @@
   margin-top: 2px;
 }
 
+.navWrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.navWrapper::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: linear-gradient(to bottom, transparent, var(--color-surface));
+  pointer-events: none;
+  z-index: 1;
+}
+
 .nav {
   display: flex;
   flex-direction: column;
@@ -44,6 +64,9 @@
   min-height: 0;
   overflow-y: auto;
   padding-right: 2px;
+  padding-bottom: 32px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
 }
 
 .navItem {

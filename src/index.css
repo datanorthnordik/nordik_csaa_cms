@@ -51,13 +51,17 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html,
 body {
   margin: 0;
+  height: 100%;
+  overflow: hidden;
   background: var(--color-bg);
 }
 
 #root {
-  min-height: 100svh;
+  height: 100svh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
