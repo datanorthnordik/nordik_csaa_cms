@@ -1,4 +1,5 @@
 import AccountCircle from '@mui/icons-material/AccountCircle'
+import AccountTree from '@mui/icons-material/AccountTree'
 import Add from '@mui/icons-material/Add'
 import AddPhotoAlternate from '@mui/icons-material/AddPhotoAlternate'
 import CheckCircle from '@mui/icons-material/CheckCircle'
@@ -61,6 +62,10 @@ export function DashboardIcon({ size = 18, className }: IconProps) {
 
 export function PagesIcon({ size = 18, className }: IconProps) {
   return <Description style={getIconStyle(size)} className={className} />
+}
+
+export function MenusIcon({ size = 18, className }: IconProps) {
+  return <AccountTree style={getIconStyle(size)} className={className} />
 }
 
 export function EventsIcon({ size = 18, className }: IconProps) {

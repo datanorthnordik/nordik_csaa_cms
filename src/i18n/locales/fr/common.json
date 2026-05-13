@@ -73,6 +73,7 @@
   },
   "nav": {
     "dashboard": "Tableau de bord",
+    "menus": "Menus",
     "pages": "Pages",
     "events": "Evenements",
     "newsletters": "Bulletins",
@@ -88,6 +89,81 @@
     "eyebrow": "Espace admin",
     "title": "Tableau de bord CSAA CMS",
     "subtitle": "Utilisez la navigation laterale pour passer entre les outils de contenu. Le module Evenements prend maintenant en charge la liste, l ajout et la modification."
+  },
+  "menus": {
+    "common": {
+      "loading": "Chargement de la navigation...",
+      "saving": "Enregistrement..."
+    },
+    "breadcrumb": {
+      "title": "Menus"
+    },
+    "title": "Navigation principale du site",
+    "subtitle": "Configurez la structure et la hierarchie du menu principal du site.",
+    "status": {
+      "staged": "Toutes les modifications sont pretes a etre enregistrees.",
+      "saved": "Aucun changement de navigation en attente."
+    },
+    "actions": {
+      "add": "Ajouter un element",
+      "addToMenu": "Ajouter au menu",
+      "update": "Mettre a jour",
+      "save": "Enregistrer la navigation",
+      "discard": "Annuler les changements",
+      "cancel": "Annuler",
+      "edit": "Modifier l element",
+      "remove": "Supprimer",
+      "moveUp": "Monter l element",
+      "moveDown": "Descendre l element",
+      "retry": "Reessayer"
+    },
+    "empty": {
+      "title": "Besoin d une nouvelle section ?",
+      "text": "Cliquez sur le bouton d ajout pour creer un element et organiser la hierarchie."
+    },
+    "builder": {
+      "types": {
+        "page": "Page",
+        "external": "Lien externe"
+      },
+      "childCount_one": "{{count}} element enfant",
+      "childCount_other": "{{count}} elements enfants"
+    },
+    "dialog": {
+      "createTitle": "Ajouter un element de menu",
+      "editTitle": "Modifier un element de menu",
+      "description": "Creez ou mettez a jour un element de navigation pour votre site.",
+      "fields": {
+        "menuLabel": "Libelle du menu",
+        "menuLabelPlaceholder": "ex., Rayonnement communautaire",
+        "linkType": "Type de lien",
+        "linkTypePage": "Lien vers une page existante",
+        "linkTypePageHint": "Connecter cet element a une page publiee du CMS.",
+        "linkTypeExternal": "Lien externe",
+        "linkTypeExternalHint": "Envoyer les visiteurs vers un autre site ou document.",
+        "targetPage": "Page cible",
+        "targetPageHint": "Les sous-pages utilisent automatiquement leur parent depuis la table des pages.",
+        "selectPage": "Choisir une page publiee...",
+        "externalUrl": "URL externe",
+        "externalUrlPlaceholder": "https://example.com/ressource",
+        "parentPage": "Page parente",
+        "parentPageHint": "Optionnel. Utilisez ceci lorsqu un lien externe doit apparaitre sous une page parente.",
+        "noParentPage": "Element de premier niveau",
+        "openInNewTab": "Ouvrir dans un nouvel onglet",
+        "lockedHint": "Cet element a deja des liens enfants, donc seul le libelle peut etre modifie ici."
+      }
+    },
+    "removeDialog": {
+      "title": "Supprimer cet element ?",
+      "single": "Cela supprimera \"{{label}}\" du menu.",
+      "withChildren": "Cela supprimera \"{{label}}\" et ses {{count}} elements enfants du menu."
+    },
+    "feedback": {
+      "saved": "Navigation enregistree avec succes."
+    },
+    "loadError": {
+      "title": "Impossible de charger l editeur de menu"
+    }
   },
   "pages": {
     "common": {

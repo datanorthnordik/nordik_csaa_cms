@@ -10,6 +10,7 @@ import { MediaLibraryRoute } from './pages/MediaLibraryRoute'
 import { GalleryManagerRoute } from './pages/GalleryManagerRoute'
 import { PagesListPage } from './pages/PagesListPage'
 import { PageEditorPage } from './pages/PageEditorPage'
+import { MenusPage } from './pages/MenusPage'
 import './App.css'
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/menus" element={<MenusPage />} />
           <Route path="/pages" element={<PagesListPage />} />
           <Route path="/pages/new" element={<PageEditorPage />} />
           <Route path="/pages/:id" element={<PageEditorPage mode="view" />} />
