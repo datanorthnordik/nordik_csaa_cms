@@ -3,6 +3,7 @@ import { buildMultipartPayload } from './multipartForm'
 import { apiClient } from './apiClient'
 
 export type PageStatus = 'draft' | 'published'
+export type PageType = 'page' | 'module'
 export type PageStatusFilter = '' | PageStatus
 export type PageSortBy =
   | 'page_title'
@@ -23,6 +24,7 @@ export type PageListItem = PageParentRelation & {
   id: number
   page_title: string
   url_slug: string
+  page_type: PageType
   status: PageStatus
   last_modified: string
   modified_by?: number | null
@@ -70,6 +72,7 @@ export type PageDetailResponse = PageParentRelation & {
   id: number
   page_title: string
   url_slug: string
+  page_type: PageType
   status: PageStatus
   hero_image_enabled: boolean
   hero_image_url: string
@@ -124,6 +127,7 @@ export type PageMutationResponse = {
     id: number
     page_title: string
     url_slug: string
+    page_type: PageType
     status: PageStatus
   }
 }
@@ -161,6 +165,10 @@ export function resolvePageParentId(page: PageParentRelation) {
 
 export function resolvePageParentSlug(page: PageParentRelation) {
   return page.parent_page_url_slug?.trim() ?? ''
+}
+
+export function isModulePage(page: { page_type?: string | null }) {
+  return page.page_type === 'module'
 }
 
 export const pagesApi = {

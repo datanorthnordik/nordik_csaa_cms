@@ -14,7 +14,11 @@ import { Breadcrumb } from '../components/Breadcrumb'
 import { AddIcon, SearchIcon } from '../components/icons'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
-import type { PageListItem, PageStatusFilter } from '../api/pagesApi'
+import {
+  isModulePage,
+  type PageListItem,
+  type PageStatusFilter,
+} from '../api/pagesApi'
 import {
   deletePage as deletePageAction,
   fetchPages,
@@ -108,6 +112,21 @@ export function PagesListPage() {
     )
   }
 
+  function renderPageType(item: PageListItem) {
+    const modulePage = isModulePage(item)
+
+    return (
+      <span
+        className={[
+          styles.pageTypeBadge,
+          modulePage ? styles.pageTypeModule : styles.pageTypePage,
+        ].join(' ')}
+      >
+        {modulePage ? t('pages.types.module') : t('pages.types.page')}
+      </span>
+    )
+  }
+
   return (
     <CmsAppShell activeKey="pages">
       <div className={styles.page}>
@@ -174,6 +193,7 @@ export function PagesListPage() {
                     <tr>
                       <th>{t('pages.list.columns.pageTitle')}</th>
                       <th>{t('pages.list.columns.urlSlug')}</th>
+                      <th>{t('pages.list.columns.type')}</th>
                       <th>{t('pages.list.columns.status')}</th>
                       <th>{t('pages.list.columns.lastModified')}</th>
                       <th>{t('pages.list.columns.actions')}</th>
@@ -182,10 +202,15 @@ export function PagesListPage() {
                   <tbody>
                     {items.map((item) => (
                       <tr key={item.id}>
-                        <td className={styles.pageTitleCell}>{item.page_title}</td>
+                        <td className={styles.pageTitleCell}>
+                          <div className={styles.pageTitleStack}>
+                            <span>{item.page_title}</span>
+                          </div>
+                        </td>
                         <td>
                           <span className={styles.slugPill}>{item.url_slug}</span>
                         </td>
+                        <td>{renderPageType(item)}</td>
                         <td>
                           <span
                             className={[
@@ -211,23 +236,27 @@ export function PagesListPage() {
                             >
                               <VisibilityOutlined fontSize="small" />
                             </button>
-                            <button
-                              type="button"
-                              className={styles.iconButton}
-                              aria-label={t('pages.list.edit')}
-                              onClick={() => navigate(`/pages/${item.id}/edit`)}
-                            >
-                              <EditOutlined fontSize="small" />
-                            </button>
-                            <button
-                              type="button"
-                              className={styles.iconButtonDanger}
-                              aria-label={t('pages.list.delete')}
-                              disabled={deletingPageId === item.id}
-                              onClick={() => setDeleteCandidate(item)}
-                            >
-                              <DeleteOutlined fontSize="small" />
-                            </button>
+                            {!isModulePage(item) && (
+                              <>
+                                <button
+                                  type="button"
+                                  className={styles.iconButton}
+                                  aria-label={t('pages.list.edit')}
+                                  onClick={() => navigate(`/pages/${item.id}/edit`)}
+                                >
+                                  <EditOutlined fontSize="small" />
+                                </button>
+                                <button
+                                  type="button"
+                                  className={styles.iconButtonDanger}
+                                  aria-label={t('pages.list.delete')}
+                                  disabled={deletingPageId === item.id}
+                                  onClick={() => setDeleteCandidate(item)}
+                                >
+                                  <DeleteOutlined fontSize="small" />
+                                </button>
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -243,6 +272,7 @@ export function PagesListPage() {
                       <div>
                         <p className={styles.mobileCardTitle}>{item.page_title}</p>
                         <span className={styles.slugPill}>{item.url_slug}</span>
+                        <div className={styles.mobileCardType}>{renderPageType(item)}</div>
                       </div>
                       <span
                         className={[
@@ -267,23 +297,27 @@ export function PagesListPage() {
                       >
                         <VisibilityOutlined fontSize="small" />
                       </button>
-                      <button
-                        type="button"
-                        className={styles.iconButton}
-                        aria-label={t('pages.list.edit')}
-                        onClick={() => navigate(`/pages/${item.id}/edit`)}
-                      >
-                        <EditOutlined fontSize="small" />
-                      </button>
-                      <button
-                        type="button"
-                        className={styles.iconButtonDanger}
-                        aria-label={t('pages.list.delete')}
-                        disabled={deletingPageId === item.id}
-                        onClick={() => setDeleteCandidate(item)}
-                      >
-                        <DeleteOutlined fontSize="small" />
-                      </button>
+                      {!isModulePage(item) && (
+                        <>
+                          <button
+                            type="button"
+                            className={styles.iconButton}
+                            aria-label={t('pages.list.edit')}
+                            onClick={() => navigate(`/pages/${item.id}/edit`)}
+                          >
+                            <EditOutlined fontSize="small" />
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.iconButtonDanger}
+                            aria-label={t('pages.list.delete')}
+                            disabled={deletingPageId === item.id}
+                            onClick={() => setDeleteCandidate(item)}
+                          >
+                            <DeleteOutlined fontSize="small" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   </article>
                 ))}

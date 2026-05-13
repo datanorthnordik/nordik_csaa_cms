@@ -35,7 +35,8 @@
 .card,
 .actionsCard,
 .errorPanel,
-.errorSummary {
+.errorSummary,
+.infoSummary {
   border: 1px solid #efd6cf;
   border-radius: 1rem;
   background:
@@ -276,9 +277,25 @@
   color: #8d0c16;
 }
 
+.infoSummary {
+  padding: 1rem 1.2rem;
+  border-color: #f0dfbc;
+  background: linear-gradient(180deg, rgba(255, 252, 245, 0.96), rgba(255, 247, 232, 0.96));
+  color: #7f5603;
+}
+
 .errorSummaryTitle {
   margin: 0 0 0.5rem;
   font-weight: 700;
+}
+
+.infoSummaryTitle {
+  margin: 0 0 0.35rem;
+  font-weight: 700;
+}
+
+.infoSummaryText {
+  margin: 0;
 }
 
 .errorSummary ul {
