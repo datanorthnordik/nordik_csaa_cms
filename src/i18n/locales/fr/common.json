@@ -659,6 +659,8 @@
     "publishOnLabel": "Publier le",
     "immediately": "Immediatement",
     "working": "Traitement...",
+    "publish": "Publier",
+    "saveChanges": "Enregistrer les modifications",
     "saveDraft": "Enregistrer le brouillon",
     "delete": "Mettre a la corbeille",
     "status": {
@@ -788,7 +790,8 @@
       },
       "actions": {
         "publish": "Publier l entree",
-        "saveDraft": "Enregistrer le brouillon"
+        "saveDraft": "Enregistrer le brouillon",
+        "delete": "Supprimer l entree de presse"
       },
       "meta": {
         "created": "Cree le",

@@ -26,7 +26,7 @@
 
 .metaList {
   display: grid;
-  gap: 14px;
+  gap: 16px;
 }
 
 .metaRow {
@@ -35,6 +35,7 @@
   align-items: center;
   gap: 12px;
   font-size: 14px;
+  min-height: 28px;
 }
 
 .metaLabel {
@@ -60,94 +61,28 @@
 }
 
 .visibilitySelect {
-  border: none;
-  background: transparent;
+  border: 1px solid var(--color-border-input);
+  background: var(--color-surface);
   font: inherit;
   font-weight: 600;
+  font-size: 13px;
   color: var(--color-text);
-  text-align: right;
-  padding: 4px 6px;
+  padding: 4px 28px 4px 10px;
   border-radius: 8px;
   cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' stroke='%23666' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
 }
 
 .visibilitySelect:hover {
-  background: var(--color-surface-alt);
+  background-color: var(--color-surface-alt);
 }
 
 .visibilitySelect:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
-}
-
-.divider {
-  height: 1px;
-  background: var(--color-border);
-  margin: 2px 0;
-}
-
-.actionStack {
-  display: grid;
-  gap: 10px;
-}
-
-.button {
-  border: none;
-  border-radius: 12px;
-  padding: 12px 18px;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.15s ease, background 0.15s ease;
-}
-
-.primary {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-}
-
-.primary:hover:not(:disabled) {
-  background: var(--color-primary-hover);
-  transform: translateY(-1px);
-}
-
-.secondary {
-  background: var(--color-surface);
-  color: var(--color-text);
-  border: 1px solid var(--color-border-input);
-}
-
-.secondary:hover:not(:disabled) {
-  background: var(--color-surface-alt);
-}
-
-.button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.danger {
-  background: transparent;
-  border: none;
-  color: var(--color-error-strong);
-  font: inherit;
-  font-weight: 700;
-  padding: 8px 0 0;
-  margin-top: 4px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.danger:hover:not(:disabled) {
-  text-decoration: underline;
-}
-
-.danger:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
 }
 
 .extras {

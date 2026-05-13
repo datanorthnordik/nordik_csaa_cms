@@ -1,21 +1,28 @@
 .layout {
   display: flex;
   flex-direction: column;
+  height: 100svh;
   min-height: 100svh;
   background: var(--color-bg);
+  overflow: hidden;
 }
 
 .body {
   display: flex;
   flex: 1;
   min-width: 0;
+  min-height: 0;
+  height: 0;
+  overflow: hidden;
 }
 
 .main {
   flex: 1;
   min-width: 0;
+  min-height: 0;
   background: var(--color-surface);
   padding: 24px 32px;
+  overflow-y: auto;
 }
 
 @media (max-width: 768px) {

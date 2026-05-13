@@ -1,6 +1,5 @@
-import { useState, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ConfirmDialog } from './ConfirmDialog'
 import { StatusBadge, type PublishStatus } from './StatusBadge'
 import styles from './PublishingControls.module.css'
 
@@ -12,17 +11,6 @@ export type PublishingControlsProps = {
   onVisibilityChange?: (value: PublishVisibility) => void
   publishOn?: string
   heading?: string
-  publishLabel: string
-  saveDraftLabel?: string
-  deleteLabel?: string
-  deleteConfirmTitle?: string
-  deleteConfirmBody?: ReactNode
-  deleteConfirmLabel?: string
-  onSaveDraft: () => void
-  onPublish: () => void
-  onDelete?: () => void
-  isSubmitting?: boolean
-  isDeleting?: boolean
   extraSlot?: ReactNode
   className?: string
 }
@@ -33,162 +21,76 @@ export function PublishingControls({
   onVisibilityChange,
   publishOn,
   heading,
-  publishLabel,
-  saveDraftLabel,
-  deleteLabel,
-  deleteConfirmTitle,
-  deleteConfirmBody,
-  deleteConfirmLabel,
-  onSaveDraft,
-  onPublish,
-  onDelete,
-  isSubmitting = false,
-  isDeleting = false,
   extraSlot,
   className,
 }: PublishingControlsProps) {
   const { t } = useTranslation()
-  const [confirmOpen, setConfirmOpen] = useState(false)
 
   const resolvedHeading = heading ?? t('publishing.heading')
-  const resolvedSaveDraft = saveDraftLabel ?? t('publishing.saveDraft')
-  const resolvedDelete = deleteLabel ?? t('publishing.delete')
-  const resolvedConfirmTitle =
-    deleteConfirmTitle ?? t('publishing.deleteConfirm.defaultTitle')
-  const resolvedConfirmLabel = deleteConfirmLabel ?? resolvedDelete
   const resolvedPublishOn = publishOn ?? t('publishing.immediately')
-
-  function handleRequestDelete() {
-    if (!onDelete || isDeleting) {
-      return
-    }
-    setConfirmOpen(true)
-  }
-
-  function handleConfirmDelete() {
-    if (!onDelete) {
-      return
-    }
-    onDelete()
-  }
-
-  function handleCloseConfirm() {
-    if (isDeleting) {
-      return
-    }
-    setConfirmOpen(false)
-  }
 
   const cardClasses = [styles.card, className].filter(Boolean).join(' ')
 
   return (
-    <>
-      <aside className={cardClasses} aria-labelledby="publishing-heading">
-        <div className={styles.header}>
-          <h2 id="publishing-heading" className={styles.heading}>
-            {resolvedHeading}
-          </h2>
+    <aside className={cardClasses} aria-labelledby="publishing-heading">
+      <div className={styles.header}>
+        <h2 id="publishing-heading" className={styles.heading}>
+          {resolvedHeading}
+        </h2>
+      </div>
+
+      <div className={styles.metaList}>
+        <div className={styles.metaRow}>
+          <span className={styles.metaLabel}>
+            <span className={styles.metaIcon} aria-hidden="true">
+              <StatusDotIcon />
+            </span>
+            {t('publishing.statusLabel')}
+          </span>
+          <StatusBadge status={status} />
         </div>
 
-        <div className={styles.metaList}>
+        {visibility !== undefined && (
           <div className={styles.metaRow}>
             <span className={styles.metaLabel}>
               <span className={styles.metaIcon} aria-hidden="true">
-                <StatusDotIcon />
+                <EyeIcon />
               </span>
-              {t('publishing.statusLabel')}
+              {t('publishing.visibilityLabel')}
             </span>
-            <StatusBadge status={status} />
+            {onVisibilityChange ? (
+              <select
+                className={styles.visibilitySelect}
+                value={visibility}
+                onChange={(event) =>
+                  onVisibilityChange(event.target.value as PublishVisibility)
+                }
+                aria-label={t('publishing.visibilityLabel')}
+              >
+                <option value="public">{t('publishing.visibility.public')}</option>
+                <option value="private">{t('publishing.visibility.private')}</option>
+              </select>
+            ) : (
+              <span className={styles.metaValue}>
+                {t(`publishing.visibility.${visibility}`)}
+              </span>
+            )}
           </div>
+        )}
 
-          {visibility && (
-            <div className={styles.metaRow}>
-              <span className={styles.metaLabel}>
-                <span className={styles.metaIcon} aria-hidden="true">
-                  <EyeIcon />
-                </span>
-                {t('publishing.visibilityLabel')}
-              </span>
-              {onVisibilityChange ? (
-                <select
-                  className={styles.visibilitySelect}
-                  value={visibility}
-                  onChange={(event) =>
-                    onVisibilityChange(event.target.value as PublishVisibility)
-                  }
-                  aria-label={t('publishing.visibilityLabel')}
-                >
-                  <option value="public">{t('publishing.visibility.public')}</option>
-                  <option value="private">{t('publishing.visibility.private')}</option>
-                </select>
-              ) : (
-                <span className={styles.metaValue}>
-                  {t(`publishing.visibility.${visibility}`)}
-                </span>
-              )}
-            </div>
-          )}
-
-          <div className={styles.metaRow}>
-            <span className={styles.metaLabel}>
-              <span className={styles.metaIcon} aria-hidden="true">
-                <ClockIcon />
-              </span>
-              {t('publishing.publishOnLabel')}
+        <div className={styles.metaRow}>
+          <span className={styles.metaLabel}>
+            <span className={styles.metaIcon} aria-hidden="true">
+              <ClockIcon />
             </span>
-            <span className={styles.metaValue}>{resolvedPublishOn}</span>
-          </div>
+            {t('publishing.publishOnLabel')}
+          </span>
+          <span className={styles.metaValue}>{resolvedPublishOn}</span>
         </div>
+      </div>
 
-        {extraSlot && <div className={styles.extras}>{extraSlot}</div>}
-
-        <div className={styles.divider} aria-hidden="true" />
-
-        <div className={styles.actionStack}>
-          <button
-            type="button"
-            className={`${styles.button} ${styles.primary}`}
-            disabled={isSubmitting}
-            onClick={onPublish}
-          >
-            {isSubmitting ? t('publishing.working') : publishLabel}
-          </button>
-          <button
-            type="button"
-            className={`${styles.button} ${styles.secondary}`}
-            disabled={isSubmitting}
-            onClick={onSaveDraft}
-          >
-            {resolvedSaveDraft}
-          </button>
-
-          {onDelete && (
-            <button
-              type="button"
-              className={styles.danger}
-              disabled={isDeleting || isSubmitting}
-              onClick={handleRequestDelete}
-            >
-              <TrashIcon />
-              {resolvedDelete}
-            </button>
-          )}
-        </div>
-      </aside>
-
-      {onDelete && (
-        <ConfirmDialog
-          open={confirmOpen}
-          title={resolvedConfirmTitle}
-          body={deleteConfirmBody}
-          confirmLabel={resolvedConfirmLabel}
-          destructive
-          busy={isDeleting}
-          onConfirm={handleConfirmDelete}
-          onClose={handleCloseConfirm}
-        />
-      )}
-    </>
+      {extraSlot && <div className={styles.extras}>{extraSlot}</div>}
+    </aside>
   )
 }
 

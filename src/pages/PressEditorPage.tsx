@@ -6,6 +6,7 @@ import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
 import { PublishingControls } from '../components/cms/PublishingControls'
+import { EntryActions } from '../components/cms/EntryActions'
 import { RichTextEditor } from '../components/cms/RichTextEditor'
 import { UploadDropzone } from '../components/media/UploadDropzone'
 import { AddPhotoIcon } from '../components/icons'
@@ -446,15 +447,13 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
                 )}
               </div>
             </section>
-          </div>
 
-          <aside className={styles.sideColumn}>
-            <PublishingControls
+            <EntryActions
+              entryType="press"
               status={currentStatus}
-              visibility={form.visibility}
-              onVisibilityChange={(value) => updateField('visibility', value)}
               publishLabel={t('press.editor.actions.publish')}
               saveDraftLabel={t('press.editor.actions.saveDraft')}
+              deleteLabel={t('press.editor.actions.delete')}
               onSaveDraft={() => handleSave('draft')}
               onPublish={() => handleSave('published')}
               isSubmitting={isSubmitting}
@@ -465,6 +464,12 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
                 title: form.title || t('press.list.untitled'),
               })}
               deleteConfirmLabel={t('press.list.delete')}
+            />
+          </div>
+
+          <aside className={styles.sideColumn}>
+            <PublishingControls
+              status={currentStatus}
             />
 
             {wasModified && currentEntry && (
