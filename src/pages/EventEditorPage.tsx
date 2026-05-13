@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
+import { PublishingControls } from '../components/cms/PublishingControls'
+import { StatusBadge } from '../components/cms/StatusBadge'
 import type {
   EventFormErrors,
   EventFormState,
@@ -24,6 +26,7 @@ import {
   clearCurrentEvent,
   clearEventSaveState,
   createEvent,
+  deleteEvent as deleteEventAction,
   deleteEventDocument,
   deleteEventPhoto,
   fetchEventById,
@@ -88,6 +91,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
   const [existingMediaObjectUrls, setExistingMediaObjectUrls] = useState<
     Record<number, string>
   >({})
+  const [isDeletingEvent, setIsDeletingEvent] = useState(false)
 
   useEffect(() => {
     void dispatch(fetchEventLookups())
@@ -272,16 +276,6 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
     })
 
     clearErrors('startTime', 'endTime', 'endDate', 'scheduledOccurrences')
-  }
-
-  function handlePublishedChange(checked: boolean) {
-    setForm((current) => ({
-      ...current,
-      published: checked,
-      requestReview: checked ? false : current.requestReview,
-      reviewEmailsText: checked ? '' : current.reviewEmailsText,
-    }))
-    clearErrors('reviewEmailsText')
   }
 
   function handleRepeatEnabledChange(checked: boolean) {
@@ -493,6 +487,21 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
       }
     } catch {
       return
+    }
+  }
+
+  async function handleDeleteEvent() {
+    if (!isEditMode || !parsedEventId) {
+      return
+    }
+
+    setIsDeletingEvent(true)
+    try {
+      await dispatch(deleteEventAction(parsedEventId)).unwrap()
+      toast.success(t('events.feedback.deleted'))
+      navigate('/events', { replace: true })
+    } catch {
+      setIsDeletingEvent(false)
     }
   }
 
@@ -1227,111 +1236,121 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
           </div>
 
           <aside className={styles.sideColumn}>
-            <section className={styles.card}>
-              <div className={styles.sectionHeader}>
-                <h2>{t('events.sections.visibility')}</h2>
-                <p>{t('events.sections.visibilityHint')}</p>
-              </div>
-
-              <div className={styles.stack}>
-                <div>
-                  <span className={styles.groupLabel}>{t('events.fields.privacy')}</span>
-                  <div className={styles.inlineOptions}>
-                    {(['public', 'private'] as const).map((option) => (
-                      <label
-                        key={option}
-                        className={[
-                          styles.optionCard,
-                          form.privacyType === option ? styles.optionCardActive : '',
-                        ].join(' ')}
-                      >
-                        <input
-                          type="radio"
-                          name="privacyType"
-                          checked={form.privacyType === option}
-                          onChange={() => updateField('privacyType', option)}
-                        />
-                        <strong>{t(`events.privacy.${option}`)}</strong>
-                      </label>
-                    ))}
-                  </div>
+            {isViewMode && parsedEventId ? (
+              <section className={styles.card}>
+                <div className={styles.sectionHeader}>
+                  <h2>{t('events.sections.actions')}</h2>
                 </div>
-
-                {form.privacyType === 'private' && (
-                  <div className={styles.stack}>
-                    <span className={styles.groupLabel}>
-                      {t('events.fields.privateAudiences')}
-                    </span>
-                    <label className={styles.checkboxRow}>
-                      <input
-                        type="checkbox"
-                        checked={form.audienceMembers}
-                        onChange={(event) =>
-                          updateField('audienceMembers', event.target.checked)
-                        }
-                      />
-                      <span>{t('events.audiences.members')}</span>
-                    </label>
-                    <label className={styles.checkboxRow}>
-                      <input
-                        type="checkbox"
-                        checked={form.audiencePublic}
-                        onChange={(event) =>
-                          updateField('audiencePublic', event.target.checked)
-                        }
-                      />
-                      <span>{t('events.audiences.public')}</span>
-                    </label>
-                    <FieldError message={errors.privateAudiences} />
-                  </div>
-                )}
-
-                <label className={styles.toggleRow}>
-                  <div>
-                    <span>{t('events.fields.published')}</span>
-                    <p>{t('events.fields.publishedHint')}</p>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={form.published}
-                    onChange={(event) => handlePublishedChange(event.target.checked)}
+                <div className={styles.statusChipRow}>
+                  <StatusBadge status={form.published ? 'published' : 'draft'} />
+                </div>
+                <div className={styles.actionStack}>
+                  <Link
+                    className={`${styles.primaryButton} ${styles.buttonLink}`}
+                    to={`/events/${parsedEventId}/edit`}
+                  >
+                    {t('events.editor.editEvent')}
+                  </Link>
+                </div>
+              </section>
+            ) : (
+              <PublishingControls
+                status={form.published ? 'published' : 'draft'}
+                visibility={form.privacyType}
+                onVisibilityChange={(value) => updateField('privacyType', value)}
+                publishLabel={
+                  form.published
+                    ? t('events.editor.saveChanges')
+                    : t('events.editor.publish')
+                }
+                onSaveDraft={() => void submitForm('draft')}
+                onPublish={() =>
+                  void submitForm(form.published ? 'save' : 'publish')
+                }
+                onDelete={isEditMode ? () => void handleDeleteEvent() : undefined}
+                deleteConfirmTitle={t('events.list.deleteDialogTitle')}
+                deleteConfirmBody={
+                  <Trans
+                    i18nKey="events.list.deleteDialogDescription"
+                    values={{ title: form.title || t('events.editor.titleCreate') }}
+                    components={{ eventName: <strong /> }}
                   />
-                </label>
-
-                {!form.published && (
+                }
+                deleteConfirmLabel={t('events.list.delete')}
+                isSubmitting={isBusy}
+                isDeleting={isDeletingEvent}
+                extraSlot={
                   <>
-                    <label className={styles.toggleRow}>
-                      <div>
-                        <span>{t('events.fields.requestReview')}</span>
-                        <p>{t('events.fields.requestReviewHint')}</p>
+                    {form.privacyType === 'private' && (
+                      <div className={styles.stack}>
+                        <span className={styles.groupLabel}>
+                          {t('events.fields.privateAudiences')}
+                        </span>
+                        <label className={styles.checkboxRow}>
+                          <input
+                            type="checkbox"
+                            checked={form.audienceMembers}
+                            onChange={(event) =>
+                              updateField('audienceMembers', event.target.checked)
+                            }
+                          />
+                          <span>{t('events.audiences.members')}</span>
+                        </label>
+                        <label className={styles.checkboxRow}>
+                          <input
+                            type="checkbox"
+                            checked={form.audiencePublic}
+                            onChange={(event) =>
+                              updateField('audiencePublic', event.target.checked)
+                            }
+                          />
+                          <span>{t('events.audiences.public')}</span>
+                        </label>
+                        <FieldError message={errors.privateAudiences} />
                       </div>
-                      <input
-                        type="checkbox"
-                        checked={form.requestReview}
-                        onChange={(event) =>
-                          updateField('requestReview', event.target.checked)
-                        }
-                      />
-                    </label>
+                    )}
 
-                    {form.requestReview && (
-                      <label>
-                        <span>{t('events.fields.reviewEmails')}</span>
-                        <textarea
-                          rows={3}
-                          value={form.reviewEmailsText}
-                          placeholder={t('events.fields.reviewEmailsPlaceholder')}
-                          onChange={(event) =>
-                            updateField('reviewEmailsText', event.target.value)
-                          }
-                        />
-                        <FieldError message={errors.reviewEmailsText} />
-                      </label>
+                    {!form.published && (
+                      <>
+                        <label className={styles.toggleRow}>
+                          <div>
+                            <span>{t('events.fields.requestReview')}</span>
+                            <p>{t('events.fields.requestReviewHint')}</p>
+                          </div>
+                          <input
+                            type="checkbox"
+                            checked={form.requestReview}
+                            onChange={(event) =>
+                              updateField('requestReview', event.target.checked)
+                            }
+                          />
+                        </label>
+
+                        {form.requestReview && (
+                          <label>
+                            <span>{t('events.fields.reviewEmails')}</span>
+                            <textarea
+                              rows={3}
+                              value={form.reviewEmailsText}
+                              placeholder={t(
+                                'events.fields.reviewEmailsPlaceholder',
+                              )}
+                              onChange={(event) =>
+                                updateField(
+                                  'reviewEmailsText',
+                                  event.target.value,
+                                )
+                              }
+                            />
+                            <FieldError message={errors.reviewEmailsText} />
+                          </label>
+                        )}
+                      </>
                     )}
                   </>
-                )}
-              </div>
-            </section>
+                }
+              />
+            )}
 
             <section className={styles.card}>
               <div className={styles.sectionHeader}>
@@ -1440,67 +1459,6 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
               </div>
             </section>
 
-            <section className={styles.card}>
-              <div className={styles.sectionHeader}>
-                <h2>{t('events.sections.actions')}</h2>
-                <p>{t('events.sections.actionsHint')}</p>
-              </div>
-
-              <div className={styles.statusChipRow}>
-                <span
-                  className={[
-                    styles.statusChip,
-                    form.published ? styles.statusPublished : styles.statusDraft,
-                  ].join(' ')}
-                >
-                  {form.published
-                    ? t('events.status.published')
-                    : t('events.status.draft')}
-                </span>
-              </div>
-
-              <div className={styles.actionStack}>
-                {isViewMode && parsedEventId ? (
-                  <Link
-                    className={`${styles.primaryButton} ${styles.buttonLink}`}
-                    to={`/events/${parsedEventId}/edit`}
-                  >
-                    {t('events.editor.editEvent')}
-                  </Link>
-                ) : (
-                  <>
-                    <button
-                      type="button"
-                      className={styles.secondaryButton}
-                      disabled={isBusy}
-                      onClick={() => void submitForm('draft')}
-                    >
-                      {t('events.editor.saveDraft')}
-                    </button>
-                    <button
-                      type="button"
-                      className={styles.primaryButton}
-                      disabled={isBusy}
-                      onClick={() => void submitForm('save')}
-                    >
-                      {isBusy
-                        ? t('events.common.loading')
-                        : t('events.editor.saveChanges')}
-                    </button>
-                    {!form.published && (
-                      <button
-                        type="button"
-                        className={styles.publishButton}
-                        disabled={isBusy}
-                        onClick={() => void submitForm('publish')}
-                      >
-                        {t('events.editor.publish')}
-                      </button>
-                    )}
-                  </>
-                )}
-              </div>
-            </section>
           </aside>
         </div>
         </fieldset>

@@ -1,8 +1,3 @@
-import Dialog from '@mui/material/Dialog'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContent from '@mui/material/DialogContent'
-import DialogContentText from '@mui/material/DialogContentText'
-import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
@@ -14,6 +9,10 @@ import { useNavigate } from 'react-router-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
+import { ConfirmDialog } from '../components/cms/ConfirmDialog'
+import { PaginationControls } from '../components/cms/PaginationControls'
+import { SearchFilterBar } from '../components/cms/SearchFilterBar'
+import { StatusBadge } from '../components/cms/StatusBadge'
 import {
   defaultEventListFilters,
   deleteEvent as deleteEventAction,
@@ -282,112 +281,79 @@ export function EventsListPage() {
           </button>
         </div>
 
-        <form className={styles.filterPanel} onSubmit={applyFilters}>
-          <div className={styles.filterGrid}>
-            <label className={styles.field}>
-              <span>{t('events.filters.search')}</span>
-              <input
-                type="search"
-                value={draftFilters.searchTerm}
-                placeholder={t('events.filters.searchPlaceholder')}
-                onChange={(event) => updateDraft('searchTerm', event.target.value)}
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span>{t('events.filters.dateRange')}</span>
-              <select
-                value={draftFilters.dateRange}
-                onChange={(event) =>
-                  updateDraft('dateRange', event.target.value as EventDateRange)
-                }
-              >
-                {dateRangeOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {t(`events.dateRanges.${option}`)}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className={styles.field}>
-              <span>{t('events.filters.startDate')}</span>
-              <input
-                type="date"
-                value={draftFilters.startDate}
-                disabled={draftFilters.dateRange !== 'custom'}
-                onChange={(event) => updateDraft('startDate', event.target.value)}
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span>{t('events.filters.endDate')}</span>
-              <input
-                type="date"
-                value={draftFilters.endDate}
-                disabled={draftFilters.dateRange !== 'custom'}
-                onChange={(event) => updateDraft('endDate', event.target.value)}
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span>{t('events.filters.sortBy')}</span>
-              <select
-                value={draftFilters.sortBy}
-                onChange={(event) =>
-                  updateDraft('sortBy', event.target.value as EventSortBy)
-                }
-              >
-                {sortByOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {t(`events.sortBy.${option}`)}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className={styles.field}>
-              <span>{t('events.filters.sortOrder')}</span>
-              <select
-                value={draftFilters.sortOrder}
-                onChange={(event) =>
-                  updateDraft('sortOrder', event.target.value as EventSortOrder)
-                }
-              >
-                {sortOrderOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {t(`events.sortOrder.${option}`)}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <div className={styles.statusRow}>
-            <div className={styles.statusFilters}>
-              <span className={styles.statusLabel}>{t('events.filters.status')}</span>
-              {statusOptions.map((statusOption) => (
-                <label key={statusOption} className={styles.checkboxPill}>
-                  <input
-                    type="checkbox"
-                    checked={draftFilters.statuses.includes(statusOption)}
-                    onChange={() => toggleStatus(statusOption)}
-                  />
-                  <span>{t(`events.status.${statusOption}`)}</span>
-                </label>
-              ))}
-            </div>
-
-            <div className={styles.filterActions}>
-              <button type="button" className={styles.secondaryButton} onClick={resetFilters}>
-                {t('events.filters.reset')}
-              </button>
-              <button type="submit" className={styles.primaryButton}>
-                {t('events.filters.apply')}
-              </button>
-            </div>
-          </div>
-        </form>
+        <SearchFilterBar
+          searchValue={draftFilters.searchTerm}
+          onSearchChange={(value) => updateDraft('searchTerm', value)}
+          searchPlaceholder={t('events.filters.searchPlaceholder')}
+          searchLabel={t('events.filters.search')}
+          applyLabel={t('events.filters.apply')}
+          resetLabel={t('events.filters.reset')}
+          onApply={() => applyFilters()}
+          onReset={resetFilters}
+          fields={[
+            {
+              type: 'select',
+              key: 'dateRange',
+              label: t('events.filters.dateRange'),
+              value: draftFilters.dateRange,
+              onChange: (value) => updateDraft('dateRange', value as EventDateRange),
+              options: dateRangeOptions.map((option) => ({
+                value: option,
+                label: t(`events.dateRanges.${option}`),
+              })),
+            },
+            {
+              type: 'date',
+              key: 'startDate',
+              label: t('events.filters.startDate'),
+              value: draftFilters.startDate,
+              disabled: draftFilters.dateRange !== 'custom',
+              onChange: (value) => updateDraft('startDate', value),
+            },
+            {
+              type: 'date',
+              key: 'endDate',
+              label: t('events.filters.endDate'),
+              value: draftFilters.endDate,
+              disabled: draftFilters.dateRange !== 'custom',
+              onChange: (value) => updateDraft('endDate', value),
+            },
+            {
+              type: 'select',
+              key: 'sortBy',
+              label: t('events.filters.sortBy'),
+              value: draftFilters.sortBy,
+              onChange: (value) => updateDraft('sortBy', value as EventSortBy),
+              options: sortByOptions.map((option) => ({
+                value: option,
+                label: t(`events.sortBy.${option}`),
+              })),
+            },
+            {
+              type: 'select',
+              key: 'sortOrder',
+              label: t('events.filters.sortOrder'),
+              value: draftFilters.sortOrder,
+              onChange: (value) =>
+                updateDraft('sortOrder', value as EventSortOrder),
+              options: sortOrderOptions.map((option) => ({
+                value: option,
+                label: t(`events.sortOrder.${option}`),
+              })),
+            },
+            {
+              type: 'multi-pills',
+              key: 'statuses',
+              label: t('events.filters.status'),
+              values: draftFilters.statuses,
+              onToggle: (value) => toggleStatus(value as EventStatus),
+              options: statusOptions.map((option) => ({
+                value: option,
+                label: t(`events.status.${option}`),
+              })),
+            },
+          ]}
+        />
 
         <section className={styles.resultsPanel}>
           <div className={styles.resultsHeader}>
@@ -442,16 +408,10 @@ export function EventsListPage() {
                         </td>
                         <td>{item.categories.join(', ') || t('events.list.noCategory')}</td>
                         <td>
-                          <span
-                            className={[
-                              styles.badge,
-                              item.status === 'published'
-                                ? styles.badgePublished
-                                : styles.badgeDraft,
-                            ].join(' ')}
-                          >
-                            {t(`events.status.${item.status}`)}
-                          </span>
+                          <StatusBadge
+                            status={item.status}
+                            label={t(`events.status.${item.status}`)}
+                          />
                         </td>
                         <td>{formatEventDate(item)}</td>
                         <td className={styles.actionsCell}>{renderEventActions(item)}</td>
@@ -471,16 +431,10 @@ export function EventsListPage() {
                           {formatEventDate(item)}
                         </p>
                       </div>
-                      <span
-                        className={[
-                          styles.badge,
-                          item.status === 'published'
-                            ? styles.badgePublished
-                            : styles.badgeDraft,
-                        ].join(' ')}
-                      >
-                        {t(`events.status.${item.status}`)}
-                      </span>
+                      <StatusBadge
+                        status={item.status}
+                        label={t(`events.status.${item.status}`)}
+                      />
                     </div>
                     <p className={styles.cardMeta}>
                       {item.categories.join(', ') || t('events.list.noCategory')}
@@ -499,28 +453,11 @@ export function EventsListPage() {
 
           {pagination && pagination.total_pages > 1 && (
             <div className={styles.pagination}>
-              <button
-                type="button"
-                className={styles.secondaryButton}
-                disabled={!pagination.has_prev}
-                onClick={() => changePage(filters.page - 1)}
-              >
-                {t('events.list.previous')}
-              </button>
-              <span className={styles.pageNumber}>
-                {t('events.list.pageOf', {
-                  page: pagination.page,
-                  total: pagination.total_pages,
-                })}
-              </span>
-              <button
-                type="button"
-                className={styles.secondaryButton}
-                disabled={!pagination.has_next}
-                onClick={() => changePage(filters.page + 1)}
-              >
-                {t('events.list.next')}
-              </button>
+              <PaginationControls
+                page={pagination.page}
+                totalPages={pagination.total_pages}
+                onChange={changePage}
+              />
             </div>
           )}
         </section>
@@ -595,56 +532,30 @@ export function EventsListPage() {
           </MenuItem>
         </Menu>
 
-        <Dialog
+        <ConfirmDialog
           open={isDeleteDialogOpen}
-          onClose={closeDeleteDialog}
-          slotProps={{
-            paper: {
-              className: styles.confirmDialogPaper,
-            },
-          }}
-        >
-          <DialogTitle className={styles.confirmDialogTitle}>
-            {t('events.list.deleteDialogTitle')}
-          </DialogTitle>
-          <DialogContent className={styles.confirmDialogContent}>
-            <DialogContentText className={styles.confirmDialogText}>
-              <Trans
-                i18nKey="events.list.deleteDialogDescription"
-                values={{
-                  title: deleteCandidate?.title ?? '',
-                }}
-                components={{
-                  eventName: <strong className={styles.confirmDialogEventName} />,
-                }}
-              />
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions className={styles.confirmDialogActions}>
-            <button
-              type="button"
-              className={styles.secondaryButton}
-              disabled={isDeleteDialogBusy}
-              onClick={closeDeleteDialog}
-            >
-              {t('events.list.cancelDelete')}
-            </button>
-            <button
-              type="button"
-              className={styles.dangerButton}
-              disabled={!deleteCandidate || isDeleteDialogBusy}
-              onClick={() => {
-                if (!deleteCandidate) {
-                  return
-                }
-
-                void handleDeleteEvent(deleteCandidate)
+          title={t('events.list.deleteDialogTitle')}
+          body={
+            <Trans
+              i18nKey="events.list.deleteDialogDescription"
+              values={{ title: deleteCandidate?.title ?? '' }}
+              components={{
+                eventName: <strong className={styles.confirmDialogEventName} />,
               }}
-            >
-              {isDeleteDialogBusy ? t('events.common.loading') : t('events.list.delete')}
-            </button>
-          </DialogActions>
-        </Dialog>
+            />
+          }
+          confirmLabel={t('events.list.delete')}
+          cancelLabel={t('events.list.cancelDelete')}
+          destructive
+          busy={isDeleteDialogBusy}
+          onConfirm={() => {
+            if (!deleteCandidate) {
+              return
+            }
+            void handleDeleteEvent(deleteCandidate)
+          }}
+          onClose={closeDeleteDialog}
+        />
       </div>
     </CmsAppShell>
   )

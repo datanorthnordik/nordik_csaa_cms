@@ -1,0 +1,166 @@
+.panel {
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top right, rgba(122, 31, 36, 0.06), transparent 30%),
+    var(--color-surface);
+  box-shadow: var(--shadow-card);
+  padding: 18px 20px;
+}
+
+.compact {
+  padding: 14px 16px;
+  border-radius: 16px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.searchField {
+  flex: 1 1 240px;
+  display: grid;
+  gap: 8px;
+}
+
+.searchInputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+  display: inline-flex;
+}
+
+.searchInput {
+  width: 100%;
+  border: 1px solid var(--color-border-input);
+  border-radius: 12px;
+  padding: 12px 14px 12px 40px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.searchInput:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--color-text);
+  flex: 0 0 auto;
+  min-width: 160px;
+}
+
+.field span {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.field input,
+.field select {
+  width: 100%;
+  border: 1px solid var(--color-border-input);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.pillsField {
+  flex: 1 1 280px;
+  display: grid;
+  gap: 8px;
+}
+
+.pillsField span {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.pillsRow {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: var(--color-surface-alt);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.pill input {
+  accent-color: var(--color-primary);
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  justify-content: flex-end;
+}
+
+.primary,
+.secondary {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.primary {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+  transform: translateY(-1px);
+}
+
+.secondary {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+}
+
+.secondary:hover:not(:disabled) {
+  background: #e6e9ed;
+}
