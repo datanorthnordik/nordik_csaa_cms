@@ -200,10 +200,15 @@
       "columns": {
         "pageTitle": "Page Title",
         "urlSlug": "URL Slug",
+        "type": "Type",
         "status": "Status",
         "lastModified": "Last Modified",
         "actions": "Actions"
       }
+    },
+    "types": {
+      "page": "Page",
+      "module": "Module"
     },
     "sections": {
       "pageSettings": "Page Settings",
@@ -242,6 +247,8 @@
       "loadErrorTitle": "We could not load this page",
       "backToList": "Back to pages",
       "editPage": "Edit Page",
+      "moduleManagedTitle": "Module-managed page",
+      "moduleManagedNotice": "This page belongs to a CMS module. Its content is managed in that module and cannot be edited here.",
       "replaceHeroImage": "Replace image",
       "removeHeroImage": "Remove image",
       "saveDraft": "Save as Draft",

@@ -182,6 +182,7 @@ export function MenuBuilder({
         draggedClientId !== null &&
         draggedClientId !== item.client_id
       const hasChildren = item.children.length > 0
+      const itemSummary = getMenuItemSummary(item, pageOptions)
 
       return (
         <div key={item.client_id} className={styles.treeNode}>
@@ -234,15 +235,17 @@ export function MenuBuilder({
                     ? t('menus.builder.types.page')
                     : t('menus.builder.types.external')}
                 </span>
+
+                {hasChildren && (
+                  <span className={styles.childCount}>
+                    {t('menus.builder.childCount', { count: item.children.length })}
+                  </span>
+                )}
               </div>
 
-              <p className={styles.itemMeta}>{getMenuItemSummary(item, pageOptions)}</p>
-
-              {hasChildren && (
-                <p className={styles.childCount}>
-                  {t('menus.builder.childCount', { count: item.children.length })}
-                </p>
-              )}
+              <p className={styles.itemMeta} title={itemSummary}>
+                {itemSummary}
+              </p>
             </div>
 
             <div className={styles.itemActions}>
@@ -386,7 +389,7 @@ export function MenuBuilder({
                       ...current,
                       navigation_type: 'pages',
                       external_url: '',
-                      parent_page_id: '',
+                      parent_id: '',
                       open_in_new_tab: false,
                     }))
                     setDraftError(null)
@@ -463,11 +466,11 @@ export function MenuBuilder({
                 <label className={styles.field}>
                   <span>{t('menus.dialog.fields.parentPage')}</span>
                   <select
-                    value={draft.parent_page_id}
+                    value={draft.parent_id}
                     onChange={(event) => {
                       setDraft((current) => ({
                         ...current,
-                        parent_page_id: event.target.value,
+                        parent_id: event.target.value,
                       }))
                       setDraftError(null)
                     }}

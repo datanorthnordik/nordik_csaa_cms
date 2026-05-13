@@ -202,7 +202,9 @@ describe('MenusPage', () => {
   })
 
   it('saves changed menu items and clears the dirty state after success', async () => {
-    let resolveSave: ((value: unknown) => void) | null = null
+    let resolveSave:
+      | ((value: { message: string; menu: MenuResponse }) => void)
+      | undefined
 
     getMenuMock.mockResolvedValue(createMenuResponse())
     listMenuPageOptionsMock.mockResolvedValue(createPageOptions())
@@ -243,10 +245,12 @@ describe('MenusPage', () => {
       expect(latestMenuBuilderProps().isSaving).toBe(true)
     })
 
-    resolveSave?.({
-      message: 'Navigation saved successfully.',
-      menu: createMenuResponse('About Us Updated'),
-    })
+    if (resolveSave) {
+      resolveSave({
+        message: 'Navigation saved successfully.',
+        menu: createMenuResponse('About Us Updated'),
+      })
+    }
 
     await waitFor(() => {
       expect(toastSuccess).toHaveBeenCalledWith('Navigation saved successfully.')

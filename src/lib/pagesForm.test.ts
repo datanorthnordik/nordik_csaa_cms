@@ -29,7 +29,7 @@ describe('buildSavePageRequest', () => {
       file_name: 'hero.png',
       mime_type: 'image/png',
     })
-    expect(request.parent_page_id).toBeNull()
+    expect(request.parent_id).toBeNull()
     expect(request.hero_image).not.toHaveProperty('data_base64')
   })
 
@@ -42,7 +42,7 @@ describe('buildSavePageRequest', () => {
 
     const request = buildSavePageRequest(form, '/about')
 
-    expect(request.parent_page_id).toBe(7)
+    expect(request.parent_id).toBe(7)
     expect(request.url_slug).toBe('/about/team')
   })
 })
@@ -54,7 +54,8 @@ describe('buildPageFormStateFromDetail', () => {
         id: 3,
         page_title: 'Team',
         url_slug: '/about/team',
-        parent_page_id: 7,
+        page_type: 'page',
+        parent_id: 7,
         status: 'draft',
         hero_image_enabled: false,
         hero_image_url: '',
@@ -70,7 +71,9 @@ describe('buildPageFormStateFromDetail', () => {
         created_at: '2026-05-12T00:00:00Z',
         updated_at: '2026-05-12T00:00:00Z',
       },
-      '/about',
+      {
+        parentPageSlug: '/about',
+      },
     )
 
     expect(form.parentPageId).toBe('7')
@@ -87,8 +90,8 @@ describe('buildFullPageUrlSlug', () => {
 describe('parent page validation', () => {
   it('disallows selecting a descendant page as the parent', () => {
     const pageOptions = [
-      { id: 1, page_title: 'A', url_slug: '/a', parent_page_id: null },
-      { id: 2, page_title: 'B', url_slug: '/a/b', parent_page_id: 1 },
+      { id: 1, page_title: 'A', url_slug: '/a', parent_id: null },
+      { id: 2, page_title: 'B', url_slug: '/a/b', parent_id: 1 },
     ]
 
     expect(getDisallowedParentPageIds(1, pageOptions)).toEqual(new Set([1, 2]))
@@ -103,8 +106,8 @@ describe('parent page validation', () => {
     const errors = validatePageForm(form, (key) => key, {
       currentPageId: 1,
       pageOptions: [
-        { id: 1, page_title: 'A', url_slug: '/a', parent_page_id: null },
-        { id: 2, page_title: 'B', url_slug: '/a/b', parent_page_id: 1 },
+        { id: 1, page_title: 'A', url_slug: '/a', parent_id: null },
+        { id: 2, page_title: 'B', url_slug: '/a/b', parent_id: 1 },
       ],
     })
 

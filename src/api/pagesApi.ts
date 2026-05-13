@@ -3,6 +3,7 @@ import { buildMultipartPayload } from './multipartForm'
 import { apiClient } from './apiClient'
 
 export type PageStatus = 'draft' | 'published'
+export type PageType = 'page' | 'module'
 export type PageStatusFilter = '' | PageStatus
 export type PageSortBy =
   | 'page_title'
@@ -13,23 +14,17 @@ export type PageSortBy =
   | 'updated_at'
 export type PageSortOrder = 'asc' | 'desc'
 
-export type PageParentReference = {
-  id: number
-  page_title: string
-  url_slug: string
-}
-
 type PageParentRelation = {
-  parent_page_id?: number | null
   parent_id?: number | null
-  parent_page?: PageParentReference | null
-  parent?: PageParentReference | null
+  parent_page_title?: string
+  parent_page_url_slug?: string
 }
 
 export type PageListItem = PageParentRelation & {
   id: number
   page_title: string
   url_slug: string
+  page_type: PageType
   status: PageStatus
   last_modified: string
   modified_by?: number | null
@@ -77,6 +72,7 @@ export type PageDetailResponse = PageParentRelation & {
   id: number
   page_title: string
   url_slug: string
+  page_type: PageType
   status: PageStatus
   hero_image_enabled: boolean
   hero_image_url: string
@@ -105,7 +101,7 @@ export type PageUploadInput = {
 export type SavePagePayload = {
   page_title: string
   url_slug: string
-  parent_page_id: number | null
+  parent_id: number | null
   status: PageStatus
   hero_image_enabled: boolean
   hero_image?: PageUploadInput
@@ -122,7 +118,7 @@ export type PageParentOption = {
   id: number
   page_title: string
   url_slug: string
-  parent_page_id: number | null
+  parent_id: number | null
 }
 
 export type PageMutationResponse = {
@@ -131,6 +127,7 @@ export type PageMutationResponse = {
     id: number
     page_title: string
     url_slug: string
+    page_type: PageType
     status: PageStatus
   }
 }
@@ -159,27 +156,19 @@ async function fetchAllPageListItems(filters: PageListFilters) {
 }
 
 export function resolvePageParentId(page: PageParentRelation) {
-  if (typeof page.parent_page_id === 'number') {
-    return page.parent_page_id
-  }
-
   if (typeof page.parent_id === 'number') {
     return page.parent_id
-  }
-
-  if (typeof page.parent_page?.id === 'number') {
-    return page.parent_page.id
-  }
-
-  if (typeof page.parent?.id === 'number') {
-    return page.parent.id
   }
 
   return null
 }
 
 export function resolvePageParentSlug(page: PageParentRelation) {
-  return page.parent_page?.url_slug ?? page.parent?.url_slug ?? ''
+  return page.parent_page_url_slug?.trim() ?? ''
+}
+
+export function isModulePage(page: { page_type?: string | null }) {
+  return page.page_type === 'module'
 }
 
 export const pagesApi = {
@@ -223,36 +212,12 @@ export const pagesApi = {
       sortOrder: 'asc',
     })
 
-    const missingParentDataIds = allItems
-      .filter(
-        (item) =>
-          item.parent_page_id === undefined &&
-          item.parent_id === undefined &&
-          item.parent_page === undefined &&
-          item.parent === undefined,
-      )
-      .map((item) => item.id)
-
-    const detailedPages = new Map<number, PageDetailResponse>()
-
-    if (missingParentDataIds.length > 0) {
-      const details = await Promise.all(
-        missingParentDataIds.map((id) => pagesApi.getPage(id)),
-      )
-
-      for (const detail of details) {
-        detailedPages.set(detail.id, detail)
-      }
-    }
-
     return allItems.map((item) => {
-      const source = detailedPages.get(item.id) ?? item
-
       return {
         id: item.id,
         page_title: item.page_title,
         url_slug: item.url_slug,
-        parent_page_id: resolvePageParentId(source),
+        parent_id: resolvePageParentId(item),
       } satisfies PageParentOption
     })
   },
