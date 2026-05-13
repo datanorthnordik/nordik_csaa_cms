@@ -12,6 +12,7 @@ import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
 import { UploadDropzone } from '../components/media/UploadDropzone'
 import {
+  isModulePage,
   pagesApi,
   resolvePageParentId,
   resolvePageParentSlug,
@@ -62,6 +63,8 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
   const isEditMode = parsedPageId !== null && Number.isFinite(parsedPageId)
   const isViewMode = mode === 'view' && isEditMode
   const isInvalidEditId = params.id !== undefined && !isEditMode
+  const isModuleManaged = currentPage ? isModulePage(currentPage) : false
+  const isReadOnlyMode = isViewMode || isModuleManaged
 
   const [form, setForm] = useState<PageFormState>(createDefaultPageFormState())
   const [errors, setErrors] = useState<PageFormErrors>({})
@@ -148,12 +151,17 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
       return
     }
 
-    setForm(buildPageFormStateFromDetail(currentPage, currentPageParentSlug))
+    setForm(
+      buildPageFormStateFromDetail(currentPage, {
+        parentPageSlug: currentPageParentSlug,
+      }),
+    )
     setErrors({})
     setSlugTouched(true)
     setInitializedPageId(currentPage.id)
   }, [
     currentPage,
+    currentPageParentId,
     currentPageParentSlug,
     initializedPageId,
     isEditMode,
@@ -442,7 +450,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
           items={[
             { label: t('pages.breadcrumb.pages'), to: '/pages' },
             {
-              label: isViewMode
+              label: isReadOnlyMode
                 ? t('pages.editor.breadcrumbView')
                 : isEditMode
                   ? t('pages.editor.breadcrumbEdit')
@@ -453,8 +461,8 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
 
         <header className={styles.header}>
           <div>
-            <h1 className={styles.title}>
-              {isViewMode
+          <h1 className={styles.title}>
+              {isReadOnlyMode
                 ? t('pages.editor.titleView')
                 : isEditMode
                   ? t('pages.editor.titleEdit')
@@ -471,7 +479,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
             >
               {t('pages.editor.backToList')}
             </button>
-            {isViewMode && parsedPageId && (
+            {isViewMode && parsedPageId && !isModuleManaged && (
               <button
                 type="button"
                 className={styles.primaryButton}
@@ -484,7 +492,14 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
           </div>
         </header>
 
-        {!isViewMode && errorMessages.length > 0 && (
+        {isModuleManaged && (
+          <div className={styles.infoSummary} role="status">
+            <p className={styles.infoSummaryTitle}>{t('pages.editor.moduleManagedTitle')}</p>
+            <p className={styles.infoSummaryText}>{t('pages.editor.moduleManagedNotice')}</p>
+          </div>
+        )}
+
+        {!isReadOnlyMode && errorMessages.length > 0 && (
           <div className={styles.errorSummary} role="alert">
             <p className={styles.errorSummaryTitle}>{t('pages.feedback.validation')}</p>
             <ul>
@@ -495,13 +510,13 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
           </div>
         )}
 
-        {!isViewMode && saveState.error && (
+        {!isReadOnlyMode && saveState.error && (
           <div className={styles.errorSummary} role="alert">
             <p className={styles.errorSummaryTitle}>{saveState.error}</p>
           </div>
         )}
 
-        <fieldset className={styles.readOnlyFieldset} disabled={isViewMode || isBusy}>
+        <fieldset className={styles.readOnlyFieldset} disabled={isReadOnlyMode || isBusy}>
           <section className={styles.card}>
             <div className={styles.cardHeader}>
               <h2>{t('pages.sections.pageSettings')}</h2>
@@ -611,7 +626,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                         alt={form.pageTitle || t('pages.fields.heroImageAlt')}
                         className={styles.heroPreview}
                       />
-                      {!isViewMode && (
+                      {!isReadOnlyMode && (
                         <div className={styles.heroActions}>
                           <label className={styles.secondaryButton}>
                             <input
@@ -682,7 +697,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
           </section>
         </fieldset>
 
-        {!isViewMode && (
+        {!isReadOnlyMode && (
           <section className={styles.actionsCard}>
             <div className={styles.actionRow}>
               <button

@@ -6,10 +6,6 @@ import type {
   SavePagePayload,
   SavePageRequest,
 } from '../api/pagesApi'
-import {
-  resolvePageParentId as getPageParentId,
-  resolvePageParentSlug as getPageParentSlug,
-} from '../api/pagesApi'
 
 export type PageFormState = {
   pageTitle: string
@@ -45,10 +41,13 @@ export function createDefaultPageFormState(): PageFormState {
 
 export function buildPageFormStateFromDetail(
   detail: PageDetailResponse,
-  parentPageSlug = '',
+  options: {
+    parentPageSlug?: string
+  } = {},
 ): PageFormState {
-  const resolvedParentId = getPageParentId(detail)
-  const effectiveParentSlug = parentPageSlug || getPageParentSlug(detail)
+  const resolvedParentId =
+    typeof detail.parent_id === 'number' ? detail.parent_id : null
+  const effectiveParentSlug = options.parentPageSlug ?? ''
 
   return {
     pageTitle: detail.page_title ?? '',
@@ -181,7 +180,7 @@ export function buildSavePagePayload(
   return {
     page_title: form.pageTitle.trim(),
     url_slug: buildFullPageUrlSlug(form.urlSlug, parentPageSlug),
-    parent_page_id: form.parentPageId ? Number.parseInt(form.parentPageId, 10) : null,
+    parent_id: form.parentPageId ? Number.parseInt(form.parentPageId, 10) : null,
     status: form.status,
     hero_image_enabled: form.heroImageEnabled,
     hero_image: heroImage,
@@ -225,7 +224,7 @@ function wouldCreatePageCycle(
     }
 
     visited.add(nextPageId)
-    nextPageId = pageMap.get(nextPageId)?.parent_page_id ?? null
+    nextPageId = pageMap.get(nextPageId)?.parent_id ?? null
   }
 
   return false

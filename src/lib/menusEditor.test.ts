@@ -229,7 +229,7 @@ describe('menusEditor', () => {
       navigation_type: 'external_link',
       page_id: '',
       external_url: 'https://example.com',
-      parent_page_id: '10',
+      parent_id: '10',
       open_in_new_tab: true,
     })
     expect(listPageParentMenuOptions(initialItems)).toEqual([
@@ -288,7 +288,7 @@ describe('menusEditor', () => {
           navigation_type: 'external_link',
           page_id: '',
           external_url: 'https://example.com/resource',
-          parent_page_id: '999',
+          parent_id: '999',
           open_in_new_tab: false,
         },
         initialItems,
