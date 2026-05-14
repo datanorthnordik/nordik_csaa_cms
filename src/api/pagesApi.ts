@@ -13,6 +13,18 @@ export type PageSortBy =
   | 'created_at'
   | 'updated_at'
 export type PageSortOrder = 'asc' | 'desc'
+export type PageSectionType =
+  | 'header'
+  | 'typography'
+  | 'gallery'
+  | 'document'
+  | 'quote'
+  | 'cta_banner'
+export type PageHeaderHierarchy = 'h1_hero' | 'h2_section'
+export type PageGalleryViewMode = 'grid' | 'carousel' | 'masonry' | 'focus'
+export type PageTypographyTextAlign = 'left' | 'center' | 'right'
+
+type JSONObject = Record<string, unknown>
 
 type PageParentRelation = {
   parent_id?: number | null
@@ -68,6 +80,87 @@ type RawPageListResponse = Omit<PageListResponse, 'items'> & {
   items: PageListItem[] | null
 }
 
+export type PageHeaderSectionResponse = {
+  main_header_text: string
+  sub_header_text: string
+  hierarchy: PageHeaderHierarchy
+}
+
+export type PageTypographySectionResponse = {
+  html_content: string
+  text_content: string
+  text_align: PageTypographyTextAlign
+}
+
+export type PageGallerySectionResponse = {
+  gallery_id?: number | null
+  view_mode: PageGalleryViewMode
+}
+
+export type PageQuoteSectionResponse = {
+  quote_content: string
+  attribution: string
+}
+
+export type PageCTABannerSectionResponse = {
+  banner_heading: string
+  banner_message: string
+  button_text: string
+  button_url: string
+  open_in_new_tab: boolean
+}
+
+export type PageDocumentResponse = {
+  id: number
+  display_name: string
+  description: string
+  original_file_name: string
+  file_name: string
+  file_url: string
+  fetch_url: string
+  storage_uri: string
+  gcp_object_key: string
+  mime_type: string
+  file_size: number
+  sort_order: number
+  created_at: string
+  updated_at: string
+}
+
+export type PageDocumentsSectionResponse = {
+  items: PageDocumentResponse[]
+}
+
+export type PageSectionResponse = {
+  id: number
+  section_name: string
+  section_type: PageSectionType
+  sort_order: number
+  is_enabled: boolean
+  settings?: JSONObject | null
+  header?: PageHeaderSectionResponse | null
+  typography?: PageTypographySectionResponse | null
+  gallery?: PageGallerySectionResponse | null
+  quote?: PageQuoteSectionResponse | null
+  cta_banner?: PageCTABannerSectionResponse | null
+  documents?: PageDocumentsSectionResponse | null
+  created_at: string
+  updated_at: string
+}
+
+export type PageContentDetailResponse = {
+  id: number
+  page_id: number
+  template_key: string
+  settings?: JSONObject | null
+  schema_version: number
+  sections: PageSectionResponse[]
+  created_by?: number | null
+  updated_by?: number | null
+  created_at?: string
+  updated_at?: string
+}
+
 export type PageDetailResponse = PageParentRelation & {
   id: number
   page_title: string
@@ -87,6 +180,7 @@ export type PageDetailResponse = PageParentRelation & {
   last_modified: string
   created_at: string
   updated_at: string
+  page_detail?: PageContentDetailResponse | null
 }
 
 export type PageUploadInput = {
@@ -96,6 +190,74 @@ export type PageUploadInput = {
   object_key?: string
   gcp_object_key?: string
   storage_uri?: string
+}
+
+export type SavePageDocumentPayload = {
+  id?: number
+  display_name: string
+  description: string
+  original_file_name: string
+  file_name?: string
+  mime_type?: string
+  file_url?: string
+  object_key?: string
+  gcp_object_key?: string
+  storage_uri?: string
+}
+
+export type SavePageDocumentsSectionPayload = {
+  items: SavePageDocumentPayload[]
+}
+
+export type SavePageHeaderSectionPayload = {
+  main_header_text: string
+  sub_header_text: string
+  hierarchy: PageHeaderHierarchy
+}
+
+export type SavePageTypographySectionPayload = {
+  html_content: string
+  text_content: string
+  text_align: PageTypographyTextAlign
+}
+
+export type SavePageGallerySectionPayload = {
+  gallery_id?: number | null
+  view_mode: PageGalleryViewMode
+}
+
+export type SavePageQuoteSectionPayload = {
+  quote_content: string
+  attribution: string
+}
+
+export type SavePageCTABannerSectionPayload = {
+  banner_heading: string
+  banner_message: string
+  button_text: string
+  button_url: string
+  open_in_new_tab: boolean
+}
+
+export type SavePageSectionPayload = {
+  id?: number
+  section_name: string
+  section_type: PageSectionType
+  sort_order: number
+  is_enabled: boolean
+  settings?: JSONObject
+  header?: SavePageHeaderSectionPayload
+  typography?: SavePageTypographySectionPayload
+  gallery?: SavePageGallerySectionPayload
+  quote?: SavePageQuoteSectionPayload
+  cta_banner?: SavePageCTABannerSectionPayload
+  documents?: SavePageDocumentsSectionPayload
+}
+
+export type SavePageDetailPayload = {
+  template_key: string
+  settings?: JSONObject
+  sections: SavePageSectionPayload[]
 }
 
 export type SavePagePayload = {
@@ -108,10 +270,18 @@ export type SavePagePayload = {
   remove_hero_image: boolean
   seo_page_title: string
   seo_page_description: string
+  page_detail?: SavePageDetailPayload
+}
+
+export type PageDocumentMultipartFile = {
+  sectionIndex: number
+  documentIndex: number
+  file: File
 }
 
 export type SavePageRequest = SavePagePayload & {
   heroImageFile?: File
+  documentFiles?: PageDocumentMultipartFile[]
 }
 
 export type PageParentOption = {
@@ -147,12 +317,34 @@ function buildListQuery(filters: PageListFilters) {
   return params
 }
 
+function pageDocumentFileField(sectionIndex: number, documentIndex: number) {
+  return `page_detail.sections[${sectionIndex}].documents.items[${documentIndex}].file`
+}
+
 async function fetchAllPageListItems(filters: PageListFilters) {
   const response = await apiClient.get<RawPageListResponse>(API_ROUTES.pages, {
     params: buildListQuery(filters),
   })
 
   return Array.isArray(response.data.items) ? response.data.items : []
+}
+
+function buildPageMultipartBody(request: SavePageRequest) {
+  const { heroImageFile, documentFiles, ...payload } = request
+  const files = [
+    {
+      fieldName: 'hero_image_file',
+      file: heroImageFile,
+      fileName: heroImageFile?.name,
+    },
+    ...(documentFiles ?? []).map((entry) => ({
+      fieldName: pageDocumentFileField(entry.sectionIndex, entry.documentIndex),
+      file: entry.file,
+      fileName: entry.file.name,
+    })),
+  ]
+
+  return buildMultipartPayload(payload, files)
 }
 
 export function resolvePageParentId(page: PageParentRelation) {
@@ -230,32 +422,24 @@ export const pagesApi = {
     return response.data
   },
 
+  async fetchPageDocumentContent(path: string) {
+    const response = await apiClient.get<Blob>(path, {
+      responseType: 'blob',
+      skipErrorToast: true,
+    })
+    return response.data
+  },
+
   async createPage(request: SavePageRequest) {
-    const { heroImageFile, ...payload } = request
-    const body = heroImageFile
-      ? buildMultipartPayload(payload, [
-          {
-            fieldName: 'hero_image_file',
-            file: heroImageFile,
-            fileName: heroImageFile.name,
-          },
-        ])
-      : payload
+    const hasFiles = Boolean(request.heroImageFile) || Boolean(request.documentFiles?.length)
+    const body = hasFiles ? buildPageMultipartBody(request) : request
     const response = await apiClient.post<PageMutationResponse>(API_ROUTES.pages, body)
     return response.data
   },
 
   async updatePage(id: number, request: SavePageRequest) {
-    const { heroImageFile, ...payload } = request
-    const body = heroImageFile
-      ? buildMultipartPayload(payload, [
-          {
-            fieldName: 'hero_image_file',
-            file: heroImageFile,
-            fileName: heroImageFile.name,
-          },
-        ])
-      : payload
+    const hasFiles = Boolean(request.heroImageFile) || Boolean(request.documentFiles?.length)
+    const body = hasFiles ? buildPageMultipartBody(request) : request
     const response = await apiClient.put<PageMutationResponse>(API_ROUTES.pageById(id), body)
     return response.data
   },

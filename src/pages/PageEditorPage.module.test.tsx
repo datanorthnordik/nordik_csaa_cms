@@ -9,12 +9,14 @@ const {
   navigateMock,
   useAppSelectorMock,
   listPageParentOptionsMock,
+  listGalleriesMock,
   fetchPageHeroImageContentMock,
 } = vi.hoisted(() => ({
   dispatchMock: vi.fn(),
   navigateMock: vi.fn(),
   useAppSelectorMock: vi.fn(),
   listPageParentOptionsMock: vi.fn(),
+  listGalleriesMock: vi.fn(),
   fetchPageHeroImageContentMock: vi.fn(),
 }))
 
@@ -46,6 +48,12 @@ vi.mock('../api/pagesApi', async () => {
   }
 })
 
+vi.mock('../api/mediaApi', () => ({
+  mediaApi: {
+    listGalleries: listGalleriesMock,
+  },
+}))
+
 vi.mock('../components/Breadcrumb', () => ({
   Breadcrumb: () => <nav>Breadcrumb</nav>,
 }))
@@ -73,8 +81,10 @@ describe('PageEditorPage module pages', () => {
     dispatchMock.mockReset()
     navigateMock.mockReset()
     listPageParentOptionsMock.mockReset()
+    listGalleriesMock.mockReset()
     fetchPageHeroImageContentMock.mockReset()
     listPageParentOptionsMock.mockResolvedValue([])
+    listGalleriesMock.mockResolvedValue([])
     useAppSelectorMock.mockImplementation((selector: (state: unknown) => unknown) =>
       selector({
         pages: {
@@ -120,6 +130,7 @@ describe('PageEditorPage module pages', () => {
 
     await waitFor(() => {
       expect(listPageParentOptionsMock).toHaveBeenCalledTimes(1)
+      expect(listGalleriesMock).toHaveBeenCalledTimes(1)
     })
 
     expect(screen.getByRole('heading', { name: 'View Page' })).toBeDefined()
