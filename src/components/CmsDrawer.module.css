@@ -44,12 +44,9 @@
   min-height: 0;
   overflow-y: auto;
   padding-right: 2px;
-<<<<<<< HEAD
-=======
   padding-bottom: 32px;
   scrollbar-width: thin;
   scrollbar-color: var(--color-border) transparent;
->>>>>>> eec6becfa4d4773a85173757abca67b3eb612e8b
 }
 
 .navItem {
