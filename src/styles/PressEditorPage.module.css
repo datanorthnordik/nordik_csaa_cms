@@ -13,8 +13,9 @@
 
 .headerText h1 {
   margin: 0;
-  font-size: clamp(1.8rem, 3.4vw, 2.4rem);
-  line-height: 1.1;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .headerText p {
@@ -57,11 +58,8 @@
 
 .card {
   border: 1px solid var(--color-border);
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at top right, rgba(122, 31, 36, 0.04), transparent 30%),
-    var(--color-surface);
-  box-shadow: var(--shadow-card);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
   padding: 22px 24px;
 }
 
@@ -75,8 +73,8 @@
 
 .cardHeader h2 {
   margin: 0;
-  font-size: 1.05rem;
-  font-weight: 800;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .cardHeader span {
@@ -125,8 +123,9 @@
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .field input::placeholder,
@@ -146,11 +145,11 @@
 
 .addCategoryButton {
   border: 1px dashed var(--color-border-input);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: transparent;
   color: var(--color-primary);
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   padding: 11px 14px;
   white-space: nowrap;
@@ -169,7 +168,7 @@
 .errorSummary {
   border: 1px solid var(--color-error-border);
   background: var(--color-error-bg);
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   padding: 14px 18px;
 }
 
@@ -197,7 +196,7 @@
 }
 
 .mediaTopline strong {
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .mediaTopline span {
@@ -219,7 +218,7 @@
   gap: 12px;
   padding: 10px 14px;
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--color-surface);
 }
 
@@ -252,32 +251,30 @@
 }
 
 .proTip {
-  border-radius: 24px;
+  border-radius: var(--radius-lg);
   padding: 22px 24px;
-  background: #21354f;
-  color: #fff;
-  box-shadow: var(--shadow-card);
-  position: relative;
-  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  color: var(--color-text);
 }
 
 .proTip h3 {
   margin: 0 0 10px;
-  font-size: 1.05rem;
-  font-weight: 800;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .proTip p {
   margin: 0 0 12px;
   font-size: 14px;
   line-height: 1.55;
-  color: rgba(255, 255, 255, 0.82);
+  color: var(--color-text-muted);
 }
 
 .proTipLink {
   background: transparent;
   border: none;
-  color: #fff;
+  color: var(--color-primary);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
@@ -293,7 +290,7 @@
 
 .metaCard {
   border: 1px solid var(--color-border);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--color-surface);
   padding: 16px 18px;
   display: grid;
@@ -324,7 +321,6 @@
   .card,
   .proTip {
     padding: 18px;
-    border-radius: 18px;
   }
   .fieldGrid {
     grid-template-columns: 1fr;

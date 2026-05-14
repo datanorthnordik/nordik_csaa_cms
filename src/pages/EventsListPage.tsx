@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
+import { AddIcon } from '../components/icons'
 import { ConfirmDialog } from '../components/cms/ConfirmDialog'
 import { PaginationControls } from '../components/cms/PaginationControls'
 import { SearchFilterBar } from '../components/cms/SearchFilterBar'
@@ -277,6 +278,7 @@ export function EventsListPage() {
             className={styles.primaryButton}
             onClick={() => navigate('/events/new')}
           >
+            <AddIcon size={16} />
             {t('events.list.create')}
           </button>
         </div>

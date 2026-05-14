@@ -12,14 +12,14 @@ export type PublishingControlsProps = {
   onVisibilityChange?: (value: PublishVisibility) => void
   publishOn?: string
   heading?: string
-  publishLabel: string
+  publishLabel?: string
   saveDraftLabel?: string
   deleteLabel?: string
   deleteConfirmTitle?: string
   deleteConfirmBody?: ReactNode
   deleteConfirmLabel?: string
-  onSaveDraft: () => void
-  onPublish: () => void
+  onSaveDraft?: () => void
+  onPublish?: () => void
   onDelete?: () => void
   isSubmitting?: boolean
   isDeleting?: boolean
@@ -142,38 +142,42 @@ export function PublishingControls({
 
         {extraSlot && <div className={styles.extras}>{extraSlot}</div>}
 
-        <div className={styles.divider} aria-hidden="true" />
+        {onPublish && (
+          <>
+            <div className={styles.divider} aria-hidden="true" />
 
-        <div className={styles.actionStack}>
-          <button
-            type="button"
-            className={`${styles.button} ${styles.primary}`}
-            disabled={isSubmitting}
-            onClick={onPublish}
-          >
-            {isSubmitting ? t('publishing.working') : publishLabel}
-          </button>
-          <button
-            type="button"
-            className={`${styles.button} ${styles.secondary}`}
-            disabled={isSubmitting}
-            onClick={onSaveDraft}
-          >
-            {resolvedSaveDraft}
-          </button>
+            <div className={styles.actionStack}>
+              <button
+                type="button"
+                className={`${styles.button} ${styles.primary}`}
+                disabled={isSubmitting}
+                onClick={onPublish}
+              >
+                {isSubmitting ? t('publishing.working') : publishLabel}
+              </button>
+              <button
+                type="button"
+                className={`${styles.button} ${styles.secondary}`}
+                disabled={isSubmitting}
+                onClick={onSaveDraft}
+              >
+                {resolvedSaveDraft}
+              </button>
 
-          {onDelete && (
-            <button
-              type="button"
-              className={styles.danger}
-              disabled={isDeleting || isSubmitting}
-              onClick={handleRequestDelete}
-            >
-              <TrashIcon />
-              {resolvedDelete}
-            </button>
-          )}
-        </div>
+              {onDelete && (
+                <button
+                  type="button"
+                  className={styles.danger}
+                  disabled={isDeleting || isSubmitting}
+                  onClick={handleRequestDelete}
+                >
+                  <TrashIcon />
+                  {resolvedDelete}
+                </button>
+              )}
+            </div>
+          </>
+        )}
       </aside>
 
       {onDelete && (
