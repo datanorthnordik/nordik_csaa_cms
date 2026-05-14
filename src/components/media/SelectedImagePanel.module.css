@@ -6,12 +6,11 @@
   flex-shrink: 0;
   padding: 20px;
   border: 1px solid var(--color-border);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--color-surface);
-  box-shadow: var(--shadow-card);
   align-self: flex-start;
   position: sticky;
-  top: 0;
+  top: 24px;
 }
 
 .header {
@@ -55,7 +54,7 @@
 .preview {
   width: 100%;
   aspect-ratio: 16 / 10;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--color-surface-alt);
 }
@@ -75,7 +74,7 @@
 .assetTitle {
   margin: 0;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--color-text);
 }
 
@@ -101,7 +100,7 @@
 
 .section {
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 14px;
   display: grid;
   gap: 10px;
@@ -114,7 +113,7 @@
   gap: 6px;
   margin: 0;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -122,7 +121,7 @@
 
 .inlineActionButton {
   border: 1px solid var(--color-border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 6px 12px;
   background: var(--color-surface-alt);
   color: var(--color-text);
@@ -133,7 +132,7 @@
 }
 
 .inlineActionButton:hover {
-  background: #e6e9ed;
+  background: var(--color-border);
 }
 
 .inlineActionButton:focus-visible {
@@ -175,7 +174,7 @@
 .metaLabel {
   margin: 0;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -201,7 +200,7 @@
 .metaTextarea {
   width: 100%;
   border: 1px solid var(--color-border-input);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 10px 12px;
   background: var(--color-surface);
   color: var(--color-text);
@@ -229,7 +228,7 @@
 
 .primaryActionButton,
 .secondaryActionButton {
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 10px 14px;
   font: inherit;
   font-size: 13px;
@@ -259,7 +258,7 @@
 }
 
 .secondaryActionButton:hover {
-  background: #e6e9ed;
+  background: var(--color-border);
 }
 
 .primaryActionButton:focus-visible,
@@ -300,7 +299,7 @@
   gap: 8px;
   flex: 1;
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 10px 12px;
   background: var(--color-surface-alt);
   color: var(--color-text);
@@ -316,7 +315,7 @@
 }
 
 .downloadButton:hover {
-  background: #e6e9ed;
+  background: var(--color-border);
   text-decoration: none;
 }
 
@@ -332,7 +331,7 @@
   width: 40px;
   height: 40px;
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--color-surface);
   color: var(--color-error-strong);
   cursor: pointer;

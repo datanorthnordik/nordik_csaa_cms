@@ -4,6 +4,7 @@ import { Trans, useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
+import { AddIcon } from '../components/icons'
 import { ConfirmDialog } from '../components/cms/ConfirmDialog'
 import { PaginationControls } from '../components/cms/PaginationControls'
 import {
@@ -166,6 +167,7 @@ export function PressListPage() {
             className={styles.primaryButton}
             onClick={() => navigate('/press/new')}
           >
+            <AddIcon size={16} />
             {t('press.list.create')}
           </button>
         </div>

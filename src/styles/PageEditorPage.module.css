@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  padding: 1.5rem;
 }
 
 .header {
@@ -14,15 +13,14 @@
 
 .title {
   margin: 0;
-  color: #231214;
-  font-size: 2rem;
+  color: var(--color-text);
+  font-size: 1.5rem;
   font-weight: 700;
 }
 
 .subtitle {
   margin: 0.4rem 0 0;
-  color: #76595c;
-  max-width: 48rem;
+  color: var(--color-text-muted);
 }
 
 .headerActions,
@@ -40,16 +38,14 @@
 .errorPanel,
 .errorSummary,
 .infoSummary {
-  border: 1px solid #efd6cf;
-  border-radius: 1rem;
-  background:
-    linear-gradient(180deg, rgba(255, 252, 250, 0.96), rgba(255, 247, 244, 0.96));
-  box-shadow: 0 18px 42px rgba(65, 24, 27, 0.06);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
 }
 
 .card,
 .actionsCard {
-  padding: 1.3rem;
+  padding: 1.5rem;
 }
 
 .cardHeader,
@@ -59,10 +55,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-}
-
-.cardHeader {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.25rem;
 }
 
 .cardHeaderBlock {
@@ -73,13 +66,14 @@
 .cardHeader h2,
 .cardHeaderBlock h2 {
   margin: 0;
-  color: #231214;
-  font-size: 1.15rem;
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .cardHeaderBlock p {
   margin: 0.35rem 0 0;
-  color: #7c6063;
+  color: var(--color-text-muted);
 }
 
 .statusSwitch {
@@ -90,22 +84,22 @@
 
 .statusLabel,
 .statusLabelActive {
-  color: #7c6063;
-  font-size: 0.92rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
   font-weight: 600;
 }
 
 .statusLabelActive {
-  color: #8f0b16;
+  color: var(--color-primary);
 }
 
 .switch {
   position: relative;
   width: 2.9rem;
   height: 1.6rem;
-  border: 1px solid #e5d1cb;
-  border-radius: 999px;
-  background: #e9e4e2;
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-alt);
   cursor: pointer;
 }
 
@@ -115,9 +109,9 @@
   left: 0.18rem;
   width: 1.1rem;
   height: 1.1rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: #ffffff;
-  box-shadow: 0 6px 12px rgba(49, 24, 27, 0.12);
+  box-shadow: var(--shadow-subtle);
   transition: transform 0.18s ease;
 }
 
@@ -144,12 +138,11 @@
 }
 
 .field span,
-.toggleRow span,
-.moduleToggle span {
-  color: #66494d;
-  font-size: 0.8rem;
+.toggleRow span {
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
@@ -157,50 +150,71 @@
 .field textarea,
 .field select {
   width: 100%;
-  padding: 0.85rem 1rem;
-  border: 1px solid #e6d5ce;
-  border-radius: 0.8rem;
-  background: #fff;
-  color: #241315;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
   font: inherit;
   resize: vertical;
+  transition: border-color 0.15s ease;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .field input::placeholder,
 .field textarea::placeholder {
-  color: #a2878a;
+  color: var(--color-text-placeholder);
 }
 
 .fieldHint {
   margin: 0;
-  color: #816467;
-  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
 }
 
 .slugField {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
-  border: 1px solid #e6d5ce;
-  border-radius: 0.8rem;
-  background: #fff;
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  transition: border-color 0.15s ease;
+}
+
+.slugField:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .slugField input {
   border: none;
-  border-radius: 0 0.8rem 0.8rem 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  box-shadow: none !important;
+}
+
+.slugField input:focus {
+  outline: none;
+  box-shadow: none !important;
 }
 
 .slugPrefix {
   padding-left: 1rem;
-  color: #8b6a6f;
-  font-weight: 700;
+  color: var(--color-text-muted);
+  font-weight: 600;
 }
 
 .heroSection {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid #f0ddd7;
+  border-top: 1px solid var(--color-border);
 }
 
 .toggleRow,
@@ -213,8 +227,8 @@
 
 .toggleRow p {
   margin: 0.35rem 0 0;
-  color: #816467;
-  font-size: 0.92rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
 }
 
 .heroPanel {
@@ -229,10 +243,10 @@
 .heroPreview {
   width: 100%;
   max-height: 320px;
-  border-radius: 1rem;
+  border-radius: var(--radius-md);
   object-fit: cover;
-  border: 1px solid #eed8d2;
-  background: #f8f1ee;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
 }
 
 .primaryButton,
@@ -247,58 +261,65 @@
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
+  padding: 0.65rem 1rem;
   border: 1px solid transparent;
+  border-radius: var(--radius-md);
   font: inherit;
-  transition:
-    background-color 0.18s ease,
-    border-color 0.18s ease,
-    color 0.18s ease,
-    box-shadow 0.18s ease,
-    transform 0.18s ease;
-}
-
-.primaryButton,
-.secondaryButton,
-.dangerButton {
-  padding: 0.8rem 1.05rem;
-  border-radius: 0.8rem;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .primaryButton {
-  background: linear-gradient(135deg, #8e0b16, #b1131f);
-  color: #fff7f4;
-  box-shadow: 0 14px 28px rgba(142, 11, 22, 0.22);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: var(--color-primary-hover);
 }
 
 .secondaryButton {
-  border-color: #ead8d3;
-  background: #fff8f5;
-  color: #5b3e42;
-  text-decoration: none;
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background: var(--color-surface-alt);
 }
 
 .dangerButton {
-  border-color: #efd4cf;
-  background: #fff0ee;
-  color: #a4161f;
+  border-color: var(--color-error-border);
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+}
+
+.dangerButton:hover:not(:disabled) {
+  background: #fecaca;
 }
 
 .fieldError {
-  color: #a4161f;
-  font-size: 0.88rem;
+  color: var(--color-error-strong);
+  font-size: 0.8rem;
 }
 
 .errorSummary {
-  padding: 1rem 1.2rem;
-  color: #8d0c16;
+  padding: 1rem 1.25rem;
+  color: var(--color-error-text);
+  border-color: var(--color-error-border);
+  background: var(--color-error-bg);
 }
 
 .infoSummary {
-  padding: 1rem 1.2rem;
-  border-color: #f0dfbc;
-  background: linear-gradient(180deg, rgba(255, 252, 245, 0.96), rgba(255, 247, 232, 0.96));
-  color: #7f5603;
+  padding: 1rem 1.25rem;
+  border-color: var(--color-scheduled-border);
+  background: var(--color-scheduled-bg);
+  color: var(--color-scheduled-text);
 }
 
 .errorSummaryTitle {
@@ -339,12 +360,12 @@
 
 .errorPanel h1 {
   margin: 0 0 0.5rem;
-  color: #241315;
+  color: var(--color-text);
 }
 
 .errorPanel p {
   margin: 0 0 1rem;
-  color: #76595c;
+  color: var(--color-text-muted);
 }
 
 .emptyState {
@@ -649,30 +670,9 @@
 
 .primaryButton:disabled,
 .secondaryButton:disabled,
-.dangerButton:disabled,
-.iconButton:disabled,
-.iconButtonDanger:disabled,
-.segmentedButton:disabled,
-.dragHandle:disabled {
-  opacity: 0.6;
+.dangerButton:disabled {
+  opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
-}
-
-.secondaryButton:hover:not(:disabled),
-.dangerButton:hover:not(:disabled),
-.iconButton:hover:not(:disabled),
-.iconButtonDanger:hover:not(:disabled),
-.segmentedButton:hover:not(:disabled),
-.dragHandle:hover:not(:disabled),
-.modulePickerItem:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-.primaryButton:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 18px 32px rgba(142, 11, 22, 0.24);
 }
 
 @media (max-width: 900px) {
@@ -695,10 +695,6 @@
 }
 
 @media (max-width: 720px) {
-  .page {
-    padding: 1rem;
-  }
-
   .headerActions,
   .heroActions,
   .actionRow,

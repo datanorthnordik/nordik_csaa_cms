@@ -6,6 +6,7 @@ import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
 import { PublishingControls } from '../components/cms/PublishingControls'
+import { EntryActions } from '../components/cms/EntryActions'
 import { StatusBadge } from '../components/cms/StatusBadge'
 import type {
   EventFormErrors,
@@ -1233,6 +1234,35 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                 )}
               </div>
             </section>
+
+            {!isViewMode && (
+              <EntryActions
+                entryType="event"
+                status={form.published ? 'published' : 'draft'}
+                publishLabel={
+                  form.published
+                    ? t('events.editor.saveChanges')
+                    : t('events.editor.publish')
+                }
+                deleteLabel={t('events.list.delete')}
+                onSaveDraft={() => void submitForm('draft')}
+                onPublish={() =>
+                  void submitForm(form.published ? 'save' : 'publish')
+                }
+                onDelete={isEditMode ? () => void handleDeleteEvent() : undefined}
+                deleteConfirmTitle={t('events.list.deleteDialogTitle')}
+                deleteConfirmBody={
+                  <Trans
+                    i18nKey="events.list.deleteDialogDescription"
+                    values={{ title: form.title || t('events.editor.titleCreate') }}
+                    components={{ eventName: <strong /> }}
+                  />
+                }
+                deleteConfirmLabel={t('events.list.delete')}
+                isSubmitting={isBusy}
+                isDeleting={isDeletingEvent}
+              />
+            )}
           </div>
 
           <aside className={styles.sideColumn}>
@@ -1258,27 +1288,6 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                 status={form.published ? 'published' : 'draft'}
                 visibility={form.privacyType}
                 onVisibilityChange={(value) => updateField('privacyType', value)}
-                publishLabel={
-                  form.published
-                    ? t('events.editor.saveChanges')
-                    : t('events.editor.publish')
-                }
-                onSaveDraft={() => void submitForm('draft')}
-                onPublish={() =>
-                  void submitForm(form.published ? 'save' : 'publish')
-                }
-                onDelete={isEditMode ? () => void handleDeleteEvent() : undefined}
-                deleteConfirmTitle={t('events.list.deleteDialogTitle')}
-                deleteConfirmBody={
-                  <Trans
-                    i18nKey="events.list.deleteDialogDescription"
-                    values={{ title: form.title || t('events.editor.titleCreate') }}
-                    components={{ eventName: <strong /> }}
-                  />
-                }
-                deleteConfirmLabel={t('events.list.delete')}
-                isSubmitting={isBusy}
-                isDeleting={isDeletingEvent}
                 extraSlot={
                   <>
                     {form.privacyType === 'private' && (
@@ -1327,9 +1336,10 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                         </label>
 
                         {form.requestReview && (
-                          <label>
+                          <label className={styles.reviewEmailsLabel}>
                             <span>{t('events.fields.reviewEmails')}</span>
                             <textarea
+                              className={styles.reviewEmailsTextarea}
                               rows={3}
                               value={form.reviewEmailsText}
                               placeholder={t(

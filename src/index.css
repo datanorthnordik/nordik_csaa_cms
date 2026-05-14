@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
 :root {
   /* Surfaces */
   --color-bg: #f4f4f6;
@@ -19,7 +21,7 @@
   --color-primary-hover: #65191d;
   --color-primary-tint: rgba(122, 31, 36, 0.06);
   --color-primary-tint-strong: rgba(122, 31, 36, 0.08);
-  --color-focus-ring: rgba(122, 31, 36, 0.12);
+  --color-focus-ring: rgba(122, 31, 36, 0.18);
   --color-on-primary: #ffffff;
 
   /* Status — error */
@@ -34,15 +36,33 @@
   --color-success-text: #065f46;
   --color-success-border: #a7f3d0;
 
+  /* Status — draft / scheduled */
+  --color-draft-bg: #f1f3f5;
+  --color-draft-text: #4b5563;
+  --color-draft-border: #d1d5db;
+  --color-scheduled-bg: #fef3c7;
+  --color-scheduled-text: #92400e;
+  --color-scheduled-border: #fcd34d;
+
   /* Overlays & shadows */
   --color-overlay: rgba(0, 0, 0, 0.4);
   --color-overlay-soft: rgba(0, 0, 0, 0.05);
-  --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 6px 10px -2px rgba(0, 0, 0, 0.04);
-  --shadow-drawer: 0 10px 25px -5px rgba(0, 0, 0, 0.15);
+  /* Flat design: prefer borders over shadows. Use shadow-subtle only for modals/drawers */
+  --shadow-subtle: 0 1px 4px rgba(0, 0, 0, 0.06);
+  --shadow-modal: 0 4px 24px rgba(0, 0, 0, 0.10);
+  --shadow-drawer: 2px 0 12px rgba(0, 0, 0, 0.08);
+  /* Keep for backwards compat but prefer border-only cards */
+  --shadow-card: none;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
+  /* Border-radius scale */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
 
-  font: 16px/1.45 var(--sans);
+  --sans: 'Poppins', sans-serif;
+
+  font: 16px/1.5 var(--sans);
   color: var(--color-text);
   background: var(--color-bg);
   font-synthesis: none;

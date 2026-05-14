@@ -1,16 +1,13 @@
 .panel {
   border: 1px solid var(--color-border);
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at top right, rgba(122, 31, 36, 0.06), transparent 30%),
-    var(--color-surface);
-  box-shadow: var(--shadow-card);
-  padding: 18px 20px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  padding: 16px 18px;
 }
 
 .compact {
-  padding: 14px 16px;
-  border-radius: 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
 }
 
 .row {
@@ -43,16 +40,18 @@
 .searchInput {
   width: 100%;
   border: 1px solid var(--color-border-input);
-  border-radius: 12px;
-  padding: 12px 14px 12px 40px;
+  border-radius: var(--radius-md);
+  padding: 10px 12px 10px 38px;
   background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
+  transition: border-color 0.15s ease;
 }
 
 .searchInput:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .field {
@@ -76,17 +75,19 @@
 .field select {
   width: 100%;
   border: 1px solid var(--color-border-input);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 10px 12px;
   background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
+  transition: border-color 0.15s ease;
 }
 
 .field input:focus,
 .field select:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .pillsField {
@@ -152,7 +153,6 @@
 
 .primary:hover:not(:disabled) {
   background: var(--color-primary-hover);
-  transform: translateY(-1px);
 }
 
 .secondary {
@@ -162,5 +162,5 @@
 }
 
 .secondary:hover:not(:disabled) {
-  background: #e6e9ed;
+  background: var(--color-surface-alt);
 }
