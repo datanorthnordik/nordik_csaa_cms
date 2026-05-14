@@ -390,6 +390,7 @@
   border-radius: 1rem;
   background: #fffdfa;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  overflow: hidden;
 }
 
 .moduleCardDragging {
@@ -487,6 +488,8 @@
 
 .moduleBody {
   padding: 1rem;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .segmentedControl {
@@ -581,28 +584,20 @@
   font-size: 0.9rem;
 }
 
-.emptyDocumentState {
-  padding: 1rem 1.1rem;
-  border: 1px dashed #e1c8c0;
-  border-radius: 0.95rem;
-  background: #fffdfa;
+.documentSection {
+  min-width: 0;
+  overflow: hidden;
 }
 
-.emptyDocumentTitle {
-  margin: 0;
-  color: #2d1719;
-  font-weight: 700;
-}
-
-.emptyDocumentText {
-  margin: 0.35rem 0 0;
-  color: #7a5d61;
+.documentDropzone {
+  min-width: 0;
 }
 
 .documentList {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+  min-width: 0;
 }
 
 .documentItem {
@@ -610,6 +605,8 @@
   border: 1px solid #efddd7;
   border-radius: 0.95rem;
   background: linear-gradient(180deg, #fffdfc, #fff8f5);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .documentHeader {
@@ -618,6 +615,16 @@
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 0.9rem;
+}
+
+.documentHeaderContent {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.documentActionRow {
+  max-width: 100%;
+  justify-content: flex-end;
 }
 
 .documentLabel {
@@ -633,18 +640,21 @@
   margin: 0.3rem 0 0;
   color: #291517;
   font-size: 1rem;
+  overflow-wrap: anywhere;
 }
 
 .documentMeta {
   margin: 0.35rem 0 0;
   color: #7a5d61;
   font-size: 0.92rem;
+  overflow-wrap: anywhere;
 }
 
 .documentFooter {
   margin-top: 0.9rem;
   display: flex;
   justify-content: flex-start;
+  min-width: 0;
 }
 
 .primaryButton:disabled,

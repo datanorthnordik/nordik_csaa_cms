@@ -666,7 +666,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
     switch (section.sectionType) {
       case 'header':
         return (
-          <div className={styles.fieldStack}>
+          <div className={[styles.fieldStack, styles.documentSection].join(' ')}>
             <div className={styles.fieldGrid}>
               <label className={styles.field}>
                 <span>{t('pages.modules.fields.sectionName')}</span>
@@ -976,6 +976,8 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
             <UploadDropzone
               multiple
               accept={DOCUMENT_UPLOAD_ACCEPT}
+              variant="compact"
+              className={styles.documentDropzone}
               disabled={isReadOnlyMode || isBusy}
               icon={<CloudUploadIcon size={20} />}
               label={t('pages.modules.document.dropLabel')}
@@ -983,16 +985,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
               onFiles={(files) => handleDocumentFiles(section.clientId, files)}
             />
 
-            {section.documents.items.length === 0 ? (
-              <div className={styles.emptyDocumentState}>
-                <p className={styles.emptyDocumentTitle}>
-                  {t('pages.modules.document.emptyTitle')}
-                </p>
-                <p className={styles.emptyDocumentText}>
-                  {t('pages.modules.document.emptyText')}
-                </p>
-              </div>
-            ) : (
+            {section.documents.items.length > 0 && (
               <div className={styles.documentList}>
                 {section.documents.items.map((document, documentIndex) => {
                   const existingFileName =
@@ -1004,7 +997,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                   return (
                     <article key={document.clientId} className={styles.documentItem}>
                       <div className={styles.documentHeader}>
-                        <div>
+                        <div className={styles.documentHeaderContent}>
                           <p className={styles.documentLabel}>
                             {t('pages.modules.document.itemLabel', {
                               index: documentIndex + 1,
@@ -1019,7 +1012,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                                   name: document.file.name,
                                 })
                               : existingFileName}
-                            {activeFileSize ? ` • ${formatFileSize(activeFileSize)}` : ''}
+                            {activeFileSize ? ` - ${formatFileSize(activeFileSize)}` : ''}
                           </p>
                         </div>
 
