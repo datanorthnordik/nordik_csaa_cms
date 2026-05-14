@@ -22,24 +22,24 @@
 
 .title {
   margin: 0;
-  font-size: clamp(2rem, 4vw, 2.8rem);
-  line-height: 1.05;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-text);
 }
 
 .subtitle {
-  margin: 10px 0 0;
+  margin: 6px 0 0;
   color: var(--color-text-muted);
-  max-width: 52ch;
+  font-size: 0.875rem;
+  max-width: 60ch;
 }
 
 .filterPanel,
 .resultsPanel {
   border: 1px solid var(--color-border);
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at top right, rgba(122, 31, 36, 0.06), transparent 30%),
-    var(--color-surface);
-  box-shadow: var(--shadow-card);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
 }
 
 .filterPanel {
@@ -74,18 +74,20 @@
 .pageSizeField select {
   width: 100%;
   border: 1px solid var(--color-border-input);
-  border-radius: 12px;
-  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
   background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
+  transition: border-color 0.15s ease;
 }
 
 .field input:focus,
 .field select:focus,
 .pageSizeField select:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .statusRow {
@@ -124,13 +126,17 @@
 .primaryButton,
 .secondaryButton,
 .linkButton {
-  border: none;
-  border-radius: 12px;
-  padding: 12px 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 0.65rem 1rem;
   font: inherit;
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .primaryButton {
@@ -138,19 +144,23 @@
   color: var(--color-on-primary);
 }
 
-.primaryButton:hover {
+.primaryButton:hover:not(:disabled) {
   background: var(--color-primary-hover);
-  transform: translateY(-1px);
+}
+
+.primaryButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .secondaryButton {
-  background: var(--color-surface-alt);
+  background: var(--color-surface);
   color: var(--color-text);
-  border: 1px solid var(--color-border);
+  border-color: var(--color-border);
 }
 
 .secondaryButton:hover:not(:disabled) {
-  background: #e6e9ed;
+  background: var(--color-surface-alt);
 }
 
 .secondaryButton:disabled {
@@ -159,20 +169,23 @@
 }
 
 .dangerButton {
-  border: none;
-  border-radius: 12px;
-  padding: 12px 18px;
-  background: var(--color-error-strong);
-  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 1rem;
+  background: var(--color-error-bg);
+  color: var(--color-error-strong);
   font: inherit;
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition: background 0.15s ease;
 }
 
 .dangerButton:hover:not(:disabled) {
-  background: #b42018;
-  transform: translateY(-1px);
+  background: #fecaca;
 }
 
 .dangerButton:disabled {
@@ -259,9 +272,9 @@
 }
 
 .badgeDraft {
-  background: #edf2ff;
-  color: #2744b7;
-  border: 1px solid #c6d2ff;
+  background: var(--color-draft-bg);
+  color: var(--color-draft-text);
+  border: 1px solid var(--color-draft-border);
 }
 
 .linkButton {
@@ -280,28 +293,28 @@
 }
 
 .actionMenuTrigger {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   background: var(--color-surface);
-  color: var(--color-text);
+  color: var(--color-text-muted);
   cursor: pointer;
-  transition:
-    transform 0.15s ease,
-    background 0.15s ease,
-    border-color 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .actionMenuTrigger:hover:not(:disabled) {
   background: var(--color-surface-alt);
-  border-color: rgba(122, 31, 36, 0.22);
-  transform: translateY(-1px);
+  border-color: var(--color-border-input);
 }
 
 .actionMenuTrigger:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .actionMenuTrigger:disabled {
@@ -312,9 +325,9 @@
 .actionMenuPaper {
   min-width: 180px;
   border: 1px solid var(--color-border);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--color-surface);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-modal);
 }
 
 .actionMenuList {
@@ -324,11 +337,12 @@
 }
 
 .actionMenuItem {
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 10px 12px;
   color: var(--color-text);
   font: inherit;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .actionMenuItem:hover,
@@ -343,17 +357,15 @@
 .confirmDialogPaper {
   width: min(520px, calc(100vw - 32px));
   border: 1px solid var(--color-border);
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at top right, rgba(122, 31, 36, 0.06), transparent 30%),
-    var(--color-surface);
-  box-shadow: var(--shadow-card);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-modal);
 }
 
 .confirmDialogTitle {
   padding: 22px 24px 0;
-  font-size: 1.35rem;
-  font-weight: 800;
+  font-size: 1.15rem;
+  font-weight: 700;
   color: var(--color-text);
 }
 
@@ -385,7 +397,7 @@
 
 .card {
   border: 1px solid var(--color-border);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   padding: 18px;
   background: var(--color-surface);
 }
@@ -413,8 +425,8 @@
   padding: 36px 20px;
   text-align: center;
   border: 1px dashed var(--color-border);
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(122, 31, 36, 0.04), transparent);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
 }
 
 .emptyTitle {

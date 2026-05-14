@@ -13,41 +13,42 @@
 
 .title {
   margin: 0;
-  font-size: clamp(1.6rem, 3.2vw, 2.2rem);
-  line-height: 1.15;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
   color: var(--color-text);
 }
 
 .subtitle {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   color: var(--color-text-muted);
   max-width: 60ch;
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 
 .primaryButton {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  border: none;
-  border-radius: 12px;
-  padding: 12px 18px;
+  gap: 6px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 0.65rem 1rem;
   background: var(--color-primary);
   color: var(--color-on-primary);
   font: inherit;
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition: background 0.15s ease;
 }
 
-.primaryButton:hover {
+.primaryButton:hover:not(:disabled) {
   background: var(--color-primary-hover);
-  transform: translateY(-1px);
 }
 
 .primaryButton:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .searchRow {
@@ -68,11 +69,12 @@
 .searchInput {
   width: 100%;
   border: 1px solid var(--color-border-input);
-  border-radius: 12px;
-  padding: 12px 14px 12px 42px;
+  border-radius: var(--radius-md);
+  padding: 10px 12px 10px 40px;
   background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
+  transition: border-color 0.15s ease;
 }
 
 .searchInput::placeholder {
@@ -80,8 +82,9 @@
 }
 
 .searchInput:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .grid {
@@ -94,8 +97,8 @@
   padding: 48px 24px;
   text-align: center;
   border: 1px dashed var(--color-border);
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(122, 31, 36, 0.04), transparent);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
 }
 
 .emptyTitle {

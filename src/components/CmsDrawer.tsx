@@ -80,11 +80,9 @@ export function CmsDrawer({
           </div>
         )}
 
-        <div className={styles.navWrapper}>
-          <nav className={styles.nav}>
-            {navItems.map(renderNavItem)}
-          </nav>
-        </div>
+        <nav className={styles.nav}>
+          {navItems.map(renderNavItem)}
+        </nav>
 
         <div className={styles.footer}>
           {onSubmitTicket && (

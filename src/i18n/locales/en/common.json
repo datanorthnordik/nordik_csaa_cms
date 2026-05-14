@@ -669,8 +669,6 @@
     "publishOnLabel": "Publish on",
     "immediately": "Immediately",
     "working": "Working...",
-    "publish": "Publish",
-    "saveChanges": "Save changes",
     "saveDraft": "Save Draft",
     "delete": "Move to Trash",
     "status": {
@@ -724,7 +722,7 @@
     "list": {
       "title": "Press Entries",
       "subtitle": "Manage and organize official media releases.",
-      "create": "+ Create New Press Entry",
+      "create": "Create New Press Entry",
       "columns": {
         "title": "Release Title",
         "publishDate": "Publish Date",
@@ -800,8 +798,7 @@
       },
       "actions": {
         "publish": "Publish Press Entry",
-        "saveDraft": "Save Draft",
-        "delete": "Delete Press Entry"
+        "saveDraft": "Save Draft"
       },
       "meta": {
         "created": "Created",

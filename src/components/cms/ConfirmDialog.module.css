@@ -1,11 +1,9 @@
 .paper {
   width: min(520px, calc(100vw - 32px));
   border: 1px solid var(--color-border);
-  border-radius: 24px;
-  background:
-    radial-gradient(circle at top right, rgba(122, 31, 36, 0.06), transparent 30%),
-    var(--color-surface);
-  box-shadow: var(--shadow-card);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-modal);
 }
 
 .title {
@@ -32,13 +30,14 @@
 }
 
 .button {
-  border: none;
-  border-radius: 12px;
-  padding: 12px 18px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
   font: inherit;
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 
 .cancel {
@@ -48,7 +47,7 @@
 }
 
 .cancel:hover:not(:disabled) {
-  background: #e6e9ed;
+  background: var(--color-surface-alt);
 }
 
 .confirm {
@@ -58,7 +57,6 @@
 
 .confirm:hover:not(:disabled) {
   background: var(--color-primary-hover);
-  transform: translateY(-1px);
 }
 
 .destructive {
@@ -67,8 +65,7 @@
 }
 
 .destructive:hover:not(:disabled) {
-  background: #b42018;
-  transform: translateY(-1px);
+  background: var(--color-error);
 }
 
 .button:disabled {
