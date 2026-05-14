@@ -666,9 +666,9 @@
     "publishOnLabel": "Publier le",
     "immediately": "Immediatement",
     "working": "Traitement...",
-    "publish": "Publier",
-    "saveChanges": "Enregistrer les modifications",
     "saveDraft": "Enregistrer le brouillon",
+    "saveChanges": "Enregistrer les modifications",
+    "publish": "Publier",
     "delete": "Mettre a la corbeille",
     "status": {
       "published": "Publie",
@@ -721,7 +721,7 @@
     "list": {
       "title": "Entrees de presse",
       "subtitle": "Gerez et organisez les communiques de presse officiels.",
-      "create": "+ Creer une entree",
+      "create": "Creer une entree",
       "columns": {
         "title": "Titre",
         "publishDate": "Date de publication",
@@ -798,7 +798,7 @@
       "actions": {
         "publish": "Publier l entree",
         "saveDraft": "Enregistrer le brouillon",
-        "delete": "Supprimer l entree de presse"
+        "delete": "Supprimer l entree"
       },
       "meta": {
         "created": "Cree le",

@@ -2,23 +2,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   line-height: 1;
   white-space: nowrap;
 }
 
 .sizeSm {
-  padding: 4px 8px;
-  font-size: 11px;
+  padding: 3px 8px;
+  font-size: 10px;
 }
 
 .sizeLg {
-  padding: 8px 12px;
-  font-size: 13px;
+  padding: 7px 12px;
+  font-size: 12px;
 }
 
 .published {
@@ -28,13 +29,13 @@
 }
 
 .draft {
-  background: #edf2ff;
-  color: #2744b7;
-  border: 1px solid #c6d2ff;
+  background: var(--color-draft-bg);
+  color: var(--color-draft-text);
+  border: 1px solid var(--color-draft-border);
 }
 
 .scheduled {
-  background: #fff4e0;
-  color: #8a4b00;
-  border: 1px solid #ffd9a3;
+  background: var(--color-scheduled-bg);
+  color: var(--color-scheduled-text);
+  border: 1px solid var(--color-scheduled-border);
 }

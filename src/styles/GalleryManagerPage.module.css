@@ -30,8 +30,8 @@
 
 .titleRow {
   margin: 0;
-  font-size: clamp(1.4rem, 3vw, 2rem);
-  font-weight: 800;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: var(--color-text);
   line-height: 1.2;
 }
@@ -100,12 +100,11 @@
 
 .coverCard {
   border: 1px solid var(--color-border);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--color-surface);
   padding: 20px;
   display: grid;
   gap: 14px;
-  box-shadow: var(--shadow-card);
 }
 
 .coverCardHeader {
@@ -116,7 +115,7 @@
 .coverCardTitle {
   margin: 0;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--color-text);
 }
 
@@ -144,8 +143,10 @@
   width: 100%;
   aspect-ratio: 16 / 10;
   object-fit: cover;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--color-surface-alt);
+  display: block;
+  max-width: 100%;
 }
 
 .coverActions {
@@ -156,10 +157,10 @@
 .coverReplaceButton,
 .coverRemoveButton {
   flex: 1;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 10px 14px;
   font: inherit;
-  font-weight: 700;
+  font-weight: 600;
   font-size: 13px;
   cursor: pointer;
   transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
@@ -178,8 +179,8 @@
 }
 
 .coverReplaceButton:focus-within {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .coverRemoveButton {
@@ -238,12 +239,11 @@
 
 .uploadSection {
   border: 1px solid var(--color-border);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--color-surface);
   padding: 20px;
   display: grid;
   gap: 14px;
-  box-shadow: var(--shadow-card);
 }
 
 .uploadHeader {
@@ -254,7 +254,7 @@
 .uploadTitle {
   margin: 0;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 700;
   color: var(--color-text);
 }
 
@@ -289,7 +289,7 @@
   align-items: flex-start;
   padding: 12px;
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--color-surface);
 }
 
@@ -339,8 +339,9 @@
 
 .pendingTextInput:focus,
 .pendingAltInput:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .pendingRemove {
@@ -364,8 +365,8 @@
 }
 
 .pendingRemove:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
 }
 
 .limitWarning {
@@ -398,12 +399,11 @@
 
 .actionsCard {
   border: 1px solid var(--color-border);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--color-surface);
   padding: 20px;
   display: flex;
   justify-content: flex-end;
-  box-shadow: var(--shadow-card);
 }
 
 .actionStack {
@@ -419,19 +419,19 @@
 
 .primaryButton {
   border: none;
-  border-radius: 12px;
-  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  padding: 0.65rem 1rem;
   background: var(--color-primary);
   color: var(--color-on-primary);
   font: inherit;
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition: background 0.15s ease;
 }
 
 .primaryButton:hover:not(:disabled) {
   background: var(--color-primary-hover);
-  transform: translateY(-1px);
 }
 
 .primaryButton:disabled {
@@ -441,25 +441,26 @@
 
 .secondaryButton {
   border: 1px solid var(--color-border);
-  border-radius: 12px;
-  padding: 10px 16px;
-  background: var(--color-surface-alt);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 1rem;
+  background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 600;
   cursor: pointer;
 }
 
 .secondaryButton:hover {
-  background: #e6e9ed;
+  background: var(--color-surface-alt);
 }
 
 .emptyState {
   padding: 48px 24px;
   text-align: center;
   border: 1px dashed var(--color-border);
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(122, 31, 36, 0.04), transparent);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
   display: grid;
   gap: 12px;
   justify-items: center;
