@@ -715,6 +715,108 @@
     "linkPrompt": "Enter URL (leave blank to remove link)",
     "imagePrompt": "Enter image URL"
   },
+  "newsletters": {
+    "breadcrumb": {
+      "entries": "Newsletters",
+      "create": "Create New Newsletter",
+      "edit": "Edit Newsletter"
+    },
+    "list": {
+      "title": "Newsletters",
+      "subtitle": "Manage and distribute community newsletters and email campaigns.",
+      "create": "Create New Newsletter",
+      "columns": {
+        "title": "Newsletter Title",
+        "sendDate": "Send Date",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "modifiedOn": "Updated {{date}}",
+      "untitled": "Untitled newsletter",
+      "resultsLabel": "Showing {{start}} to {{end}} of {{total}} newsletters",
+      "previous": "Previous page",
+      "next": "Next page",
+      "edit": "Edit newsletter",
+      "delete": "Delete",
+      "cancelDelete": "Cancel",
+      "deleteDialogTitle": "Delete newsletter?",
+      "deleteDialogDescription": "This will permanently delete <entryName>\"{{title}}\"</entryName>. This action cannot be undone.",
+      "emptyTitle": "No newsletters found",
+      "emptyText": "Adjust your filters, or create a new newsletter to get started."
+    },
+    "filters": {
+      "search": "Search newsletters",
+      "searchPlaceholder": "Search by title...",
+      "status": "Status",
+      "sortBy": "Sort by"
+    },
+    "statusFilter": {
+      "all": "All Status",
+      "published": "Published",
+      "draft": "Draft",
+      "scheduled": "Scheduled"
+    },
+    "sortBy": {
+      "sendDate": "Send Date",
+      "title": "Title",
+      "updatedAt": "Last Modified"
+    },
+    "feedback": {
+      "deleted": "Newsletter deleted",
+      "saved": "Newsletter saved",
+      "published": "Newsletter published"
+    },
+    "editor": {
+      "loading": "Loading...",
+      "titleCreate": "Create New Newsletter",
+      "titleEdit": "Edit Newsletter",
+      "subtitle": "Compose, schedule, and publish newsletter editions.",
+      "backToList": "← Back to newsletters",
+      "notFoundTitle": "Newsletter not found",
+      "notFoundText": "This newsletter may have been deleted or never existed.",
+      "deleteConfirmBody": "This will permanently delete \"{{title}}\". This action cannot be undone.",
+      "sections": {
+        "details": "Newsletter Details",
+        "content": "Content Editor",
+        "attachments": "Attachments",
+        "attachmentsLimit": "Max 20MB / file"
+      },
+      "fields": {
+        "title": "Newsletter title",
+        "titlePlaceholder": "Enter a clear, descriptive title...",
+        "category": "Category",
+        "categoryPlaceholder": "CSAA or CST newsletter",
+        "categoryCsaa": "CSAA Newsletter",
+        "categoryCst": "CST Newsletter",
+        "sendDate": "Send date",
+        "contentPlaceholder": "Write your newsletter content here..."
+      },
+      "media": {
+        "dropLabel": "Drag and drop files here",
+        "dropHint": "or click to browse from your device",
+        "remove": "Remove file"
+      },
+      "actions": {
+        "publish": "Publish Newsletter",
+        "saveDraft": "Save Draft",
+        "delete": "Delete Newsletter"
+      },
+      "meta": {
+        "created": "Created",
+        "updated": "Last updated"
+      },
+      "proTip": {
+        "title": "Writing Tips",
+        "body": "Keep your subject line under 50 characters for best open rates. Lead with the most important story and include a clear call-to-action in the first paragraph.",
+        "cta": "View Newsletter Guide →"
+      },
+      "validation": {
+        "summary": "Please correct the highlighted fields.",
+        "titleRequired": "Title is required.",
+        "sendDateRequired": "Send date is required."
+      }
+    }
+  },
   "press": {
     "breadcrumb": {
       "entries": "Press Entries",

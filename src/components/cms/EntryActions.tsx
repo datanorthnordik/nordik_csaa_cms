@@ -4,7 +4,7 @@ import { ConfirmDialog } from './ConfirmDialog'
 import type { PublishStatus } from './StatusBadge'
 import styles from './EntryActions.module.css'
 
-export type EntryType = 'event' | 'press'
+export type EntryType = 'event' | 'press' | 'newsletter'
 
 export type EntryActionsProps = {
   status: PublishStatus
