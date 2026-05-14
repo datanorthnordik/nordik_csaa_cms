@@ -25,7 +25,8 @@ describe('PublishingControls', () => {
 
   it('renders "Draft" status badge for draft entries', () => {
     renderControls({ status: 'draft' })
-    expect(screen.getByText(/draft/i)).toBeDefined()
+    // Use exact match to distinguish the "Draft" badge from the "Save Draft" button
+    expect(screen.getByText('Draft')).toBeDefined()
   })
 
   it('does not render a visibility row when visibility prop is omitted', () => {
@@ -72,10 +73,40 @@ describe('PublishingControls', () => {
     expect(screen.getByText('Extra content')).toBeDefined()
   })
 
-  it('does not render action buttons (Publish, Save Draft, Delete)', () => {
+  it('does not render action buttons when no action handlers are provided', () => {
     renderControls()
     expect(screen.queryByRole('button', { name: /publish/i })).toBeNull()
     expect(screen.queryByRole('button', { name: /save draft/i })).toBeNull()
     expect(screen.queryByRole('button', { name: /delete/i })).toBeNull()
+  })
+
+  it('renders Publish and Save Draft buttons when onPublish and onSaveDraft are provided', () => {
+    renderControls({
+      publishLabel: 'Publish Now',
+      onPublish: vi.fn(),
+      onSaveDraft: vi.fn(),
+    })
+    expect(screen.getByRole('button', { name: /publish now/i })).toBeDefined()
+    expect(screen.getByRole('button', { name: /save draft/i })).toBeDefined()
+  })
+
+  it('does not render Delete button when onDelete is not provided', () => {
+    renderControls({
+      publishLabel: 'Publish',
+      onPublish: vi.fn(),
+      onSaveDraft: vi.fn(),
+    })
+    expect(screen.queryByRole('button', { name: /delete/i })).toBeNull()
+  })
+
+  it('renders Delete button when onDelete is provided', () => {
+    renderControls({
+      publishLabel: 'Publish',
+      onPublish: vi.fn(),
+      onSaveDraft: vi.fn(),
+      onDelete: vi.fn(),
+    })
+    // default delete label is "Move to Trash" from publishing.delete translation
+    expect(screen.getByRole('button', { name: /move to trash/i })).toBeDefined()
   })
 })

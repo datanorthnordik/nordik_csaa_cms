@@ -72,13 +72,13 @@ describe('PressEditorPage', () => {
     ).toBeDefined()
   })
 
-  it('renders Publish and Save Draft action buttons', async () => {
+  it('renders Publish and Save Draft action buttons via EntryActions', async () => {
     renderPage()
     expect(await screen.findByRole('button', { name: /publish press entry/i })).toBeDefined()
     expect(screen.getByRole('button', { name: /save draft/i })).toBeDefined()
   })
 
-  it('shows "Delete Press Entry" delete button in edit mode', async () => {
+  it('shows "Delete Press Entry" button in edit mode', async () => {
     renderPage('/press/press-edit-1/edit')
     expect(
       await screen.findByRole('button', { name: /delete press entry/i }),
@@ -91,7 +91,7 @@ describe('PressEditorPage', () => {
     expect(screen.queryByRole('button', { name: /delete/i })).toBeNull()
   })
 
-  it('does not render Publish/Save Draft inside the sidebar PublishingControls', async () => {
+  it('does not render action buttons inside the sidebar PublishingControls', async () => {
     renderPage()
     await screen.findByRole('button', { name: /publish/i })
     const sidebar = screen.getByRole('complementary', { name: /publishing/i })

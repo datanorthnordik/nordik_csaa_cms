@@ -670,6 +670,8 @@
     "immediately": "Immediately",
     "working": "Working...",
     "saveDraft": "Save Draft",
+    "saveChanges": "Save changes",
+    "publish": "Publish",
     "delete": "Move to Trash",
     "status": {
       "published": "Published",
@@ -798,7 +800,8 @@
       },
       "actions": {
         "publish": "Publish Press Entry",
-        "saveDraft": "Save Draft"
+        "saveDraft": "Save Draft",
+        "delete": "Delete Press Entry"
       },
       "meta": {
         "created": "Created",
