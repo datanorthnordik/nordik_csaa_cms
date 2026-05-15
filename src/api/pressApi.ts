@@ -1,15 +1,13 @@
-import { rawPressReleases } from '../data/pressReleasesData'
 import { API_ROUTES } from '../constants/api'
+import type { PressEntry, PressMedia, PressStatus, PressVisibility } from '../lib/pressTypes'
+import { buildMultipartPayload } from './multipartForm'
 import { apiClient } from './apiClient'
-import type { PressEntry, PressStatus, PressVisibility } from '../lib/pressTypes'
-
-// ── Types ─────────────────────────────────────────────────────────────────────
 
 export type PressApiEntry = {
-  id: string
+  id: number
   title: string
   release_date: string
-  category_id: string | null
+  category_id: number | null
   source_url: string
   content_html: string
   status: PressStatus
@@ -20,23 +18,118 @@ export type PressApiEntry = {
   updated_at: string
 }
 
-export type PressApiCreateInput = Omit<PressApiEntry, 'id' | 'created_at' | 'updated_at'>
+export type PressApiMedia = {
+  id: number
+  display_name: string
+  file_name: string
+  gcp_object_key?: string
+  file_url: string
+  mime_type: string
+  file_size: number
+  media_role: 'attachment' | 'cover_image'
+  sort_order: number
+  created_at: string
+  updated_at: string
+}
+
+export type PressApiDetailEntry = PressApiEntry & {
+  media: PressApiMedia[]
+}
 
 export type PressApiListResponse = {
   items: PressApiEntry[]
   total: number
   page: number
   page_size: number
+  total_pages: number
 }
 
-// ── Converters ────────────────────────────────────────────────────────────────
+export type PressApiCreateInput = {
+  title: string
+  release_date: string
+  category_id: number | null
+  source_url: string
+  content_html: string
+  status: PressStatus
+  visibility: PressVisibility
+  publish_at: string | null
+  remove_cover_image?: boolean
+}
+
+export type PressMutationResponse = {
+  message: string
+  entry: {
+    id: number
+    title: string
+    release_date: string
+    status: PressStatus
+    visibility: PressVisibility
+  }
+}
+
+export type PressMediaUploadInput = {
+  display_name: string
+  file_name?: string
+}
+
+export type AddPressMediaResponse = {
+  message: string
+  uploadedCount: number
+}
+
+export type UpdatePressMediaInput = {
+  display_name?: string
+  file_name?: string
+}
+
+export type UpdatePressMediaResponse = {
+  message: string
+  media: PressApiMedia
+}
+
+export type DeletePressMediaRequest = {
+  media_ids: number[]
+}
+
+export type DeletePressMediaResponse = {
+  message: string
+  deletedCount: number
+}
+
+export type ReorderPressMediaRequest = {
+  media_ids: number[]
+}
+
+export type ReorderPressMediaResponse = {
+  message: string
+  updatedCount: number
+}
+
+function parseCategoryId(categoryId: PressEntry['categoryId']) {
+  if (!categoryId) {
+    return null
+  }
+
+  const parsed = Number.parseInt(categoryId, 10)
+  return Number.isNaN(parsed) ? null : parsed
+}
+
+export function pressApiMediaToLocal(media: PressApiMedia): PressMedia {
+  return {
+    id: String(media.id),
+    fileName: media.file_name || media.display_name || `press-media-${media.id}`,
+    fileUrl: media.file_url,
+    mimeType: media.mime_type,
+    fileSize: media.file_size,
+  }
+}
 
 export function pressApiEntryToLocal(entry: PressApiEntry): PressEntry {
   return {
-    id: entry.id,
+    id: String(entry.id),
     title: entry.title,
     releaseDate: entry.release_date,
-    categoryId: entry.category_id,
+    categoryId: entry.category_id != null ? String(entry.category_id) : null,
     sourceUrl: entry.source_url,
     contentHtml: entry.content_html,
     status: entry.status,
@@ -49,21 +142,25 @@ export function pressApiEntryToLocal(entry: PressApiEntry): PressEntry {
   }
 }
 
+export function pressApiDetailToLocal(entry: PressApiDetailEntry): PressEntry {
+  return {
+    ...pressApiEntryToLocal(entry),
+    media: (entry.media ?? []).map(pressApiMediaToLocal),
+  }
+}
+
 export function localEntryToPressApiInput(entry: PressEntry): PressApiCreateInput {
   return {
     title: entry.title,
     release_date: entry.releaseDate,
-    category_id: entry.categoryId,
+    category_id: parseCategoryId(entry.categoryId),
     source_url: entry.sourceUrl,
     content_html: entry.contentHtml,
     status: entry.status,
     visibility: entry.visibility,
     publish_at: entry.publishAt,
-    cover_image_url: entry.coverImageUrl,
   }
 }
-
-// ── CRUD ──────────────────────────────────────────────────────────────────────
 
 export async function fetchPressEntries(
   params?: Record<string, string | number>,
@@ -72,23 +169,45 @@ export async function fetchPressEntries(
   return data
 }
 
-export async function fetchPressEntry(id: string): Promise<PressApiEntry> {
-  const { data } = await apiClient.get<PressApiEntry>(API_ROUTES.pressById(id))
-  return data
+export async function fetchPressEntry(id: string): Promise<PressEntry> {
+  const { data } = await apiClient.get<PressApiDetailEntry>(API_ROUTES.pressById(id))
+  return pressApiDetailToLocal(data)
 }
 
 export async function createPressApiEntry(
   input: PressApiCreateInput,
-): Promise<PressApiEntry> {
-  const { data } = await apiClient.post<PressApiEntry>(API_ROUTES.press, input)
+  coverImageFile?: File,
+): Promise<PressMutationResponse> {
+  const body = coverImageFile
+    ? buildMultipartPayload(input, [
+        {
+          fieldName: 'cover_image_file',
+          file: coverImageFile,
+          fileName: coverImageFile.name,
+        },
+      ])
+    : input
+
+  const { data } = await apiClient.post<PressMutationResponse>(API_ROUTES.press, body)
   return data
 }
 
 export async function updatePressApiEntry(
   id: string,
   patch: Partial<PressApiCreateInput>,
-): Promise<PressApiEntry> {
-  const { data } = await apiClient.patch<PressApiEntry>(API_ROUTES.pressById(id), patch)
+  coverImageFile?: File,
+): Promise<PressMutationResponse> {
+  const body = coverImageFile
+    ? buildMultipartPayload(patch, [
+        {
+          fieldName: 'cover_image_file',
+          file: coverImageFile,
+          fileName: coverImageFile.name,
+        },
+      ])
+    : patch
+
+  const { data } = await apiClient.put<PressMutationResponse>(API_ROUTES.pressById(id), body)
   return data
 }
 
@@ -96,52 +215,75 @@ export async function deletePressApiEntry(id: string): Promise<void> {
   await apiClient.delete(API_ROUTES.pressById(id))
 }
 
-// ── Seed utility ──────────────────────────────────────────────────────────────
+export async function addPressMedia(
+  entryId: string,
+  files: File[],
+  metadata: PressMediaUploadInput[],
+): Promise<AddPressMediaResponse> {
+  const media = files.map((file, index) => ({
+    display_name: metadata[index]?.display_name || file.name,
+    file_name: metadata[index]?.file_name || file.name,
+  }))
 
-export type SeedResult = {
-  success: number
-  failed: number
-  errors: Array<{ title: string; error: string }>
+  const body = buildMultipartPayload(
+    { media },
+    files.map((file, index) => ({
+      fieldName: `media[${index}].file`,
+      file,
+      fileName: file.name,
+    })),
+  )
+
+  const { data } = await apiClient.post<AddPressMediaResponse>(
+    `${API_ROUTES.pressById(entryId)}/media`,
+    body,
+  )
+
+  return data
 }
 
-/**
- * Seeds the backend database with the canonical press releases dataset.
- * Call this once from the browser console (or a migration script) when the
- * backend API is ready:
- *
- *   import { seedPressEntries } from './src/api/pressApi'
- *   const result = await seedPressEntries()
- *   console.log(result)
- */
-export async function seedPressEntries(): Promise<SeedResult> {
-  const result: SeedResult = { success: 0, failed: 0, errors: [] }
+export async function updatePressMedia(
+  entryId: string,
+  mediaId: string,
+  input: UpdatePressMediaInput,
+): Promise<PressMedia> {
+  const { data } = await apiClient.patch<UpdatePressMediaResponse>(
+    `${API_ROUTES.pressById(entryId)}/media/${mediaId}`,
+    input,
+  )
 
-  for (const item of rawPressReleases) {
-    const input: PressApiCreateInput = {
-      title: item.title,
-      release_date: item.publishDate,
-      category_id: null,
-      source_url: item.sourceLink,
-      content_html: '',
-      status: 'published',
-      visibility: 'public',
-      publish_at: null,
-    }
+  return pressApiMediaToLocal(data.media)
+}
 
-    try {
-      await createPressApiEntry(input)
-      result.success++
-    } catch (error) {
-      result.failed++
-      result.errors.push({
-        title: item.title,
-        error: error instanceof Error ? error.message : String(error),
-      })
-    }
+export async function getPressMediaContent(entryId: string, mediaId: string): Promise<Blob> {
+  const response = await apiClient.get<Blob>(
+    `${API_ROUTES.pressById(entryId)}/media/${mediaId}/content`,
+    { responseType: 'blob' },
+  )
 
-    // Small delay to avoid hammering the API
-    await new Promise((resolve) => setTimeout(resolve, 50))
-  }
+  return response.data
+}
 
-  return result
+export async function reorderPressMedia(
+  entryId: string,
+  mediaIds: number[],
+): Promise<ReorderPressMediaResponse> {
+  const { data } = await apiClient.put<ReorderPressMediaResponse>(
+    `${API_ROUTES.pressById(entryId)}/media/order`,
+    { media_ids: mediaIds } satisfies ReorderPressMediaRequest,
+  )
+
+  return data
+}
+
+export async function deletePressMedia(
+  entryId: string,
+  mediaIds: number[],
+): Promise<DeletePressMediaResponse> {
+  const { data } = await apiClient.delete<DeletePressMediaResponse>(
+    `${API_ROUTES.pressById(entryId)}/media`,
+    { data: { media_ids: mediaIds } satisfies DeletePressMediaRequest },
+  )
+
+  return data
 }

@@ -1,55 +1,176 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import {
-  createPressEntry,
-  deletePressEntry,
-  loadPressEntries,
-  PRESS_ENTRIES_STORAGE_KEY,
-  updatePressEntry,
-} from '../lib/pressEntriesStorage'
-import type { PressEntry } from '../lib/pressTypes'
+  createPressApiEntry,
+  deletePressApiEntry,
+  fetchPressEntries,
+  fetchPressEntry,
+  pressApiEntryToLocal,
+  updatePressApiEntry,
+} from '../api/pressApi'
+import type { PressEntry, PressStatus, PressVisibility } from '../lib/pressTypes'
 
-type CreateInput = Omit<PressEntry, 'id' | 'createdAt' | 'updatedAt'>
-type UpdateInput = Partial<Omit<PressEntry, 'id' | 'createdAt'>>
+type PressPersistedInput = Omit<PressEntry, 'id' | 'createdAt' | 'updatedAt' | 'media'>
+type CreateInput = PressPersistedInput
+type UpdateInput = Partial<PressPersistedInput>
 
-export function usePressEntries() {
-  const [entries, setEntries] = useState<PressEntry[]>(() => loadPressEntries())
+export interface UsePressEntriesState {
+  entries: PressEntry[]
+  loading: boolean
+  error: string | null
+  total: number
+  page: number
+  pageSize: number
+  totalPages: number
+}
 
-  useEffect(() => {
-    function handleStorage(event: StorageEvent) {
-      if (event.key !== PRESS_ENTRIES_STORAGE_KEY) {
-        return
+export function usePressEntries(page: number = 1, pageSize: number = 20) {
+  const [state, setState] = useState<UsePressEntriesState>({
+    entries: [],
+    loading: false,
+    error: null,
+    total: 0,
+    page,
+    pageSize,
+    totalPages: 0,
+  })
+
+  const fetch = useCallback(
+    async (
+      currentPage: number = page,
+      currentPageSize: number = pageSize,
+      filters?: { status?: PressStatus; visibility?: PressVisibility; search?: string },
+    ) => {
+      setState((prev) => ({ ...prev, loading: true, error: null }))
+
+      try {
+        const params: Record<string, string | number> = {
+          page: currentPage,
+          page_size: currentPageSize,
+        }
+
+        if (filters?.status) {
+          params.status = filters.status
+        }
+        if (filters?.visibility) {
+          params.visibility = filters.visibility
+        }
+        if (filters?.search) {
+          params.search = filters.search
+        }
+
+        const response = await fetchPressEntries(params)
+        const entries = response.items.map(pressApiEntryToLocal)
+
+        setState((prev) => ({
+          ...prev,
+          entries,
+          total: response.total,
+          page: response.page,
+          pageSize: response.page_size,
+          totalPages: response.total_pages,
+          loading: false,
+        }))
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Failed to fetch press entries'
+        setState((prev) => ({
+          ...prev,
+          entries: [],
+          loading: false,
+          error: message,
+        }))
+        throw err
       }
-      setEntries(loadPressEntries())
-    }
-    window.addEventListener('storage', handleStorage)
-    return () => window.removeEventListener('storage', handleStorage)
-  }, [])
-
-  const refresh = useCallback(() => {
-    setEntries(loadPressEntries())
-  }, [])
-
-  const create = useCallback((input: CreateInput) => {
-    const created = createPressEntry(input)
-    setEntries(loadPressEntries())
-    return created
-  }, [])
-
-  const update = useCallback((id: string, patch: UpdateInput) => {
-    const updated = updatePressEntry(id, patch)
-    setEntries(loadPressEntries())
-    return updated
-  }, [])
-
-  const remove = useCallback((id: string) => {
-    deletePressEntry(id)
-    setEntries(loadPressEntries())
-  }, [])
-
-  const get = useCallback(
-    (id: string) => entries.find((entry) => entry.id === id),
-    [entries],
+    },
+    [page, pageSize],
   )
 
-  return { entries, refresh, create, update, remove, get }
+  const create = useCallback(async (input: CreateInput, coverImageFile?: File) => {
+    try {
+      const result = await createPressApiEntry(
+        {
+          title: input.title,
+          release_date: input.releaseDate,
+          category_id: input.categoryId ? Number.parseInt(input.categoryId, 10) : null,
+          source_url: input.sourceUrl,
+          content_html: input.contentHtml,
+          status: input.status,
+          visibility: input.visibility,
+          publish_at: input.publishAt,
+        },
+        coverImageFile,
+      )
+
+      const created = await fetchPressEntry(String(result.entry.id))
+      setState((prev) => ({
+        ...prev,
+        entries: [created, ...prev.entries].slice(0, prev.pageSize),
+        total: prev.total + 1,
+      }))
+
+      return created
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to create press entry'
+      setState((prev) => ({ ...prev, error: message }))
+      throw err
+    }
+  }, [])
+
+  const update = useCallback(async (id: string, patch: UpdateInput, coverImageFile?: File) => {
+    try {
+      await updatePressApiEntry(
+        id,
+        {
+          title: patch.title,
+          release_date: patch.releaseDate,
+          category_id: patch.categoryId ? Number.parseInt(patch.categoryId, 10) : null,
+          source_url: patch.sourceUrl,
+          content_html: patch.contentHtml,
+          status: patch.status,
+          visibility: patch.visibility,
+          publish_at: patch.publishAt,
+        },
+        coverImageFile,
+      )
+
+      const updated = await fetchPressEntry(id)
+      setState((prev) => ({
+        ...prev,
+        entries: prev.entries.map((entry) => (entry.id === id ? updated : entry)),
+      }))
+
+      return updated
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to update press entry'
+      setState((prev) => ({ ...prev, error: message }))
+      throw err
+    }
+  }, [])
+
+  const remove = useCallback(async (id: string) => {
+    try {
+      await deletePressApiEntry(id)
+      setState((prev) => ({
+        ...prev,
+        entries: prev.entries.filter((entry) => entry.id !== id),
+        total: prev.total - 1,
+      }))
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to delete press entry'
+      setState((prev) => ({ ...prev, error: message }))
+      throw err
+    }
+  }, [])
+
+  const get = useCallback((id: string) => {
+    return state.entries.find((entry) => entry.id === id)
+  }, [state.entries])
+
+  return {
+    ...state,
+    fetch,
+    create,
+    update,
+    remove,
+    get,
+  }
 }
