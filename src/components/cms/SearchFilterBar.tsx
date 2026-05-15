@@ -1,5 +1,6 @@
 import type { FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
+import { DateInput } from './DateInput'
 import styles from './SearchFilterBar.module.css'
 
 export type FilterOption = {
@@ -121,11 +122,10 @@ export function SearchFilterBar({
             return (
               <label key={field.key} className={styles.field}>
                 <span>{field.label}</span>
-                <input
-                  type="date"
+                <DateInput
                   value={field.value}
                   disabled={field.disabled}
-                  onChange={(event) => field.onChange(event.target.value)}
+                  onChange={(value) => field.onChange(value)}
                 />
               </label>
             )

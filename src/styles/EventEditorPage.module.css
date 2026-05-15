@@ -46,6 +46,7 @@
 .sideColumn {
   display: grid;
   gap: 20px;
+  min-width: 0;
 }
 
 .sideColumn {
@@ -63,6 +64,7 @@
 
 .card {
   padding: 24px;
+  overflow: hidden;
 }
 
 .sectionHeader {
@@ -497,6 +499,20 @@
 .publishButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.backLink {
+  border: none;
+  background: transparent;
+  color: var(--color-primary);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.backLink:hover {
+  text-decoration: underline;
 }
 
 .linkButton {

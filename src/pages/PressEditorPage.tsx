@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useEffect, useState } from 'react'
+import { DateInput } from '../components/cms/DateInput'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -382,10 +383,9 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
 
                 <label className={styles.field}>
                   <span>{t('press.editor.fields.releaseDate')}</span>
-                  <input
-                    type="date"
+                  <DateInput
                     value={form.releaseDate}
-                    onChange={(event) => updateField('releaseDate', event.target.value)}
+                    onChange={(value) => updateField('releaseDate', value)}
                   />
                   {errors.releaseDate && (
                     <p className={styles.fieldError}>{errors.releaseDate}</p>
