@@ -263,7 +263,9 @@
       "created": "Page created successfully.",
       "draftSaved": "Page saved as draft.",
       "published": "Page published successfully.",
-      "deleted": "Page deleted successfully."
+      "deleted": "Page deleted successfully.",
+      "documentPreviewFailed": "Could not preview this document.",
+      "documentDownloadFailed": "Could not download this document."
     },
     "validation": {
       "pageTitleRequired": "Page title is required.",
@@ -354,6 +356,8 @@
         "removeDocument": "Remove Document",
         "replaceFile": "Replace File",
         "openDocument": "Open Document",
+        "previewDocument": "Preview",
+        "downloadDocument": "Download",
         "dragToReorder": "Drag to reorder sections"
       },
       "document": {
@@ -363,6 +367,7 @@
         "emptyText": "Upload one or more files to build this document section.",
         "itemLabel": "Document {{index}}",
         "pendingUpload": "Ready to upload: {{name}}",
+        "pendingUploadShort": "New upload",
         "untitled": "Untitled document"
       }
     }

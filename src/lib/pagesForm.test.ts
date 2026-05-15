@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { API_BASE_URL } from '../constants/api'
 import {
   buildFullPageUrlSlug,
   buildPageFormStateFromDetail,
@@ -176,6 +177,74 @@ describe('buildPageFormStateFromDetail', () => {
         textAlign: 'center',
       },
     })
+  })
+
+  it('resolves relative asset fetch urls to the API origin', () => {
+    const form = buildPageFormStateFromDetail({
+      id: 9,
+      page_title: 'About',
+      url_slug: '/about',
+      page_type: 'page',
+      parent_id: null,
+      status: 'draft',
+      hero_image_enabled: true,
+      hero_image_url: 'gs://bucket/pages/9/hero.png',
+      hero_image_object_key: 'pages/9/hero.png',
+      hero_image_fetch_url: '/api/pages/9/hero/content',
+      seo_page_title: '',
+      seo_page_description: '',
+      created_by: null,
+      created_by_name: 'Admin',
+      modified_by: null,
+      modified_by_name: 'Admin',
+      last_modified: '2026-05-12T00:00:00Z',
+      created_at: '2026-05-12T00:00:00Z',
+      updated_at: '2026-05-12T00:00:00Z',
+      page_detail: {
+        id: 12,
+        page_id: 9,
+        template_key: 'default',
+        schema_version: 1,
+        sections: [
+          {
+            id: 6,
+            section_name: 'Downloads',
+            section_type: 'document',
+            sort_order: 0,
+            is_enabled: true,
+            documents: {
+              items: [
+                {
+                  id: 17,
+                  display_name: 'Board Agenda',
+                  description: '',
+                  original_file_name: 'agenda.pdf',
+                  file_name: 'agenda.pdf',
+                  file_url: 'gs://bucket/page-documents/agenda.pdf',
+                  fetch_url: '/api/pages/documents/17/content',
+                  storage_uri: 'gs://bucket/page-documents/agenda.pdf',
+                  gcp_object_key: 'page-documents/agenda.pdf',
+                  mime_type: 'application/pdf',
+                  file_size: 1024,
+                  sort_order: 0,
+                  created_at: '2026-05-12T00:00:00Z',
+                  updated_at: '2026-05-12T00:00:00Z',
+                },
+              ],
+            },
+            created_at: '2026-05-12T00:00:00Z',
+            updated_at: '2026-05-12T00:00:00Z',
+          },
+        ],
+      },
+    })
+
+    expect(form.existingHeroImageFetchUrl).toBe(
+      `${API_BASE_URL}/api/pages/9/hero/content`,
+    )
+    expect(form.sections[0].documents.items[0].existingFetchUrl).toBe(
+      `${API_BASE_URL}/api/pages/documents/17/content`,
+    )
   })
 })
 
