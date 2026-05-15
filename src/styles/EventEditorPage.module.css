@@ -46,6 +46,7 @@
 .sideColumn {
   display: grid;
   gap: 20px;
+  min-width: 0;
 }
 
 .sideColumn {
@@ -63,6 +64,7 @@
 
 .card {
   padding: 24px;
+  overflow: hidden;
 }
 
 .sectionHeader {
