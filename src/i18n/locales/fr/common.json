@@ -213,11 +213,7 @@
     "sections": {
       "pageSettings": "Parametres de la page",
       "metadata": "Metadonnees et SEO",
-      "metadataHint": "Ajoutez un texte utile pour les moteurs de recherche et pour les visiteurs.",
-      "contentModules": "Modules de contenu",
-      "contentModulesHint": "Construisez les sections ordonnees que le site affichera pour cette page.",
-      "emptyModulesTitle": "Aucun module de contenu pour le moment",
-      "emptyModulesText": "Utilisez le selecteur de modules ci-dessous pour composer cette page section par section."
+      "metadataHint": "Ajoutez un texte utile pour les moteurs de recherche et pour les visiteurs."
     },
     "fields": {
       "pageTitle": "Titre de la page",
@@ -245,7 +241,7 @@
       "titleCreate": "Creer une nouvelle page",
       "titleEdit": "Modifier la page",
       "titleView": "Voir la page",
-      "subtitle": "Gerez les parametres de page, le SEO et des modules de contenu flexibles affiches dans leur ordre d enregistrement.",
+      "subtitle": "Pour l instant, cet editeur enregistre uniquement les parametres de la page. La structure detaillee sera ajoutee plus tard.",
       "invalidIdTitle": "Lien de page invalide",
       "invalidIdText": "Cette URL ne contient pas un identifiant de page valide.",
       "loadErrorTitle": "Impossible de charger cette page",
@@ -268,103 +264,7 @@
     "validation": {
       "pageTitleRequired": "Le titre de la page est requis.",
       "urlSlugRequired": "L URL est requise.",
-      "parentPageCycle": "Une page ne peut pas utiliser l un de ses propres descendants comme parent.",
-      "documentFileRequired": "Chaque document doit conserver un fichier televerse ou un fichier deja enregistre."
-    },
-    "modules": {
-      "types": {
-        "header": "Module d en-tete",
-        "typography": "Typographie",
-        "gallery": "Module galerie",
-        "document": "Module document",
-        "quote": "Module citation",
-        "cta_banner": "Banniere CTA"
-      },
-      "descriptions": {
-        "header": "Ajoutez un titre principal et un texte secondaire optionnel.",
-        "typography": "Enregistrez du contenu HTML riche avec l editeur du CMS.",
-        "gallery": "Associez une galerie reutilisable avec la mise en page voulue.",
-        "document": "Televersez un ou plusieurs documents et controlez leur ordre.",
-        "quote": "Mettez en avant une citation avec son attribution.",
-        "cta_banner": "Affichez un appel a l action avec son texte et son lien."
-      },
-      "badges": {
-        "hidden": "Masque"
-      },
-      "fields": {
-        "sectionName": "Nom de section",
-        "enabled": "Active",
-        "mainHeaderText": "Texte principal",
-        "subHeaderText": "Sous-titre",
-        "hierarchy": "Hierarchie",
-        "htmlContent": "Contenu typographique",
-        "textAlign": "Alignement",
-        "gallery": "Selectionner une galerie",
-        "viewMode": "Option d affichage",
-        "documents": "Documents",
-        "documentDisplayName": "Nom d affichage du document",
-        "documentDescription": "Description du document",
-        "quoteContent": "Contenu de la citation",
-        "attribution": "Attribution",
-        "bannerHeading": "Titre de banniere",
-        "bannerMessage": "Message de banniere",
-        "buttonText": "Texte du bouton",
-        "buttonUrl": "Destination du bouton (URL)",
-        "openInNewTab": "Ouvrir dans un nouvel onglet"
-      },
-      "placeholders": {
-        "sectionName": "Libelle interne du module...",
-        "mainHeaderText": "Transformer les paysages numeriques",
-        "subHeaderText": "Texte d accompagnement optionnel...",
-        "htmlContent": "Commencez a rediger le contenu mis en forme...",
-        "gallery": "Choisir une galerie...",
-        "documentDisplayName": "ex., Rapport financier annuel 2024",
-        "documentDescription": "Note interne ou description publique optionnelle",
-        "quoteContent": "Saisissez le texte de la citation...",
-        "attribution": "Nom, titre ou source",
-        "bannerHeading": "Titre principal de la banniere...",
-        "bannerMessage": "Message d appel a l action...",
-        "buttonText": "ex., Commencer",
-        "buttonUrl": "https://..."
-      },
-      "hints": {
-        "gallery": "Choisissez une galerie depuis la bibliotheque media. Une meme galerie peut etre reutilisee dans plusieurs sections.",
-        "documents": "Chaque section de documents peut contenir plusieurs fichiers avec des libelles et un ordre independants.",
-        "openInNewTab": "Utilisez cette option lorsque le CTA doit ouvrir une page externe dans un autre onglet."
-      },
-      "options": {
-        "h1Hero": "H1 Hero",
-        "h2Section": "H2 Section",
-        "alignLeft": "Gauche",
-        "alignCenter": "Centre",
-        "alignRight": "Droite",
-        "grid": "Grille",
-        "carousel": "Carrousel",
-        "masonry": "Mosaique",
-        "focus": "Focus"
-      },
-      "actions": {
-        "addModule": "Ajouter un module",
-        "selectComponent": "Selectionner un composant",
-        "moveUp": "Monter",
-        "moveDown": "Descendre",
-        "expand": "Ouvrir la section",
-        "collapse": "Refermer la section",
-        "removeSection": "Supprimer la section",
-        "removeDocument": "Supprimer le document",
-        "replaceFile": "Remplacer le fichier",
-        "openDocument": "Ouvrir le document",
-        "dragToReorder": "Glisser pour reordonner les sections"
-      },
-      "document": {
-        "dropLabel": "Glissez-deposez les documents ici ou parcourez",
-        "dropHint": "Formats pris en charge : PDF, Word, Excel et PowerPoint.",
-        "emptyTitle": "Aucun document dans ce module",
-        "emptyText": "Televersez un ou plusieurs fichiers pour composer cette section de documents.",
-        "itemLabel": "Document {{index}}",
-        "pendingUpload": "Pret a televerser : {{name}}",
-        "untitled": "Document sans titre"
-      }
+      "parentPageCycle": "Une page ne peut pas utiliser l un de ses propres descendants comme parent."
     }
   },
   "events": {
@@ -721,7 +621,10 @@
       "removeUpload": "Retirer {{name}} de la liste",
       "limitReached": "Cette galerie est pleine ({{limit}} / {{limit}}). Supprimez une ressource pour en ajouter d autres.",
       "limitExceeded": "Ajouter ces images depasserait la limite de {{limit}} images ({{count}} au total). Retirez-en pour continuer.",
-      "submit": "Televerser"
+      "submit": "Televerser",
+      "uploading": "Telechargement en cours…",
+      "fileTooLarge": "\"{{name}}\" depasse la limite de taille de {{max}} et n a pas ete ajoute.",
+      "tooManyFiles": "{{count}} fichier(s) ont ete ignores — pas assez d emplacements disponibles dans cette galerie."
     },
     "selected": {
       "title": "Image selectionnee",
@@ -756,7 +659,8 @@
     "feedback": {
       "draftSaved": "Galerie enregistree comme brouillon.",
       "published": "Galerie publiee avec succes.",
-      "downloadFailed": "Impossible de telecharger l'image pour le moment."
+      "downloadFailed": "Impossible de telecharger l'image pour le moment.",
+      "uploadFailed": "Le telechargement a echoue. Veuillez reessayer."
     }
   },
   "publishing": {

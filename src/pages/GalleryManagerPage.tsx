@@ -1,4 +1,6 @@
 import { useState } from 'react'
+
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
@@ -33,6 +35,7 @@ type GalleryManagerPageProps = {
   gallery?: GalleryDetail
   loading?: boolean
   saving?: boolean
+  uploading?: boolean
   error?: string
   onUpdateGallery?: (patch: GalleryUpdatePatch) => void
   onSaveDraft?: () => void
@@ -68,6 +71,7 @@ export function GalleryManagerPage({
   gallery,
   loading = false,
   saving = false,
+  uploading = false,
   error,
   onUpdateGallery,
   onSaveDraft,
@@ -88,6 +92,7 @@ export function GalleryManagerPage({
   const { galleryId } = useParams()
   const [selectedAssetId, setSelectedAssetId] = useState<number | null>(null)
   const [pendingUploads, setPendingUploads] = useState<PendingUpload[]>([])
+  const [fileErrors, setFileErrors] = useState<string[]>([])
   const [draggedAssetId, setDraggedAssetId] = useState<number | null>(null)
   const [dragOverAssetId, setDragOverAssetId] = useState<number | null>(null)
 
@@ -115,21 +120,39 @@ export function GalleryManagerPage({
     )
 
   function handleFilesDropped(files: File[]) {
-    const accepted =
-      remainingSlots === Infinity ? files : files.slice(0, remainingSlots)
-    const rejected = files.length - accepted.length
+    const errors: string[] = []
 
-    if (rejected > 0) {
-      console.warn(
-        `[GalleryManagerPage] Rejected ${rejected} file(s) — gallery limit reached`,
+    const sizeOk = files.filter((file) => {
+      if (file.size > MAX_FILE_SIZE_BYTES) {
+        errors.push(
+          t('galleryManager.uploads.fileTooLarge', {
+            name: file.name,
+            max: '5MB',
+          }),
+        )
+        return false
+      }
+      return true
+    })
+
+    const slotLimited =
+      remainingSlots === Infinity ? sizeOk : sizeOk.slice(0, remainingSlots)
+
+    if (sizeOk.length > slotLimited.length) {
+      errors.push(
+        t('galleryManager.uploads.tooManyFiles', {
+          count: sizeOk.length - slotLimited.length,
+        }),
       )
     }
 
-    if (!accepted.length) {
+    setFileErrors(errors)
+
+    if (!slotLimited.length) {
       return
     }
 
-    const additions: PendingUpload[] = accepted.map((file) => ({
+    const additions: PendingUpload[] = slotLimited.map((file) => ({
       id: makePendingId(),
       file,
       previewUrl: URL.createObjectURL(file),
@@ -153,6 +176,7 @@ export function GalleryManagerPage({
   }
 
   function removePending(id: string) {
+    setFileErrors([])
     setPendingUploads((current) => {
       const target = current.find((upload) => upload.id === id)
       if (target) {
@@ -388,7 +412,13 @@ export function GalleryManagerPage({
                   <Loader label={t('galleryManager.assetsLoading')} />
                 </div>
               ) : (
-                <div className={styles.assetGrid}>
+                <div className={styles.assetGridWrap}>
+                  {uploading && (
+                    <div className={styles.uploadOverlay} aria-live="polite">
+                      <Loader label={t('galleryManager.uploads.uploading')} />
+                    </div>
+                  )}
+                  <div className={uploading ? styles.assetGridDimmed : styles.assetGrid}>
                   {gallery.assets.map((asset, index) => (
                     <AssetThumbnail
                       key={asset.id}
@@ -454,6 +484,7 @@ export function GalleryManagerPage({
                       }}
                     />
                   ))}
+                  </div>
                 </div>
               )}
 
@@ -477,9 +508,17 @@ export function GalleryManagerPage({
                     multiple
                     label={t('galleryManager.uploads.dropLabel')}
                     hint={t('galleryManager.uploads.dropHint')}
-                    disabled={isLimitReached}
+                    disabled={isLimitReached || uploading}
                     onFiles={handleFilesDropped}
                   />
+
+                  {fileErrors.length > 0 && (
+                    <ul className={styles.fileErrorList} role="alert">
+                      {fileErrors.map((err) => (
+                        <li key={err}>{err}</li>
+                      ))}
+                    </ul>
+                  )}
 
                   {isLimitReached && (
                     <p className={styles.limitWarning} role="alert">
@@ -595,6 +634,7 @@ export function GalleryManagerPage({
                       type="submit"
                       className={styles.primaryButton}
                       disabled={
+                        uploading ||
                         !pendingUploads.length ||
                         !allPendingMetadataFilled ||
                         willExceedLimit

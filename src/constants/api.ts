@@ -18,7 +18,6 @@ export const API_ROUTES = {
   pages: '/api/pages',
   pageById: (id: number | string) => `/api/pages/${id}`,
   pageHeroById: (id: number | string) => `/api/pages/${id}/hero/content`,
-  pageDocumentById: (id: number | string) => `/api/pages/documents/${id}/content`,
   menuByKey: (key: string) => `/api/menus/${key}`,
   menuPageOptionsByKey: (key: string) => `/api/menus/${key}/page-options`,
   galleries: '/api/galleries',

@@ -24,9 +24,7 @@
 }
 
 .headerActions,
-.actionRow,
-.heroActions,
-.documentActionRow {
+.actionRow {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -49,8 +47,7 @@
 }
 
 .cardHeader,
-.cardHeaderBlock,
-.moduleHeader {
+.cardHeaderBlock {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -60,7 +57,6 @@
 
 .cardHeaderBlock {
   flex-direction: column;
-  margin-bottom: 1.2rem;
 }
 
 .cardHeader h2,
@@ -217,8 +213,7 @@
   border-top: 1px solid var(--color-border);
 }
 
-.toggleRow,
-.moduleToggle {
+.toggleRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -249,14 +244,15 @@
   background: var(--color-surface-alt);
 }
 
+.heroActions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
 .primaryButton,
 .secondaryButton,
-.dangerButton,
-.iconButton,
-.iconButtonDanger,
-.segmentedButton,
-.dragHandle,
-.modulePickerItem {
+.dangerButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -368,316 +364,6 @@
   color: var(--color-text-muted);
 }
 
-.emptyState {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.15rem;
-  border: 1px dashed #dfc4bc;
-  border-radius: 1rem;
-  background: rgba(255, 252, 250, 0.8);
-}
-
-.emptyStateIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.4rem;
-  height: 2.4rem;
-  border-radius: 0.9rem;
-  background: #fff1ec;
-  color: #8f0b16;
-}
-
-.emptyStateTitle {
-  margin: 0;
-  color: #2f171a;
-  font-weight: 700;
-}
-
-.emptyStateText {
-  margin: 0.35rem 0 0;
-  color: #7a5d61;
-}
-
-.moduleList {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.moduleCard {
-  border: 1px solid #eed8d2;
-  border-radius: 1rem;
-  background: #fffdfa;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  overflow: hidden;
-}
-
-.moduleCardDragging {
-  opacity: 0.72;
-}
-
-.moduleCardDragOver {
-  border-color: #b1131f;
-  box-shadow: 0 0 0 3px rgba(177, 19, 31, 0.1);
-}
-
-.moduleHeader {
-  padding: 1rem 1rem 0.95rem;
-  border-bottom: 1px solid #f4e4df;
-}
-
-.moduleHeaderMain {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  min-width: 0;
-}
-
-.dragHandle,
-.iconButton,
-.iconButtonDanger {
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 0.8rem;
-  cursor: pointer;
-}
-
-.dragHandle,
-.iconButton {
-  border-color: #ecd9d3;
-  background: #fff8f6;
-  color: #684b50;
-}
-
-.iconButtonDanger {
-  border-color: #f1d2ce;
-  background: #fff1ee;
-  color: #a4161f;
-}
-
-.moduleHeadingBlock {
-  min-width: 0;
-}
-
-.moduleEyebrowRow {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.moduleEyebrow {
-  color: #9b1220;
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-}
-
-.moduleBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.2rem 0.55rem;
-  border-radius: 999px;
-  background: #fbe6e4;
-  color: #a4161f;
-  font-size: 0.76rem;
-  font-weight: 700;
-}
-
-.moduleTitle {
-  margin: 0.35rem 0 0;
-  color: #261416;
-  font-size: 1.05rem;
-}
-
-.moduleHeaderActions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.moduleToggle {
-  padding: 0.3rem 0.3rem 0.3rem 0.75rem;
-  border: 1px solid #ecd9d3;
-  border-radius: 999px;
-  background: #fff8f5;
-}
-
-.moduleBody {
-  padding: 1rem;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.segmentedControl {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.55rem;
-}
-
-.segmentedButton {
-  padding: 0.72rem 1rem;
-  border-color: #ead8d3;
-  border-radius: 0.8rem;
-  background: #fff;
-  color: #6d5055;
-  cursor: pointer;
-}
-
-.segmentedButtonActive {
-  border-color: #a0111d;
-  background: linear-gradient(135deg, #8e0b16, #b1131f);
-  color: #fff8f5;
-  box-shadow: 0 10px 24px rgba(142, 11, 22, 0.18);
-}
-
-.modulePickerWrap {
-  margin-top: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-}
-
-.modulePicker {
-  width: min(100%, 32rem);
-  padding: 1rem;
-  border: 1px solid #efd9d3;
-  border-radius: 1rem;
-  background: #fff;
-  box-shadow: 0 16px 40px rgba(60, 21, 25, 0.08);
-}
-
-.modulePickerLabel {
-  margin: 0 0 0.9rem;
-  color: #816467;
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-}
-
-.modulePickerGrid {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.modulePickerItem {
-  width: 100%;
-  padding: 0.85rem 0.95rem;
-  border-color: #eed9d2;
-  border-radius: 0.95rem;
-  background: #fffaf8;
-  color: #2d1719;
-  justify-content: flex-start;
-  cursor: pointer;
-  text-align: left;
-}
-
-.modulePickerIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.1rem;
-  height: 2.1rem;
-  border-radius: 0.85rem;
-  background: #fff1ec;
-  color: #9a1020;
-  flex: 0 0 auto;
-}
-
-.modulePickerText {
-  display: flex;
-  flex-direction: column;
-  gap: 0.18rem;
-}
-
-.modulePickerText strong {
-  font-size: 0.98rem;
-}
-
-.modulePickerText span {
-  color: #7b5e62;
-  font-size: 0.9rem;
-}
-
-.documentSection {
-  min-width: 0;
-  overflow: hidden;
-}
-
-.documentDropzone {
-  min-width: 0;
-}
-
-.documentList {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-  min-width: 0;
-}
-
-.documentItem {
-  padding: 1rem;
-  border: 1px solid #efddd7;
-  border-radius: 0.95rem;
-  background: linear-gradient(180deg, #fffdfc, #fff8f5);
-  min-width: 0;
-  overflow: hidden;
-}
-
-.documentHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.9rem;
-}
-
-.documentHeaderContent {
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.documentActionRow {
-  max-width: 100%;
-  justify-content: flex-end;
-}
-
-.documentLabel {
-  margin: 0;
-  color: #9b1220;
-  font-size: 0.74rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.documentName {
-  margin: 0.3rem 0 0;
-  color: #291517;
-  font-size: 1rem;
-  overflow-wrap: anywhere;
-}
-
-.documentMeta {
-  margin: 0.35rem 0 0;
-  color: #7a5d61;
-  font-size: 0.92rem;
-  overflow-wrap: anywhere;
-}
-
-.documentFooter {
-  margin-top: 0.9rem;
-  display: flex;
-  justify-content: flex-start;
-  min-width: 0;
-}
-
 .primaryButton:disabled,
 .secondaryButton:disabled,
 .dangerButton:disabled {
@@ -688,9 +374,7 @@
 @media (max-width: 900px) {
   .header,
   .cardHeader,
-  .toggleRow,
-  .moduleHeader,
-  .documentHeader {
+  .toggleRow {
     flex-direction: column;
     align-items: stretch;
   }
@@ -698,27 +382,13 @@
   .fieldGrid {
     grid-template-columns: 1fr;
   }
-
-  .moduleHeaderActions {
-    justify-content: flex-start;
-  }
 }
 
 @media (max-width: 720px) {
   .headerActions,
   .heroActions,
-  .actionRow,
-  .documentActionRow {
-    width: 100%;
-  }
-
-  .primaryButton,
-  .secondaryButton,
-  .dangerButton {
-    width: 100%;
-  }
-
-  .segmentedControl {
+  .actionRow {
     flex-direction: column;
+    align-items: stretch;
   }
 }

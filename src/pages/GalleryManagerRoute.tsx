@@ -39,6 +39,7 @@ export function GalleryManagerRoute() {
   const detailState = useAppSelector(selectMediaGalleryDetail)
   const rawGallery = useAppSelector(selectCurrentGallery)
   const isSaving = useAppSelector(selectMediaIsSaving)
+  const [isUploading, setIsUploading] = useState(false)
   const mutationError = useAppSelector(
     (state) =>
       state.media.save.error ??
@@ -193,6 +194,7 @@ export function GalleryManagerRoute() {
       return
     }
 
+    setIsUploading(true)
     try {
       const payload = buildUploadGalleryImagesRequest(uploads)
 
@@ -205,8 +207,12 @@ export function GalleryManagerRoute() {
 
       await refreshGallery({ refreshList: true })
       toast.success(result.message)
-    } catch {
-      return
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : t('galleryManager.feedback.uploadFailed')
+      toast.error(message)
+    } finally {
+      setIsUploading(false)
     }
   }
 
@@ -325,6 +331,7 @@ export function GalleryManagerRoute() {
       gallery={gallery}
       loading={detailState.status === 'loading'}
       saving={isSaving}
+      uploading={isUploading}
       error={detailState.error ?? mutationError ?? undefined}
       onUpdateGallery={(patch) => {
         void persistGalleryPatch(patch)

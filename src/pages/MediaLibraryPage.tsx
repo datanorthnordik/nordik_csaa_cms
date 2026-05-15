@@ -24,6 +24,19 @@ type MediaLibraryPageProps = {
   ) => void | boolean | Promise<void | boolean>
 }
 
+function formatDateTime(iso: string): string {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return iso
+  return new Intl.DateTimeFormat('en-CA', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).format(date)
+}
+
 export function MediaLibraryPage({
   galleries,
   loading = false,
@@ -133,6 +146,7 @@ export function MediaLibraryPage({
                 key={gallery.id}
                 gallery={gallery}
                 onManage={(item) => navigate(`/media-library/${item.id}`)}
+                formatRelativeTime={formatDateTime}
               />
             ))}
           </div>
