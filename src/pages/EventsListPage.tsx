@@ -53,7 +53,6 @@ const sortByOptions: EventSortBy[] = [
 
 const sortOrderOptions: EventSortOrder[] = ['desc', 'asc']
 
-const pageSizeOptions = [10, 20, 50]
 const statusOptions: EventStatus[] = ['published', 'draft']
 
 export function EventsListPage() {
@@ -155,10 +154,6 @@ export function EventsListPage() {
     }
 
     dispatch(setEventListFilters({ page: nextPage }))
-  }
-
-  function changePageSize(pageSize: number) {
-    dispatch(setEventListFilters({ pageSize, page: 1 }))
   }
 
   function openActionMenu(

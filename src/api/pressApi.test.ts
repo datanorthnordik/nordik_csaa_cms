@@ -5,6 +5,7 @@ import {
   createPressApiEntry,
   deletePressApiEntry,
   deletePressMedia,
+  fetchPressCoverImageContent,
   fetchPressEntries,
   fetchPressEntry,
   getPressMediaContent,
@@ -91,6 +92,15 @@ describe('pressApi converters', () => {
       coverImageUrl: 'https://cdn.example.com/cover.png',
       media: [],
     })
+  })
+
+  it('normalizes datetime release values for date inputs', () => {
+    const local = pressApiEntryToLocal({
+      ...sampleApiEntry,
+      release_date: '2026-03-20T00:00:00Z',
+    })
+
+    expect(local.releaseDate).toBe('2026-03-20')
   })
 
   it('maps press media fields to the local media shape', () => {
@@ -303,6 +313,18 @@ describe('pressApi media endpoints', () => {
 
     const [url, config] = mockedGet.mock.calls[0]
     expect(String(url)).toContain('/123/media/17/content')
+    expect((config as any)?.responseType).toBe('blob')
+    expect(result).toBe(blob)
+  })
+
+  it('downloads press cover images as a blob', async () => {
+    const blob = new Blob(['cover'])
+    mockedGet.mockResolvedValue({ data: blob })
+
+    const result = await fetchPressCoverImageContent('123')
+
+    const [url, config] = mockedGet.mock.calls[0]
+    expect(String(url)).toContain('/123/cover/content')
     expect((config as any)?.responseType).toBe('blob')
     expect(result).toBe(blob)
   })

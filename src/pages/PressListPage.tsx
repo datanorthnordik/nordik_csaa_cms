@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Trans, useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
+import { fetchPressCoverImageContent } from '../api/pressApi'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
@@ -20,6 +21,7 @@ import {
   type PressListFilters,
   type PressStatus,
 } from '../lib/pressTypes'
+import { API_BASE_URL } from '../constants/api'
 import styles from '../styles/PressListPage.module.css'
 
 const PAGE_SIZE = 10
@@ -47,6 +49,8 @@ export function PressListPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [deleteCandidate, setDeleteCandidate] = useState<PressEntry | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [coverPreviewUrls, setCoverPreviewUrls] = useState<Record<string, string>>({})
+  const coverPreviewUrlsRef = useRef<Record<string, string>>({})
 
   const dateFormatter = useMemo(
     () =>
@@ -58,6 +62,72 @@ export function PressListPage() {
       }),
     [i18n.language],
   )
+
+  useEffect(() => {
+    const entriesNeedingFetch = entries.filter(
+      (entry) => entry.coverImageUrl && !resolveDirectPressAssetUrl(entry.coverImageUrl),
+    )
+
+    if (!entriesNeedingFetch.length) {
+      setCoverPreviewUrls((current) => {
+        Object.values(current).forEach((url) => {
+          URL.revokeObjectURL(url)
+        })
+        coverPreviewUrlsRef.current = {}
+        return {}
+      })
+      return
+    }
+
+    let cancelled = false
+
+    async function loadCoverPreviews() {
+      const nextEntries = await Promise.all(
+        entriesNeedingFetch.map(async (entry) => {
+          try {
+            const blob = await fetchPressCoverImageContent(entry.id)
+            return [entry.id, URL.createObjectURL(blob)] as const
+          } catch {
+            return [entry.id, ''] as const
+          }
+        }),
+      )
+
+      if (cancelled) {
+        nextEntries.forEach(([, url]) => {
+          if (url) {
+            URL.revokeObjectURL(url)
+          }
+        })
+        return
+      }
+
+      setCoverPreviewUrls((current) => {
+        Object.values(current).forEach((url) => {
+          URL.revokeObjectURL(url)
+        })
+
+        const next = Object.fromEntries(nextEntries.filter(([, url]) => Boolean(url)))
+        coverPreviewUrlsRef.current = next
+        return next
+      })
+    }
+
+    void loadCoverPreviews()
+
+    return () => {
+      cancelled = true
+    }
+  }, [entries])
+
+  useEffect(() => {
+    return () => {
+      Object.values(coverPreviewUrlsRef.current).forEach((url) => {
+        URL.revokeObjectURL(url)
+      })
+      coverPreviewUrlsRef.current = {}
+    }
+  }, [])
 
   // Fetch data when filters or page changes
   useEffect(() => {
@@ -182,22 +252,28 @@ export function PressListPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {entries.map((entry) => (
-                    <tr
-                      key={entry.id}
-                      className={
-                        entry.status === 'draft' ? styles.draftRow : undefined
-                      }
-                    >
+                  {entries.map((entry) => {
+                    const coverSrc =
+                      resolveDirectPressAssetUrl(entry.coverImageUrl) ||
+                      coverPreviewUrls[entry.id] ||
+                      ''
+
+                    return (
+                      <tr
+                        key={entry.id}
+                        className={
+                          entry.status === 'draft' ? styles.draftRow : undefined
+                        }
+                      >
                       <td>
                         <div className={styles.titleCell}>
                           <span
                             className={styles.thumbnail}
-                            aria-hidden={!entry.coverImageUrl}
+                            aria-hidden={!coverSrc}
                           >
-                            {entry.coverImageUrl && (
+                            {coverSrc && (
                               <img
-                                src={entry.coverImageUrl}
+                                src={coverSrc}
                                 alt=""
                               />
                             )}
@@ -246,8 +322,9 @@ export function PressListPage() {
                           </button>
                         </span>
                       </td>
-                    </tr>
-                  ))}
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
@@ -295,6 +372,41 @@ export function PressListPage() {
         />
       </div>
     </CmsAppShell>
+  )
+}
+
+function resolveDirectPressAssetUrl(value?: string) {
+  const trimmed = value?.trim() ?? ''
+  if (!trimmed) {
+    return ''
+  }
+
+  if (trimmed.startsWith('blob:') || trimmed.startsWith('data:')) {
+    return trimmed
+  }
+
+  if (looksLikeManagedStorageReference(trimmed)) {
+    return ''
+  }
+
+  if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed) || trimmed.startsWith('//')) {
+    return trimmed
+  }
+
+  try {
+    return new URL(trimmed, `${API_BASE_URL}/`).toString()
+  } catch {
+    return trimmed
+  }
+}
+
+function looksLikeManagedStorageReference(value: string) {
+  const normalized = value.trim().toLowerCase()
+  return (
+    normalized.startsWith('gs://') ||
+    normalized.startsWith('https://storage.googleapis.com/') ||
+    normalized.startsWith('http://storage.googleapis.com/') ||
+    normalized.includes('.storage.googleapis.com/')
   )
 }
 

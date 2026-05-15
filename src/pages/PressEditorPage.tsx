@@ -1,17 +1,24 @@
-import { useMemo, useEffect, useState } from 'react'
-import { DateInput } from '../components/cms/DateInput'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
-import { addPressMedia, deletePressMedia, fetchPressEntry } from '../api/pressApi'
+import {
+  addPressMedia,
+  deletePressMedia,
+  fetchPressCoverImageContent,
+  fetchPressEntry,
+  getPressMediaContent,
+} from '../api/pressApi'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
-import { PublishingControls } from '../components/cms/PublishingControls'
+import { DateInput } from '../components/cms/DateInput'
 import { EntryActions } from '../components/cms/EntryActions'
+import { PublishingControls } from '../components/cms/PublishingControls'
 import { RichTextEditor } from '../components/cms/RichTextEditor'
+import { AddPhotoIcon, DownloadIcon, PagesIcon } from '../components/icons'
 import { UploadDropzone } from '../components/media/UploadDropzone'
-import { AddPhotoIcon } from '../components/icons'
+import { API_BASE_URL } from '../constants/api'
 import { usePressCategories } from '../hooks/usePressCategories'
 import { usePressEntries } from '../hooks/usePressEntries'
 import type {
@@ -22,9 +29,36 @@ import type {
 } from '../lib/pressTypes'
 import styles from '../styles/PressEditorPage.module.css'
 
+const PRESS_MEDIA_ACCEPT = [
+  'image/*',
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  '.pdf',
+  '.doc',
+  '.docx',
+  '.xls',
+  '.xlsx',
+  '.ppt',
+  '.pptx',
+].join(',')
+
 type PendingPressMedia = {
   id: string
   file: File
+}
+
+type PressMediaListItem = {
+  id: string
+  fileName: string
+  mimeType: string
+  fileSize?: number
+  file?: File
+  isPending: boolean
 }
 
 function makePendingMediaId() {
@@ -50,7 +84,7 @@ function emptyFormState(): PressFormState {
 function entryToFormState(entry: PressEntry): PressFormState {
   return {
     title: entry.title,
-    releaseDate: entry.releaseDate,
+    releaseDate: normalizeDateInputValue(entry.releaseDate),
     categoryId: entry.categoryId ?? '',
     sourceUrl: entry.sourceUrl,
     contentHtml: entry.contentHtml,
@@ -87,15 +121,29 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
   const navigate = useNavigate()
   const { id } = useParams()
   const { create, update, remove } = usePressEntries()
-  const { categories, create: createCategory } = usePressCategories()
+  const { categories } = usePressCategories()
 
   const isEditMode = mode === 'edit' && Boolean(id)
   const [currentEntry, setCurrentEntry] = useState<PressEntry | undefined>(undefined)
   const [isLoadingEntry, setIsLoadingEntry] = useState(isEditMode)
+  const [form, setForm] = useState<PressFormState>(emptyFormState())
+  const [coverImageFile, setCoverImageFile] = useState<File | undefined>()
+  const [removeCoverImage, setRemoveCoverImage] = useState(false)
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null)
+  const [pendingMedia, setPendingMedia] = useState<PendingPressMedia[]>([])
+  const [documentPreviewUrls, setDocumentPreviewUrls] = useState<Record<string, string>>({})
+  const [activeDocumentAction, setActiveDocumentAction] = useState<
+    Record<string, 'preview' | 'download' | undefined>
+  >({})
+  const documentPreviewUrlsRef = useRef<Record<string, string>>({})
+  const [errors, setErrors] = useState<PressFormErrors>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
-  // Fetch entry from API if in edit mode
   useEffect(() => {
-    if (!isEditMode || !id) return
+    if (!isEditMode || !id) {
+      return
+    }
 
     const loadEntry = async () => {
       try {
@@ -103,27 +151,14 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
         const entry = await fetchPressEntry(id)
         setCurrentEntry(entry)
       } catch (err) {
-        toast.error(
-          err instanceof Error
-            ? err.message
-            : t('press.editor.loadError'),
-        )
+        toast.error(err instanceof Error ? err.message : t('press.editor.loadError'))
       } finally {
         setIsLoadingEntry(false)
       }
     }
 
     void loadEntry()
-  }, [isEditMode, id, t])
-
-  const [form, setForm] = useState<PressFormState>(
-    currentEntry ? entryToFormState(currentEntry) : emptyFormState(),
-  )
-  const [coverImageFile, setCoverImageFile] = useState<File | undefined>()
-  const [pendingMedia, setPendingMedia] = useState<PendingPressMedia[]>([])
-  const [errors, setErrors] = useState<PressFormErrors>({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
+  }, [id, isEditMode, t])
 
   useEffect(() => {
     if (isEditMode && !currentEntry) {
@@ -132,8 +167,184 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
 
     setForm(currentEntry ? entryToFormState(currentEntry) : emptyFormState())
     setCoverImageFile(undefined)
+    setRemoveCoverImage(false)
     setPendingMedia([])
   }, [currentEntry, isEditMode])
+
+  useEffect(() => {
+    if (coverImageFile) {
+      const objectUrl = URL.createObjectURL(coverImageFile)
+      setCoverPreviewUrl(objectUrl)
+      return () => {
+        URL.revokeObjectURL(objectUrl)
+      }
+    }
+
+    if (removeCoverImage || !currentEntry?.coverImageUrl) {
+      setCoverPreviewUrl(null)
+      return
+    }
+
+    const directUrl = resolveDirectPressAssetUrl(currentEntry.coverImageUrl)
+    if (directUrl) {
+      setCoverPreviewUrl(directUrl)
+      return
+    }
+
+    const entryId = currentEntry.id
+    let cancelled = false
+    let objectUrlToRevoke: string | null = null
+
+    async function loadCoverPreview() {
+      try {
+        const blob = await fetchPressCoverImageContent(entryId)
+        const objectUrl = URL.createObjectURL(blob)
+        objectUrlToRevoke = objectUrl
+
+        if (cancelled) {
+          URL.revokeObjectURL(objectUrl)
+          return
+        }
+
+        setCoverPreviewUrl(objectUrl)
+      } catch {
+        if (!cancelled) {
+          setCoverPreviewUrl(null)
+        }
+      }
+    }
+
+    void loadCoverPreview()
+
+    return () => {
+      cancelled = true
+      if (objectUrlToRevoke) {
+        URL.revokeObjectURL(objectUrlToRevoke)
+      }
+    }
+  }, [coverImageFile, currentEntry?.coverImageUrl, currentEntry?.id, removeCoverImage])
+
+  const mediaItems = useMemo<PressMediaListItem[]>(
+    () => [
+      ...form.media.map((mediaItem) => ({
+        id: mediaItem.id,
+        fileName: mediaItem.fileName,
+        mimeType: mediaItem.mimeType ?? '',
+        fileSize: mediaItem.fileSize,
+        isPending: false,
+      })),
+      ...pendingMedia.map((mediaItem) => ({
+        id: mediaItem.id,
+        fileName: mediaItem.file.name,
+        mimeType: mediaItem.file.type,
+        fileSize: mediaItem.file.size,
+        file: mediaItem.file,
+        isPending: true,
+      })),
+    ],
+    [form.media, pendingMedia],
+  )
+
+  const documentPreviewSources = useMemo(
+    () =>
+      mediaItems
+        .filter((mediaItem) => canPreviewDocument(mediaItem.mimeType, mediaItem.fileName))
+        .map((mediaItem) => ({
+          id: mediaItem.id,
+          file: mediaItem.file,
+          sourceKey: mediaItem.file
+            ? [
+                mediaItem.file.name,
+                mediaItem.file.size,
+                mediaItem.file.lastModified,
+                mediaItem.file.type,
+              ].join(':')
+            : `${currentEntry?.id ?? ''}:${mediaItem.id}`,
+        }))
+        .sort((left, right) => left.id.localeCompare(right.id)),
+    [currentEntry?.id, mediaItems],
+  )
+
+  const documentPreviewSignature = useMemo(
+    () =>
+      JSON.stringify(
+        documentPreviewSources.map((source) => ({
+          id: source.id,
+          sourceKey: source.sourceKey,
+        })),
+      ),
+    [documentPreviewSources],
+  )
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadDocumentPreviews() {
+      const nextEntries = await Promise.all(
+        documentPreviewSources.map(async (source) => {
+          try {
+            if (source.file) {
+              return [source.id, URL.createObjectURL(source.file)] as const
+            }
+
+            if (!currentEntry?.id) {
+              return [source.id, ''] as const
+            }
+
+            const blob = await getPressMediaContent(currentEntry.id, source.id)
+            return [source.id, URL.createObjectURL(blob)] as const
+          } catch {
+            return [source.id, ''] as const
+          }
+        }),
+      )
+
+      if (cancelled) {
+        nextEntries.forEach(([, url]) => {
+          if (url) {
+            URL.revokeObjectURL(url)
+          }
+        })
+        return
+      }
+
+      setDocumentPreviewUrls((current) => {
+        Object.values(current).forEach((url) => {
+          URL.revokeObjectURL(url)
+        })
+
+        const next = Object.fromEntries(nextEntries.filter(([, url]) => Boolean(url)))
+        documentPreviewUrlsRef.current = next
+        return next
+      })
+    }
+
+    if (!documentPreviewSources.length) {
+      setDocumentPreviewUrls((current) => {
+        Object.values(current).forEach((url) => {
+          URL.revokeObjectURL(url)
+        })
+        documentPreviewUrlsRef.current = {}
+        return {}
+      })
+      return
+    }
+
+    void loadDocumentPreviews()
+
+    return () => {
+      cancelled = true
+    }
+  }, [currentEntry?.id, documentPreviewSignature, documentPreviewSources])
+
+  useEffect(() => {
+    return () => {
+      Object.values(documentPreviewUrlsRef.current).forEach((url) => {
+        URL.revokeObjectURL(url)
+      })
+      documentPreviewUrlsRef.current = {}
+    }
+  }, [])
 
   const dateFormatter = useMemo(
     () =>
@@ -144,6 +355,21 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
       }),
     [i18n.language],
   )
+
+  const categoryOptions = useMemo(() => {
+    if (!form.categoryId || categories.some((category) => category.id === form.categoryId)) {
+      return categories
+    }
+
+    return [
+      ...categories,
+      {
+        id: form.categoryId,
+        name: t('press.editor.fields.savedCategory', { id: form.categoryId }),
+        createdAt: '',
+      },
+    ]
+  }, [categories, form.categoryId, t])
 
   function updateField<K extends keyof PressFormState>(key: K, value: PressFormState[K]) {
     setForm((current) => ({ ...current, [key]: value }))
@@ -160,7 +386,7 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
     const publishAt = status === 'scheduled' && state.publishAt ? state.publishAt : null
     return {
       title: state.title.trim(),
-      releaseDate: state.releaseDate,
+      releaseDate: normalizeDateInputValue(state.releaseDate),
       categoryId: state.categoryId || null,
       sourceUrl: state.sourceUrl.trim(),
       contentHtml: state.contentHtml,
@@ -170,15 +396,15 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
     }
   }
 
-  async function uploadPendingMedia(entryId: string, mediaItems: PendingPressMedia[]) {
-    if (!mediaItems.length) {
+  async function uploadPendingMedia(entryId: string, mediaEntries: PendingPressMedia[]) {
+    if (!mediaEntries.length) {
       return
     }
 
     await addPressMedia(
       entryId,
-      mediaItems.map((item) => item.file),
-      mediaItems.map((item) => ({
+      mediaEntries.map((item) => item.file),
+      mediaEntries.map((item) => ({
         display_name: item.file.name,
         file_name: item.file.name,
       })),
@@ -198,8 +424,12 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
     try {
       const payload = buildPersistedShape(form, targetStatus)
       const pendingUploads = [...pendingMedia]
+
       if (isEditMode && currentEntry) {
-        let nextEntry = await update(currentEntry.id, payload, coverImageFile)
+        let nextEntry = await update(currentEntry.id, payload, {
+          coverImageFile,
+          removeCoverImage,
+        })
         await uploadPendingMedia(nextEntry.id, pendingUploads)
         if (pendingUploads.length > 0) {
           nextEntry = await fetchPressEntry(nextEntry.id)
@@ -211,7 +441,7 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
             : t('press.feedback.saved'),
         )
       } else {
-        const created = await create(payload, coverImageFile)
+        const created = await create(payload, { coverImageFile })
         await uploadPendingMedia(created.id, pendingUploads)
         toast.success(
           targetStatus === 'published'
@@ -221,11 +451,7 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
         navigate(`/press/${created.id}/edit`, { replace: true })
       }
     } catch (err) {
-      toast.error(
-        err instanceof Error
-          ? err.message
-          : t('press.feedback.saveError'),
-      )
+      toast.error(err instanceof Error ? err.message : t('press.feedback.saveError'))
     } finally {
       setIsSubmitting(false)
     }
@@ -241,23 +467,10 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
       toast.success(t('press.feedback.deleted'))
       navigate('/press', { replace: true })
     } catch (err) {
-      toast.error(
-        err instanceof Error
-          ? err.message
-          : t('press.feedback.deleteError'),
-      )
+      toast.error(err instanceof Error ? err.message : t('press.feedback.deleteError'))
     } finally {
       setIsDeleting(false)
     }
-  }
-
-  function handleAddCategory() {
-    const name = window.prompt(t('press.editor.categoryPrompt'))
-    if (!name?.trim()) {
-      return
-    }
-    const created = createCategory(name)
-    updateField('categoryId', created.id)
   }
 
   function handleAddMedia(files: File[]) {
@@ -294,13 +507,80 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
       const refreshed = await fetchPressEntry(currentEntry.id)
       setCurrentEntry(refreshed)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to delete media')
+      toast.error(err instanceof Error ? err.message : t('press.feedback.deleteError'))
     }
   }
 
   function handleCoverImageSelect(files: File[]) {
-    if (files.length > 0) {
-      setCoverImageFile(files[0])
+    const [file] = files
+    if (!file) {
+      return
+    }
+    setCoverImageFile(file)
+    setRemoveCoverImage(false)
+  }
+
+  function handleRemoveSelectedCover() {
+    setCoverImageFile(undefined)
+  }
+
+  function handleRemoveExistingCover() {
+    setCoverImageFile(undefined)
+    setRemoveCoverImage(true)
+  }
+
+  async function handlePreviewDocument(mediaItem: PressMediaListItem) {
+    setActiveDocumentAction((current) => ({
+      ...current,
+      [mediaItem.id]: 'preview',
+    }))
+
+    try {
+      const previewUrl =
+        documentPreviewUrls[mediaItem.id] ||
+        (await createTemporaryPressMediaObjectUrl(currentEntry?.id, mediaItem))
+
+      if (!previewUrl) {
+        throw new Error('Document preview unavailable')
+      }
+
+      window.open(previewUrl, '_blank', 'noopener,noreferrer')
+      if (!documentPreviewUrls[mediaItem.id]) {
+        scheduleObjectUrlRevoke(previewUrl)
+      }
+    } catch {
+      toast.error(t('press.feedback.documentPreviewFailed'))
+    } finally {
+      setActiveDocumentAction((current) => ({
+        ...current,
+        [mediaItem.id]: undefined,
+      }))
+    }
+  }
+
+  async function handleDownloadDocument(mediaItem: PressMediaListItem) {
+    setActiveDocumentAction((current) => ({
+      ...current,
+      [mediaItem.id]: 'download',
+    }))
+
+    try {
+      const downloadUrl = await createTemporaryPressMediaObjectUrl(currentEntry?.id, mediaItem)
+      if (!downloadUrl) {
+        throw new Error('Document download unavailable')
+      }
+
+      triggerFileDownload(downloadUrl, mediaItem.fileName)
+      if (!documentPreviewUrls[mediaItem.id]) {
+        scheduleObjectUrlRevoke(downloadUrl)
+      }
+    } catch {
+      toast.error(t('press.feedback.documentDownloadFailed'))
+    } finally {
+      setActiveDocumentAction((current) => ({
+        ...current,
+        [mediaItem.id]: undefined,
+      }))
     }
   }
 
@@ -318,6 +598,8 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
   const errorMessages = Array.from(new Set(Object.values(errors).filter(Boolean)))
   const wasModified =
     currentEntry !== undefined && currentEntry.updatedAt !== currentEntry.createdAt
+  const currentCoverName =
+    coverImageFile?.name || inferStoredFileName(currentEntry?.coverImageUrl, 'cover-image')
 
   return (
     <CmsAppShell activeKey="press">
@@ -394,28 +676,19 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
 
                 <label className={styles.field}>
                   <span>{t('press.editor.fields.category')}</span>
-                  <div className={styles.categoryRow}>
-                    <select
-                      value={form.categoryId}
-                      onChange={(event) => updateField('categoryId', event.target.value)}
-                    >
-                      <option value="">
-                        {t('press.editor.fields.categoryPlaceholder')}
+                  <select
+                    value={form.categoryId}
+                    onChange={(event) => updateField('categoryId', event.target.value)}
+                  >
+                    <option value="">
+                      {t('press.editor.fields.categoryPlaceholder')}
+                    </option>
+                    {categoryOptions.map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}
                       </option>
-                      {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      type="button"
-                      className={styles.addCategoryButton}
-                      onClick={handleAddCategory}
-                    >
-                      {t('press.editor.fields.addCategory')}
-                    </button>
-                  </div>
+                    ))}
+                  </select>
                 </label>
 
                 <label className={`${styles.field} ${styles.fieldFull}`}>
@@ -444,15 +717,41 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
                 hint={t('press.editor.media.coverHint')}
                 onFiles={handleCoverImageSelect}
               />
-              {coverImageFile && (
-                <div className={styles.selectedCoverImage}>
-                  <span>{coverImageFile.name}</span>
-                  <button
-                    type="button"
-                    onClick={() => setCoverImageFile(undefined)}
-                  >
-                    {t('press.editor.media.remove')}
-                  </button>
+
+              {coverPreviewUrl && (
+                <div className={styles.coverPreviewCard}>
+                  <img
+                    src={coverPreviewUrl}
+                    alt={form.title || t('press.editor.media.coverImageAlt')}
+                    className={styles.coverPreviewImage}
+                  />
+                  <div className={styles.coverPreviewContent}>
+                    <h3 className={styles.coverPreviewTitle}>{currentCoverName}</h3>
+                    <p className={styles.coverPreviewMeta}>
+                      {coverImageFile
+                        ? t('press.editor.media.pendingUpload')
+                        : t('press.editor.media.currentCover')}
+                    </p>
+                    <div className={styles.coverPreviewActions}>
+                      {coverImageFile ? (
+                        <button
+                          type="button"
+                          className={styles.actionButtonDanger}
+                          onClick={handleRemoveSelectedCover}
+                        >
+                          {t('press.editor.media.remove')}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className={styles.actionButtonDanger}
+                          onClick={handleRemoveExistingCover}
+                        >
+                          {t('press.editor.media.removeImage')}
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
             </section>
@@ -477,47 +776,98 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
               <div className={styles.mediaSection}>
                 <UploadDropzone
                   multiple
-                  accept="image/*,application/pdf"
+                  accept={PRESS_MEDIA_ACCEPT}
                   icon={<AddPhotoIcon />}
                   label={t('press.editor.media.dropLabel')}
                   hint={t('press.editor.media.dropHint')}
                   onFiles={handleAddMedia}
                 />
 
-                {(form.media.length > 0 || pendingMedia.length > 0) && (
-                  <div className={styles.uploadedList}>
-                    {form.media.map((mediaItem) => (
-                      <div key={mediaItem.id} className={styles.uploadedItem}>
-                        <span className={styles.uploadedName}>
-                          <FileIcon />
-                          {mediaItem.fileName}
-                        </span>
-                        <button
-                          type="button"
-                          className={styles.removeMediaButton}
-                          aria-label={t('press.editor.media.remove')}
-                          onClick={() => void handleRemoveMedia(mediaItem.id)}
-                        >
-                          <CloseIcon />
-                        </button>
-                      </div>
-                    ))}
-                    {pendingMedia.map((mediaItem) => (
-                      <div key={mediaItem.id} className={styles.uploadedItem}>
-                        <span className={styles.uploadedName}>
-                          <FileIcon />
-                          {mediaItem.file.name}
-                        </span>
-                        <button
-                          type="button"
-                          className={styles.removeMediaButton}
-                          aria-label={t('press.editor.media.remove')}
-                          onClick={() => void handleRemoveMedia(mediaItem.id)}
-                        >
-                          <CloseIcon />
-                        </button>
-                      </div>
-                    ))}
+                {mediaItems.length > 0 && (
+                  <div className={styles.documentList}>
+                    {mediaItems.map((mediaItem) => {
+                      const canPreview = canPreviewDocument(
+                        mediaItem.mimeType,
+                        mediaItem.fileName,
+                      )
+                      const previewUrl = documentPreviewUrls[mediaItem.id] || ''
+                      const documentTypeLabel = resolveDocumentTypeLabel(
+                        mediaItem.mimeType,
+                        mediaItem.fileName,
+                      )
+                      const documentTitle = stripFileExtension(mediaItem.fileName)
+                      const documentMeta = buildDocumentMeta({
+                        isPendingUpload: mediaItem.isPending,
+                        fileTypeLabel: documentTypeLabel,
+                        fileSize: mediaItem.fileSize,
+                        t,
+                      })
+
+                      return (
+                        <article key={mediaItem.id} className={styles.documentItem}>
+                          <div className={styles.documentPreviewRow}>
+                            <div className={styles.documentPreviewCard} aria-hidden="true">
+                              {canPreview && previewUrl ? (
+                                <iframe
+                                  src={previewUrl}
+                                  title={documentTitle}
+                                  className={styles.documentPreviewFrame}
+                                />
+                              ) : (
+                                <>
+                                  <PagesIcon
+                                    size={28}
+                                    className={styles.documentPreviewIcon}
+                                  />
+                                  <span className={styles.documentPreviewBadge}>
+                                    {documentTypeLabel}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                            <div className={styles.documentPreviewContent}>
+                              <h4 className={styles.documentName}>{documentTitle}</h4>
+                              {documentMeta ? (
+                                <p className={styles.documentMeta}>{documentMeta}</p>
+                              ) : null}
+                              <div className={styles.documentPreviewActions}>
+                                {canPreview ? (
+                                  <button
+                                    type="button"
+                                    className={styles.actionButton}
+                                    disabled={activeDocumentAction[mediaItem.id] !== undefined}
+                                    onClick={() => void handlePreviewDocument(mediaItem)}
+                                  >
+                                    {activeDocumentAction[mediaItem.id] === 'preview'
+                                      ? t('pages.common.loading')
+                                      : t('pages.modules.actions.previewDocument')}
+                                  </button>
+                                ) : null}
+                                <button
+                                  type="button"
+                                  className={styles.actionButton}
+                                  disabled={activeDocumentAction[mediaItem.id] !== undefined}
+                                  onClick={() => void handleDownloadDocument(mediaItem)}
+                                >
+                                  <DownloadIcon size={16} />
+                                  {activeDocumentAction[mediaItem.id] === 'download'
+                                    ? t('pages.common.loading')
+                                    : t('pages.modules.actions.downloadDocument')}
+                                </button>
+                                <button
+                                  type="button"
+                                  className={styles.actionButtonDanger}
+                                  aria-label={t('press.editor.media.remove')}
+                                  onClick={() => void handleRemoveMedia(mediaItem.id)}
+                                >
+                                  {t('press.editor.media.remove')}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      )
+                    })}
                   </div>
                 )}
               </div>
@@ -543,9 +893,7 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
           </div>
 
           <aside className={styles.sideColumn}>
-            <PublishingControls
-              status={currentStatus}
-            />
+            <PublishingControls status={currentStatus} />
 
             {wasModified && currentEntry && (
               <div className={styles.metaCard}>
@@ -578,29 +926,170 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
   )
 }
 
-function FileIcon() {
+function stripFileExtension(value: string) {
+  return value.replace(/\.[^.]+$/, '')
+}
+
+function formatFileSize(size: number) {
+  if (size < 1024) {
+    return `${size} B`
+  }
+  if (size < 1024 * 1024) {
+    return `${(size / 1024).toFixed(1)} KB`
+  }
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function resolveDocumentTypeLabel(mimeType: string, fileName: string) {
+  const extension = fileName.split('.').pop()?.trim().toUpperCase() ?? ''
+  if (extension) {
+    return extension.length > 5 ? extension.slice(0, 5) : extension
+  }
+
+  const normalizedMimeType = mimeType.trim().toLowerCase()
+  if (normalizedMimeType.includes('pdf')) {
+    return 'PDF'
+  }
+  if (normalizedMimeType.includes('word')) {
+    return 'DOC'
+  }
+  if (normalizedMimeType.includes('excel') || normalizedMimeType.includes('sheet')) {
+    return 'XLS'
+  }
+  if (
+    normalizedMimeType.includes('powerpoint') ||
+    normalizedMimeType.includes('presentation')
+  ) {
+    return 'PPT'
+  }
+
+  return 'FILE'
+}
+
+function buildDocumentMeta({
+  isPendingUpload,
+  fileTypeLabel,
+  fileSize,
+  t,
+}: {
+  isPendingUpload: boolean
+  fileTypeLabel: string
+  fileSize?: number
+  t: (key: string) => string
+}) {
+  const parts = [
+    isPendingUpload ? t('press.editor.media.pendingUploadShort') : '',
+    fileTypeLabel,
+    typeof fileSize === 'number' && fileSize > 0 ? formatFileSize(fileSize) : '',
+  ].filter(Boolean)
+
+  return parts.join(' | ')
+}
+
+function canPreviewDocument(mimeType: string, fileName: string) {
+  const normalizedMimeType = mimeType.trim().toLowerCase()
+  const extension = fileName.split('.').pop()?.trim().toLowerCase() ?? ''
+
   return (
-    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true">
-      <path
-        d="M9 2H4.6c-.88 0-1.6.72-1.6 1.6v8.8c0 .88.72 1.6 1.6 1.6h6.8c.88 0 1.6-.72 1.6-1.6V6L9 2Z"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinejoin="round"
-      />
-      <path d="M9 2v3.4h4" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-    </svg>
+    normalizedMimeType.includes('pdf') ||
+    normalizedMimeType.startsWith('image/') ||
+    ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'gif'].includes(extension)
   )
 }
 
-function CloseIcon() {
+async function createTemporaryPressMediaObjectUrl(
+  entryId: string | undefined,
+  mediaItem: PressMediaListItem,
+) {
+  if (mediaItem.file) {
+    return URL.createObjectURL(mediaItem.file)
+  }
+
+  if (!entryId) {
+    throw new Error('Document URL unavailable')
+  }
+
+  const blob = await getPressMediaContent(entryId, mediaItem.id)
+  return URL.createObjectURL(blob)
+}
+
+function triggerFileDownload(url: string, fileName: string) {
+  const link = globalThis.document.createElement('a')
+  link.href = url
+  link.download = fileName
+  link.rel = 'noreferrer'
+  globalThis.document.body.appendChild(link)
+  link.click()
+  link.remove()
+}
+
+function scheduleObjectUrlRevoke(url: string) {
+  globalThis.setTimeout(() => {
+    URL.revokeObjectURL(url)
+  }, 60_000)
+}
+
+function normalizeDateInputValue(value: string) {
+  const trimmed = value.trim()
+  if (!trimmed) {
+    return ''
+  }
+
+  const match = trimmed.match(/^(\d{4}-\d{2}-\d{2})/)
+  if (match) {
+    return match[1]
+  }
+
+  const parsed = Date.parse(trimmed)
+  if (Number.isNaN(parsed)) {
+    return trimmed
+  }
+
+  return new Date(parsed).toISOString().slice(0, 10)
+}
+
+function resolveDirectPressAssetUrl(value?: string | null) {
+  const trimmed = value?.trim() ?? ''
+  if (!trimmed) {
+    return ''
+  }
+
+  if (trimmed.startsWith('blob:') || trimmed.startsWith('data:')) {
+    return trimmed
+  }
+
+  if (looksLikeManagedStorageReference(trimmed)) {
+    return ''
+  }
+
+  if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed) || trimmed.startsWith('//')) {
+    return trimmed
+  }
+
+  try {
+    return new URL(trimmed, `${API_BASE_URL}/`).toString()
+  } catch {
+    return trimmed
+  }
+}
+
+function looksLikeManagedStorageReference(value: string) {
+  const normalized = value.trim().toLowerCase()
   return (
-    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
-      <path
-        d="M4 4l8 8M12 4l-8 8"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-    </svg>
+    normalized.startsWith('gs://') ||
+    normalized.startsWith('https://storage.googleapis.com/') ||
+    normalized.startsWith('http://storage.googleapis.com/') ||
+    normalized.includes('.storage.googleapis.com/')
   )
+}
+
+function inferStoredFileName(value?: string | null, fallback = 'file') {
+  const trimmed = value?.trim() ?? ''
+  if (!trimmed) {
+    return fallback
+  }
+
+  const sanitized = trimmed.replace(/[?#].*$/, '')
+  const segments = sanitized.split('/').filter(Boolean)
+  return segments[segments.length - 1] || fallback
 }

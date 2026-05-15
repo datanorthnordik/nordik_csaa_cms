@@ -968,43 +968,58 @@
       "title": "Title",
       "updatedAt": "Last Modified"
     },
-    "feedback": {
-      "deleted": "Press entry deleted",
-      "saved": "Press entry saved",
-      "published": "Press entry published"
-    },
-    "editor": {
-      "loading": "Loading...",
-      "titleCreate": "Create New Press Entry",
-      "titleEdit": "Edit Press Entry",
-      "subtitle": "Compose, edit, and publish official press releases.",
+      "feedback": {
+        "deleted": "Press entry deleted",
+        "saved": "Press entry saved",
+        "published": "Press entry published",
+        "fetchError": "Could not load press entries.",
+        "saveError": "Could not save this press entry.",
+        "deleteError": "Could not delete this press entry.",
+        "documentPreviewFailed": "Could not preview this document.",
+        "documentDownloadFailed": "Could not download this document."
+      },
+      "editor": {
+        "loading": "Loading...",
+        "loadError": "Could not load this press entry.",
+        "titleCreate": "Create New Press Entry",
+        "titleEdit": "Edit Press Entry",
+        "subtitle": "Compose, edit, and publish official press releases.",
       "backToList": "← Back to entries",
       "notFoundTitle": "Press entry not found",
       "notFoundText": "This press entry may have been deleted or never existed.",
       "categoryPrompt": "New category name",
       "deleteConfirmBody": "This will permanently delete \"{{title}}\". This action cannot be undone.",
-      "sections": {
-        "details": "Entry Details",
-        "content": "Content Editor",
-        "media": "Media & Attachments",
-        "mediaLimit": "Max 20MB / file"
-      },
+        "sections": {
+          "details": "Entry Details",
+          "coverImage": "Cover Image",
+          "content": "Content Editor",
+          "media": "Media & Attachments",
+          "mediaLimit": "Max 20MB / file"
+        },
       "fields": {
         "title": "Press entry title",
         "titlePlaceholder": "Enter a compelling title for the press release...",
-        "releaseDate": "Release date",
-        "category": "Category",
-        "categoryPlaceholder": "Select a category",
-        "addCategory": "+ Add",
-        "sourceUrl": "News source link",
-        "sourceUrlPlaceholder": "e.g., https://news-organization.com/article",
-        "contentPlaceholder": "Draft your press release content here..."
-      },
-      "media": {
-        "dropLabel": "Drag and drop files here",
-        "dropHint": "or click to browse from your device",
-        "remove": "Remove file"
-      },
+          "releaseDate": "Release date",
+          "category": "Category",
+          "categoryPlaceholder": "Select a category",
+          "savedCategory": "Saved category #{{id}}",
+          "addCategory": "+ Add",
+          "sourceUrl": "News source link",
+          "sourceUrlPlaceholder": "e.g., https://news-organization.com/article",
+          "contentPlaceholder": "Draft your press release content here..."
+        },
+        "media": {
+          "coverLabel": "Drag and drop a cover image here",
+          "coverHint": "or click to browse from your device",
+          "coverImageAlt": "Press cover image",
+          "currentCover": "Current saved cover image",
+          "dropLabel": "Drag and drop files here",
+          "dropHint": "or click to browse from your device",
+          "remove": "Remove file",
+          "removeImage": "Remove image",
+          "pendingUpload": "Selected for upload",
+          "pendingUploadShort": "Pending upload"
+        },
       "actions": {
         "publish": "Publish Press Entry",
         "saveDraft": "Save Draft",

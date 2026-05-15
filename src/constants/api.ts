@@ -13,6 +13,7 @@ export const API_ROUTES = {
     `/api/events/${id}/media/${mediaId}/content`,
   press: '/api/press',
   pressById: (id: string) => `/api/press/${id}`,
+  pressCoverById: (id: number | string) => `/api/press/${id}/cover/content`,
   eventDocumentById: (id: number | string) => `/api/events/${id}/document`,
   eventPhotoById: (id: number | string) => `/api/events/${id}/photo`,
   pages: '/api/pages',
