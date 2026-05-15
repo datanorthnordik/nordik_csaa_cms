@@ -114,6 +114,25 @@ function parseCategoryId(categoryId: PressEntry['categoryId']) {
   return Number.isNaN(parsed) ? null : parsed
 }
 
+function normalizeDateOnly(value: string) {
+  const trimmed = value.trim()
+  if (!trimmed) {
+    return ''
+  }
+
+  const match = trimmed.match(/^(\d{4}-\d{2}-\d{2})/)
+  if (match) {
+    return match[1]
+  }
+
+  const parsed = Date.parse(trimmed)
+  if (Number.isNaN(parsed)) {
+    return trimmed
+  }
+
+  return new Date(parsed).toISOString().slice(0, 10)
+}
+
 export function pressApiMediaToLocal(media: PressApiMedia): PressMedia {
   return {
     id: String(media.id),
@@ -128,7 +147,7 @@ export function pressApiEntryToLocal(entry: PressApiEntry): PressEntry {
   return {
     id: String(entry.id),
     title: entry.title,
-    releaseDate: entry.release_date,
+    releaseDate: normalizeDateOnly(entry.release_date),
     categoryId: entry.category_id != null ? String(entry.category_id) : null,
     sourceUrl: entry.source_url,
     contentHtml: entry.content_html,
@@ -172,6 +191,15 @@ export async function fetchPressEntries(
 export async function fetchPressEntry(id: string): Promise<PressEntry> {
   const { data } = await apiClient.get<PressApiDetailEntry>(API_ROUTES.pressById(id))
   return pressApiDetailToLocal(data)
+}
+
+export async function fetchPressCoverImageContent(entryId: string): Promise<Blob> {
+  const response = await apiClient.get<Blob>(API_ROUTES.pressCoverById(entryId), {
+    responseType: 'blob',
+    skipErrorToast: true,
+  })
+
+  return response.data
 }
 
 export async function createPressApiEntry(

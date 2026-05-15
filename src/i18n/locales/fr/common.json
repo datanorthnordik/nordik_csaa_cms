@@ -968,10 +968,16 @@
     "feedback": {
       "deleted": "Entree supprimee",
       "saved": "Entree enregistree",
-      "published": "Entree publiee"
+      "published": "Entree publiee",
+      "fetchError": "Impossible de charger les entrees de presse.",
+      "saveError": "Impossible d enregistrer cette entree de presse.",
+      "deleteError": "Impossible de supprimer cette entree de presse.",
+      "documentPreviewFailed": "Impossible d afficher un apercu de ce document.",
+      "documentDownloadFailed": "Impossible de telecharger ce document."
     },
     "editor": {
       "loading": "Chargement...",
+      "loadError": "Impossible de charger cette entree de presse.",
       "titleCreate": "Creer une entree de presse",
       "titleEdit": "Modifier l entree",
       "subtitle": "Composez, modifiez et publiez les communiques officiels.",
@@ -982,6 +988,7 @@
       "deleteConfirmBody": "Cela supprimera definitivement \"{{title}}\". Cette action est irreversible.",
       "sections": {
         "details": "Details de l entree",
+        "coverImage": "Image de couverture",
         "content": "Editeur de contenu",
         "media": "Medias et pieces jointes",
         "mediaLimit": "20 Mo max / fichier"
@@ -992,15 +999,23 @@
         "releaseDate": "Date de publication",
         "category": "Categorie",
         "categoryPlaceholder": "Choisir une categorie",
+        "savedCategory": "Categorie enregistree #{{id}}",
         "addCategory": "+ Ajouter",
         "sourceUrl": "Lien source",
         "sourceUrlPlaceholder": "ex. https://organisation-presse.com/article",
         "contentPlaceholder": "Redigez votre communique ici..."
       },
       "media": {
+        "coverLabel": "Glissez-deposez une image de couverture ici",
+        "coverHint": "ou cliquez pour parcourir",
+        "coverImageAlt": "Image de couverture presse",
+        "currentCover": "Image de couverture actuelle",
         "dropLabel": "Glissez-deposez les fichiers ici",
         "dropHint": "ou cliquez pour parcourir",
-        "remove": "Retirer le fichier"
+        "remove": "Retirer le fichier",
+        "removeImage": "Retirer l image",
+        "pendingUpload": "Selectionne pour l envoi",
+        "pendingUploadShort": "En attente"
       },
       "actions": {
         "publish": "Publier l entree",

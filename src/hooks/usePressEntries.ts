@@ -12,6 +12,10 @@ import type { PressEntry, PressStatus, PressVisibility } from '../lib/pressTypes
 type PressPersistedInput = Omit<PressEntry, 'id' | 'createdAt' | 'updatedAt' | 'media'>
 type CreateInput = PressPersistedInput
 type UpdateInput = Partial<PressPersistedInput>
+type MutationOptions = {
+  coverImageFile?: File
+  removeCoverImage?: boolean
+}
 
 export interface UsePressEntriesState {
   entries: PressEntry[]
@@ -84,7 +88,8 @@ export function usePressEntries(page: number = 1, pageSize: number = 20) {
     [page, pageSize],
   )
 
-  const create = useCallback(async (input: CreateInput, coverImageFile?: File) => {
+  const create = useCallback(async (input: CreateInput, options: MutationOptions = {}) => {
+    const { coverImageFile, removeCoverImage = false } = options
     try {
       const result = await createPressApiEntry(
         {
@@ -96,6 +101,7 @@ export function usePressEntries(page: number = 1, pageSize: number = 20) {
           status: input.status,
           visibility: input.visibility,
           publish_at: input.publishAt,
+          remove_cover_image: removeCoverImage || undefined,
         },
         coverImageFile,
       )
@@ -115,7 +121,8 @@ export function usePressEntries(page: number = 1, pageSize: number = 20) {
     }
   }, [])
 
-  const update = useCallback(async (id: string, patch: UpdateInput, coverImageFile?: File) => {
+  const update = useCallback(async (id: string, patch: UpdateInput, options: MutationOptions = {}) => {
+    const { coverImageFile, removeCoverImage = false } = options
     try {
       await updatePressApiEntry(
         id,
@@ -128,6 +135,7 @@ export function usePressEntries(page: number = 1, pageSize: number = 20) {
           status: patch.status,
           visibility: patch.visibility,
           publish_at: patch.publishAt,
+          remove_cover_image: removeCoverImage || undefined,
         },
         coverImageFile,
       )

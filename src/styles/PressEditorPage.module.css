@@ -344,6 +344,172 @@
   background: var(--color-error-bg);
 }
 
+.coverPreviewCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--color-surface), var(--color-surface-alt));
+}
+
+.coverPreviewImage {
+  width: 132px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 12px;
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  flex: 0 0 auto;
+}
+
+.coverPreviewContent {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.coverPreviewTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.coverPreviewMeta {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.coverPreviewActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.documentList {
+  display: grid;
+  gap: 12px;
+}
+
+.documentItem {
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--color-surface), var(--color-surface-alt));
+}
+
+.documentPreviewRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.documentPreviewCard {
+  width: 84px;
+  height: 104px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--color-surface-alt), var(--color-surface));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+.documentPreviewIcon {
+  color: var(--color-primary);
+}
+
+.documentPreviewFrame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+  pointer-events: none;
+}
+
+.documentPreviewBadge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.documentPreviewContent {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.documentName {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.documentMeta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.documentPreviewActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.actionButton,
+.actionButtonDanger {
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 10px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.actionButton {
+  border: 1px solid var(--color-border-input);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.actionButton:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-tint);
+}
+
+.actionButtonDanger {
+  border: 1px solid var(--color-error-border);
+  background: var(--color-error-bg);
+  color: var(--color-error-strong);
+}
+
+.actionButtonDanger:hover {
+  background: color-mix(in srgb, var(--color-error-bg) 80%, white 20%);
+}
+
+.actionButton:disabled,
+.actionButtonDanger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .loaderWrap {
   min-height: 45svh;
   display: flex;
@@ -362,7 +528,33 @@
   .proTip {
     padding: 18px;
   }
+
   .fieldGrid {
     grid-template-columns: 1fr;
+  }
+
+  .coverPreviewCard,
+  .documentPreviewRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .coverPreviewImage,
+  .documentPreviewCard {
+    width: 100%;
+  }
+
+  .documentPreviewCard {
+    height: auto;
+    min-height: 92px;
+  }
+
+  .documentPreviewFrame {
+    min-height: 140px;
+  }
+
+  .actionButton,
+  .actionButtonDanger {
+    width: 100%;
   }
 }
