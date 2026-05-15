@@ -358,32 +358,25 @@ export function EventsListPage() {
         />
 
         <section className={styles.resultsPanel}>
-          <div className={styles.resultsHeader}>
-            <div>
-              <p className={styles.resultsLabel}>
+          {totalItems > 0 && (
+            <div className={styles.resultsHeader}>
+              <span className={styles.resultsLabel}>
                 {t('events.list.resultsLabel', {
                   start: rangeStart,
                   end: rangeEnd,
                   total: totalItems,
                 })}
-              </p>
-              {error && <p className={styles.errorText}>{error}</p>}
+              </span>
+              {pagination && pagination.total_pages > 1 && (
+                <PaginationControls
+                  page={pagination.page}
+                  totalPages={pagination.total_pages}
+                  onChange={changePage}
+                />
+              )}
             </div>
-
-            <label className={styles.pageSizeField}>
-              <span>{t('events.filters.pageSize')}</span>
-              <select
-                value={filters.pageSize}
-                onChange={(event) => changePageSize(Number.parseInt(event.target.value, 10))}
-              >
-                {pageSizeOptions.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
+          )}
+          {error && <p className={styles.errorText}>{error}</p>}
 
           {isLoading && !items.length ? (
             <div className={styles.loaderWrap}>
@@ -453,15 +446,6 @@ export function EventsListPage() {
             </div>
           )}
 
-          {pagination && pagination.total_pages > 1 && (
-            <div className={styles.pagination}>
-              <PaginationControls
-                page={pagination.page}
-                totalPages={pagination.total_pages}
-                onChange={changePage}
-              />
-            </div>
-          )}
         </section>
 
         <Menu

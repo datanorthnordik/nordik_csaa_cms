@@ -12,35 +12,40 @@ import {
   type FilterFieldConfig,
 } from '../components/cms/SearchFilterBar'
 import { StatusBadge } from '../components/cms/StatusBadge'
-import { usePressEntries } from '../hooks/usePressEntries'
+import { useNewsletterEntries } from '../hooks/useNewsletterEntries'
 import {
-  defaultPressListFilters,
-  type PressEntry,
-  type PressListFilters,
-  type PressStatus,
-} from '../lib/pressTypes'
-import styles from '../styles/PressListPage.module.css'
+  defaultNewsletterListFilters,
+  type NewsletterEntry,
+  type NewsletterListFilters,
+  type NewsletterStatus,
+} from '../lib/newsletterTypes'
+import styles from '../styles/NewslettersListPage.module.css'
 
 const PAGE_SIZE = 10
-const statusOptionValues: ('all' | PressStatus)[] = [
+const statusOptionValues: ('all' | NewsletterStatus)[] = [
   'all',
   'published',
   'draft',
   'scheduled',
 ]
-const sortOptionValues: PressListFilters['sortBy'][] = [
-  'releaseDate',
+const sortOptionValues: NewsletterListFilters['sortBy'][] = [
+  'sendDate',
   'title',
   'updatedAt',
 ]
 
-export function PressListPage() {
+const CATEGORY_LABELS: Record<string, string> = {
+  csaa: 'CSAA',
+  cst: 'CST',
+}
+
+export function NewslettersListPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
-  const { entries, remove } = usePressEntries()
-  const [filters, setFilters] = useState<PressListFilters>(defaultPressListFilters)
+  const { entries, remove } = useNewsletterEntries()
+  const [filters, setFilters] = useState<NewsletterListFilters>(defaultNewsletterListFilters)
   const [page, setPage] = useState(1)
-  const [deleteCandidate, setDeleteCandidate] = useState<PressEntry | null>(null)
+  const [deleteCandidate, setDeleteCandidate] = useState<NewsletterEntry | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
   const dateFormatter = useMemo(
@@ -72,13 +77,9 @@ export function PressListPage() {
         return a.title.localeCompare(b.title) * direction
       }
       if (filters.sortBy === 'updatedAt') {
-        return (
-          (Date.parse(a.updatedAt) - Date.parse(b.updatedAt)) * direction
-        )
+        return (Date.parse(a.updatedAt) - Date.parse(b.updatedAt)) * direction
       }
-      return (
-        (Date.parse(a.releaseDate) - Date.parse(b.releaseDate)) * direction
-      )
+      return (Date.parse(a.sendDate) - Date.parse(b.sendDate)) * direction
     })
 
     return sorted
@@ -91,9 +92,9 @@ export function PressListPage() {
   const rangeStart = filtered.length ? pageStart + 1 : 0
   const rangeEnd = Math.min(pageStart + PAGE_SIZE, filtered.length)
 
-  function updateFilter<K extends keyof PressListFilters>(
+  function updateFilter<K extends keyof NewsletterListFilters>(
     key: K,
-    value: PressListFilters[K],
+    value: NewsletterListFilters[K],
   ) {
     setFilters((current) => ({ ...current, [key]: value }))
     setPage(1)
@@ -107,7 +108,7 @@ export function PressListPage() {
     return dateFormatter.format(new Date(parsed))
   }
 
-  function isModified(entry: PressEntry) {
+  function isModified(entry: NewsletterEntry) {
     return entry.updatedAt !== entry.createdAt
   }
 
@@ -118,7 +119,7 @@ export function PressListPage() {
     setIsDeleting(true)
     try {
       remove(deleteCandidate.id)
-      toast.success(t('press.feedback.deleted'))
+      toast.success(t('newsletters.feedback.deleted'))
       setDeleteCandidate(null)
     } finally {
       setIsDeleting(false)
@@ -129,54 +130,54 @@ export function PressListPage() {
     {
       type: 'select',
       key: 'status',
-      label: t('press.filters.status'),
+      label: t('newsletters.filters.status'),
       value: filters.status,
       options: statusOptionValues.map((value) => ({
         value,
-        label: t(`press.statusFilter.${value}`),
+        label: t(`newsletters.statusFilter.${value}`),
       })),
       onChange: (value) =>
-        updateFilter('status', value as PressListFilters['status']),
+        updateFilter('status', value as NewsletterListFilters['status']),
     },
     {
       type: 'select',
       key: 'sortBy',
-      label: t('press.filters.sortBy'),
+      label: t('newsletters.filters.sortBy'),
       value: filters.sortBy,
       options: sortOptionValues.map((value) => ({
         value,
-        label: t(`press.sortBy.${value}`),
+        label: t(`newsletters.sortBy.${value}`),
       })),
       onChange: (value) =>
-        updateFilter('sortBy', value as PressListFilters['sortBy']),
+        updateFilter('sortBy', value as NewsletterListFilters['sortBy']),
     },
   ]
 
   return (
-    <CmsAppShell activeKey="press">
+    <CmsAppShell activeKey="newsletters">
       <div className={styles.page}>
-        <Breadcrumb items={[{ label: t('press.breadcrumb.entries') }]} />
+        <Breadcrumb items={[{ label: t('newsletters.breadcrumb.entries') }]} />
 
         <div className={styles.pageHeader}>
           <div>
-            <h1 className={styles.title}>{t('press.list.title')}</h1>
-            <p className={styles.subtitle}>{t('press.list.subtitle')}</p>
+            <h1 className={styles.title}>{t('newsletters.list.title')}</h1>
+            <p className={styles.subtitle}>{t('newsletters.list.subtitle')}</p>
           </div>
           <button
             type="button"
             className={styles.primaryButton}
-            onClick={() => navigate('/press/new')}
+            onClick={() => navigate('/newsletters/new')}
           >
             <AddIcon size={16} />
-            {t('press.list.create')}
+            {t('newsletters.list.create')}
           </button>
         </div>
 
         <SearchFilterBar
           searchValue={filters.searchTerm}
           onSearchChange={(value) => updateFilter('searchTerm', value)}
-          searchPlaceholder={t('press.filters.searchPlaceholder')}
-          searchLabel={t('press.filters.search')}
+          searchPlaceholder={t('newsletters.filters.searchPlaceholder')}
+          searchLabel={t('newsletters.filters.search')}
           fields={fields}
           compact
         />
@@ -185,7 +186,7 @@ export function PressListPage() {
           {filtered.length > 0 && (
             <div className={styles.footer}>
               <span className={styles.footerInfo}>
-                {t('press.list.resultsLabel', {
+                {t('newsletters.list.resultsLabel', {
                   start: rangeStart,
                   end: rangeEnd,
                   total: filtered.length,
@@ -204,44 +205,38 @@ export function PressListPage() {
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th>{t('press.list.columns.title')}</th>
-                    <th>{t('press.list.columns.publishDate')}</th>
-                    <th>{t('press.list.columns.status')}</th>
-                    <th>{t('press.list.columns.actions')}</th>
+                    <th>{t('newsletters.list.columns.title')}</th>
+                    <th>{t('newsletters.list.columns.sendDate')}</th>
+                    <th>{t('newsletters.list.columns.status')}</th>
+                    <th>{t('newsletters.list.columns.actions')}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pageItems.map((entry) => (
                     <tr
                       key={entry.id}
-                      className={
-                        entry.status === 'draft' ? styles.draftRow : undefined
-                      }
                     >
                       <td>
                         <div className={styles.titleCell}>
-                          <span
-                            className={styles.thumbnail}
-                            aria-hidden={!entry.coverImageUrl}
-                          >
-                            {entry.coverImageUrl && (
-                              <img
-                                src={entry.coverImageUrl}
-                                alt=""
-                              />
-                            )}
-                          </span>
+                          {entry.category && (
+                            <span
+                              className={`${styles.categoryChip} ${styles[`categoryChip_${entry.category}`]}`}
+                              aria-hidden="true"
+                            >
+                              {CATEGORY_LABELS[entry.category]}
+                            </span>
+                          )}
                           <div>
                             <button
                               type="button"
                               className={styles.entryTitle}
-                              onClick={() => navigate(`/press/${entry.id}/edit`)}
+                              onClick={() => navigate(`/newsletters/${entry.id}/edit`)}
                             >
-                              {entry.title || t('press.list.untitled')}
+                              {entry.title || t('newsletters.list.untitled')}
                             </button>
                             {isModified(entry) && (
                               <span className={styles.modifiedHint}>
-                                {t('press.list.modifiedOn', {
+                                {t('newsletters.list.modifiedOn', {
                                   date: formatDate(entry.updatedAt),
                                 })}
                               </span>
@@ -250,7 +245,7 @@ export function PressListPage() {
                         </div>
                       </td>
                       <td className={styles.dateCell}>
-                        {formatDate(entry.releaseDate)}
+                        {formatDate(entry.sendDate)}
                       </td>
                       <td>
                         <StatusBadge status={entry.status} />
@@ -260,15 +255,15 @@ export function PressListPage() {
                           <button
                             type="button"
                             className={styles.iconButton}
-                            aria-label={t('press.list.edit')}
-                            onClick={() => navigate(`/press/${entry.id}/edit`)}
+                            aria-label={t('newsletters.list.edit')}
+                            onClick={() => navigate(`/newsletters/${entry.id}/edit`)}
                           >
                             <PencilIcon />
                           </button>
                           <button
                             type="button"
                             className={`${styles.iconButton} ${styles.iconButtonDanger}`}
-                            aria-label={t('press.list.delete')}
+                            aria-label={t('newsletters.list.delete')}
                             onClick={() => setDeleteCandidate(entry)}
                           >
                             <TrashIcon />
@@ -282,8 +277,8 @@ export function PressListPage() {
             </div>
           ) : (
             <div className={styles.emptyState}>
-              <p className={styles.emptyTitle}>{t('press.list.emptyTitle')}</p>
-              <p>{t('press.list.emptyText')}</p>
+              <p className={styles.emptyTitle}>{t('newsletters.list.emptyTitle')}</p>
+              <p>{t('newsletters.list.emptyText')}</p>
             </div>
           )}
 
@@ -291,16 +286,16 @@ export function PressListPage() {
 
         <ConfirmDialog
           open={Boolean(deleteCandidate)}
-          title={t('press.list.deleteDialogTitle')}
+          title={t('newsletters.list.deleteDialogTitle')}
           body={
             <Trans
-              i18nKey="press.list.deleteDialogDescription"
+              i18nKey="newsletters.list.deleteDialogDescription"
               values={{ title: deleteCandidate?.title ?? '' }}
               components={{ entryName: <strong /> }}
             />
           }
-          confirmLabel={t('press.list.delete')}
-          cancelLabel={t('press.list.cancelDelete')}
+          confirmLabel={t('newsletters.list.delete')}
+          cancelLabel={t('newsletters.list.cancelDelete')}
           destructive
           busy={isDeleting}
           onConfirm={() => void handleConfirmDelete()}

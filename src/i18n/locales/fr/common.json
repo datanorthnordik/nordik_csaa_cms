@@ -812,6 +812,108 @@
     "linkPrompt": "URL (vide pour retirer le lien)",
     "imagePrompt": "URL de l image"
   },
+  "newsletters": {
+    "breadcrumb": {
+      "entries": "Bulletins",
+      "create": "Nouveau bulletin",
+      "edit": "Modifier le bulletin"
+    },
+    "list": {
+      "title": "Bulletins",
+      "subtitle": "Gerez et distribuez les bulletins et campagnes courriel de la communaute.",
+      "create": "Creer un bulletin",
+      "columns": {
+        "title": "Titre du bulletin",
+        "sendDate": "Date d'envoi",
+        "status": "Statut",
+        "actions": "Actions"
+      },
+      "modifiedOn": "Mise a jour le {{date}}",
+      "untitled": "Bulletin sans titre",
+      "resultsLabel": "Affichage de {{start}} a {{end}} sur {{total}} bulletins",
+      "previous": "Page precedente",
+      "next": "Page suivante",
+      "edit": "Modifier le bulletin",
+      "delete": "Supprimer",
+      "cancelDelete": "Annuler",
+      "deleteDialogTitle": "Supprimer ce bulletin ?",
+      "deleteDialogDescription": "Cela supprimera definitivement <entryName>\"{{title}}\"</entryName>. Cette action est irreversible.",
+      "emptyTitle": "Aucun bulletin trouve",
+      "emptyText": "Ajustez vos filtres ou creez un nouveau bulletin pour commencer."
+    },
+    "filters": {
+      "search": "Rechercher dans les bulletins",
+      "searchPlaceholder": "Rechercher par titre...",
+      "status": "Statut",
+      "sortBy": "Trier par"
+    },
+    "statusFilter": {
+      "all": "Tous statuts",
+      "published": "Publie",
+      "draft": "Brouillon",
+      "scheduled": "Planifie"
+    },
+    "sortBy": {
+      "sendDate": "Date d'envoi",
+      "title": "Titre",
+      "updatedAt": "Derniere modification"
+    },
+    "feedback": {
+      "deleted": "Bulletin supprime",
+      "saved": "Bulletin enregistre",
+      "published": "Bulletin publie"
+    },
+    "editor": {
+      "loading": "Chargement...",
+      "titleCreate": "Creer un bulletin",
+      "titleEdit": "Modifier le bulletin",
+      "subtitle": "Composez, planifiez et publiez vos editions de bulletin.",
+      "backToList": "← Retour aux bulletins",
+      "notFoundTitle": "Bulletin introuvable",
+      "notFoundText": "Ce bulletin a peut-etre ete supprime ou n a jamais existe.",
+      "deleteConfirmBody": "Cela supprimera definitivement \"{{title}}\". Cette action est irreversible.",
+      "sections": {
+        "details": "Details du bulletin",
+        "content": "Editeur de contenu",
+        "attachments": "Pieces jointes",
+        "attachmentsLimit": "20 Mo max / fichier"
+      },
+      "fields": {
+        "title": "Titre du bulletin",
+        "titlePlaceholder": "Saisissez un titre clair et descriptif...",
+        "category": "Categorie",
+        "categoryPlaceholder": "Bulletin CSAA ou CST",
+        "categoryCsaa": "Bulletin CSAA",
+        "categoryCst": "Bulletin CST",
+        "sendDate": "Date d'envoi",
+        "contentPlaceholder": "Redigez le contenu de votre bulletin ici..."
+      },
+      "media": {
+        "dropLabel": "Glissez-deposez les fichiers ici",
+        "dropHint": "ou cliquez pour parcourir",
+        "remove": "Retirer le fichier"
+      },
+      "actions": {
+        "publish": "Publier le bulletin",
+        "saveDraft": "Enregistrer le brouillon",
+        "delete": "Supprimer le bulletin"
+      },
+      "meta": {
+        "created": "Cree le",
+        "updated": "Derniere modification"
+      },
+      "proTip": {
+        "title": "Conseils de redaction",
+        "body": "Limitez l objet du courriel a 50 caracteres pour un meilleur taux d'ouverture. Commencez par l information la plus importante et incluez un appel a l action clair.",
+        "cta": "Voir le guide de bulletin →"
+      },
+      "validation": {
+        "summary": "Veuillez corriger les champs en rouge.",
+        "titleRequired": "Le titre est obligatoire.",
+        "sendDateRequired": "La date d'envoi est obligatoire."
+      }
+    }
+  },
   "press": {
     "breadcrumb": {
       "entries": "Entrees de presse",

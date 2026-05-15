@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { DateInput } from '../components/cms/DateInput'
 import toast from 'react-hot-toast'
 import { Trans, useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -514,7 +515,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
           <p>{t('events.editor.invalidIdText')}</p>
           <button
             type="button"
-            className={styles.secondaryButton}
+            className={styles.backLink}
             onClick={() => navigate('/events')}
           >
             {t('events.editor.backToList')}
@@ -542,7 +543,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
           <p>{detailState.error}</p>
           <button
             type="button"
-            className={styles.secondaryButton}
+            className={styles.backLink}
             onClick={() => navigate('/events')}
           >
             {t('events.editor.backToList')}
@@ -569,7 +570,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
           </div>
           <button
             type="button"
-            className={styles.secondaryButton}
+            className={styles.backLink}
             onClick={() => navigate('/events')}
           >
             {t('events.editor.backToList')}
@@ -705,10 +706,9 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
               <div className={styles.fieldGrid}>
                 <label>
                   <span>{t('events.fields.startDate')}</span>
-                  <input
-                    type="date"
+                  <DateInput
                     value={form.startDate}
-                    onChange={(event) => updateField('startDate', event.target.value)}
+                    onChange={(value) => updateField('startDate', value)}
                   />
                   <FieldError message={errors.startDate} />
                 </label>
@@ -716,10 +716,9 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                 {usesSeparateEndDate(form.eventType) && (
                   <label>
                     <span>{t('events.fields.endDate')}</span>
-                    <input
-                      type="date"
+                    <DateInput
                       value={form.endDate}
-                      onChange={(event) => updateField('endDate', event.target.value)}
+                      onChange={(value) => updateField('endDate', value)}
                     />
                     <FieldError message={errors.endDate} />
                   </label>
@@ -826,12 +825,9 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
 
                       <label>
                         <span>{t('events.fields.recurrenceUntilDate')}</span>
-                        <input
-                          type="date"
+                        <DateInput
                           value={form.recurrenceUntilDate}
-                          onChange={(event) =>
-                            updateField('recurrenceUntilDate', event.target.value)
-                          }
+                          onChange={(value) => updateField('recurrenceUntilDate', value)}
                         />
                       </label>
                     </div>
@@ -951,12 +947,9 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                 <div className={styles.fieldGrid}>
                   <label>
                     <span>{t('events.fields.registrationStartDate')}</span>
-                    <input
-                      type="date"
+                    <DateInput
                       value={form.registrationStartDate}
-                      onChange={(event) =>
-                        updateField('registrationStartDate', event.target.value)
-                      }
+                      onChange={(value) => updateField('registrationStartDate', value)}
                     />
                     <FieldError message={errors.registrationStartDate} />
                   </label>
@@ -973,12 +966,9 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                   </label>
                   <label>
                     <span>{t('events.fields.registrationEndDate')}</span>
-                    <input
-                      type="date"
+                    <DateInput
                       value={form.registrationEndDate}
-                      onChange={(event) =>
-                        updateField('registrationEndDate', event.target.value)
-                      }
+                      onChange={(value) => updateField('registrationEndDate', value)}
                     />
                     <FieldError message={errors.registrationEndDate} />
                   </label>
@@ -1519,7 +1509,11 @@ function OccurrenceField({
   return (
     <label>
       <span>{label}</span>
-      <input type={type} value={value} onChange={(event) => onChange(event.target.value)} />
+      {type === 'date' ? (
+        <DateInput value={value} onChange={onChange} />
+      ) : (
+        <input type={type} value={value} onChange={(event) => onChange(event.target.value)} />
+      )}
       <FieldError message={error} />
     </label>
   )

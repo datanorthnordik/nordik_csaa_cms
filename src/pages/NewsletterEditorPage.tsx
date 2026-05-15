@@ -11,16 +11,16 @@ import { EntryActions } from '../components/cms/EntryActions'
 import { RichTextEditor } from '../components/cms/RichTextEditor'
 import { UploadDropzone } from '../components/media/UploadDropzone'
 import { AddPhotoIcon } from '../components/icons'
-import { usePressCategories } from '../hooks/usePressCategories'
-import { usePressEntries } from '../hooks/usePressEntries'
+import { useNewsletterEntries } from '../hooks/useNewsletterEntries'
 import type {
-  PressEntry,
-  PressFormErrors,
-  PressFormState,
-  PressMedia,
-  PressStatus,
-} from '../lib/pressTypes'
-import styles from '../styles/PressEditorPage.module.css'
+  NewsletterCategory,
+  NewsletterEntry,
+  NewsletterFormErrors,
+  NewsletterFormState,
+  NewsletterMedia,
+  NewsletterStatus,
+} from '../lib/newsletterTypes'
+import styles from '../styles/NewsletterEditorPage.module.css'
 
 function makeMediaId() {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
@@ -45,16 +45,11 @@ function readMediaUrl(file: File): Promise<string> {
   return Promise.resolve(URL.createObjectURL(file))
 }
 
-function firstImageUrl(media: PressMedia[]): string | undefined {
-  return media.find((item) => item.mimeType?.startsWith('image/'))?.fileUrl
-}
-
-function emptyFormState(): PressFormState {
+function emptyFormState(): NewsletterFormState {
   return {
     title: '',
-    releaseDate: '',
-    categoryId: '',
-    sourceUrl: '',
+    category: '',
+    sendDate: '',
     contentHtml: '',
     visibility: 'public',
     publishAt: '',
@@ -62,12 +57,11 @@ function emptyFormState(): PressFormState {
   }
 }
 
-function entryToFormState(entry: PressEntry): PressFormState {
+function entryToFormState(entry: NewsletterEntry): NewsletterFormState {
   return {
     title: entry.title,
-    releaseDate: entry.releaseDate,
-    categoryId: entry.categoryId ?? '',
-    sourceUrl: entry.sourceUrl,
+    category: entry.category,
+    sendDate: entry.sendDate,
     contentHtml: entry.contentHtml,
     visibility: entry.visibility,
     publishAt: entry.publishAt ?? '',
@@ -75,43 +69,38 @@ function entryToFormState(entry: PressEntry): PressFormState {
   }
 }
 
-function validate(state: PressFormState, t: (k: string) => string): PressFormErrors {
-  const errors: PressFormErrors = {}
+function validate(
+  state: NewsletterFormState,
+  t: (k: string) => string,
+): NewsletterFormErrors {
+  const errors: NewsletterFormErrors = {}
   if (!state.title.trim()) {
-    errors.title = t('press.editor.validation.titleRequired')
+    errors.title = t('newsletters.editor.validation.titleRequired')
   }
-  if (!state.releaseDate) {
-    errors.releaseDate = t('press.editor.validation.releaseDateRequired')
-  }
-  if (state.sourceUrl) {
-    try {
-      new URL(state.sourceUrl)
-    } catch {
-      errors.sourceUrl = t('press.editor.validation.sourceUrlInvalid')
-    }
+  if (!state.sendDate) {
+    errors.sendDate = t('newsletters.editor.validation.sendDateRequired')
   }
   return errors
 }
 
-type PressEditorPageProps = {
+type NewsletterEditorPageProps = {
   mode?: 'create' | 'edit'
 }
 
-export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
+export function NewsletterEditorPage({ mode = 'create' }: NewsletterEditorPageProps) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const { id } = useParams()
-  const { entries, create, update, remove, get } = usePressEntries()
-  const { categories, create: createCategory } = usePressCategories()
+  const { entries, create, update, remove, get } = useNewsletterEntries()
 
   const isEditMode = mode === 'edit' && Boolean(id)
   const currentEntry = isEditMode && id ? get(id) : undefined
   const isMissingEntry = isEditMode && !currentEntry && entries.length > 0
 
-  const [form, setForm] = useState<PressFormState>(() =>
+  const [form, setForm] = useState<NewsletterFormState>(() =>
     currentEntry ? entryToFormState(currentEntry) : emptyFormState(),
   )
-  const [errors, setErrors] = useState<PressFormErrors>({})
+  const [errors, setErrors] = useState<NewsletterFormErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const lastHydratedKey = useRef<string | null>(currentEntry?.id ?? null)
@@ -131,7 +120,10 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
     [i18n.language],
   )
 
-  function updateField<K extends keyof PressFormState>(key: K, value: PressFormState[K]) {
+  function updateField<K extends keyof NewsletterFormState>(
+    key: K,
+    value: NewsletterFormState[K],
+  ) {
     setForm((current) => ({ ...current, [key]: value }))
     if (errors[key]) {
       setErrors((current) => {
@@ -142,27 +134,25 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
     }
   }
 
-  function buildPersistedShape(state: PressFormState, status: PressStatus) {
+  function buildPersistedShape(state: NewsletterFormState, status: NewsletterStatus) {
     const publishAt = status === 'scheduled' && state.publishAt ? state.publishAt : null
     return {
       title: state.title.trim(),
-      releaseDate: state.releaseDate,
-      categoryId: state.categoryId || null,
-      sourceUrl: state.sourceUrl.trim(),
+      category: state.category,
+      sendDate: state.sendDate,
       contentHtml: state.contentHtml,
       visibility: state.visibility,
       publishAt,
-      coverImageUrl: firstImageUrl(state.media),
       media: state.media,
       status,
     }
   }
 
-  function handleSave(targetStatus: PressStatus) {
+  function handleSave(targetStatus: NewsletterStatus) {
     const validationErrors = validate(form, t)
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors)
-      toast.error(t('press.editor.validation.summary'))
+      toast.error(t('newsletters.editor.validation.summary'))
       return
     }
 
@@ -174,17 +164,17 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
         update(currentEntry.id, payload)
         toast.success(
           targetStatus === 'published'
-            ? t('press.feedback.published')
-            : t('press.feedback.saved'),
+            ? t('newsletters.feedback.published')
+            : t('newsletters.feedback.saved'),
         )
       } else {
         const created = create(payload)
         toast.success(
           targetStatus === 'published'
-            ? t('press.feedback.published')
-            : t('press.feedback.saved'),
+            ? t('newsletters.feedback.published')
+            : t('newsletters.feedback.saved'),
         )
-        navigate(`/press/${created.id}/edit`, { replace: true })
+        navigate(`/newsletters/${created.id}/edit`, { replace: true })
       }
     } finally {
       setIsSubmitting(false)
@@ -198,27 +188,18 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
     setIsDeleting(true)
     try {
       remove(currentEntry.id)
-      toast.success(t('press.feedback.deleted'))
-      navigate('/press', { replace: true })
+      toast.success(t('newsletters.feedback.deleted'))
+      navigate('/newsletters', { replace: true })
     } finally {
       setIsDeleting(false)
     }
-  }
-
-  function handleAddCategory() {
-    const name = window.prompt(t('press.editor.categoryPrompt'))
-    if (!name?.trim()) {
-      return
-    }
-    const created = createCategory(name)
-    updateField('categoryId', created.id)
   }
 
   async function handleAddMedia(files: File[]) {
     if (!files.length) {
       return
     }
-    const newMedia: PressMedia[] = await Promise.all(
+    const newMedia: NewsletterMedia[] = await Promise.all(
       files.map(async (file) => ({
         id: makeMediaId(),
         fileName: file.name,
@@ -245,23 +226,23 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
 
   if (isMissingEntry) {
     return (
-      <CmsAppShell activeKey="press">
+      <CmsAppShell activeKey="newsletters">
         <div className={styles.page}>
           <Breadcrumb
             items={[
-              { label: t('press.breadcrumb.entries'), to: '/press' },
-              { label: t('press.editor.notFoundTitle') },
+              { label: t('newsletters.breadcrumb.entries'), to: '/newsletters' },
+              { label: t('newsletters.editor.notFoundTitle') },
             ]}
           />
           <section className={styles.card}>
-            <h1>{t('press.editor.notFoundTitle')}</h1>
-            <p>{t('press.editor.notFoundText')}</p>
+            <h1>{t('newsletters.editor.notFoundTitle')}</h1>
+            <p>{t('newsletters.editor.notFoundText')}</p>
             <button
               type="button"
               className={styles.backLink}
-              onClick={() => navigate('/press')}
+              onClick={() => navigate('/newsletters')}
             >
-              {t('press.editor.backToList')}
+              {t('newsletters.editor.backToList')}
             </button>
           </section>
         </div>
@@ -271,29 +252,29 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
 
   if (isEditMode && !currentEntry) {
     return (
-      <CmsAppShell activeKey="press">
+      <CmsAppShell activeKey="newsletters">
         <div className={styles.loaderWrap}>
-          <Loader label={t('press.editor.loading')} />
+          <Loader label={t('newsletters.editor.loading')} />
         </div>
       </CmsAppShell>
     )
   }
 
-  const currentStatus: PressStatus = currentEntry?.status ?? 'draft'
+  const currentStatus: NewsletterStatus = currentEntry?.status ?? 'draft'
   const errorMessages = Array.from(new Set(Object.values(errors).filter(Boolean)))
   const wasModified =
     currentEntry !== undefined && currentEntry.updatedAt !== currentEntry.createdAt
 
   return (
-    <CmsAppShell activeKey="press">
+    <CmsAppShell activeKey="newsletters">
       <div className={styles.page}>
         <Breadcrumb
           items={[
-            { label: t('press.breadcrumb.entries'), to: '/press' },
+            { label: t('newsletters.breadcrumb.entries'), to: '/newsletters' },
             {
               label: isEditMode
-                ? t('press.breadcrumb.edit')
-                : t('press.breadcrumb.create'),
+                ? t('newsletters.breadcrumb.edit')
+                : t('newsletters.breadcrumb.create'),
             },
           ]}
         />
@@ -302,23 +283,23 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
           <div className={styles.headerText}>
             <h1>
               {isEditMode
-                ? t('press.editor.titleEdit')
-                : t('press.editor.titleCreate')}
+                ? t('newsletters.editor.titleEdit')
+                : t('newsletters.editor.titleCreate')}
             </h1>
-            <p>{t('press.editor.subtitle')}</p>
+            <p>{t('newsletters.editor.subtitle')}</p>
           </div>
           <button
             type="button"
             className={styles.backLink}
-            onClick={() => navigate('/press')}
+            onClick={() => navigate('/newsletters')}
           >
-            {t('press.editor.backToList')}
+            {t('newsletters.editor.backToList')}
           </button>
         </div>
 
         {errorMessages.length > 0 && (
           <div className={styles.errorSummary} role="alert">
-            <p>{t('press.editor.validation.summary')}</p>
+            <p>{t('newsletters.editor.validation.summary')}</p>
             <ul>
               {errorMessages.map((message) => (
                 <li key={message}>{message}</li>
@@ -331,68 +312,51 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
           <div className={styles.mainColumn}>
             <section className={styles.card}>
               <div className={styles.cardHeader}>
-                <h2>{t('press.editor.sections.details')}</h2>
+                <h2>{t('newsletters.editor.sections.details')}</h2>
               </div>
 
               <div className={styles.fieldGrid}>
                 <label className={`${styles.field} ${styles.fieldFull}`}>
-                  <span>{t('press.editor.fields.title')}</span>
+                  <span>{t('newsletters.editor.fields.title')}</span>
                   <input
                     type="text"
                     value={form.title}
-                    placeholder={t('press.editor.fields.titlePlaceholder')}
+                    placeholder={t('newsletters.editor.fields.titlePlaceholder')}
                     onChange={(event) => updateField('title', event.target.value)}
                   />
-                  {errors.title && <p className={styles.fieldError}>{errors.title}</p>}
-                </label>
-
-                <label className={styles.field}>
-                  <span>{t('press.editor.fields.releaseDate')}</span>
-                  <DateInput
-                    value={form.releaseDate}
-                    onChange={(value) => updateField('releaseDate', value)}
-                  />
-                  {errors.releaseDate && (
-                    <p className={styles.fieldError}>{errors.releaseDate}</p>
+                  {errors.title && (
+                    <p className={styles.fieldError}>{errors.title}</p>
                   )}
                 </label>
 
                 <label className={styles.field}>
-                  <span>{t('press.editor.fields.category')}</span>
-                  <div className={styles.categoryRow}>
-                    <select
-                      value={form.categoryId}
-                      onChange={(event) => updateField('categoryId', event.target.value)}
-                    >
-                      <option value="">
-                        {t('press.editor.fields.categoryPlaceholder')}
-                      </option>
-                      {categories.map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      type="button"
-                      className={styles.addCategoryButton}
-                      onClick={handleAddCategory}
-                    >
-                      {t('press.editor.fields.addCategory')}
-                    </button>
-                  </div>
+                  <span>{t('newsletters.editor.fields.category')}</span>
+                  <select
+                    value={form.category}
+                    onChange={(event) =>
+                      updateField('category', event.target.value as NewsletterCategory)
+                    }
+                  >
+                    <option value="" disabled>
+                      {t('newsletters.editor.fields.categoryPlaceholder')}
+                    </option>
+                    <option value="csaa">
+                      {t('newsletters.editor.fields.categoryCsaa')}
+                    </option>
+                    <option value="cst">
+                      {t('newsletters.editor.fields.categoryCst')}
+                    </option>
+                  </select>
                 </label>
 
-                <label className={`${styles.field} ${styles.fieldFull}`}>
-                  <span>{t('press.editor.fields.sourceUrl')}</span>
-                  <input
-                    type="url"
-                    value={form.sourceUrl}
-                    placeholder={t('press.editor.fields.sourceUrlPlaceholder')}
-                    onChange={(event) => updateField('sourceUrl', event.target.value)}
+                <label className={styles.field}>
+                  <span>{t('newsletters.editor.fields.sendDate')}</span>
+                  <DateInput
+                    value={form.sendDate}
+                    onChange={(value) => updateField('sendDate', value)}
                   />
-                  {errors.sourceUrl && (
-                    <p className={styles.fieldError}>{errors.sourceUrl}</p>
+                  {errors.sendDate && (
+                    <p className={styles.fieldError}>{errors.sendDate}</p>
                   )}
                 </label>
               </div>
@@ -400,19 +364,19 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
 
             <section className={styles.card}>
               <div className={styles.cardHeader}>
-                <h2>{t('press.editor.sections.content')}</h2>
+                <h2>{t('newsletters.editor.sections.content')}</h2>
               </div>
               <RichTextEditor
                 value={form.contentHtml}
                 onChange={(html) => updateField('contentHtml', html)}
-                placeholder={t('press.editor.fields.contentPlaceholder')}
+                placeholder={t('newsletters.editor.fields.contentPlaceholder')}
               />
             </section>
 
             <section className={styles.card}>
               <div className={styles.cardHeader}>
-                <h2>{t('press.editor.sections.media')}</h2>
-                <span>{t('press.editor.sections.mediaLimit')}</span>
+                <h2>{t('newsletters.editor.sections.attachments')}</h2>
+                <span>{t('newsletters.editor.sections.attachmentsLimit')}</span>
               </div>
 
               <div className={styles.mediaSection}>
@@ -420,8 +384,8 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
                   multiple
                   accept="image/*,application/pdf"
                   icon={<AddPhotoIcon />}
-                  label={t('press.editor.media.dropLabel')}
-                  hint={t('press.editor.media.dropHint')}
+                  label={t('newsletters.editor.media.dropLabel')}
+                  hint={t('newsletters.editor.media.dropHint')}
                   onFiles={handleAddMedia}
                 />
 
@@ -436,7 +400,7 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
                         <button
                           type="button"
                           className={styles.removeMediaButton}
-                          aria-label={t('press.editor.media.remove')}
+                          aria-label={t('newsletters.editor.media.remove')}
                           onClick={() => handleRemoveMedia(mediaItem.id)}
                         >
                           <CloseIcon />
@@ -449,39 +413,37 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
             </section>
 
             <EntryActions
-              entryType="press"
+              entryType="newsletter"
               status={currentStatus}
-              publishLabel={t('press.editor.actions.publish')}
-              saveDraftLabel={t('press.editor.actions.saveDraft')}
-              deleteLabel={t('press.editor.actions.delete')}
+              publishLabel={t('newsletters.editor.actions.publish')}
+              saveDraftLabel={t('newsletters.editor.actions.saveDraft')}
+              deleteLabel={t('newsletters.editor.actions.delete')}
               onSaveDraft={() => handleSave('draft')}
               onPublish={() => handleSave('published')}
               isSubmitting={isSubmitting}
               isDeleting={isDeleting}
               onDelete={isEditMode ? handleDelete : undefined}
-              deleteConfirmTitle={t('press.list.deleteDialogTitle')}
-              deleteConfirmBody={t('press.editor.deleteConfirmBody', {
-                title: form.title || t('press.list.untitled'),
+              deleteConfirmTitle={t('newsletters.list.deleteDialogTitle')}
+              deleteConfirmBody={t('newsletters.editor.deleteConfirmBody', {
+                title: form.title || t('newsletters.list.untitled'),
               })}
-              deleteConfirmLabel={t('press.list.delete')}
+              deleteConfirmLabel={t('newsletters.list.delete')}
             />
           </div>
 
           <aside className={styles.sideColumn}>
-            <PublishingControls
-              status={currentStatus}
-            />
+            <PublishingControls status={currentStatus} />
 
             {wasModified && currentEntry && (
               <div className={styles.metaCard}>
                 <span>
-                  {t('press.editor.meta.created')}{' '}
+                  {t('newsletters.editor.meta.created')}{' '}
                   <strong>
                     {dateFormatter.format(new Date(currentEntry.createdAt))}
                   </strong>
                 </span>
                 <span>
-                  {t('press.editor.meta.updated')}{' '}
+                  {t('newsletters.editor.meta.updated')}{' '}
                   <strong>
                     {dateFormatter.format(new Date(currentEntry.updatedAt))}
                   </strong>
@@ -490,10 +452,10 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
             )}
 
             <div className={styles.proTip}>
-              <h3>{t('press.editor.proTip.title')}</h3>
-              <p>{t('press.editor.proTip.body')}</p>
+              <h3>{t('newsletters.editor.proTip.title')}</h3>
+              <p>{t('newsletters.editor.proTip.body')}</p>
               <button type="button" className={styles.proTipLink}>
-                {t('press.editor.proTip.cta')}
+                {t('newsletters.editor.proTip.cta')}
               </button>
             </div>
           </aside>
