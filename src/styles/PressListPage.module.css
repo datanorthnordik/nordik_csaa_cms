@@ -55,6 +55,27 @@
   gap: 20px;
 }
 
+.errorBox {
+  padding: 16px;
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-md);
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+  font-size: 0.875rem;
+}
+
+.errorBox p {
+  margin: 0;
+}
+
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  min-height: 300px;
+}
+
 .tableWrap {
   overflow-x: auto;
 }

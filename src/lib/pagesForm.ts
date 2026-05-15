@@ -28,6 +28,7 @@ import type {
   SavePageTypographySectionPayload,
   PageUploadInput,
 } from '../api/pagesApi'
+import { API_BASE_URL } from '../constants/api'
 
 export type PageSectionDocumentState = {
   clientId: string
@@ -179,6 +180,23 @@ export function createDefaultPageFormState(): PageFormState {
   }
 }
 
+export function resolvePageAssetUrl(value: string) {
+  const trimmed = value.trim()
+  if (!trimmed) {
+    return ''
+  }
+
+  if (/^[a-z][a-z0-9+.-]*:/i.test(trimmed) || trimmed.startsWith('//')) {
+    return trimmed
+  }
+
+  try {
+    return new URL(trimmed, `${API_BASE_URL}/`).toString()
+  } catch {
+    return trimmed
+  }
+}
+
 export function buildPageFormStateFromDetail(
   detail: PageDetailResponse,
   options: {
@@ -198,7 +216,7 @@ export function buildPageFormStateFromDetail(
     heroImageEnabled: detail.hero_image_enabled,
     heroImageFile: null,
     removeHeroImage: false,
-    existingHeroImageFetchUrl: detail.hero_image_fetch_url ?? '',
+    existingHeroImageFetchUrl: resolvePageAssetUrl(detail.hero_image_fetch_url ?? ''),
     existingHeroImageStorageUrl: detail.hero_image_url ?? '',
     seoPageTitle: detail.seo_page_title ?? '',
     seoPageDescription: detail.seo_page_description ?? '',
@@ -536,7 +554,7 @@ function mapDocumentResponseToState(document: PageDocumentResponse): PageSection
     displayName: document.display_name,
     description: document.description,
     originalFileName: document.original_file_name || document.file_name,
-    existingFetchUrl: document.fetch_url || document.file_url,
+    existingFetchUrl: resolvePageAssetUrl(document.fetch_url || document.file_url),
     existingStorageUri: document.storage_uri,
     existingMimeType: document.mime_type,
     existingFileSize: document.file_size,

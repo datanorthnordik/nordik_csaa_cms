@@ -1,4 +1,9 @@
-import { useEffect, useMemo, useState, type DragEvent, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type DragEvent, type ReactNode } from 'react'
+import DragIndicatorOutlinedIcon from '@mui/icons-material/DragIndicatorOutlined'
+import ExpandLessOutlinedIcon from '@mui/icons-material/ExpandLessOutlined'
+import ExpandMoreOutlinedIcon from '@mui/icons-material/ExpandMoreOutlined'
+import KeyboardArrowDownOutlinedIcon from '@mui/icons-material/KeyboardArrowDownOutlined'
+import KeyboardArrowUpOutlinedIcon from '@mui/icons-material/KeyboardArrowUpOutlined'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -126,6 +131,11 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
   const [modulePickerOpen, setModulePickerOpen] = useState(false)
   const [draggedSectionClientId, setDraggedSectionClientId] = useState<string | null>(null)
   const [dragOverSectionClientId, setDragOverSectionClientId] = useState<string | null>(null)
+  const [documentPreviewUrls, setDocumentPreviewUrls] = useState<Record<string, string>>({})
+  const [activeDocumentAction, setActiveDocumentAction] = useState<
+    Record<string, 'preview' | 'download' | undefined>
+  >({})
+  const documentPreviewUrlsRef = useRef<Record<string, string>>({})
 
   useEffect(() => {
     let cancelled = false
@@ -392,6 +402,112 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
   const currentHeroPreview =
     heroImagePreviewUrl ??
     (form.heroImageEnabled && !form.removeHeroImage ? existingHeroObjectUrl : null)
+  const documentPreviewSources = useMemo(
+    () =>
+      form.sections
+        .flatMap((section) => section.documents.items)
+        .filter((document) =>
+          canPreviewDocument(
+            document.file?.type || document.existingMimeType,
+            document.originalFileName || document.file?.name || '',
+          ),
+        )
+        .map((document) => ({
+          clientId: document.clientId,
+          file: document.file,
+          fetchUrl: document.existingFetchUrl,
+          sourceKey: document.file
+            ? [
+                document.file.name,
+                document.file.size,
+                document.file.lastModified,
+                document.file.type,
+              ].join(':')
+            : document.existingFetchUrl,
+        }))
+        .sort((left, right) => left.clientId.localeCompare(right.clientId)),
+    [form.sections],
+  )
+  const documentPreviewSignature = useMemo(
+    () =>
+      JSON.stringify(
+        documentPreviewSources.map((source) => ({
+          clientId: source.clientId,
+          sourceKey: source.sourceKey,
+        })),
+      ),
+    [documentPreviewSources],
+  )
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadDocumentPreviews() {
+      const nextEntries = await Promise.all(
+        documentPreviewSources.map(async (source) => {
+          try {
+            if (source.file) {
+              return [source.clientId, URL.createObjectURL(source.file)] as const
+            }
+
+            if (!source.fetchUrl) {
+              return [source.clientId, ''] as const
+            }
+
+            const blob = await pagesApi.fetchPageDocumentContent(source.fetchUrl)
+            return [source.clientId, URL.createObjectURL(blob)] as const
+          } catch {
+            return [source.clientId, ''] as const
+          }
+        }),
+      )
+
+      if (cancelled) {
+        nextEntries.forEach(([, url]) => {
+          if (url) {
+            URL.revokeObjectURL(url)
+          }
+        })
+        return
+      }
+
+      setDocumentPreviewUrls((current) => {
+        Object.values(current).forEach((url) => {
+          URL.revokeObjectURL(url)
+        })
+
+        const next = Object.fromEntries(nextEntries.filter(([, url]) => Boolean(url)))
+        documentPreviewUrlsRef.current = next
+        return next
+      })
+    }
+
+    if (!documentPreviewSources.length) {
+      setDocumentPreviewUrls((current) => {
+        Object.values(current).forEach((url) => {
+          URL.revokeObjectURL(url)
+        })
+        documentPreviewUrlsRef.current = {}
+        return {}
+      })
+      return
+    }
+
+    void loadDocumentPreviews()
+
+    return () => {
+      cancelled = true
+    }
+  }, [documentPreviewSignature, documentPreviewSources])
+
+  useEffect(() => {
+    return () => {
+      Object.values(documentPreviewUrlsRef.current).forEach((url) => {
+        URL.revokeObjectURL(url)
+      })
+      documentPreviewUrlsRef.current = {}
+    }
+  }, [])
 
   function clearErrors(...keys: Array<string>) {
     setErrors((current) => {
@@ -619,6 +735,59 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
         items: moveItemByClientId(section.documents.items, documentClientId, direction),
       },
     }))
+  }
+
+  async function handlePreviewDocument(document: PageSectionDocumentState) {
+    setActiveDocumentAction((current) => ({
+      ...current,
+      [document.clientId]: 'preview',
+    }))
+
+    try {
+      const previewUrl =
+        documentPreviewUrls[document.clientId] ||
+        (await createTemporaryDocumentObjectUrl(document))
+
+      if (!previewUrl) {
+        throw new Error('Preview URL unavailable')
+      }
+
+      window.open(previewUrl, '_blank', 'noopener,noreferrer')
+
+      if (!documentPreviewUrls[document.clientId]) {
+        scheduleObjectUrlRevoke(previewUrl)
+      }
+    } catch (error) {
+      toast.error(getApiErrorMessage(error) || t('pages.feedback.documentPreviewFailed'))
+    } finally {
+      setActiveDocumentAction((current) => ({
+        ...current,
+        [document.clientId]: undefined,
+      }))
+    }
+  }
+
+  async function handleDownloadDocument(
+    document: PageSectionDocumentState,
+    fileName: string,
+  ) {
+    setActiveDocumentAction((current) => ({
+      ...current,
+      [document.clientId]: 'download',
+    }))
+
+    try {
+      const downloadUrl = await createTemporaryDocumentObjectUrl(document)
+      triggerFileDownload(downloadUrl, fileName)
+      scheduleObjectUrlRevoke(downloadUrl)
+    } catch (error) {
+      toast.error(getApiErrorMessage(error) || t('pages.feedback.documentDownloadFailed'))
+    } finally {
+      setActiveDocumentAction((current) => ({
+        ...current,
+        [document.clientId]: undefined,
+      }))
+    }
   }
 
   async function submitForm(submitMode: SubmitMode) {
@@ -993,6 +1162,23 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                     document.file?.name ||
                     t('pages.modules.document.untitled')
                   const activeFileSize = document.file?.size ?? document.existingFileSize
+                  const documentTitle =
+                    document.displayName || stripFileExtension(existingFileName)
+                  const documentTypeLabel = resolveDocumentTypeLabel(
+                    document.file?.type || document.existingMimeType,
+                    existingFileName,
+                  )
+                  const canPreview = canPreviewDocument(
+                    document.file?.type || document.existingMimeType,
+                    existingFileName,
+                  )
+                  const previewUrl = documentPreviewUrls[document.clientId] || ''
+                  const documentMeta = buildDocumentMeta({
+                    isPendingUpload: Boolean(document.file),
+                    fileTypeLabel: documentTypeLabel,
+                    fileSize: activeFileSize,
+                    t,
+                  })
 
                   return (
                     <article key={document.clientId} className={styles.documentItem}>
@@ -1003,17 +1189,57 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                               index: documentIndex + 1,
                             })}
                           </p>
-                          <h4 className={styles.documentName}>
-                            {document.displayName || stripFileExtension(existingFileName)}
-                          </h4>
-                          <p className={styles.documentMeta}>
-                            {document.file
-                              ? t('pages.modules.document.pendingUpload', {
-                                  name: document.file.name,
-                                })
-                              : existingFileName}
-                            {activeFileSize ? ` - ${formatFileSize(activeFileSize)}` : ''}
-                          </p>
+                          <div className={styles.documentPreviewRow}>
+                            <div className={styles.documentPreviewCard} aria-hidden="true">
+                              {canPreview && previewUrl ? (
+                                <iframe
+                                  src={previewUrl}
+                                  title={documentTitle}
+                                  className={styles.documentPreviewFrame}
+                                />
+                              ) : (
+                                <>
+                                  <PagesIcon size={28} className={styles.documentPreviewIcon} />
+                                  <span className={styles.documentPreviewBadge}>
+                                    {documentTypeLabel}
+                                  </span>
+                                </>
+                              )}
+                            </div>
+                            <div className={styles.documentPreviewContent}>
+                              <h4 className={styles.documentName}>{documentTitle}</h4>
+                              {documentMeta ? (
+                                <p className={styles.documentMeta}>{documentMeta}</p>
+                              ) : null}
+                              <div className={styles.documentPreviewActions}>
+                                {canPreview ? (
+                                  <button
+                                    type="button"
+                                    className={styles.secondaryButton}
+                                    disabled={activeDocumentAction[document.clientId] !== undefined}
+                                    onClick={() => void handlePreviewDocument(document)}
+                                  >
+                                    {activeDocumentAction[document.clientId] === 'preview'
+                                      ? t('pages.common.loading')
+                                      : t('pages.modules.actions.previewDocument')}
+                                  </button>
+                                ) : null}
+                                <button
+                                  type="button"
+                                  className={styles.secondaryButton}
+                                  disabled={activeDocumentAction[document.clientId] !== undefined}
+                                  onClick={() =>
+                                    void handleDownloadDocument(document, existingFileName)
+                                  }
+                                >
+                                  <DownloadIcon size={16} />
+                                  {activeDocumentAction[document.clientId] === 'download'
+                                    ? t('pages.common.loading')
+                                    : t('pages.modules.actions.downloadDocument')}
+                                </button>
+                              </div>
+                            </div>
+                          </div>
                         </div>
 
                         {!isReadOnlyMode && (
@@ -1105,20 +1331,6 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                           />
                         </label>
                       </div>
-
-                      {document.existingFetchUrl && !document.file && (
-                        <div className={styles.documentFooter}>
-                          <a
-                            href={document.existingFetchUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className={styles.secondaryButton}
-                          >
-                            <DownloadIcon size={14} />
-                            {t('pages.modules.actions.openDocument')}
-                          </a>
-                        </div>
-                      )}
                     </article>
                   )
                 })}
@@ -1887,73 +2099,110 @@ function formatFileSize(size: number) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function DragHandleIcon() {
+function resolveDocumentTypeLabel(mimeType: string, fileName: string) {
+  const extension = fileName.split('.').pop()?.trim().toUpperCase() ?? ''
+  if (extension) {
+    return extension.length > 5 ? extension.slice(0, 5) : extension
+  }
+
+  const normalizedMimeType = mimeType.trim().toLowerCase()
+  if (normalizedMimeType.includes('pdf')) {
+    return 'PDF'
+  }
+  if (normalizedMimeType.includes('word')) {
+    return 'DOC'
+  }
+  if (normalizedMimeType.includes('excel') || normalizedMimeType.includes('sheet')) {
+    return 'XLS'
+  }
+  if (
+    normalizedMimeType.includes('powerpoint') ||
+    normalizedMimeType.includes('presentation')
+  ) {
+    return 'PPT'
+  }
+
+  return 'FILE'
+}
+
+function buildDocumentMeta({
+  isPendingUpload,
+  fileTypeLabel,
+  fileSize,
+  t,
+}: {
+  isPendingUpload: boolean
+  fileTypeLabel: string
+  fileSize?: number
+  t: (key: string) => string
+}) {
+  const parts = [
+    isPendingUpload ? t('pages.modules.document.pendingUploadShort') : '',
+    fileTypeLabel,
+    typeof fileSize === 'number' && fileSize > 0 ? formatFileSize(fileSize) : '',
+  ].filter(Boolean)
+
+  return parts.join(' • ')
+}
+
+function canPreviewDocument(mimeType: string, fileName: string) {
+  const normalizedMimeType = mimeType.trim().toLowerCase()
+  const extension = fileName.split('.').pop()?.trim().toLowerCase() ?? ''
+
   return (
-    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
-      <circle cx="5" cy="4" r="1.1" fill="currentColor" />
-      <circle cx="11" cy="4" r="1.1" fill="currentColor" />
-      <circle cx="5" cy="8" r="1.1" fill="currentColor" />
-      <circle cx="11" cy="8" r="1.1" fill="currentColor" />
-      <circle cx="5" cy="12" r="1.1" fill="currentColor" />
-      <circle cx="11" cy="12" r="1.1" fill="currentColor" />
-    </svg>
+    normalizedMimeType.includes('pdf') ||
+    normalizedMimeType.startsWith('image/') ||
+    ['pdf', 'png', 'jpg', 'jpeg', 'webp', 'gif'].includes(extension)
   )
+}
+
+async function createTemporaryDocumentObjectUrl(document: PageSectionDocumentState) {
+  if (document.file) {
+    return URL.createObjectURL(document.file)
+  }
+
+  if (!document.existingFetchUrl) {
+    throw new Error('Document URL unavailable')
+  }
+
+  const blob = await pagesApi.fetchPageDocumentContent(document.existingFetchUrl)
+  return URL.createObjectURL(blob)
+}
+
+function triggerFileDownload(url: string, fileName: string) {
+  const link = globalThis.document.createElement('a')
+  link.href = url
+  link.download = fileName
+  link.rel = 'noreferrer'
+  globalThis.document.body.appendChild(link)
+  link.click()
+  link.remove()
+}
+
+function scheduleObjectUrlRevoke(url: string) {
+  globalThis.setTimeout(() => {
+    URL.revokeObjectURL(url)
+  }, 60_000)
+}
+
+function DragHandleIcon() {
+  return <DragIndicatorOutlinedIcon fontSize="inherit" aria-hidden="true" />
 }
 
 function ArrowUpIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
-      <path
-        d="M8 12V4M8 4 4.8 7.2M8 4l3.2 3.2"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
+  return <KeyboardArrowUpOutlinedIcon fontSize="inherit" aria-hidden="true" />
 }
 
 function ArrowDownIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
-      <path
-        d="M8 4v8M8 12l-3.2-3.2M8 12l3.2-3.2"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
+  return <KeyboardArrowDownOutlinedIcon fontSize="inherit" aria-hidden="true" />
 }
 
 function ChevronUpIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
-      <path
-        d="m4 10 4-4 4 4"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
+  return <ExpandLessOutlinedIcon fontSize="inherit" aria-hidden="true" />
 }
 
 function ChevronDownIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
-      <path
-        d="m4 6 4 4 4-4"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
+  return <ExpandMoreOutlinedIcon fontSize="inherit" aria-hidden="true" />
 }
 
 function TypographyModuleIcon() {

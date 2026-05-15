@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Trans, useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
+import { Loader } from '../components/Loader'
 import { AddIcon } from '../components/icons'
 import { ConfirmDialog } from '../components/cms/ConfirmDialog'
 import { PaginationControls } from '../components/cms/PaginationControls'
@@ -28,18 +29,22 @@ const statusOptionValues: ('all' | PressStatus)[] = [
   'draft',
   'scheduled',
 ]
-const sortOptionValues: PressListFilters['sortBy'][] = [
-  'releaseDate',
-  'title',
-  'updatedAt',
-]
 
 export function PressListPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
-  const { entries, remove } = usePressEntries()
+  const {
+    entries,
+    loading,
+    error,
+    totalPages,
+    total,
+    fetch,
+    remove,
+  } = usePressEntries(1, PAGE_SIZE)
+  
   const [filters, setFilters] = useState<PressListFilters>(defaultPressListFilters)
-  const [page, setPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1)
   const [deleteCandidate, setDeleteCandidate] = useState<PressEntry | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -54,49 +59,27 @@ export function PressListPage() {
     [i18n.language],
   )
 
-  const filtered = useMemo(() => {
-    const term = filters.searchTerm.trim().toLowerCase()
-    const filteredList = entries.filter((entry) => {
-      if (filters.status !== 'all' && entry.status !== filters.status) {
-        return false
-      }
-      if (term && !entry.title.toLowerCase().includes(term)) {
-        return false
-      }
-      return true
-    })
-
-    const sorted = [...filteredList].sort((a, b) => {
-      const direction = filters.sortOrder === 'asc' ? 1 : -1
-      if (filters.sortBy === 'title') {
-        return a.title.localeCompare(b.title) * direction
-      }
-      if (filters.sortBy === 'updatedAt') {
-        return (
-          (Date.parse(a.updatedAt) - Date.parse(b.updatedAt)) * direction
-        )
-      }
-      return (
-        (Date.parse(a.releaseDate) - Date.parse(b.releaseDate)) * direction
+  // Fetch data when filters or page changes
+  useEffect(() => {
+    const apiFilters = {
+      status: filters.status !== 'all' ? filters.status : undefined,
+      search: filters.searchTerm || undefined,
+    }
+    void fetch(currentPage, PAGE_SIZE, apiFilters).catch((err) => {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : t('press.feedback.fetchError'),
       )
     })
-
-    return sorted
-  }, [entries, filters])
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
-  const safePage = Math.min(page, totalPages)
-  const pageStart = (safePage - 1) * PAGE_SIZE
-  const pageItems = filtered.slice(pageStart, pageStart + PAGE_SIZE)
-  const rangeStart = filtered.length ? pageStart + 1 : 0
-  const rangeEnd = Math.min(pageStart + PAGE_SIZE, filtered.length)
+  }, [filters, currentPage, fetch, t])
 
   function updateFilter<K extends keyof PressListFilters>(
     key: K,
     value: PressListFilters[K],
   ) {
     setFilters((current) => ({ ...current, [key]: value }))
-    setPage(1)
+    setCurrentPage(1)
   }
 
   function formatDate(iso: string) {
@@ -117,13 +100,20 @@ export function PressListPage() {
     }
     setIsDeleting(true)
     try {
-      remove(deleteCandidate.id)
+      await remove(deleteCandidate.id)
       toast.success(t('press.feedback.deleted'))
       setDeleteCandidate(null)
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : t('press.feedback.deleteError'),
+      )
     } finally {
       setIsDeleting(false)
     }
   }
+
+  const rangeStart = entries.length ? (currentPage - 1) * PAGE_SIZE + 1 : 0
+  const rangeEnd = Math.min(currentPage * PAGE_SIZE, total)
 
   const fields: FilterFieldConfig[] = [
     {
@@ -137,18 +127,6 @@ export function PressListPage() {
       })),
       onChange: (value) =>
         updateFilter('status', value as PressListFilters['status']),
-    },
-    {
-      type: 'select',
-      key: 'sortBy',
-      label: t('press.filters.sortBy'),
-      value: filters.sortBy,
-      options: sortOptionValues.map((value) => ({
-        value,
-        label: t(`press.sortBy.${value}`),
-      })),
-      onChange: (value) =>
-        updateFilter('sortBy', value as PressListFilters['sortBy']),
     },
   ]
 
@@ -182,24 +160,17 @@ export function PressListPage() {
         />
 
         <section className={styles.resultsPanel}>
-          {filtered.length > 0 && (
-            <div className={styles.footer}>
-              <span className={styles.footerInfo}>
-                {t('press.list.resultsLabel', {
-                  start: rangeStart,
-                  end: rangeEnd,
-                  total: filtered.length,
-                })}
-              </span>
-              <PaginationControls
-                page={safePage}
-                totalPages={totalPages}
-                onChange={setPage}
-              />
+          {error && (
+            <div className={styles.errorBox}>
+              <p>{error}</p>
             </div>
           )}
 
-          {pageItems.length ? (
+          {loading ? (
+            <div className={styles.loadingContainer}>
+              <Loader />
+            </div>
+          ) : entries.length > 0 ? (
             <div className={styles.tableWrap}>
               <table className={styles.table}>
                 <thead>
@@ -211,7 +182,7 @@ export function PressListPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {pageItems.map((entry) => (
+                  {entries.map((entry) => (
                     <tr
                       key={entry.id}
                       className={
@@ -287,6 +258,22 @@ export function PressListPage() {
             </div>
           )}
 
+          {total > 0 && (
+            <div className={styles.footer}>
+              <span className={styles.footerInfo}>
+                {t('press.list.resultsLabel', {
+                  start: rangeStart,
+                  end: rangeEnd,
+                  total,
+                })}
+              </span>
+              <PaginationControls
+                page={currentPage}
+                totalPages={totalPages}
+                onChange={setCurrentPage}
+              />
+            </div>
+          )}
         </section>
 
         <ConfirmDialog

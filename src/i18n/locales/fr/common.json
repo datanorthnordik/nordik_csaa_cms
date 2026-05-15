@@ -263,7 +263,9 @@
       "created": "Page creee avec succes.",
       "draftSaved": "Page enregistree comme brouillon.",
       "published": "Page publiee avec succes.",
-      "deleted": "Page supprimee avec succes."
+      "deleted": "Page supprimee avec succes.",
+      "documentPreviewFailed": "Impossible d afficher un apercu de ce document.",
+      "documentDownloadFailed": "Impossible de telecharger ce document."
     },
     "validation": {
       "pageTitleRequired": "Le titre de la page est requis.",
@@ -354,6 +356,8 @@
         "removeDocument": "Supprimer le document",
         "replaceFile": "Remplacer le fichier",
         "openDocument": "Ouvrir le document",
+        "previewDocument": "Apercu",
+        "downloadDocument": "Telecharger",
         "dragToReorder": "Glisser pour reordonner les sections"
       },
       "document": {
@@ -363,6 +367,7 @@
         "emptyText": "Televersez un ou plusieurs fichiers pour composer cette section de documents.",
         "itemLabel": "Document {{index}}",
         "pendingUpload": "Pret a televerser : {{name}}",
+        "pendingUploadShort": "Nouveau televersement",
         "untitled": "Document sans titre"
       }
     }

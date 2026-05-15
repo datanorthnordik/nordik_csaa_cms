@@ -1,8 +1,9 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import { DateInput } from '../components/cms/DateInput'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
+import { addPressMedia, deletePressMedia, fetchPressEntry } from '../api/pressApi'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
@@ -17,36 +18,20 @@ import type {
   PressEntry,
   PressFormErrors,
   PressFormState,
-  PressMedia,
   PressStatus,
 } from '../lib/pressTypes'
 import styles from '../styles/PressEditorPage.module.css'
 
-function makeMediaId() {
+type PendingPressMedia = {
+  id: string
+  file: File
+}
+
+function makePendingMediaId() {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID()
+    return `pending:${crypto.randomUUID()}`
   }
-  return `media-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-}
-
-function readAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = () => reject(reader.error)
-    reader.readAsDataURL(file)
-  })
-}
-
-function readMediaUrl(file: File): Promise<string> {
-  if (file.type.startsWith('image/')) {
-    return readAsDataUrl(file)
-  }
-  return Promise.resolve(URL.createObjectURL(file))
-}
-
-function firstImageUrl(media: PressMedia[]): string | undefined {
-  return media.find((item) => item.mimeType?.startsWith('image/'))?.fileUrl
+  return `pending:${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
 function emptyFormState(): PressFormState {
@@ -101,25 +86,54 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const { id } = useParams()
-  const { entries, create, update, remove, get } = usePressEntries()
+  const { create, update, remove } = usePressEntries()
   const { categories, create: createCategory } = usePressCategories()
 
   const isEditMode = mode === 'edit' && Boolean(id)
-  const currentEntry = isEditMode && id ? get(id) : undefined
-  const isMissingEntry = isEditMode && !currentEntry && entries.length > 0
+  const [currentEntry, setCurrentEntry] = useState<PressEntry | undefined>(undefined)
+  const [isLoadingEntry, setIsLoadingEntry] = useState(isEditMode)
 
-  const [form, setForm] = useState<PressFormState>(() =>
+  // Fetch entry from API if in edit mode
+  useEffect(() => {
+    if (!isEditMode || !id) return
+
+    const loadEntry = async () => {
+      try {
+        setIsLoadingEntry(true)
+        const entry = await fetchPressEntry(id)
+        setCurrentEntry(entry)
+      } catch (err) {
+        toast.error(
+          err instanceof Error
+            ? err.message
+            : t('press.editor.loadError'),
+        )
+      } finally {
+        setIsLoadingEntry(false)
+      }
+    }
+
+    void loadEntry()
+  }, [isEditMode, id, t])
+
+  const [form, setForm] = useState<PressFormState>(
     currentEntry ? entryToFormState(currentEntry) : emptyFormState(),
   )
+  const [coverImageFile, setCoverImageFile] = useState<File | undefined>()
+  const [pendingMedia, setPendingMedia] = useState<PendingPressMedia[]>([])
   const [errors, setErrors] = useState<PressFormErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const lastHydratedKey = useRef<string | null>(currentEntry?.id ?? null)
-  const currentKey = currentEntry?.id ?? (isEditMode ? null : 'new')
-  if (currentKey !== lastHydratedKey.current) {
-    lastHydratedKey.current = currentKey
+
+  useEffect(() => {
+    if (isEditMode && !currentEntry) {
+      return
+    }
+
     setForm(currentEntry ? entryToFormState(currentEntry) : emptyFormState())
-  }
+    setCoverImageFile(undefined)
+    setPendingMedia([])
+  }, [currentEntry, isEditMode])
 
   const dateFormatter = useMemo(
     () =>
@@ -152,13 +166,26 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
       contentHtml: state.contentHtml,
       visibility: state.visibility,
       publishAt,
-      coverImageUrl: firstImageUrl(state.media),
-      media: state.media,
       status,
     }
   }
 
-  function handleSave(targetStatus: PressStatus) {
+  async function uploadPendingMedia(entryId: string, mediaItems: PendingPressMedia[]) {
+    if (!mediaItems.length) {
+      return
+    }
+
+    await addPressMedia(
+      entryId,
+      mediaItems.map((item) => item.file),
+      mediaItems.map((item) => ({
+        display_name: item.file.name,
+        file_name: item.file.name,
+      })),
+    )
+  }
+
+  async function handleSave(targetStatus: PressStatus) {
     const validationErrors = validate(form, t)
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors)
@@ -170,15 +197,22 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
     setIsSubmitting(true)
     try {
       const payload = buildPersistedShape(form, targetStatus)
+      const pendingUploads = [...pendingMedia]
       if (isEditMode && currentEntry) {
-        update(currentEntry.id, payload)
+        let nextEntry = await update(currentEntry.id, payload, coverImageFile)
+        await uploadPendingMedia(nextEntry.id, pendingUploads)
+        if (pendingUploads.length > 0) {
+          nextEntry = await fetchPressEntry(nextEntry.id)
+        }
+        setCurrentEntry(nextEntry)
         toast.success(
           targetStatus === 'published'
             ? t('press.feedback.published')
             : t('press.feedback.saved'),
         )
       } else {
-        const created = create(payload)
+        const created = await create(payload, coverImageFile)
+        await uploadPendingMedia(created.id, pendingUploads)
         toast.success(
           targetStatus === 'published'
             ? t('press.feedback.published')
@@ -186,20 +220,32 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
         )
         navigate(`/press/${created.id}/edit`, { replace: true })
       }
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : t('press.feedback.saveError'),
+      )
     } finally {
       setIsSubmitting(false)
     }
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!currentEntry) {
       return
     }
     setIsDeleting(true)
     try {
-      remove(currentEntry.id)
+      await remove(currentEntry.id)
       toast.success(t('press.feedback.deleted'))
       navigate('/press', { replace: true })
+    } catch (err) {
+      toast.error(
+        err instanceof Error
+          ? err.message
+          : t('press.feedback.deleteError'),
+      )
     } finally {
       setIsDeleting(false)
     }
@@ -214,62 +260,51 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
     updateField('categoryId', created.id)
   }
 
-  async function handleAddMedia(files: File[]) {
+  function handleAddMedia(files: File[]) {
     if (!files.length) {
       return
     }
-    const newMedia: PressMedia[] = await Promise.all(
-      files.map(async (file) => ({
-        id: makeMediaId(),
-        fileName: file.name,
-        fileUrl: await readMediaUrl(file),
-        mimeType: file.type,
-        fileSize: file.size,
+
+    setPendingMedia((current) => [
+      ...current,
+      ...files.map((file) => ({
+        id: makePendingMediaId(),
+        file,
       })),
-    )
-    setForm((current) => ({ ...current, media: [...current.media, ...newMedia] }))
+    ])
   }
 
-  function handleRemoveMedia(mediaId: string) {
-    setForm((current) => {
-      const removed = current.media.find((m) => m.id === mediaId)
-      if (removed?.fileUrl?.startsWith('blob:')) {
-        URL.revokeObjectURL(removed.fileUrl)
-      }
-      return {
-        ...current,
-        media: current.media.filter((m) => m.id !== mediaId),
-      }
-    })
+  async function handleRemoveMedia(mediaId: string) {
+    if (mediaId.startsWith('pending:')) {
+      setPendingMedia((current) => current.filter((item) => item.id !== mediaId))
+      return
+    }
+
+    if (!currentEntry) {
+      return
+    }
+
+    const numericMediaID = Number.parseInt(mediaId, 10)
+    if (Number.isNaN(numericMediaID)) {
+      return
+    }
+
+    try {
+      await deletePressMedia(currentEntry.id, [numericMediaID])
+      const refreshed = await fetchPressEntry(currentEntry.id)
+      setCurrentEntry(refreshed)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete media')
+    }
   }
 
-  if (isMissingEntry) {
-    return (
-      <CmsAppShell activeKey="press">
-        <div className={styles.page}>
-          <Breadcrumb
-            items={[
-              { label: t('press.breadcrumb.entries'), to: '/press' },
-              { label: t('press.editor.notFoundTitle') },
-            ]}
-          />
-          <section className={styles.card}>
-            <h1>{t('press.editor.notFoundTitle')}</h1>
-            <p>{t('press.editor.notFoundText')}</p>
-            <button
-              type="button"
-              className={styles.backLink}
-              onClick={() => navigate('/press')}
-            >
-              {t('press.editor.backToList')}
-            </button>
-          </section>
-        </div>
-      </CmsAppShell>
-    )
+  function handleCoverImageSelect(files: File[]) {
+    if (files.length > 0) {
+      setCoverImageFile(files[0])
+    }
   }
 
-  if (isEditMode && !currentEntry) {
+  if (isLoadingEntry) {
     return (
       <CmsAppShell activeKey="press">
         <div className={styles.loaderWrap}>
@@ -400,6 +435,30 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
 
             <section className={styles.card}>
               <div className={styles.cardHeader}>
+                <h2>{t('press.editor.sections.coverImage')}</h2>
+              </div>
+              <UploadDropzone
+                accept="image/*"
+                icon={<AddPhotoIcon />}
+                label={t('press.editor.media.coverLabel')}
+                hint={t('press.editor.media.coverHint')}
+                onFiles={handleCoverImageSelect}
+              />
+              {coverImageFile && (
+                <div className={styles.selectedCoverImage}>
+                  <span>{coverImageFile.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setCoverImageFile(undefined)}
+                  >
+                    {t('press.editor.media.remove')}
+                  </button>
+                </div>
+              )}
+            </section>
+
+            <section className={styles.card}>
+              <div className={styles.cardHeader}>
                 <h2>{t('press.editor.sections.content')}</h2>
               </div>
               <RichTextEditor
@@ -425,7 +484,7 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
                   onFiles={handleAddMedia}
                 />
 
-                {form.media.length > 0 && (
+                {(form.media.length > 0 || pendingMedia.length > 0) && (
                   <div className={styles.uploadedList}>
                     {form.media.map((mediaItem) => (
                       <div key={mediaItem.id} className={styles.uploadedItem}>
@@ -437,7 +496,23 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
                           type="button"
                           className={styles.removeMediaButton}
                           aria-label={t('press.editor.media.remove')}
-                          onClick={() => handleRemoveMedia(mediaItem.id)}
+                          onClick={() => void handleRemoveMedia(mediaItem.id)}
+                        >
+                          <CloseIcon />
+                        </button>
+                      </div>
+                    ))}
+                    {pendingMedia.map((mediaItem) => (
+                      <div key={mediaItem.id} className={styles.uploadedItem}>
+                        <span className={styles.uploadedName}>
+                          <FileIcon />
+                          {mediaItem.file.name}
+                        </span>
+                        <button
+                          type="button"
+                          className={styles.removeMediaButton}
+                          aria-label={t('press.editor.media.remove')}
+                          onClick={() => void handleRemoveMedia(mediaItem.id)}
                         >
                           <CloseIcon />
                         </button>
@@ -454,11 +529,11 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
               publishLabel={t('press.editor.actions.publish')}
               saveDraftLabel={t('press.editor.actions.saveDraft')}
               deleteLabel={t('press.editor.actions.delete')}
-              onSaveDraft={() => handleSave('draft')}
-              onPublish={() => handleSave('published')}
+              onSaveDraft={() => void handleSave('draft')}
+              onPublish={() => void handleSave('published')}
               isSubmitting={isSubmitting}
               isDeleting={isDeleting}
-              onDelete={isEditMode ? handleDelete : undefined}
+              onDelete={isEditMode ? () => void handleDelete() : undefined}
               deleteConfirmTitle={t('press.list.deleteDialogTitle')}
               deleteConfirmBody={t('press.editor.deleteConfirmBody', {
                 title: form.title || t('press.list.untitled'),
