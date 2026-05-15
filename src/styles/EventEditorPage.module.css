@@ -499,6 +499,20 @@
   cursor: not-allowed;
 }
 
+.backLink {
+  border: none;
+  background: transparent;
+  color: var(--color-primary);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
 .linkButton {
   padding: 0;
   border: none;

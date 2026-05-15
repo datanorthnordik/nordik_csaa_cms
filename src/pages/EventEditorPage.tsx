@@ -515,7 +515,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
           <p>{t('events.editor.invalidIdText')}</p>
           <button
             type="button"
-            className={styles.secondaryButton}
+            className={styles.backLink}
             onClick={() => navigate('/events')}
           >
             {t('events.editor.backToList')}
@@ -543,7 +543,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
           <p>{detailState.error}</p>
           <button
             type="button"
-            className={styles.secondaryButton}
+            className={styles.backLink}
             onClick={() => navigate('/events')}
           >
             {t('events.editor.backToList')}
@@ -570,7 +570,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
           </div>
           <button
             type="button"
-            className={styles.secondaryButton}
+            className={styles.backLink}
             onClick={() => navigate('/events')}
           >
             {t('events.editor.backToList')}
