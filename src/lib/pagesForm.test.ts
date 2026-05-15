@@ -3,7 +3,9 @@ import {
   buildFullPageUrlSlug,
   buildPageFormStateFromDetail,
   buildSavePageRequest,
+  createDefaultDocumentState,
   createDefaultPageFormState,
+  createDefaultSectionState,
   getDisallowedParentPageIds,
   validatePageForm,
 } from './pagesForm'
@@ -45,6 +47,44 @@ describe('buildSavePageRequest', () => {
     expect(request.parent_id).toBe(7)
     expect(request.url_slug).toBe('/about/team')
   })
+
+  it('collects document section files and keeps the saved section ordering', () => {
+    const attachment = new File(['content'], 'board-policy.pdf', {
+      type: 'application/pdf',
+    })
+    const form = createDefaultPageFormState()
+    const documentSection = createDefaultSectionState('document')
+
+    form.pageTitle = 'Policies'
+    form.urlSlug = 'policies'
+    documentSection.documents.items = [createDefaultDocumentState(attachment)]
+    form.sections = [documentSection]
+
+    const request = buildSavePageRequest(form)
+
+    expect(request.page_detail?.sections).toHaveLength(1)
+    expect(request.page_detail?.sections[0]).toMatchObject({
+      section_type: 'document',
+      sort_order: 0,
+      documents: {
+        items: [
+          {
+            display_name: 'board-policy',
+            file_name: 'board-policy.pdf',
+            mime_type: 'application/pdf',
+            original_file_name: 'board-policy.pdf',
+          },
+        ],
+      },
+    })
+    expect(request.documentFiles).toEqual([
+      {
+        sectionIndex: 0,
+        documentIndex: 0,
+        file: attachment,
+      },
+    ])
+  })
 })
 
 describe('buildPageFormStateFromDetail', () => {
@@ -79,6 +119,64 @@ describe('buildPageFormStateFromDetail', () => {
     expect(form.parentPageId).toBe('7')
     expect(form.urlSlug).toBe('team')
   })
+
+  it('hydrates content modules from page detail responses', () => {
+    const form = buildPageFormStateFromDetail({
+      id: 9,
+      page_title: 'About',
+      url_slug: '/about',
+      page_type: 'page',
+      parent_id: null,
+      status: 'draft',
+      hero_image_enabled: false,
+      hero_image_url: '',
+      hero_image_object_key: '',
+      hero_image_fetch_url: '',
+      seo_page_title: '',
+      seo_page_description: '',
+      created_by: null,
+      created_by_name: 'Admin',
+      modified_by: null,
+      modified_by_name: 'Admin',
+      last_modified: '2026-05-12T00:00:00Z',
+      created_at: '2026-05-12T00:00:00Z',
+      updated_at: '2026-05-12T00:00:00Z',
+      page_detail: {
+        id: 12,
+        page_id: 9,
+        template_key: 'default',
+        schema_version: 1,
+        sections: [
+          {
+            id: 3,
+            section_name: 'Intro',
+            section_type: 'typography',
+            sort_order: 0,
+            is_enabled: true,
+            typography: {
+              html_content: '<p>Hello world</p>',
+              text_content: 'Hello world',
+              text_align: 'center',
+            },
+            created_at: '2026-05-12T00:00:00Z',
+            updated_at: '2026-05-12T00:00:00Z',
+          },
+        ],
+      },
+    })
+
+    expect(form.templateKey).toBe('default')
+    expect(form.sections).toHaveLength(1)
+    expect(form.sections[0]).toMatchObject({
+      id: 3,
+      sectionName: 'Intro',
+      sectionType: 'typography',
+      typography: {
+        htmlContent: '<p>Hello world</p>',
+        textAlign: 'center',
+      },
+    })
+  })
 })
 
 describe('buildFullPageUrlSlug', () => {
@@ -112,5 +210,19 @@ describe('parent page validation', () => {
     })
 
     expect(errors.parentPageId).toBe('pages.validation.parentPageCycle')
+  })
+
+  it('returns a validation error when a document item has neither a file nor saved storage metadata', () => {
+    const form = createDefaultPageFormState()
+    const documentSection = createDefaultSectionState('document')
+
+    form.pageTitle = 'Policies'
+    form.urlSlug = 'policies'
+    documentSection.documents.items = [createDefaultDocumentState()]
+    form.sections = [documentSection]
+
+    const errors = validatePageForm(form, (key) => key)
+
+    expect(errors.sections).toBe('pages.validation.documentFileRequired')
   })
 })

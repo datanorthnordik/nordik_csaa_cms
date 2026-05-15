@@ -1,11 +1,85 @@
 import type {
-  PageParentOption,
+  PageCTABannerSectionResponse,
+  PageContentDetailResponse,
   PageDetailResponse,
+  PageDocumentMultipartFile,
+  PageDocumentResponse,
+  PageGallerySectionResponse,
+  PageGalleryViewMode,
+  PageHeaderHierarchy,
+  PageHeaderSectionResponse,
+  PageParentOption,
+  PageQuoteSectionResponse,
+  PageSectionResponse,
+  PageSectionType,
+  PageTypographySectionResponse,
+  PageTypographyTextAlign,
   PageStatus,
-  PageUploadInput,
+  SavePageCTABannerSectionPayload,
+  SavePageDetailPayload,
+  SavePageDocumentPayload,
+  SavePageDocumentsSectionPayload,
+  SavePageGallerySectionPayload,
+  SavePageHeaderSectionPayload,
   SavePagePayload,
+  SavePageQuoteSectionPayload,
   SavePageRequest,
+  SavePageSectionPayload,
+  SavePageTypographySectionPayload,
+  PageUploadInput,
 } from '../api/pagesApi'
+
+export type PageSectionDocumentState = {
+  clientId: string
+  id?: number
+  displayName: string
+  description: string
+  originalFileName: string
+  existingFetchUrl: string
+  existingStorageUri: string
+  existingMimeType: string
+  existingFileSize?: number
+  existingObjectKey: string
+  file: File | null
+}
+
+export type PageSectionState = {
+  clientId: string
+  id?: number
+  sectionName: string
+  sectionType: PageSectionType
+  isEnabled: boolean
+  isCollapsed: boolean
+  settings: Record<string, unknown>
+  header: {
+    mainHeaderText: string
+    subHeaderText: string
+    hierarchy: PageHeaderHierarchy
+  }
+  typography: {
+    htmlContent: string
+    textContent: string
+    textAlign: PageTypographyTextAlign
+  }
+  gallery: {
+    galleryId: string
+    viewMode: PageGalleryViewMode
+  }
+  quote: {
+    quoteContent: string
+    attribution: string
+  }
+  ctaBanner: {
+    bannerHeading: string
+    bannerMessage: string
+    buttonText: string
+    buttonUrl: string
+    openInNewTab: boolean
+  }
+  documents: {
+    items: PageSectionDocumentState[]
+  }
+}
 
 export type PageFormState = {
   pageTitle: string
@@ -19,9 +93,73 @@ export type PageFormState = {
   existingHeroImageStorageUrl: string
   seoPageTitle: string
   seoPageDescription: string
+  templateKey: string
+  sections: PageSectionState[]
 }
 
-export type PageFormErrors = Partial<Record<keyof PageFormState, string>>
+export type PageFormErrors = Partial<
+  Record<'pageTitle' | 'urlSlug' | 'parentPageId' | 'heroImageFile' | 'sections', string>
+>
+
+export function createPageEditorId(prefix: string) {
+  if (typeof globalThis.crypto?.randomUUID === 'function') {
+    return `${prefix}-${globalThis.crypto.randomUUID()}`
+  }
+  return `${prefix}-${Math.random().toString(36).slice(2, 10)}`
+}
+
+export function createDefaultSectionState(sectionType: PageSectionType): PageSectionState {
+  return {
+    clientId: createPageEditorId('page-section'),
+    sectionName: defaultSectionName(sectionType),
+    sectionType,
+    isEnabled: true,
+    isCollapsed: false,
+    settings: {},
+    header: {
+      mainHeaderText: '',
+      subHeaderText: '',
+      hierarchy: 'h1_hero',
+    },
+    typography: {
+      htmlContent: '',
+      textContent: '',
+      textAlign: 'left',
+    },
+    gallery: {
+      galleryId: '',
+      viewMode: 'grid',
+    },
+    quote: {
+      quoteContent: '',
+      attribution: '',
+    },
+    ctaBanner: {
+      bannerHeading: '',
+      bannerMessage: '',
+      buttonText: '',
+      buttonUrl: '',
+      openInNewTab: false,
+    },
+    documents: {
+      items: [],
+    },
+  }
+}
+
+export function createDefaultDocumentState(file?: File): PageSectionDocumentState {
+  return {
+    clientId: createPageEditorId('page-document'),
+    displayName: file ? suggestDocumentDisplayName(file.name) : '',
+    description: '',
+    originalFileName: file?.name ?? '',
+    existingFetchUrl: '',
+    existingStorageUri: '',
+    existingMimeType: file?.type ?? '',
+    existingObjectKey: '',
+    file: file ?? null,
+  }
+}
 
 export function createDefaultPageFormState(): PageFormState {
   return {
@@ -36,6 +174,8 @@ export function createDefaultPageFormState(): PageFormState {
     existingHeroImageStorageUrl: '',
     seoPageTitle: '',
     seoPageDescription: '',
+    templateKey: 'default',
+    sections: [],
   }
 }
 
@@ -48,6 +188,7 @@ export function buildPageFormStateFromDetail(
   const resolvedParentId =
     typeof detail.parent_id === 'number' ? detail.parent_id : null
   const effectiveParentSlug = options.parentPageSlug ?? ''
+  const pageDetail = normalizePageDetail(detail.page_detail)
 
   return {
     pageTitle: detail.page_title ?? '',
@@ -61,6 +202,11 @@ export function buildPageFormStateFromDetail(
     existingHeroImageStorageUrl: detail.hero_image_url ?? '',
     seoPageTitle: detail.seo_page_title ?? '',
     seoPageDescription: detail.seo_page_description ?? '',
+    templateKey: pageDetail.template_key,
+    sections: pageDetail.sections
+      .slice()
+      .sort((left, right) => left.sort_order - right.sort_order)
+      .map(mapSectionResponseToState),
   }
 }
 
@@ -161,7 +307,34 @@ export function validatePageForm(
     errors.parentPageId = t('pages.validation.parentPageCycle')
   }
 
+  const hasInvalidDocument = form.sections.some((section) =>
+    section.sectionType === 'document' &&
+    section.documents.items.some(
+      (item) => !item.file && !item.existingStorageUri.trim() && !item.existingObjectKey.trim(),
+    ),
+  )
+  if (hasInvalidDocument) {
+    errors.sections = t('pages.validation.documentFileRequired')
+  }
+
   return errors
+}
+
+export function reorderPageSections(
+  sections: PageSectionState[],
+  draggedClientId: string,
+  targetClientId: string,
+) {
+  const fromIndex = sections.findIndex((section) => section.clientId === draggedClientId)
+  const toIndex = sections.findIndex((section) => section.clientId === targetClientId)
+  if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
+    return sections
+  }
+
+  const next = sections.slice()
+  const [moved] = next.splice(fromIndex, 1)
+  next.splice(toIndex, 0, moved)
+  return next
 }
 
 export function buildSavePagePayload(
@@ -187,6 +360,7 @@ export function buildSavePagePayload(
     remove_hero_image: !form.heroImageEnabled || form.removeHeroImage,
     seo_page_title: form.seoPageTitle.trim(),
     seo_page_description: form.seoPageDescription.trim(),
+    page_detail: buildSavePageDetailPayload(form),
   }
 }
 
@@ -195,14 +369,227 @@ export function buildSavePageRequest(
   parentPageSlug = '',
 ): SavePageRequest {
   const payload = buildSavePagePayload(form, parentPageSlug)
-
-  return {
+  const request: SavePageRequest = {
     ...payload,
-    ...(form.heroImageEnabled && form.heroImageFile
+  }
+
+  if (form.heroImageEnabled && form.heroImageFile) {
+    request.heroImageFile = form.heroImageFile
+  }
+
+  const documentFiles = collectDocumentFiles(form.sections)
+  if (documentFiles.length > 0) {
+    request.documentFiles = documentFiles
+  }
+
+  return request
+}
+
+function buildSavePageDetailPayload(form: PageFormState): SavePageDetailPayload {
+  return {
+    template_key: form.templateKey.trim() || 'default',
+    settings: {},
+    sections: form.sections.map((section, index) => buildSaveSectionPayload(section, index)),
+  }
+}
+
+function buildSaveSectionPayload(
+  section: PageSectionState,
+  sortOrder: number,
+): SavePageSectionPayload {
+  return {
+    ...(section.id ? { id: section.id } : {}),
+    section_name: section.sectionName.trim() || defaultSectionName(section.sectionType),
+    section_type: section.sectionType,
+    sort_order: sortOrder,
+    is_enabled: section.isEnabled,
+    settings: section.settings ?? {},
+    ...(section.sectionType === 'header'
       ? {
-          heroImageFile: form.heroImageFile,
+          header: {
+            main_header_text: section.header.mainHeaderText.trim(),
+            sub_header_text: section.header.subHeaderText.trim(),
+            hierarchy: section.header.hierarchy,
+          } satisfies SavePageHeaderSectionPayload,
         }
       : {}),
+    ...(section.sectionType === 'typography'
+      ? {
+          typography: {
+            html_content: section.typography.htmlContent,
+            text_content: buildPlainTextFromHtml(section.typography.htmlContent),
+            text_align: section.typography.textAlign,
+          } satisfies SavePageTypographySectionPayload,
+        }
+      : {}),
+    ...(section.sectionType === 'gallery'
+      ? {
+          gallery: {
+            gallery_id: section.gallery.galleryId
+              ? Number.parseInt(section.gallery.galleryId, 10)
+              : null,
+            view_mode: section.gallery.viewMode,
+          } satisfies SavePageGallerySectionPayload,
+        }
+      : {}),
+    ...(section.sectionType === 'quote'
+      ? {
+          quote: {
+            quote_content: section.quote.quoteContent.trim(),
+            attribution: section.quote.attribution.trim(),
+          } satisfies SavePageQuoteSectionPayload,
+        }
+      : {}),
+    ...(section.sectionType === 'cta_banner'
+      ? {
+          cta_banner: {
+            banner_heading: section.ctaBanner.bannerHeading.trim(),
+            banner_message: section.ctaBanner.bannerMessage.trim(),
+            button_text: section.ctaBanner.buttonText.trim(),
+            button_url: section.ctaBanner.buttonUrl.trim(),
+            open_in_new_tab: section.ctaBanner.openInNewTab,
+          } satisfies SavePageCTABannerSectionPayload,
+        }
+      : {}),
+    ...(section.sectionType === 'document'
+      ? {
+          documents: {
+            items: section.documents.items.map(buildSaveDocumentPayload),
+          } satisfies SavePageDocumentsSectionPayload,
+        }
+      : {}),
+  }
+}
+
+function buildSaveDocumentPayload(document: PageSectionDocumentState): SavePageDocumentPayload {
+  const existingStorageUri = document.existingStorageUri.trim()
+
+  return {
+    ...(document.id ? { id: document.id } : {}),
+    display_name:
+      document.displayName.trim() || suggestDocumentDisplayName(document.originalFileName),
+    description: document.description.trim(),
+    original_file_name:
+      document.file?.name || document.originalFileName || document.displayName.trim(),
+    ...(document.file
+      ? {
+          file_name: document.file.name,
+          mime_type: document.file.type || 'application/octet-stream',
+        }
+      : {}),
+    ...(!document.file && existingStorageUri
+      ? {
+          file_url: existingStorageUri,
+          storage_uri: existingStorageUri,
+          gcp_object_key: document.existingObjectKey || undefined,
+          mime_type: document.existingMimeType || undefined,
+        }
+      : {}),
+  }
+}
+
+function collectDocumentFiles(sections: PageSectionState[]): PageDocumentMultipartFile[] {
+  const files: PageDocumentMultipartFile[] = []
+
+  sections.forEach((section, sectionIndex) => {
+    if (section.sectionType !== 'document') {
+      return
+    }
+
+    section.documents.items.forEach((document, documentIndex) => {
+      if (!document.file) {
+        return
+      }
+      files.push({
+        sectionIndex,
+        documentIndex,
+        file: document.file,
+      })
+    })
+  })
+
+  return files
+}
+
+function mapSectionResponseToState(section: PageSectionResponse): PageSectionState {
+  const next = createDefaultSectionState(section.section_type)
+
+  next.id = section.id
+  next.sectionName = section.section_name || defaultSectionName(section.section_type)
+  next.sectionType = section.section_type
+  next.isEnabled = section.is_enabled
+  next.settings = section.settings ?? {}
+  next.header = mapHeaderResponse(section.header)
+  next.typography = mapTypographyResponse(section.typography)
+  next.gallery = mapGalleryResponse(section.gallery)
+  next.quote = mapQuoteResponse(section.quote)
+  next.ctaBanner = mapCTABannerResponse(section.cta_banner)
+  next.documents.items = (section.documents?.items ?? []).map(mapDocumentResponseToState)
+
+  return next
+}
+
+function mapDocumentResponseToState(document: PageDocumentResponse): PageSectionDocumentState {
+  return {
+    clientId: createPageEditorId('page-document'),
+    id: document.id,
+    displayName: document.display_name,
+    description: document.description,
+    originalFileName: document.original_file_name || document.file_name,
+    existingFetchUrl: document.fetch_url || document.file_url,
+    existingStorageUri: document.storage_uri,
+    existingMimeType: document.mime_type,
+    existingFileSize: document.file_size,
+    existingObjectKey: document.gcp_object_key,
+    file: null,
+  }
+}
+
+function mapHeaderResponse(header?: PageHeaderSectionResponse | null) {
+  return {
+    mainHeaderText: header?.main_header_text ?? '',
+    subHeaderText: header?.sub_header_text ?? '',
+    hierarchy: header?.hierarchy ?? 'h1_hero',
+  }
+}
+
+function mapTypographyResponse(typography?: PageTypographySectionResponse | null) {
+  return {
+    htmlContent: typography?.html_content ?? '',
+    textContent: typography?.text_content ?? '',
+    textAlign: typography?.text_align ?? 'left',
+  }
+}
+
+function mapGalleryResponse(gallery?: PageGallerySectionResponse | null) {
+  return {
+    galleryId:
+      typeof gallery?.gallery_id === 'number' ? String(gallery.gallery_id) : '',
+    viewMode: gallery?.view_mode ?? 'grid',
+  }
+}
+
+function mapQuoteResponse(quote?: PageQuoteSectionResponse | null) {
+  return {
+    quoteContent: quote?.quote_content ?? '',
+    attribution: quote?.attribution ?? '',
+  }
+}
+
+function mapCTABannerResponse(ctaBanner?: PageCTABannerSectionResponse | null) {
+  return {
+    bannerHeading: ctaBanner?.banner_heading ?? '',
+    bannerMessage: ctaBanner?.banner_message ?? '',
+    buttonText: ctaBanner?.button_text ?? '',
+    buttonUrl: ctaBanner?.button_url ?? '',
+    openInNewTab: Boolean(ctaBanner?.open_in_new_tab),
+  }
+}
+
+function normalizePageDetail(pageDetail?: PageContentDetailResponse | null) {
+  return {
+    template_key: pageDetail?.template_key ?? 'default',
+    sections: pageDetail?.sections ?? [],
   }
 }
 
@@ -237,4 +624,38 @@ function normalizePagePath(value: string) {
 
 function stripLeadingSlash(value: string) {
   return value.replace(/^\/+/, '')
+}
+
+function defaultSectionName(sectionType: PageSectionType) {
+  switch (sectionType) {
+    case 'header':
+      return 'Header Module'
+    case 'typography':
+      return 'Typography'
+    case 'gallery':
+      return 'Gallery Module'
+    case 'document':
+      return 'Document Module'
+    case 'quote':
+      return 'Quote Module'
+    case 'cta_banner':
+      return 'CTA Banner'
+    default:
+      return 'Content Section'
+  }
+}
+
+function suggestDocumentDisplayName(fileName: string) {
+  const trimmed = fileName.trim()
+  if (!trimmed) {
+    return 'Document'
+  }
+  return trimmed.replace(/\.[^.]+$/, '')
+}
+
+function buildPlainTextFromHtml(html: string) {
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 }

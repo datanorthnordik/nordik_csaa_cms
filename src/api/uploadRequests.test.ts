@@ -37,6 +37,7 @@ describe('upload request bodies', () => {
 
   it('sends page hero uploads as multipart payload plus hero_image_file', async () => {
     const heroImageFile = new File(['hero'], 'hero.png', { type: 'image/png' })
+    const documentFile = new File(['policy'], 'policy.pdf', { type: 'application/pdf' })
 
     await pagesApi.createPage({
       page_title: 'Homepage',
@@ -51,7 +52,38 @@ describe('upload request bodies', () => {
       remove_hero_image: false,
       seo_page_title: 'Homepage SEO',
       seo_page_description: 'Description',
+      page_detail: {
+        template_key: 'default',
+        settings: {},
+        sections: [
+          {
+            section_name: 'Policy Documents',
+            section_type: 'document',
+            sort_order: 0,
+            is_enabled: true,
+            settings: {},
+            documents: {
+              items: [
+                {
+                  display_name: 'Board Policy',
+                  description: 'Latest policy',
+                  original_file_name: 'policy.pdf',
+                  file_name: 'policy.pdf',
+                  mime_type: 'application/pdf',
+                },
+              ],
+            },
+          },
+        ],
+      },
       heroImageFile,
+      documentFiles: [
+        {
+          sectionIndex: 0,
+          documentIndex: 0,
+          file: documentFile,
+        },
+      ],
     })
 
     expect(postMock).toHaveBeenCalledTimes(1)
@@ -73,9 +105,36 @@ describe('upload request bodies', () => {
         remove_hero_image: false,
         seo_page_title: 'Homepage SEO',
         seo_page_description: 'Description',
+        page_detail: {
+          template_key: 'default',
+          settings: {},
+          sections: [
+            {
+              section_name: 'Policy Documents',
+              section_type: 'document',
+              sort_order: 0,
+              is_enabled: true,
+              settings: {},
+              documents: {
+                items: [
+                  {
+                    display_name: 'Board Policy',
+                    description: 'Latest policy',
+                    original_file_name: 'policy.pdf',
+                    file_name: 'policy.pdf',
+                    mime_type: 'application/pdf',
+                  },
+                ],
+              },
+            },
+          ],
+        },
       }),
     )
     expect(((body as FormData).get('hero_image_file') as File).name).toBe('hero.png')
+    expect(
+      ((body as FormData).get('page_detail.sections[0].documents.items[0].file') as File).name,
+    ).toBe('policy.pdf')
   })
 
   it('sends gallery image uploads as multipart payload with indexed file fields', async () => {

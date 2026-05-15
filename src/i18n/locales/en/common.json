@@ -213,7 +213,11 @@
     "sections": {
       "pageSettings": "Page Settings",
       "metadata": "Metadata & SEO",
-      "metadataHint": "Add search-focused copy that helps people and search engines understand this page."
+      "metadataHint": "Add search-focused copy that helps people and search engines understand this page.",
+      "contentModules": "Content Modules",
+      "contentModulesHint": "Build the ordered sections that the website will render for this page.",
+      "emptyModulesTitle": "No content modules added yet",
+      "emptyModulesText": "Use the module picker below to assemble this page section by section."
     },
     "fields": {
       "pageTitle": "Page Title",
@@ -241,7 +245,7 @@
       "titleCreate": "Create New Page",
       "titleEdit": "Edit Page",
       "titleView": "View Page",
-      "subtitle": "For now this editor stores page settings only. Page detail structure can be added later.",
+      "subtitle": "Manage page settings, SEO, and flexible content modules that the website will render in order.",
       "invalidIdTitle": "Invalid page link",
       "invalidIdText": "This page URL is missing a valid page id.",
       "loadErrorTitle": "We could not load this page",
@@ -264,7 +268,103 @@
     "validation": {
       "pageTitleRequired": "Page title is required.",
       "urlSlugRequired": "URL slug is required.",
-      "parentPageCycle": "A page cannot use one of its own descendants as a parent."
+      "parentPageCycle": "A page cannot use one of its own descendants as a parent.",
+      "documentFileRequired": "Each document item must keep an uploaded file or an existing saved file."
+    },
+    "modules": {
+      "types": {
+        "header": "Header Module",
+        "typography": "Typography",
+        "gallery": "Gallery Module",
+        "document": "Document Module",
+        "quote": "Quote Module",
+        "cta_banner": "CTA Banner"
+      },
+      "descriptions": {
+        "header": "Lead with a primary heading and optional supporting text.",
+        "typography": "Store rich HTML content using the CMS text editor.",
+        "gallery": "Attach a reusable media gallery with a chosen layout.",
+        "document": "Upload one or more documents and control their order.",
+        "quote": "Highlight a featured quote with attribution.",
+        "cta_banner": "Promote a call to action with copy and a destination link."
+      },
+      "badges": {
+        "hidden": "Hidden"
+      },
+      "fields": {
+        "sectionName": "Section Name",
+        "enabled": "Enabled",
+        "mainHeaderText": "Main Header Text",
+        "subHeaderText": "Sub-header Text",
+        "hierarchy": "Hierarchy",
+        "htmlContent": "Typography Content",
+        "textAlign": "Text Align",
+        "gallery": "Select Media Gallery",
+        "viewMode": "View Option",
+        "documents": "Documents",
+        "documentDisplayName": "Document Display Name",
+        "documentDescription": "Document Description",
+        "quoteContent": "Quote Content",
+        "attribution": "Attribution",
+        "bannerHeading": "Banner Heading",
+        "bannerMessage": "Banner Message",
+        "buttonText": "Button Text",
+        "buttonUrl": "Button Destination (URL)",
+        "openInNewTab": "Open in New Tab"
+      },
+      "placeholders": {
+        "sectionName": "Internal module label...",
+        "mainHeaderText": "Transforming Digital Landscapes",
+        "subHeaderText": "Optional supporting text...",
+        "htmlContent": "Start writing formatted page content...",
+        "gallery": "Select a gallery...",
+        "documentDisplayName": "e.g., Annual Financial Report 2024",
+        "documentDescription": "Optional internal note or public description",
+        "quoteContent": "Enter the featured quote text...",
+        "attribution": "Name, Title or Source",
+        "bannerHeading": "Main banner title...",
+        "bannerMessage": "Call to action headline...",
+        "buttonText": "e.g., Get Started",
+        "buttonUrl": "https://..."
+      },
+      "hints": {
+        "gallery": "Choose a gallery from the media library. You can reuse the same gallery in multiple sections.",
+        "documents": "Each document section can contain multiple files with independent labels and ordering.",
+        "openInNewTab": "Use this when the CTA should open an external page in a separate browser tab."
+      },
+      "options": {
+        "h1Hero": "H1 Hero",
+        "h2Section": "H2 Section",
+        "alignLeft": "Left",
+        "alignCenter": "Center",
+        "alignRight": "Right",
+        "grid": "Grid",
+        "carousel": "Carousel",
+        "masonry": "Masonry",
+        "focus": "Focus"
+      },
+      "actions": {
+        "addModule": "Add Content Module",
+        "selectComponent": "Select Component",
+        "moveUp": "Move Up",
+        "moveDown": "Move Down",
+        "expand": "Expand Section",
+        "collapse": "Collapse Section",
+        "removeSection": "Remove Section",
+        "removeDocument": "Remove Document",
+        "replaceFile": "Replace File",
+        "openDocument": "Open Document",
+        "dragToReorder": "Drag to reorder sections"
+      },
+      "document": {
+        "dropLabel": "Drag and drop documents here or browse",
+        "dropHint": "Supports PDF, Word, Excel, and PowerPoint files.",
+        "emptyTitle": "No documents in this module yet",
+        "emptyText": "Upload one or more files to build this document section.",
+        "itemLabel": "Document {{index}}",
+        "pendingUpload": "Ready to upload: {{name}}",
+        "untitled": "Untitled document"
+      }
     }
   },
   "events": {
