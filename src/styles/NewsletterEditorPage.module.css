@@ -161,48 +161,124 @@
   overflow: hidden;
 }
 
-.uploadedList {
+.documentList {
   display: grid;
-  gap: 10px;
-}
-
-.uploadedItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   gap: 12px;
-  padding: 10px 14px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
 }
 
-.uploadedName {
-  display: inline-flex;
+.documentItem {
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--color-surface), var(--color-surface-alt));
+}
+
+.documentPreviewRow {
+  display: flex;
   align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  gap: 16px;
   min-width: 0;
 }
 
-.removeMediaButton {
-  border: none;
-  background: transparent;
+.documentPreviewCard {
+  width: 84px;
+  height: 104px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--color-surface-alt), var(--color-surface));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  overflow: hidden;
+}
+
+.documentPreviewIcon {
+  color: var(--color-primary);
+}
+
+.documentPreviewFrame {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: #fff;
+  pointer-events: none;
+}
+
+.documentPreviewBadge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   color: var(--color-text-muted);
+}
+
+.documentPreviewContent {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.documentName {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.documentMeta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.documentPreviewActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.actionButton,
+.actionButtonDanger {
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 700;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
+  padding: 10px 14px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
 }
 
-.removeMediaButton:hover {
+.actionButton {
+  border: 1px solid var(--color-border-input);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.actionButton:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-tint);
+}
+
+.actionButtonDanger {
+  border: 1px solid var(--color-error-border);
   background: var(--color-error-bg);
   color: var(--color-error-strong);
+}
+
+.actionButtonDanger:hover {
+  background: color-mix(in srgb, var(--color-error-bg) 80%, white 20%);
+}
+
+.actionButton:disabled,
+.actionButtonDanger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .proTip {
@@ -279,5 +355,25 @@
   }
   .fieldGrid {
     grid-template-columns: 1fr;
+  }
+
+  .documentPreviewRow {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .documentPreviewCard {
+    width: 100%;
+    height: auto;
+    min-height: 92px;
+  }
+
+  .documentPreviewFrame {
+    min-height: 140px;
+  }
+
+  .actionButton,
+  .actionButtonDanger {
+    width: 100%;
   }
 }
