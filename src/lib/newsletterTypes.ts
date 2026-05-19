@@ -22,7 +22,6 @@ export type NewsletterEntry = {
   status: NewsletterStatus
   visibility: NewsletterVisibility
   publishAt: string | null
-  coverImageUrl?: string
   media: NewsletterMedia[]
   createdAt: string
   updatedAt: string

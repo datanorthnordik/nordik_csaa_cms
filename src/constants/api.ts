@@ -14,6 +14,10 @@ export const API_ROUTES = {
   press: '/api/press',
   pressById: (id: string) => `/api/press/${id}`,
   pressCoverById: (id: number | string) => `/api/press/${id}/cover/content`,
+  newsletters: '/api/newsletters',
+  newsletterById: (id: number | string) => `/api/newsletters/${id}`,
+  newsletterMediaById: (id: number | string, mediaId: number | string) =>
+    `/api/newsletters/${id}/media/${mediaId}/content`,
   eventDocumentById: (id: number | string) => `/api/events/${id}/document`,
   eventPhotoById: (id: number | string) => `/api/events/${id}/photo`,
   pages: '/api/pages',

@@ -866,10 +866,16 @@
     "feedback": {
       "deleted": "Bulletin supprime",
       "saved": "Bulletin enregistre",
-      "published": "Bulletin publie"
+      "published": "Bulletin publie",
+      "fetchError": "Impossible de charger les bulletins.",
+      "saveError": "Impossible d enregistrer ce bulletin.",
+      "deleteError": "Impossible de supprimer ce bulletin.",
+      "documentPreviewFailed": "Impossible d afficher un apercu de ce document.",
+      "documentDownloadFailed": "Impossible de telecharger ce document."
     },
     "editor": {
       "loading": "Chargement...",
+      "loadError": "Impossible de charger ce bulletin.",
       "titleCreate": "Creer un bulletin",
       "titleEdit": "Modifier le bulletin",
       "subtitle": "Composez, planifiez et publiez vos editions de bulletin.",
@@ -896,7 +902,8 @@
       "media": {
         "dropLabel": "Glissez-deposez les fichiers ici",
         "dropHint": "ou cliquez pour parcourir",
-        "remove": "Retirer le fichier"
+        "remove": "Retirer le fichier",
+        "pendingUploadShort": "Televersement en attente"
       },
       "actions": {
         "publish": "Publier le bulletin",

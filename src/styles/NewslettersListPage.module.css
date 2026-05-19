@@ -55,6 +55,25 @@
   gap: 20px;
 }
 
+.errorBox {
+  border: 1px solid var(--color-error-border);
+  border-radius: var(--radius-md);
+  background: var(--color-error-bg);
+  padding: 14px 16px;
+  color: var(--color-error-text);
+}
+
+.errorBox p {
+  margin: 0;
+}
+
+.loadingContainer {
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .tableWrap {
   overflow-x: auto;
 }

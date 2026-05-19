@@ -869,10 +869,16 @@
     "feedback": {
       "deleted": "Newsletter deleted",
       "saved": "Newsletter saved",
-      "published": "Newsletter published"
+      "published": "Newsletter published",
+      "fetchError": "Could not load newsletters.",
+      "saveError": "Could not save this newsletter.",
+      "deleteError": "Could not delete this newsletter.",
+      "documentPreviewFailed": "Could not preview this document.",
+      "documentDownloadFailed": "Could not download this document."
     },
     "editor": {
       "loading": "Loading...",
+      "loadError": "Could not load this newsletter.",
       "titleCreate": "Create New Newsletter",
       "titleEdit": "Edit Newsletter",
       "subtitle": "Compose, schedule, and publish newsletter editions.",
@@ -899,7 +905,8 @@
       "media": {
         "dropLabel": "Drag and drop files here",
         "dropHint": "or click to browse from your device",
-        "remove": "Remove file"
+        "remove": "Remove file",
+        "pendingUploadShort": "Pending upload"
       },
       "actions": {
         "publish": "Publish Newsletter",
