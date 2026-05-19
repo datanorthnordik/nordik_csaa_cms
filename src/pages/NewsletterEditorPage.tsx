@@ -67,7 +67,7 @@ function makePendingMediaId() {
   return `pending:${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 }
 
-function emptyFormState(): NewsletterFormState {
+export function emptyFormState(): NewsletterFormState {
   return {
     title: '',
     category: '',
@@ -79,7 +79,7 @@ function emptyFormState(): NewsletterFormState {
   }
 }
 
-function entryToFormState(entry: NewsletterEntry): NewsletterFormState {
+export function entryToFormState(entry: NewsletterEntry): NewsletterFormState {
   return {
     title: entry.title,
     category: entry.category,
@@ -91,7 +91,7 @@ function entryToFormState(entry: NewsletterEntry): NewsletterFormState {
   }
 }
 
-function validate(
+export function validate(
   state: NewsletterFormState,
   t: (key: string) => string,
 ): NewsletterFormErrors {
@@ -849,11 +849,11 @@ export function NewsletterEditorPage({
   )
 }
 
-function stripFileExtension(value: string) {
+export function stripFileExtension(value: string) {
   return value.replace(/\.[^.]+$/, '')
 }
 
-function formatFileSize(size: number) {
+export function formatFileSize(size: number) {
   if (size < 1024) {
     return `${size} B`
   }
@@ -863,7 +863,7 @@ function formatFileSize(size: number) {
   return `${(size / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function resolveDocumentTypeLabel(mimeType: string, fileName: string) {
+export function resolveDocumentTypeLabel(mimeType: string, fileName: string) {
   const extension = fileName.split('.').pop()?.trim().toUpperCase() ?? ''
   if (extension) {
     return extension.length > 5 ? extension.slice(0, 5) : extension
@@ -889,7 +889,7 @@ function resolveDocumentTypeLabel(mimeType: string, fileName: string) {
   return 'FILE'
 }
 
-function buildDocumentMeta({
+export function buildDocumentMeta({
   isPendingUpload,
   fileTypeLabel,
   fileSize,
@@ -909,7 +909,7 @@ function buildDocumentMeta({
   return parts.join(' | ')
 }
 
-function canPreviewDocument(mimeType: string, fileName: string) {
+export function canPreviewDocument(mimeType: string, fileName: string) {
   const normalizedMimeType = mimeType.trim().toLowerCase()
   const extension = fileName.split('.').pop()?.trim().toLowerCase() ?? ''
 
@@ -952,7 +952,7 @@ function scheduleObjectUrlRevoke(url: string) {
   }, 60_000)
 }
 
-function normalizeDateInputValue(value: string) {
+export function normalizeDateInputValue(value: string) {
   const trimmed = value.trim()
   if (!trimmed) {
     return ''
