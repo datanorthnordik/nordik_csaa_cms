@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import i18n from '../i18n'
@@ -290,5 +290,82 @@ describe('PageEditorPage module pages', () => {
     expect(screen.getByRole('button', { name: 'Left' })).toBeDefined()
     expect(screen.getByRole('button', { name: 'Center' })).toBeDefined()
     expect(screen.getByRole('button', { name: 'Right' })).toBeDefined()
+  })
+
+  it('uses the shared typography editor without the image action', async () => {
+    useAppSelectorMock.mockImplementation((selector: (state: unknown) => unknown) =>
+      selector({
+        pages: {
+          detail: {
+            item: {
+              id: 12,
+              page_title: 'Story',
+              url_slug: '/story',
+              page_type: 'page',
+              parent_id: null,
+              parent_page_title: '',
+              parent_page_url_slug: '',
+              status: 'draft',
+              hero_image_enabled: false,
+              hero_image_url: '',
+              hero_image_object_key: '',
+              hero_image_fetch_url: '',
+              seo_page_title: 'Story',
+              seo_page_description: 'Story page',
+              created_by: null,
+              created_by_name: '',
+              modified_by: null,
+              modified_by_name: '',
+              last_modified: '2026-05-13T00:00:00Z',
+              created_at: '2026-05-13T00:00:00Z',
+              updated_at: '2026-05-13T00:00:00Z',
+              page_detail: {
+                id: 5,
+                page_id: 12,
+                template_key: 'default',
+                schema_version: 1,
+                sections: [
+                  {
+                    id: 6,
+                    section_name: 'Story body',
+                    section_type: 'typography',
+                    sort_order: 0,
+                    is_enabled: true,
+                    typography: {
+                      html_content: '<p>Story body</p>',
+                      text_content: 'Story body',
+                      text_align: 'left',
+                    },
+                    created_at: '2026-05-13T00:00:00Z',
+                    updated_at: '2026-05-13T00:00:00Z',
+                  },
+                ],
+              },
+            },
+            status: 'succeeded',
+            error: null,
+          },
+          save: {
+            status: 'idle',
+            error: null,
+            lastResult: null,
+          },
+        },
+      }),
+    )
+
+    render(<PageEditorPage />)
+
+    await waitFor(() => {
+      expect(listPageParentOptionsMock).toHaveBeenCalledTimes(1)
+      expect(listGalleriesMock).toHaveBeenCalledTimes(1)
+    })
+
+    expect(screen.getByRole('combobox', { name: 'Font size' })).toBeDefined()
+    expect(screen.getByRole('button', { name: 'Insert link' })).toBeDefined()
+    expect(screen.queryByRole('button', { name: 'Insert image' })).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Insert link' }))
+    expect(screen.getByRole('textbox', { name: 'Link destination' })).toBeDefined()
   })
 })
