@@ -723,6 +723,9 @@
       "detailsLabel": "Details de l image",
       "detailsLabelFor": "Details de l image pour {{name}}",
       "detailsPlaceholder": "Decrivez l image clairement et simplement...",
+      "linkLabel": "Lien de redirection (optionnel)",
+      "linkLabelFor": "Lien de redirection pour {{name}}",
+      "linkPlaceholder": "https://partner.example.com ou /partenaires",
       "removeUpload": "Retirer {{name}} de la liste",
       "limitReached": "Cette galerie est pleine ({{limit}} / {{limit}}). Supprimez une ressource pour en ajouter d autres.",
       "limitExceeded": "Ajouter ces images depasserait la limite de {{limit}} images ({{count}} au total). Retirez-en pour continuer.",
@@ -748,6 +751,8 @@
         "cancel": "Annuler",
         "assetTitle": "Titre",
         "assetDetails": "Details",
+        "linkUrl": "Lien de redirection",
+        "linkPlaceholder": "https://partner.example.com ou /partenaires",
         "empty": "Aucun detail n a encore ete ajoute."
       },
       "usage": {

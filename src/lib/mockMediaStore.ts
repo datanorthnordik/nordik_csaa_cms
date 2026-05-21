@@ -186,12 +186,14 @@ export function useMockMediaStore() {
         const title =
           patch.title.trim() || suggestGalleryAssetTitle(asset.fileName)
         const details = patch.details.trim()
+        const linkUrl = patch.linkUrl?.trim()
 
         return {
           ...asset,
           title,
           details: details || undefined,
           altText: details || undefined,
+          linkUrl: linkUrl || undefined,
         }
       })
 

@@ -146,6 +146,7 @@ describe('upload request bodies', () => {
         {
           title: 'Opening banner',
           alt_text: 'Banner',
+          link_url: 'https://partner.example.com',
           file_name: 'banner.png',
           mime_type: 'image/png',
         },
@@ -172,6 +173,7 @@ describe('upload request bodies', () => {
           {
             title: 'Opening banner',
             alt_text: 'Banner',
+            link_url: 'https://partner.example.com',
             file_name: 'banner.png',
             mime_type: 'image/png',
           },
@@ -183,6 +185,45 @@ describe('upload request bodies', () => {
           },
         ],
       }),
+    )
+  })
+
+  it('sends gallery image metadata updates with an optional link_url', async () => {
+    patchMock.mockResolvedValue({
+      data: {
+        message: 'Gallery image updated successfully',
+        image: {
+          id: 9,
+          gallery_id: 7,
+          title: 'Opening banner',
+          alt_text: 'Banner',
+          link_url: 'https://partner.example.com',
+          file_name: 'banner.png',
+          file_url: '/api/galleries/7/images/9/content',
+          storage_uri: 'gs://bucket/galleries/7/images/banner.png',
+          mime_type: 'image/png',
+          file_size: 1234,
+          sort_order: 0,
+          created_at: '2026-05-20T12:00:00Z',
+          updated_at: '2026-05-20T12:05:00Z',
+        },
+      },
+    })
+
+    await mediaApi.updateGalleryImage(7, 9, {
+      title: 'Opening banner',
+      alt_text: 'Banner',
+      link_url: 'https://partner.example.com',
+    })
+
+    expect(patchMock).toHaveBeenCalledTimes(1)
+    expect(patchMock).toHaveBeenCalledWith(
+      API_ROUTES.galleryImageById(7, 9),
+      {
+        title: 'Opening banner',
+        alt_text: 'Banner',
+        link_url: 'https://partner.example.com',
+      },
     )
   })
 

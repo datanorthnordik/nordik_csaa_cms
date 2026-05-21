@@ -25,6 +25,7 @@ export type GalleryAsset = {
   title?: string
   details?: string
   altText?: string
+  linkUrl?: string
   uploadedBy?: string
   uploadedAt?: string
   usageTracking?: GalleryAssetUsage[]
@@ -33,6 +34,7 @@ export type GalleryAsset = {
 export type GalleryAssetContentPatch = {
   title: string
   details: string
+  linkUrl?: string
 }
 
 export type GallerySummary = {

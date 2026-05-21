@@ -173,7 +173,7 @@ describe('GalleryManagerPage', () => {
     expect((submit as HTMLButtonElement).disabled).toBe(true)
   })
 
-  it('renders a per-image title and details field for each pending upload', () => {
+  it('renders title, details, and optional link fields for each pending upload', () => {
     renderPage({ gallery: baseGallery, onUploadAssets: vi.fn() })
 
     const fileInputs = document.querySelectorAll('input[type="file"]')
@@ -190,10 +190,16 @@ describe('GalleryManagerPage', () => {
       screen.getByRole('textbox', { name: /image details for a\.jpg/i }),
     ).toBeDefined()
     expect(
+      screen.getByRole('textbox', { name: /click-through link for a\.jpg/i }),
+    ).toBeDefined()
+    expect(
       screen.getByRole('textbox', { name: /image title for b\.jpg/i }),
     ).toBeDefined()
     expect(
       screen.getByRole('textbox', { name: /image details for b\.jpg/i }),
+    ).toBeDefined()
+    expect(
+      screen.getByRole('textbox', { name: /click-through link for b\.jpg/i }),
     ).toBeDefined()
   })
 
@@ -228,6 +234,11 @@ describe('GalleryManagerPage', () => {
     expect((submit as HTMLButtonElement).disabled).toBe(true)
 
     fireEvent.change(
+      screen.getByRole('textbox', { name: /click-through link for a\.jpg/i }),
+      { target: { value: 'https://partner.example.com' } },
+    )
+
+    fireEvent.change(
       screen.getByRole('textbox', { name: /image details for b\.jpg/i }),
       { target: { value: 'second' } },
     )
@@ -239,8 +250,10 @@ describe('GalleryManagerPage', () => {
     expect(arg).toHaveLength(2)
     expect(arg[0].title).toBe('Summer Hero')
     expect(arg[0].details).toBe('first')
+    expect(arg[0].linkUrl).toBe('https://partner.example.com')
     expect(arg[1].title).toBe('b')
     expect(arg[1].details).toBe('second')
+    expect(arg[1].linkUrl).toBeUndefined()
   })
 
   it('enforces the asset limit by clamping dropped files', () => {
@@ -402,7 +415,7 @@ describe('GalleryManagerPage', () => {
     expect((onSetCover.mock.calls[0][0] as File).name).toBe('new-cover.jpg')
   })
 
-  it('lets users edit an existing asset title and details', () => {
+  it('lets users edit an existing asset title, details, and click-through link', () => {
     const onUpdateAsset = vi.fn()
     renderPage({
       gallery: {
@@ -414,6 +427,7 @@ describe('GalleryManagerPage', () => {
             fileUrl: '/sunset.jpg',
             title: 'Sunset Hero',
             details: 'Warm evening light over the lake.',
+            linkUrl: 'https://old.example.com',
           },
         ],
       },
@@ -429,6 +443,9 @@ describe('GalleryManagerPage', () => {
     fireEvent.change(screen.getByRole('textbox', { name: /^details$/i }), {
       target: { value: 'Updated description for the hero image.' },
     })
+    fireEvent.change(screen.getByRole('textbox', { name: /click-through link/i }), {
+      target: { value: 'https://partner.example.com' },
+    })
     fireEvent.click(screen.getByRole('button', { name: /save changes/i }))
 
     expect(onUpdateAsset).toHaveBeenCalledWith(
@@ -436,6 +453,7 @@ describe('GalleryManagerPage', () => {
       {
         title: 'Sunset Story',
         details: 'Updated description for the hero image.',
+        linkUrl: 'https://partner.example.com',
       },
     )
   })
