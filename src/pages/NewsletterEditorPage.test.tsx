@@ -354,6 +354,7 @@ describe('NewsletterEditorPage', () => {
 
     await screen.findByText('newsletter-preview')
     expect(screen.getByText(/pending upload/i)).toBeDefined()
+    await screen.findByTitle('newsletter-preview')
 
     fireEvent.click(screen.getByRole('button', { name: /preview/i }))
     expect(window.open).toHaveBeenCalledWith(
