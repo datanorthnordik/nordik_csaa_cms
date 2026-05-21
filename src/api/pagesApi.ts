@@ -84,6 +84,7 @@ export type PageHeaderSectionResponse = {
   main_header_text: string
   sub_header_text: string
   hierarchy: PageHeaderHierarchy
+  text_align: PageTypographyTextAlign
 }
 
 export type PageTypographySectionResponse = {
@@ -213,6 +214,7 @@ export type SavePageHeaderSectionPayload = {
   main_header_text: string
   sub_header_text: string
   hierarchy: PageHeaderHierarchy
+  text_align: PageTypographyTextAlign
 }
 
 export type SavePageTypographySectionPayload = {

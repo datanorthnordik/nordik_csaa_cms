@@ -110,6 +110,34 @@ describe('buildSavePageRequest', () => {
       },
     })
   })
+
+  it('includes header text alignment in page section payloads', () => {
+    const form = createDefaultPageFormState()
+    const headerSection = createDefaultSectionState('header')
+
+    form.pageTitle = 'About'
+    form.urlSlug = 'about'
+    headerSection.header = {
+      mainHeaderText: 'About Us',
+      subHeaderText: 'Who we are',
+      hierarchy: 'h2_section',
+      textAlign: 'center',
+    }
+    form.sections = [headerSection]
+
+    const request = buildSavePageRequest(form)
+
+    expect(request.page_detail?.sections[0]).toMatchObject({
+      section_type: 'header',
+      sort_order: 0,
+      header: {
+        main_header_text: 'About Us',
+        sub_header_text: 'Who we are',
+        hierarchy: 'h2_section',
+        text_align: 'center',
+      },
+    })
+  })
 })
 
 describe('buildPageFormStateFromDetail', () => {
@@ -254,6 +282,65 @@ describe('buildPageFormStateFromDetail', () => {
       gallery: {
         galleryId: '14',
         viewMode: 'icons',
+      },
+    })
+  })
+
+  it('hydrates header sections with text alignment', () => {
+    const form = buildPageFormStateFromDetail({
+      id: 11,
+      page_title: 'Mission',
+      url_slug: '/mission',
+      page_type: 'page',
+      parent_id: null,
+      status: 'draft',
+      hero_image_enabled: false,
+      hero_image_url: '',
+      hero_image_object_key: '',
+      hero_image_fetch_url: '',
+      seo_page_title: '',
+      seo_page_description: '',
+      created_by: null,
+      created_by_name: 'Admin',
+      modified_by: null,
+      modified_by_name: 'Admin',
+      last_modified: '2026-05-12T00:00:00Z',
+      created_at: '2026-05-12T00:00:00Z',
+      updated_at: '2026-05-12T00:00:00Z',
+      page_detail: {
+        id: 22,
+        page_id: 11,
+        template_key: 'default',
+        schema_version: 1,
+        sections: [
+          {
+            id: 9,
+            section_name: 'Mission heading',
+            section_type: 'header',
+            sort_order: 0,
+            is_enabled: true,
+            header: {
+              main_header_text: 'Our Mission',
+              sub_header_text: 'Building stronger communities',
+              hierarchy: 'h1_hero',
+              text_align: 'right',
+            },
+            created_at: '2026-05-12T00:00:00Z',
+            updated_at: '2026-05-12T00:00:00Z',
+          },
+        ],
+      },
+    })
+
+    expect(form.sections[0]).toMatchObject({
+      id: 9,
+      sectionName: 'Mission heading',
+      sectionType: 'header',
+      header: {
+        mainHeaderText: 'Our Mission',
+        subHeaderText: 'Building stronger communities',
+        hierarchy: 'h1_hero',
+        textAlign: 'right',
       },
     })
   })

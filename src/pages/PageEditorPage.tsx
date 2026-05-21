@@ -922,6 +922,51 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                 </div>
               </div>
             </div>
+
+            <div className={styles.field}>
+              <span>{t('pages.modules.fields.textAlign')}</span>
+              <div className={styles.segmentedControl}>
+                <SegmentedButton
+                  active={section.header.textAlign === 'left'}
+                  onClick={() =>
+                    updateSection(section.clientId, (current) => ({
+                      ...current,
+                      header: {
+                        ...current.header,
+                        textAlign: 'left',
+                      },
+                    }))
+                  }
+                  label={t('pages.modules.options.alignLeft')}
+                />
+                <SegmentedButton
+                  active={section.header.textAlign === 'center'}
+                  onClick={() =>
+                    updateSection(section.clientId, (current) => ({
+                      ...current,
+                      header: {
+                        ...current.header,
+                        textAlign: 'center',
+                      },
+                    }))
+                  }
+                  label={t('pages.modules.options.alignCenter')}
+                />
+                <SegmentedButton
+                  active={section.header.textAlign === 'right'}
+                  onClick={() =>
+                    updateSection(section.clientId, (current) => ({
+                      ...current,
+                      header: {
+                        ...current.header,
+                        textAlign: 'right',
+                      },
+                    }))
+                  }
+                  label={t('pages.modules.options.alignRight')}
+                />
+              </div>
+            </div>
           </div>
         )
 

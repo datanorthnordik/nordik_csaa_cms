@@ -56,6 +56,7 @@ export type PageSectionState = {
     mainHeaderText: string
     subHeaderText: string
     hierarchy: PageHeaderHierarchy
+    textAlign: PageTypographyTextAlign
   }
   typography: {
     htmlContent: string
@@ -121,6 +122,7 @@ export function createDefaultSectionState(sectionType: PageSectionType): PageSec
       mainHeaderText: '',
       subHeaderText: '',
       hierarchy: 'h1_hero',
+      textAlign: 'left',
     },
     typography: {
       htmlContent: '',
@@ -428,6 +430,7 @@ function buildSaveSectionPayload(
             main_header_text: section.header.mainHeaderText.trim(),
             sub_header_text: section.header.subHeaderText.trim(),
             hierarchy: section.header.hierarchy,
+            text_align: section.header.textAlign,
           } satisfies SavePageHeaderSectionPayload,
         }
       : {}),
@@ -568,6 +571,7 @@ function mapHeaderResponse(header?: PageHeaderSectionResponse | null) {
     mainHeaderText: header?.main_header_text ?? '',
     subHeaderText: header?.sub_header_text ?? '',
     hierarchy: header?.hierarchy ?? 'h1_hero',
+    textAlign: header?.text_align ?? 'left',
   }
 }
 
