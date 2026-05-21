@@ -215,4 +215,80 @@ describe('PageEditorPage module pages', () => {
 
     expect(screen.getByRole('button', { name: 'Icons' })).toBeDefined()
   })
+
+  it('shows text alignment controls for editable header sections', async () => {
+    useAppSelectorMock.mockImplementation((selector: (state: unknown) => unknown) =>
+      selector({
+        pages: {
+          detail: {
+            item: {
+              id: 12,
+              page_title: 'About',
+              url_slug: '/about',
+              page_type: 'page',
+              parent_id: null,
+              parent_page_title: '',
+              parent_page_url_slug: '',
+              status: 'draft',
+              hero_image_enabled: false,
+              hero_image_url: '',
+              hero_image_object_key: '',
+              hero_image_fetch_url: '',
+              seo_page_title: 'About',
+              seo_page_description: 'About page',
+              created_by: null,
+              created_by_name: '',
+              modified_by: null,
+              modified_by_name: '',
+              last_modified: '2026-05-13T00:00:00Z',
+              created_at: '2026-05-13T00:00:00Z',
+              updated_at: '2026-05-13T00:00:00Z',
+              page_detail: {
+                id: 4,
+                page_id: 12,
+                template_key: 'default',
+                schema_version: 1,
+                sections: [
+                  {
+                    id: 5,
+                    section_name: 'Page heading',
+                    section_type: 'header',
+                    sort_order: 0,
+                    is_enabled: true,
+                    header: {
+                      main_header_text: 'About Us',
+                      sub_header_text: 'Who we are',
+                      hierarchy: 'h1_hero',
+                      text_align: 'center',
+                    },
+                    created_at: '2026-05-13T00:00:00Z',
+                    updated_at: '2026-05-13T00:00:00Z',
+                  },
+                ],
+              },
+            },
+            status: 'succeeded',
+            error: null,
+          },
+          save: {
+            status: 'idle',
+            error: null,
+            lastResult: null,
+          },
+        },
+      }),
+    )
+
+    render(<PageEditorPage />)
+
+    await waitFor(() => {
+      expect(listPageParentOptionsMock).toHaveBeenCalledTimes(1)
+      expect(listGalleriesMock).toHaveBeenCalledTimes(1)
+    })
+
+    expect(screen.getByText('Text Align')).toBeDefined()
+    expect(screen.getByRole('button', { name: 'Left' })).toBeDefined()
+    expect(screen.getByRole('button', { name: 'Center' })).toBeDefined()
+    expect(screen.getByRole('button', { name: 'Right' })).toBeDefined()
+  })
 })

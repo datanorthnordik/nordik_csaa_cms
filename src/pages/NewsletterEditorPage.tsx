@@ -466,16 +466,19 @@ export function NewsletterEditorPage({
     }))
 
     try {
+      const existingPreviewUrl = documentPreviewUrls[mediaItem.id]
       const previewUrl =
-        documentPreviewUrls[mediaItem.id] ||
-        (await createTemporaryNewsletterMediaObjectUrl(currentEntry?.id, mediaItem))
+        existingPreviewUrl ||
+        (mediaItem.file
+          ? URL.createObjectURL(mediaItem.file)
+          : await createTemporaryNewsletterMediaObjectUrl(currentEntry?.id, mediaItem))
 
       if (!previewUrl) {
         throw new Error('Document preview unavailable')
       }
 
       window.open(previewUrl, '_blank', 'noopener,noreferrer')
-      if (!documentPreviewUrls[mediaItem.id]) {
+      if (!existingPreviewUrl) {
         scheduleObjectUrlRevoke(previewUrl)
       }
     } catch {
