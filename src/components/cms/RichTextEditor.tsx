@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Mark, mergeAttributes } from '@tiptap/core'
 import { EditorContent, useEditor, type Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Underline from '@tiptap/extension-underline'
@@ -13,7 +14,53 @@ type RichTextEditorProps = {
   placeholder?: string
   disabled?: boolean
   className?: string
+  allowImages?: boolean
 }
+
+const FONT_SIZE_OPTIONS = ['', '14px', '16px', '18px', '24px', '32px'] as const
+
+const FontSize = Mark.create({
+  name: 'fontSize',
+
+  addAttributes() {
+    return {
+      size: {
+        default: null,
+        parseHTML: (element) => element.style.fontSize || null,
+        renderHTML: (attributes) => {
+          if (!attributes.size) {
+            return {}
+          }
+
+          return {
+            style: `font-size: ${attributes.size}`,
+          }
+        },
+      },
+    }
+  },
+
+  parseHTML() {
+    return [
+      {
+        style: 'font-size',
+        getAttrs: (value) => {
+          if (typeof value !== 'string' || !value.trim()) {
+            return false
+          }
+
+          return {
+            size: value,
+          }
+        },
+      },
+    ]
+  },
+
+  renderHTML({ HTMLAttributes }) {
+    return ['span', mergeAttributes(HTMLAttributes), 0]
+  },
+})
 
 export function RichTextEditor({
   value,
@@ -21,15 +68,19 @@ export function RichTextEditor({
   placeholder,
   disabled = false,
   className,
+  allowImages = true,
 }: RichTextEditorProps) {
   const { t } = useTranslation()
   const [isFocused, setIsFocused] = useState(false)
+  const [isLinkEditorOpen, setIsLinkEditorOpen] = useState(false)
+  const [linkUrl, setLinkUrl] = useState('')
   const resolvedPlaceholder = placeholder ?? t('richText.placeholder')
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({ heading: false }),
+      StarterKit.configure({ heading: false, link: false, underline: false }),
       Underline,
+      FontSize,
       Link.configure({
         openOnClick: false,
         HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },
@@ -65,21 +116,45 @@ export function RichTextEditor({
     editor?.setEditable(!disabled)
   }, [editor, disabled])
 
-  const handleSetLink = useCallback(() => {
+  const handleToggleLinkEditor = useCallback(() => {
     if (!editor) {
       return
     }
+
     const previous = editor.getAttributes('link').href as string | undefined
-    const url = window.prompt(t('richText.linkPrompt'), previous ?? 'https://')
-    if (url === null) {
+    setLinkUrl(previous ?? '')
+    setIsLinkEditorOpen((current) => !current)
+  }, [editor])
+
+  const handleApplyLink = useCallback(
+    (event: FormEvent<HTMLFormElement>) => {
+      event.preventDefault()
+      if (!editor) {
+        return
+      }
+
+      const trimmedUrl = linkUrl.trim()
+      if (!trimmedUrl) {
+        editor.chain().focus().extendMarkRange('link').unsetLink().run()
+        setIsLinkEditorOpen(false)
+        return
+      }
+
+      editor.chain().focus().extendMarkRange('link').setLink({ href: trimmedUrl }).run()
+      setIsLinkEditorOpen(false)
+    },
+    [editor, linkUrl],
+  )
+
+  const handleRemoveLink = useCallback(() => {
+    if (!editor) {
       return
     }
-    if (url === '') {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run()
-      return
-    }
-    editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
-  }, [editor, t])
+
+    editor.chain().focus().extendMarkRange('link').unsetLink().run()
+    setLinkUrl('')
+    setIsLinkEditorOpen(false)
+  }, [editor])
 
   const handleSetImage = useCallback(() => {
     if (!editor) {
@@ -104,6 +179,7 @@ export function RichTextEditor({
   ]
     .filter(Boolean)
     .join(' ')
+  const currentFontSize = (editor.getAttributes('fontSize').size as string | undefined) ?? ''
 
   return (
     <div className={classes}>
@@ -158,19 +234,21 @@ export function RichTextEditor({
           <ToolbarButton
             editor={editor}
             label={t('richText.link')}
-            isActive={editor.isActive('link')}
-            onClick={handleSetLink}
+            isActive={editor.isActive('link') || isLinkEditorOpen}
+            onClick={handleToggleLinkEditor}
           >
             <LinkIcon />
           </ToolbarButton>
-          <ToolbarButton
-            editor={editor}
-            label={t('richText.image')}
-            isActive={false}
-            onClick={handleSetImage}
-          >
-            <ImageIcon />
-          </ToolbarButton>
+          {allowImages ? (
+            <ToolbarButton
+              editor={editor}
+              label={t('richText.image')}
+              isActive={false}
+              onClick={handleSetImage}
+            >
+              <ImageIcon />
+            </ToolbarButton>
+          ) : null}
           <ToolbarButton
             editor={editor}
             label={t('richText.quote')}
@@ -180,7 +258,63 @@ export function RichTextEditor({
             <QuoteIcon />
           </ToolbarButton>
         </div>
+
+        <div className={styles.toolbarGroup}>
+          <select
+            aria-label={t('richText.fontSize')}
+            className={styles.toolbarSelect}
+            disabled={!editor.isEditable}
+            value={currentFontSize}
+            onChange={(event) => {
+              const nextFontSize = event.target.value
+              if (!nextFontSize) {
+                editor.chain().focus().unsetMark('fontSize').run()
+                return
+              }
+
+              editor.chain().focus().setMark('fontSize', { size: nextFontSize }).run()
+            }}
+          >
+            {FONT_SIZE_OPTIONS.map((fontSize) => (
+              <option key={fontSize || 'default'} value={fontSize}>
+                {fontSize || t('richText.fontSizeDefault')}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
+
+      {isLinkEditorOpen ? (
+        <form className={styles.linkEditor} onSubmit={handleApplyLink}>
+          <label className={styles.linkField}>
+            <span>{t('richText.linkUrl')}</span>
+            <input
+              type="url"
+              value={linkUrl}
+              disabled={!editor.isEditable}
+              placeholder={t('richText.linkUrlPlaceholder')}
+              onChange={(event) => setLinkUrl(event.target.value)}
+            />
+          </label>
+          <div className={styles.linkActions}>
+            <button
+              type="submit"
+              className={styles.linkActionButton}
+              disabled={!editor.isEditable}
+            >
+              {t('richText.applyLink')}
+            </button>
+            <button
+              type="button"
+              className={styles.linkActionButtonSecondary}
+              disabled={!editor.isEditable}
+              onClick={handleRemoveLink}
+            >
+              {t('richText.removeLink')}
+            </button>
+          </div>
+        </form>
+      ) : null}
 
       <EditorContent editor={editor} />
     </div>

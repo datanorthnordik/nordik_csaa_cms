@@ -72,6 +72,99 @@
   border-color: var(--color-primary);
 }
 
+.toolbarSelect {
+  min-width: 110px;
+  height: 30px;
+  border: 1px solid var(--color-border-input);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  padding: 0 10px;
+  font: inherit;
+  font-size: 13px;
+}
+
+.toolbarSelect:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.linkEditor {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-surface-alt) 70%, white 30%);
+}
+
+.linkField {
+  flex: 1 1 260px;
+  display: grid;
+  gap: 6px;
+  color: var(--color-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.linkField input {
+  width: 100%;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border-input);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 14px;
+}
+
+.linkField input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.linkActions {
+  display: flex;
+  gap: 8px;
+}
+
+.linkActionButton,
+.linkActionButtonSecondary {
+  min-height: 38px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-input);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.linkActionButton {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border-color: var(--color-primary);
+}
+
+.linkActionButtonSecondary {
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.linkActionButton:hover:not(:disabled),
+.linkActionButtonSecondary:hover:not(:disabled) {
+  filter: brightness(0.98);
+}
+
+.linkActionButton:disabled,
+.linkActionButtonSecondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .editor {
   min-height: 180px;
   padding: 14px 16px;

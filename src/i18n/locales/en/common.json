@@ -823,6 +823,12 @@
     "link": "Insert link",
     "image": "Insert image",
     "quote": "Block quote",
+    "fontSize": "Font size",
+    "fontSizeDefault": "Default size",
+    "linkUrl": "Link destination",
+    "linkUrlPlaceholder": "https://example.com or /about",
+    "applyLink": "Apply link",
+    "removeLink": "Remove link",
     "linkPrompt": "Enter URL (leave blank to remove link)",
     "imagePrompt": "Enter image URL"
   },

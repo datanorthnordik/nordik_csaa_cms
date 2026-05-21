@@ -1050,6 +1050,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                 }
                 placeholder={t('pages.modules.placeholders.htmlContent')}
                 disabled={isReadOnlyMode || isBusy}
+                allowImages={false}
               />
             </div>
           </div>
