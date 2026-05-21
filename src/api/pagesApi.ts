@@ -21,7 +21,7 @@ export type PageSectionType =
   | 'quote'
   | 'cta_banner'
 export type PageHeaderHierarchy = 'h1_hero' | 'h2_section'
-export type PageGalleryViewMode = 'grid' | 'carousel' | 'masonry' | 'focus'
+export type PageGalleryViewMode = 'grid' | 'carousel' | 'masonry' | 'focus' | 'icons'
 export type PageTypographyTextAlign = 'left' | 'center' | 'right'
 
 type JSONObject = Record<string, unknown>

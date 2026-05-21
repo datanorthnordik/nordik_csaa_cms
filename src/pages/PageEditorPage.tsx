@@ -1112,6 +1112,19 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                   }
                   label={t('pages.modules.options.focus')}
                 />
+                <SegmentedButton
+                  active={section.gallery.viewMode === 'icons'}
+                  onClick={() =>
+                    updateSection(section.clientId, (current) => ({
+                      ...current,
+                      gallery: {
+                        ...current.gallery,
+                        viewMode: 'icons',
+                      },
+                    }))
+                  }
+                  label={t('pages.modules.options.icons')}
+                />
               </div>
             </div>
           </div>

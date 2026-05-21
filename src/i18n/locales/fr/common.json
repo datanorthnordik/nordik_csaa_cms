@@ -343,7 +343,8 @@
         "grid": "Grille",
         "carousel": "Carrousel",
         "masonry": "Mosaique",
-        "focus": "Focus"
+        "focus": "Focus",
+        "icons": "Icones"
       },
       "actions": {
         "addModule": "Ajouter un module",

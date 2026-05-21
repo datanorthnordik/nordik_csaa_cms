@@ -343,7 +343,8 @@
         "grid": "Grid",
         "carousel": "Carousel",
         "masonry": "Masonry",
-        "focus": "Focus"
+        "focus": "Focus",
+        "icons": "Icons"
       },
       "actions": {
         "addModule": "Add Content Module",

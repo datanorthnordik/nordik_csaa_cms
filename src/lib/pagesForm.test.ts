@@ -86,6 +86,30 @@ describe('buildSavePageRequest', () => {
       },
     ])
   })
+
+  it('preserves the icons gallery view mode in page section payloads', () => {
+    const form = createDefaultPageFormState()
+    const gallerySection = createDefaultSectionState('gallery')
+
+    form.pageTitle = 'Partners'
+    form.urlSlug = 'partners'
+    gallerySection.gallery = {
+      galleryId: '14',
+      viewMode: 'icons',
+    }
+    form.sections = [gallerySection]
+
+    const request = buildSavePageRequest(form)
+
+    expect(request.page_detail?.sections[0]).toMatchObject({
+      section_type: 'gallery',
+      sort_order: 0,
+      gallery: {
+        gallery_id: 14,
+        view_mode: 'icons',
+      },
+    })
+  })
 })
 
 describe('buildPageFormStateFromDetail', () => {
@@ -175,6 +199,61 @@ describe('buildPageFormStateFromDetail', () => {
       typography: {
         htmlContent: '<p>Hello world</p>',
         textAlign: 'center',
+      },
+    })
+  })
+
+  it('hydrates gallery sections with the icons view mode', () => {
+    const form = buildPageFormStateFromDetail({
+      id: 10,
+      page_title: 'Partners',
+      url_slug: '/partners',
+      page_type: 'page',
+      parent_id: null,
+      status: 'draft',
+      hero_image_enabled: false,
+      hero_image_url: '',
+      hero_image_object_key: '',
+      hero_image_fetch_url: '',
+      seo_page_title: '',
+      seo_page_description: '',
+      created_by: null,
+      created_by_name: 'Admin',
+      modified_by: null,
+      modified_by_name: 'Admin',
+      last_modified: '2026-05-12T00:00:00Z',
+      created_at: '2026-05-12T00:00:00Z',
+      updated_at: '2026-05-12T00:00:00Z',
+      page_detail: {
+        id: 21,
+        page_id: 10,
+        template_key: 'default',
+        schema_version: 1,
+        sections: [
+          {
+            id: 8,
+            section_name: 'Partner logos',
+            section_type: 'gallery',
+            sort_order: 0,
+            is_enabled: true,
+            gallery: {
+              gallery_id: 14,
+              view_mode: 'icons',
+            },
+            created_at: '2026-05-12T00:00:00Z',
+            updated_at: '2026-05-12T00:00:00Z',
+          },
+        ],
+      },
+    })
+
+    expect(form.sections[0]).toMatchObject({
+      id: 8,
+      sectionName: 'Partner logos',
+      sectionType: 'gallery',
+      gallery: {
+        galleryId: '14',
+        viewMode: 'icons',
       },
     })
   })
