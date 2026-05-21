@@ -343,7 +343,8 @@
         "grid": "Grid",
         "carousel": "Carousel",
         "masonry": "Masonry",
-        "focus": "Focus"
+        "focus": "Focus",
+        "icons": "Icons"
       },
       "actions": {
         "addModule": "Add Content Module",
@@ -726,6 +727,9 @@
       "detailsLabel": "Image details",
       "detailsLabelFor": "Image details for {{name}}",
       "detailsPlaceholder": "Describe the image clearly and simply...",
+      "linkLabel": "Click-through link (optional)",
+      "linkLabelFor": "Click-through link for {{name}}",
+      "linkPlaceholder": "https://partner.example.com or /partners",
       "removeUpload": "Remove {{name}} from upload list",
       "limitReached": "This gallery is full ({{limit}} / {{limit}}). Remove an asset to add more.",
       "limitExceeded": "Adding these images would exceed the {{limit}}-image limit ({{count}} total). Remove some to continue.",
@@ -751,6 +755,8 @@
         "cancel": "Cancel",
         "assetTitle": "Title",
         "assetDetails": "Details",
+        "linkUrl": "Click-through link",
+        "linkPlaceholder": "https://partner.example.com or /partners",
         "empty": "No details have been added yet."
       },
       "usage": {

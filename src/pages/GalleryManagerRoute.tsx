@@ -210,7 +210,10 @@ export function GalleryManagerRoute() {
     }
   }
 
-  async function handleUpdateAsset(asset: GalleryAsset, patch: { title: string; details: string }) {
+  async function handleUpdateAsset(
+    asset: GalleryAsset,
+    patch: { title: string; details: string; linkUrl?: string },
+  ) {
     if (!Number.isFinite(numericId)) {
       return
     }
@@ -223,6 +226,7 @@ export function GalleryManagerRoute() {
           payload: {
             title: patch.title.trim(),
             alt_text: patch.details.trim(),
+            link_url: (patch.linkUrl ?? asset.linkUrl ?? '').trim(),
           },
         }),
       ).unwrap()
@@ -441,6 +445,7 @@ function buildUploadGalleryImagesRequest(
       buildGalleryUploadInput(upload.file, {
         title: upload.title.trim(),
         altText: upload.details.trim(),
+        linkUrl: upload.linkUrl?.trim(),
       }),
     ),
     imageFiles: uploads.map((upload) => upload.file),
@@ -452,11 +457,14 @@ function buildGalleryUploadInput(
   options: {
     title?: string
     altText?: string
+    linkUrl?: string
   } = {},
 ): GalleryUploadInput {
+  const trimmedLinkUrl = options.linkUrl?.trim()
   return {
     title: options.title,
     alt_text: options.altText,
+    link_url: trimmedLinkUrl || undefined,
     file_name: file.name,
     mime_type: file.type || 'application/octet-stream',
   }

@@ -18,6 +18,7 @@ type ApiGalleryAsset = {
   gallery_id: number
   title: string
   alt_text: string
+  link_url?: string
   file_name: string
   gcp_object_key?: string
   file_url: string
@@ -53,6 +54,7 @@ type GalleryDetailEnvelope = ApiGalleryDetail
 export type GalleryUploadInput = {
   title?: string
   alt_text?: string
+  link_url?: string
   file_name?: string
   mime_type?: string
   file_url?: string
@@ -100,6 +102,7 @@ export type UploadGalleryImagesResponse = {
 export type UpdateGalleryImagePayload = {
   title: string
   alt_text: string
+  link_url?: string
 }
 
 export type UpdateGalleryImageResponse = {
@@ -147,6 +150,7 @@ function mapGalleryAsset(asset: ApiGalleryAsset): GalleryAsset {
     title: asset.title || undefined,
     details: asset.alt_text || undefined,
     altText: asset.alt_text || undefined,
+    linkUrl: asset.link_url || undefined,
     uploadedAt: asset.created_at,
   }
 }

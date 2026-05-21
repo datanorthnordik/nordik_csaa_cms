@@ -27,6 +27,7 @@ export type PendingUploadInput = {
   file: File
   title: string
   details: string
+  linkUrl?: string
 }
 
 type GalleryManagerPageProps = {
@@ -55,6 +56,7 @@ type PendingUpload = {
   previewUrl: string
   title: string
   details: string
+  linkUrl: string
 }
 
 function makePendingId() {
@@ -135,6 +137,7 @@ export function GalleryManagerPage({
       previewUrl: URL.createObjectURL(file),
       title: suggestGalleryAssetTitle(file.name),
       details: '',
+      linkUrl: '',
     }))
 
     setPendingUploads((current) => [...current, ...additions])
@@ -142,7 +145,7 @@ export function GalleryManagerPage({
 
   function updatePendingUpload(
     id: string,
-    field: keyof Pick<PendingUpload, 'title' | 'details'>,
+    field: keyof Pick<PendingUpload, 'title' | 'details' | 'linkUrl'>,
     value: string,
   ) {
     setPendingUploads((current) =>
@@ -173,6 +176,7 @@ export function GalleryManagerPage({
         file: upload.file,
         title: upload.title.trim(),
         details: upload.details.trim(),
+        linkUrl: upload.linkUrl.trim() || undefined,
       })),
     )
 
@@ -559,6 +563,30 @@ export function GalleryManagerPage({
                                   )}
                                   aria-label={t(
                                     'galleryManager.uploads.detailsLabelFor',
+                                    { name: upload.file.name },
+                                  )}
+                                />
+                              </label>
+                              <label className={styles.pendingAltLabel}>
+                                <span className={styles.fieldLabel}>
+                                  {t('galleryManager.uploads.linkLabel')}
+                                </span>
+                                <input
+                                  type="text"
+                                  className={styles.pendingTextInput}
+                                  value={upload.linkUrl}
+                                  onChange={(event) =>
+                                    updatePendingUpload(
+                                      upload.id,
+                                      'linkUrl',
+                                      event.target.value,
+                                    )
+                                  }
+                                  placeholder={t(
+                                    'galleryManager.uploads.linkPlaceholder',
+                                  )}
+                                  aria-label={t(
+                                    'galleryManager.uploads.linkLabelFor',
                                     { name: upload.file.name },
                                   )}
                                 />

@@ -41,23 +41,31 @@ export function SelectedImagePanel({
   const previewUrl = asset.fileUrl ?? asset.thumbnailUrl
   const assetTitle = getGalleryAssetTitle(asset)
   const assetDetails = getGalleryAssetDetails(asset)
+  const assetLinkUrl = asset.linkUrl?.trim() ?? ''
   const [isEditing, setIsEditing] = useState(false)
   const [draftTitle, setDraftTitle] = useState(assetTitle)
   const [draftDetails, setDraftDetails] = useState(assetDetails)
+  const [draftLinkUrl, setDraftLinkUrl] = useState(assetLinkUrl)
 
   useEffect(() => {
     setDraftTitle(assetTitle)
     setDraftDetails(assetDetails)
+    setDraftLinkUrl(assetLinkUrl)
     setIsEditing(false)
-  }, [asset.id, assetTitle, assetDetails])
+  }, [asset.id, assetDetails, assetLinkUrl, assetTitle])
 
   const trimmedTitle = draftTitle.trim()
   const trimmedDetails = draftDetails.trim()
+  const trimmedLinkUrl = draftLinkUrl.trim()
   const canSaveMetadata =
     Boolean(onUpdateAsset) &&
     trimmedTitle.length > 0 &&
     trimmedDetails.length > 0 &&
-    (trimmedTitle !== assetTitle || trimmedDetails !== assetDetails)
+    (
+      trimmedTitle !== assetTitle ||
+      trimmedDetails !== assetDetails ||
+      trimmedLinkUrl !== assetLinkUrl
+    )
 
   const uploadedLine = buildUploadedLine(
     asset,
@@ -114,6 +122,7 @@ export function SelectedImagePanel({
               onClick={() => {
                 setDraftTitle(assetTitle)
                 setDraftDetails(assetDetails)
+                setDraftLinkUrl(assetLinkUrl)
                 setIsEditing(true)
               }}
             >
@@ -134,6 +143,7 @@ export function SelectedImagePanel({
               onUpdateAsset(asset, {
                 title: trimmedTitle,
                 details: trimmedDetails,
+                linkUrl: trimmedLinkUrl || undefined,
               })
               setIsEditing(false)
             }}
@@ -164,6 +174,20 @@ export function SelectedImagePanel({
               />
             </label>
 
+            <label className={styles.metaField}>
+              <span className={styles.metaLabel}>
+                {t('galleryManager.selected.metadata.linkUrl')}
+              </span>
+              <input
+                type="text"
+                className={styles.metaInput}
+                value={draftLinkUrl}
+                onChange={(event) => setDraftLinkUrl(event.target.value)}
+                placeholder={t('galleryManager.selected.metadata.linkPlaceholder')}
+                aria-label={t('galleryManager.selected.metadata.linkUrl')}
+              />
+            </label>
+
             <div className={styles.metaActions}>
               <button
                 type="submit"
@@ -178,6 +202,7 @@ export function SelectedImagePanel({
                 onClick={() => {
                   setDraftTitle(assetTitle)
                   setDraftDetails(assetDetails)
+                  setDraftLinkUrl(assetLinkUrl)
                   setIsEditing(false)
                 }}
               >
@@ -206,6 +231,17 @@ export function SelectedImagePanel({
                 </p>
               )}
             </div>
+
+            {assetLinkUrl && (
+              <div className={styles.metadataItem}>
+                <p className={styles.metaLabel}>
+                  {t('galleryManager.selected.metadata.linkUrl')}
+                </p>
+                <a className={styles.usageLink} href={assetLinkUrl}>
+                  {assetLinkUrl}
+                </a>
+              </div>
+            )}
           </div>
         )}
       </section>
