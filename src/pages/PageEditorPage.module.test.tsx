@@ -361,7 +361,7 @@ describe('PageEditorPage module pages', () => {
       expect(listGalleriesMock).toHaveBeenCalledTimes(1)
     })
 
-    expect(screen.getByRole('combobox', { name: 'Font size' })).toBeDefined()
+    expect(screen.getByRole('button', { name: 'Font size' })).toBeDefined()
     expect(screen.getByRole('button', { name: 'Insert link' })).toBeDefined()
     expect(screen.queryByRole('button', { name: 'Insert image' })).toBeNull()
 
