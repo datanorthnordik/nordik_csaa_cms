@@ -15,6 +15,15 @@ export type SignupRequest = {
   password: string
 }
 
+export type ForgotPasswordRequest = {
+  email: string
+}
+
+export type ResetPasswordRequest = {
+  token: string
+  password: string
+}
+
 export type LoginResponse = {
   message: string
   data: AuthSession
@@ -31,6 +40,14 @@ export type SignupResponse = {
   }
 }
 
+export type ForgotPasswordResponse = {
+  message: string
+}
+
+export type ResetPasswordResponse = {
+  message: string
+}
+
 export const authApi = {
   async login(payload: LoginRequest) {
     const response = await apiClient.post<LoginResponse>(API_ROUTES.login, payload, {
@@ -41,6 +58,26 @@ export const authApi = {
   async signup(payload: SignupRequest) {
     const response = await apiClient.post<SignupResponse>(
       API_ROUTES.signup,
+      payload,
+      {
+        skipAuth: true,
+      },
+    )
+    return response.data
+  },
+  async forgotPassword(payload: ForgotPasswordRequest) {
+    const response = await apiClient.post<ForgotPasswordResponse>(
+      API_ROUTES.forgotPassword,
+      payload,
+      {
+        skipAuth: true,
+      },
+    )
+    return response.data
+  },
+  async resetPassword(payload: ResetPasswordRequest) {
+    const response = await apiClient.post<ResetPasswordResponse>(
+      API_ROUTES.resetPassword,
       payload,
       {
         skipAuth: true,

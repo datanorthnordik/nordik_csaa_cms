@@ -12,6 +12,8 @@ describe('API_ROUTES', () => {
     expect(API_ROUTES.login).toBe('/api/user/login')
     expect(API_ROUTES.signup).toBe('/api/user/signup')
     expect(API_ROUTES.refresh).toBe('/api/user/refresh')
+    expect(API_ROUTES.forgotPassword).toBe('/api/user/forgot-password')
+    expect(API_ROUTES.resetPassword).toBe('/api/user/reset-password')
     expect(API_ROUTES.events).toBe('/api/events')
     expect(API_ROUTES.eventLocations).toBe('/api/events/locations')
     expect(API_ROUTES.eventGalleries).toBe('/api/events/galleries')

@@ -5,6 +5,8 @@ export const API_ROUTES = {
   login: '/api/user/login',
   signup: '/api/user/signup',
   refresh: '/api/user/refresh',
+  forgotPassword: '/api/user/forgot-password',
+  resetPassword: '/api/user/reset-password',
   events: '/api/events',
   eventLocations: '/api/events/locations',
   eventGalleries: '/api/events/galleries',

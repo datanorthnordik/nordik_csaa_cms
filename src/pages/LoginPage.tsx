@@ -47,6 +47,7 @@ export function LoginPage({ onSubmit }: LoginPageProps) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    getValues,
     trigger,
   } = useForm<LoginValues>({
     defaultValues: {
@@ -154,7 +155,11 @@ export function LoginPage({ onSubmit }: LoginPageProps) {
           type="button"
           className={styles.forgot}
           disabled={isSubmitting}
-          onClick={() => console.log('forgot password')}
+          onClick={() =>
+            navigate('/forgot-password', {
+              state: { email: getValues('email') },
+            })
+          }
         >
           {t('auth.login.actions.forgotPassword')}
         </button>

@@ -25,6 +25,7 @@
       "emailRequired": "L'adresse courriel est requise",
       "emailInvalid": "Veuillez saisir une adresse courriel valide",
       "workEmailInvalid": "Veuillez saisir une adresse courriel professionnelle valide",
+      "resetTokenRequired": "Le jeton de reinitialisation est requis",
       "passwordRequired": "Le mot de passe est requis",
       "passwordMinLength": "Le mot de passe doit contenir au moins 6 caracteres",
       "confirmPasswordRequired": "Veuillez confirmer votre mot de passe",
@@ -68,6 +69,40 @@
       "feedback": {
         "success": "La demande de compte a ete envoyee. Vous recevrez un courriel une fois la demande approuvee.",
         "errorGeneric": "Impossible de creer le compte. Veuillez reessayer."
+      }
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublie",
+      "subtitle": "Saisissez votre adresse courriel et nous vous enverrons un lien de reinitialisation.",
+      "fields": {
+        "email": "Adresse courriel"
+      },
+      "actions": {
+        "sendLink": "Envoyer le lien",
+        "backToSignIn": "Retour a la connexion"
+      },
+      "helper": "Si cette adresse correspond a un compte, nous enverrons les instructions de reinitialisation par courriel.",
+      "feedback": {
+        "success": "Si un compte existe pour cette adresse, les instructions de reinitialisation ont ete envoyees.",
+        "errorGeneric": "Impossible d'envoyer les instructions de reinitialisation. Veuillez reessayer."
+      }
+    },
+    "resetPassword": {
+      "title": "Choisir un nouveau mot de passe",
+      "subtitle": "Saisissez le jeton recu par courriel et choisissez un nouveau mot de passe.",
+      "fields": {
+        "token": "Jeton de reinitialisation",
+        "password": "Nouveau mot de passe",
+        "confirmPassword": "Confirmer le nouveau mot de passe"
+      },
+      "actions": {
+        "resetPassword": "Reinitialiser le mot de passe",
+        "backToSignIn": "Retour a la connexion"
+      },
+      "helper": "Collez le jeton recu par courriel s'il n'a pas ete rempli automatiquement.",
+      "feedback": {
+        "success": "Votre mot de passe a ete reinitialise. Vous pouvez maintenant vous connecter.",
+        "errorGeneric": "Impossible de reinitialiser votre mot de passe. Veuillez reessayer."
       }
     }
   },

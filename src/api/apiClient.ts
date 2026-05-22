@@ -50,7 +50,12 @@ function shouldSkipAuth(url?: string, skipAuth?: boolean) {
     return true
   }
 
-  return url === API_ROUTES.login || url === API_ROUTES.signup
+  return (
+    url === API_ROUTES.login ||
+    url === API_ROUTES.signup ||
+    url === API_ROUTES.forgotPassword ||
+    url === API_ROUTES.resetPassword
+  )
 }
 
 async function refreshAccessToken() {

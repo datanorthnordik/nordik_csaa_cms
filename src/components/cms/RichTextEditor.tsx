@@ -17,7 +17,31 @@ type RichTextEditorProps = {
   allowImages?: boolean
 }
 
-const FONT_SIZE_OPTIONS = ['', '14px', '16px', '18px', '24px', '32px'] as const
+const FONT_SIZE_OPTIONS = [
+  { value: '', label: 'Default' },
+  { value: '8pt', label: '8' },
+  { value: '9pt', label: '9' },
+  { value: '10pt', label: '10' },
+  { value: '11pt', label: '11' },
+  { value: '12pt', label: '12' },
+  { value: '14pt', label: '14' },
+  { value: '16pt', label: '16' },
+  { value: '18pt', label: '18' },
+  { value: '20pt', label: '20' },
+  { value: '22pt', label: '22' },
+  { value: '24pt', label: '24' },
+  { value: '26pt', label: '26' },
+  { value: '28pt', label: '28' },
+  { value: '32pt', label: '32' },
+  { value: '36pt', label: '36' },
+  { value: '40pt', label: '40' },
+  { value: '44pt', label: '44' },
+  { value: '48pt', label: '48' },
+  { value: '54pt', label: '54' },
+  { value: '60pt', label: '60' },
+  { value: '66pt', label: '66' },
+  { value: '72pt', label: '72' },
+] as const
 
 const FontSize = Mark.create({
   name: 'fontSize',
@@ -26,7 +50,10 @@ const FontSize = Mark.create({
     return {
       size: {
         default: null,
-        parseHTML: (element) => element.style.fontSize || null,
+        parseHTML: (element) => {
+          const fontSize = element.style.fontSize
+          return fontSize || null
+        },
         renderHTML: (attributes) => {
           if (!attributes.size) {
             return {}
@@ -260,27 +287,11 @@ export function RichTextEditor({
         </div>
 
         <div className={styles.toolbarGroup}>
-          <select
-            aria-label={t('richText.fontSize')}
-            className={styles.toolbarSelect}
-            disabled={!editor.isEditable}
-            value={currentFontSize}
-            onChange={(event) => {
-              const nextFontSize = event.target.value
-              if (!nextFontSize) {
-                editor.chain().focus().unsetMark('fontSize').run()
-                return
-              }
-
-              editor.chain().focus().setMark('fontSize', { size: nextFontSize }).run()
-            }}
-          >
-            {FONT_SIZE_OPTIONS.map((fontSize) => (
-              <option key={fontSize || 'default'} value={fontSize}>
-                {fontSize || t('richText.fontSizeDefault')}
-              </option>
-            ))}
-          </select>
+          <FontSizeSelector
+            editor={editor}
+            currentSize={currentFontSize}
+            t={t}
+          />
         </div>
       </div>
 
@@ -344,6 +355,65 @@ function ToolbarButton({ editor, label, isActive, onClick, children }: ToolbarBu
     >
       {children}
     </button>
+  )
+}
+
+type FontSizeSelectorProps = {
+  editor: Editor
+  currentSize: string
+  t: ReturnType<typeof useTranslation>['t']
+}
+
+function FontSizeSelector({ editor, currentSize, t }: FontSizeSelectorProps) {
+  const [isOpen, setIsOpen] = useState(false)
+  const displaySize = currentSize || t('richText.fontSizeDefault')
+  
+  const handleSelectSize = (value: string) => {
+    if (!value) {
+      editor.chain().focus().unsetMark('fontSize').run()
+    } else {
+      editor.chain().focus().setMark('fontSize', { size: value }).run()
+    }
+    setIsOpen(false)
+  }
+
+  return (
+    <div className={styles.fontSizeContainer}>
+      <button
+        type="button"
+        aria-label={t('richText.fontSize')}
+        disabled={!editor.isEditable}
+        onClick={() => setIsOpen(!isOpen)}
+        className={styles.fontSizeButton}
+        title={`${t('richText.fontSize')}: ${displaySize}`}
+      >
+        <span className={styles.fontSizeDisplay}>{displaySize}</span>
+        <svg viewBox="0 0 12 8" width="10" height="8" className={styles.fontSizeDropdownIcon} aria-hidden="true">
+          <path d="M1 1l5 5 5-5" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      
+      {isOpen && (
+        <div className={styles.fontSizeDropdown}>
+          {FONT_SIZE_OPTIONS.map(({ value, label }) => (
+            <button
+              key={value || 'default'}
+              type="button"
+              className={[
+                styles.fontSizeOption,
+                currentSize === value ? styles.fontSizeOptionActive : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              onClick={() => handleSelectSize(value)}
+              title={label}
+            >
+              <span className={styles.fontSizeOptionLabel}>{label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
