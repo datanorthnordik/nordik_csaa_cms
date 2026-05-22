@@ -28,6 +28,13 @@ describe('cmsNav', () => {
     expect(screen.getByTestId('menus-icon')).toBeDefined()
   })
 
+  it('wires the resources entry to the library route', () => {
+    expect(cmsNavItems.find((item) => item.key === 'resources')).toMatchObject({
+      key: 'resources',
+      path: '/resources',
+    })
+  })
+
   it('keeps settings and logout in the footer navigation', () => {
     expect(cmsFooterItems.map((item) => item.key)).toEqual(['settings', 'logout'])
   })

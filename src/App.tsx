@@ -14,6 +14,8 @@ import { NewslettersListPage } from './pages/NewslettersListPage'
 import { NewsletterEditorPage } from './pages/NewsletterEditorPage'
 import { PressListPage } from './pages/PressListPage'
 import { PressEditorPage } from './pages/PressEditorPage'
+import { ResourcesListPage } from './pages/ResourcesListPage'
+import { ResourceEditorPage } from './pages/ResourceEditorPage'
 import { PagesListPage } from './pages/PagesListPage'
 import { PageEditorPage } from './pages/PageEditorPage'
 import { MenusPage } from './pages/MenusPage'
@@ -49,6 +51,9 @@ function App() {
           <Route path="/press" element={<PressListPage />} />
           <Route path="/press/new" element={<PressEditorPage mode="create" />} />
           <Route path="/press/:id/edit" element={<PressEditorPage mode="edit" />} />
+          <Route path="/resources" element={<ResourcesListPage />} />
+          <Route path="/resources/new" element={<ResourceEditorPage mode="create" />} />
+          <Route path="/resources/:id/edit" element={<ResourceEditorPage mode="edit" />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,0 +1,365 @@
+.page {
+  display: grid;
+  gap: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.headerText h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.headerText p {
+  margin: 8px 0 0;
+  color: var(--color-text-muted);
+}
+
+.backLink {
+  border: none;
+  background: transparent;
+  color: var(--color-primary);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.mainColumn,
+.sideColumn {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+
+.card,
+.metaCard,
+.helpCard {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  padding: 22px 24px;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.cardHeader h2,
+.helpCard h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.cardHeader span {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  min-width: 0;
+}
+
+.field legend,
+.field > span {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.fieldFull {
+  grid-column: 1 / -1;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  border: 1px solid var(--color-border-input);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.visibilityField {
+  align-content: start;
+}
+
+.radioOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 22px;
+  color: var(--color-text);
+}
+
+.radioOption input {
+  width: auto;
+  margin: 0;
+}
+
+.fieldError {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-error-strong);
+}
+
+.errorSummary {
+  border: 1px solid var(--color-error-border);
+  background: var(--color-error-bg);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+}
+
+.errorSummary p {
+  margin: 0 0 6px;
+  font-weight: 700;
+  color: var(--color-error-text);
+}
+
+.errorSummary ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--color-error-text);
+}
+
+.mediaSection {
+  display: grid;
+  gap: 14px;
+}
+
+.documentCard {
+  display: flex;
+  gap: 16px;
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, var(--color-surface), var(--color-surface-alt));
+}
+
+.documentPreviewCard {
+  width: 94px;
+  min-height: 110px;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  background: linear-gradient(180deg, var(--color-surface-alt), var(--color-surface));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.documentPreviewFrame {
+  width: 100%;
+  height: 100%;
+  min-height: 110px;
+  border: 0;
+  background: #fff;
+  pointer-events: none;
+}
+
+.documentPreviewBadge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+.documentContent {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.documentContent h3 {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.documentMeta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.documentActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.actionBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.primaryButton,
+.actionButton,
+.dangerButton,
+.deleteButton {
+  border-radius: 999px;
+  padding: 11px 16px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.primaryButton {
+  border: 1px solid transparent;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.actionButton {
+  border: 1px solid var(--color-border-input);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.actionButton:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background: var(--color-primary-tint);
+}
+
+.dangerButton,
+.deleteButton {
+  border: 1px solid var(--color-error-border);
+  background: var(--color-error-bg);
+  color: var(--color-error-strong);
+}
+
+.dangerButton:hover:not(:disabled),
+.deleteButton:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-error-bg) 82%, white 18%);
+}
+
+.primaryButton:disabled,
+.actionButton:disabled,
+.dangerButton:disabled,
+.deleteButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.metaCard {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.metaLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.helpCard p {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+
+.loaderWrap {
+  min-height: 45svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 1080px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .fieldGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .card,
+  .metaCard,
+  .helpCard {
+    padding: 18px;
+  }
+
+  .documentCard {
+    flex-direction: column;
+  }
+
+  .documentPreviewCard {
+    width: 100%;
+  }
+
+  .actionButton,
+  .dangerButton,
+  .primaryButton,
+  .deleteButton {
+    width: 100%;
+  }
+}
