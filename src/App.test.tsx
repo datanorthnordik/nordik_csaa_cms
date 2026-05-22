@@ -5,7 +5,9 @@ import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import i18n from './i18n'
+import { ForgotPasswordPage } from './pages/ForgotPasswordPage'
 import { LoginPage } from './pages/LoginPage'
+import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { SignupPage } from './pages/SignupPage'
 import { createAppStore } from './store/store'
 
@@ -39,6 +41,22 @@ describe('App Component', () => {
     renderWithProviders(<App />)
     expect(
       screen.getByRole('heading', { name: /create your account/i })
+    ).toBeDefined()
+  })
+
+  it('renders the forgot password page when navigating to /forgot-password', () => {
+    window.history.pushState({}, '', '/forgot-password')
+    renderWithProviders(<App />)
+    expect(
+      screen.getByRole('heading', { name: /forgot your password/i })
+    ).toBeDefined()
+  })
+
+  it('renders the reset password page when navigating to /reset-password', () => {
+    window.history.pushState({}, '', '/reset-password?token=abc123')
+    renderWithProviders(<App />)
+    expect(
+      screen.getByRole('heading', { name: /set a new password/i })
     ).toBeDefined()
   })
 })
@@ -247,5 +265,87 @@ describe('SignupPage', () => {
 
     expect(screen.getByRole('button', { name: 'EN' })).toBeDefined()
     expect(screen.getByRole('button', { name: 'FR' })).toBeDefined()
+  })
+})
+
+describe('ForgotPasswordPage', () => {
+  it('shows a field error when the email address is missing', async () => {
+    renderPage(<ForgotPasswordPage />)
+
+    fireEvent.click(screen.getByRole('button', { name: /send reset link/i }))
+
+    await screen.findByText(/email is required/i)
+  })
+
+  it('submits a valid email address and displays a success message', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    renderPage(<ForgotPasswordPage onSubmit={onSubmit} />)
+
+    fireEvent.change(screen.getByLabelText(/email address/i), {
+      target: { value: 'user@example.com' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /send reset link/i }))
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit).toHaveBeenCalledWith({
+      email: 'user@example.com',
+    })
+
+    await screen.findByRole('alert')
+    expect(screen.getByRole('alert').textContent).toMatch(
+      /reset instructions have been sent/i
+    )
+  })
+})
+
+describe('ResetPasswordPage', () => {
+  it('shows a field error when the reset token is missing', async () => {
+    renderPage(<ResetPasswordPage />)
+
+    fireEvent.change(screen.getByLabelText(/^new password$/i), {
+      target: { value: 'Password123!' },
+    })
+    fireEvent.change(screen.getByLabelText(/^confirm new password$/i), {
+      target: { value: 'Password123!' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /reset password/i }))
+
+    await screen.findByText(/reset token is required/i)
+  })
+
+  it('uses the token from the url and submits a new password', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined)
+    renderWithProviders(
+      <MemoryRouter initialEntries={['/reset-password?token=test-token']}>
+        <ResetPasswordPage onSubmit={onSubmit} />
+      </MemoryRouter>,
+    )
+
+    expect(
+      (screen.getByLabelText(/reset token/i) as HTMLInputElement).value
+    ).toBe('test-token')
+
+    fireEvent.change(screen.getByLabelText(/^new password$/i), {
+      target: { value: 'Password123!' },
+    })
+    fireEvent.change(screen.getByLabelText(/^confirm new password$/i), {
+      target: { value: 'Password123!' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /reset password/i }))
+
+    await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
+    expect(onSubmit).toHaveBeenCalledWith({
+      token: 'test-token',
+      password: 'Password123!',
+      confirmPassword: 'Password123!',
+    })
+
+    await screen.findByRole('alert')
+    expect(screen.getByRole('alert').textContent).toMatch(
+      /your password has been reset/i
+    )
   })
 })

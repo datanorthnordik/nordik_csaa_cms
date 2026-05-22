@@ -25,6 +25,7 @@
       "emailRequired": "Email is required",
       "emailInvalid": "Please enter a valid email address",
       "workEmailInvalid": "Please enter a valid work email address",
+      "resetTokenRequired": "Reset token is required",
       "passwordRequired": "Password is required",
       "passwordMinLength": "Password must be at least 6 characters",
       "confirmPasswordRequired": "Please confirm your password",
@@ -68,6 +69,40 @@
       "feedback": {
         "success": "Account request submitted. You will receive an email once approved.",
         "errorGeneric": "Could not create account. Please try again."
+      }
+    },
+    "forgotPassword": {
+      "title": "Forgot your password?",
+      "subtitle": "Enter your email address and we will send you a password reset link.",
+      "fields": {
+        "email": "Email Address"
+      },
+      "actions": {
+        "sendLink": "Send Reset Link",
+        "backToSignIn": "Back to Sign In"
+      },
+      "helper": "If the address matches an account, we will email password reset instructions.",
+      "feedback": {
+        "success": "If an account exists for that email, reset instructions have been sent.",
+        "errorGeneric": "Could not send reset instructions. Please try again."
+      }
+    },
+    "resetPassword": {
+      "title": "Set a new password",
+      "subtitle": "Enter the reset token from your email and choose a new password.",
+      "fields": {
+        "token": "Reset Token",
+        "password": "New Password",
+        "confirmPassword": "Confirm New Password"
+      },
+      "actions": {
+        "resetPassword": "Reset Password",
+        "backToSignIn": "Back to Sign In"
+      },
+      "helper": "Paste the reset token from your email if it was not filled in automatically.",
+      "feedback": {
+        "success": "Your password has been reset. You can sign in with your new password.",
+        "errorGeneric": "Could not reset your password. Please try again."
       }
     }
   },
