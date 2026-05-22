@@ -12,6 +12,12 @@ import {
   type SaveEventRequest,
 } from '../api/eventsApi'
 import { isAllDayEventType } from './eventsDate'
+import {
+  isValidEmail,
+  isValidExtension,
+  isValidHttpUrl,
+  isValidPhoneNumber,
+} from './validation'
 
 export type EventLocationChoice = 'none' | 'to_be_determined' | 'saved' | 'new'
 
@@ -323,6 +329,22 @@ export function validateEventForm(
     }
   }
 
+  if (form.contactEmail.trim() && !isValidEmail(form.contactEmail)) {
+    errors.contactEmail = t('events.validation.contactEmailInvalid')
+  }
+
+  if (form.contactPhone.trim() && !isValidPhoneNumber(form.contactPhone)) {
+    errors.contactPhone = t('events.validation.contactPhoneInvalid')
+  }
+
+  if (form.contactExt.trim() && !isValidExtension(form.contactExt)) {
+    errors.contactExt = t('events.validation.contactExtInvalid')
+  }
+
+  if (form.contactFax.trim() && !isValidPhoneNumber(form.contactFax)) {
+    errors.contactFax = t('events.validation.contactFaxInvalid')
+  }
+
   if (form.locationChoice === 'saved' && !form.selectedLocationId) {
     errors.selectedLocationId = t('events.validation.savedLocationRequired')
   }
@@ -363,6 +385,8 @@ export function validateEventForm(
     }
     if (!form.registrationUrl.trim()) {
       errors.registrationUrl = t('events.validation.registrationUrlRequired')
+    } else if (!isValidHttpUrl(form.registrationUrl)) {
+      errors.registrationUrl = t('events.validation.registrationUrlInvalid')
     }
 
     const registrationStart = parseLocalDateTime(
@@ -752,10 +776,6 @@ function toLocalIsoString(dateValue: string, timeValue: string) {
   const offsetRemainder = absoluteOffset % 60
 
   return `${dateValue}T${pad(hours)}:${pad(minutes)}:00${sign}${pad(offsetHours)}:${pad(offsetRemainder)}`
-}
-
-function isValidEmail(value: string) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 }
 
 function pad(value: number) {
