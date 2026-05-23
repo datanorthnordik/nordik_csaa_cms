@@ -287,6 +287,7 @@ export function EventsListPage() {
           resetLabel={t('events.filters.reset')}
           onApply={() => applyFilters()}
           onReset={resetFilters}
+          collapsible
           fields={[
             {
               type: 'select',

@@ -214,7 +214,8 @@
     "filters": {
       "searchPlaceholder": "Search pages...",
       "status": "Filter by status",
-      "allStatuses": "Filter by Status"
+      "allStatuses": "Filter by Status",
+      "filters": "Filters"
     },
     "list": {
       "title": "Pages",
@@ -841,7 +842,8 @@
     "search": "Search",
     "searchPlaceholder": "Search...",
     "apply": "Apply",
-    "reset": "Reset"
+    "reset": "Reset",
+    "filters": "Filters"
   },
   "pagination": {
     "previous": "Previous page",

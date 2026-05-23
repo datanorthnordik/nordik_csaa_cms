@@ -1,4 +1,5 @@
 .dropzone {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -38,7 +39,7 @@
 }
 
 .input {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   width: 1px;

@@ -1,14 +1,23 @@
 .page {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 24px;
+  height: calc(100svh - 112px);
+  overflow: hidden;
 }
 
 .pageHeader {
+  position: sticky;
+  top: 64px;
+  z-index: 10;
+  background: var(--color-surface);
   display: flex;
   justify-content: space-between;
   gap: 24px;
   align-items: flex-end;
   flex-wrap: wrap;
+  padding-bottom: 0.75rem;
+  margin-bottom: -0.75rem;
 }
 
 .eyebrow {
@@ -43,6 +52,7 @@
 }
 
 .filterPanel {
+  flex-shrink: 0;
   padding: 24px;
 }
 
@@ -194,9 +204,13 @@
 }
 
 .resultsPanel {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   padding: 20px;
   display: grid;
   gap: 20px;
+  align-content: start;
 }
 
 .resultsHeader {

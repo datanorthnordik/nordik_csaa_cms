@@ -227,6 +227,7 @@ export function PressListPage() {
           searchLabel={t('press.filters.search')}
           fields={fields}
           compact
+          collapsible
         />
 
         <section className={styles.resultsPanel}>
