@@ -1097,5 +1097,108 @@
         "sourceUrlInvalid": "Please enter a valid URL."
       }
     }
+  },
+  "memorial": {
+    "breadcrumb": {
+      "entries": "Memorial Entries",
+      "createNew": "Create New"
+    },
+    "list": {
+      "title": "Memorial Entries",
+      "subtitle": "Manage and publish tributes to members.",
+      "create": "Add Memorial Entry",
+      "columns": {
+        "entryName": "Entry Name",
+        "category": "Category",
+        "status": "Status",
+        "dateAdded": "Date Added",
+        "actions": "Actions"
+      },
+      "emptyTitle": "No memorial entries found",
+      "emptyText": "Create your first entry to get started.",
+      "resultsLabel": "Showing {{start}} to {{end}} of {{total}} entries",
+      "edit": "Edit entry",
+      "delete": "Delete entry",
+      "deleteDialogTitle": "Delete memorial entry?",
+      "deleteDialogDescription": "Are you sure you want to delete <entryName>{{title}}</entryName>? This action cannot be undone.",
+      "cancelDelete": "Cancel",
+      "confirmDelete": "Delete"
+    },
+    "filters": {
+      "search": "Search entries",
+      "searchPlaceholder": "Search by name or affiliation...",
+      "status": "Status",
+      "category": "Category"
+    },
+    "statusFilter": {
+      "all": "All Statuses",
+      "published": "Published",
+      "draft": "Draft",
+      "review": "Under Review"
+    },
+    "status": {
+      "published": "Published",
+      "draft": "Draft",
+      "review": "Under Review"
+    },
+    "category": {
+      "alumnus": "Alumnus",
+      "veteran": "Veteran",
+      "founder": "Founder",
+      "friend": "Friend"
+    },
+    "editor": {
+      "createTitle": "Create New Memorial Entry",
+      "editTitle": "Edit Memorial Entry",
+      "subtitle": "Compose and publish a tribute entry.",
+      "backToEntries": "← Back to memorial entries",
+      "sections": {
+        "biography": "Biography",
+        "media": "Media & Portrait",
+        "featuredPortrait": "Featured Portrait",
+        "featuredPortraitHint": "Min size 1200×1500px",
+        "lifeGallery": "Life Gallery",
+        "publishing": "Publishing",
+        "entryDetails": "Entry Details",
+        "lifeTimeline": "Life Timeline",
+        "removePortrait": "Remove portrait",
+        "addGallery": "Add from Gallery Library",
+        "addGalleryHint": "Choose a saved gallery",
+        "changeGallery": "Change",
+        "removeGallery": "Remove",
+        "galleryPickerTitle": "Select a Gallery"
+      },
+      "fields": {
+        "fullName": "Full Name",
+        "fullNamePlaceholder": "Enter full legal name...",
+        "biographyPlaceholder": "Start writing the story of their life...",
+        "status": "Status",
+        "publishOn": "Publish on",
+        "immediately": "Immediately",
+        "category": "Category",
+        "categoryPlaceholder": "Select Category...",
+        "affiliation": "Affiliation / Class Year",
+        "affiliationPlaceholder": "e.g. Class of 1984",
+        "dateOfBirth": "Date of Birth",
+        "dateOfPassing": "Date of Passing"
+      },
+      "actions": {
+        "publish": "Publish Entry",
+        "saveDraft": "Save Draft"
+      },
+      "validation": {
+        "fullNameRequired": "Full name is required."
+      }
+    },
+    "feedback": {
+      "created": "Memorial entry created.",
+      "updated": "Memorial entry updated.",
+      "deleted": "Memorial entry deleted.",
+      "deleteError": "Failed to delete entry.",
+      "fetchError": "Failed to load entries."
+    },
+    "common": {
+      "loading": "Loading..."
+    }
   }
 }

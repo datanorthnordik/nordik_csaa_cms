@@ -1,0 +1,652 @@
+.page {
+  display: grid;
+  gap: 24px;
+}
+
+.header {
+  position: sticky;
+  top: 64px;
+  z-index: 10;
+  background: var(--color-surface);
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  padding-bottom: 0.5rem;
+}
+
+.headerText h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.headerText p {
+  margin: 8px 0 0;
+  color: var(--color-text-muted);
+}
+
+.backLink {
+  border: none;
+  background: transparent;
+  color: var(--color-primary);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.9fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.mainColumn,
+.sideColumn {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+
+/* Generic card */
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  padding: 22px 24px;
+  overflow: hidden;
+}
+
+/* Field */
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.fieldLabel {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  border: 1px solid var(--color-border-input);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.field input::placeholder,
+.field textarea::placeholder {
+  color: var(--color-text-placeholder);
+}
+
+.fieldError {
+  font-size: 13px;
+  color: var(--color-error-strong);
+  margin: 0;
+}
+
+/* Biography card: no extra padding so the editor toolbar sits flush */
+.biographyCard {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.biographyLabel {
+  padding: 14px 20px 0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* Media & Portrait card */
+.mediaCard {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  padding: 22px 24px;
+}
+
+.mediaCardTitle {
+  margin: 0 0 18px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.mediaLayout {
+  display: grid;
+  grid-template-columns: minmax(130px, 200px) 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* Portrait zone */
+.portraitZone {
+  display: grid;
+  gap: 0;
+}
+
+.portraitPreview {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  background: var(--color-surface-alt);
+}
+
+.portraitPreviewImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.portraitPreviewRemove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.15s ease;
+}
+
+.portraitPreviewRemove:hover {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+/* Gallery section */
+.gallerySection {
+  display: grid;
+  gap: 10px;
+}
+
+.galleryLabel {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* Gallery picker trigger (empty state) */
+.galleryPickerTrigger {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 28px 16px;
+  border: 1.5px dashed var(--color-border-input);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.galleryPickerTrigger:hover {
+  background: var(--color-primary-tint);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.galleryPickerIcon {
+  display: inline-flex;
+}
+
+.galleryPickerLabel {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.galleryPickerHint {
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+/* Selected gallery card */
+.selectedGalleryCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.selectedGalleryIcon {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.selectedGalleryInfo {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.selectedGalleryName {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selectedGalleryMeta {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.galleryStatusPublished {
+  color: var(--color-success-text);
+  font-weight: 600;
+}
+
+.galleryStatusDraft {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.selectedGalleryActions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 0 0 auto;
+}
+
+.galleryChangeBtn {
+  background: transparent;
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease;
+}
+
+.galleryChangeBtn:hover {
+  background: var(--color-surface-alt);
+}
+
+.galleryRemoveBtn {
+  background: transparent;
+  border: none;
+  color: var(--color-error-strong);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 8px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.galleryRemoveBtn:hover {
+  text-decoration: underline;
+}
+
+/* Gallery picker modal */
+.pickerOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.pickerModal {
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.18);
+  width: 100%;
+  max-width: 480px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pickerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.pickerTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.pickerClose {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease;
+}
+
+.pickerClose:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+}
+
+.pickerList {
+  overflow-y: auto;
+  padding: 10px;
+  display: grid;
+  gap: 4px;
+}
+
+.pickerItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.pickerItem:hover {
+  background: var(--color-surface-alt);
+  border-color: var(--color-border);
+}
+
+.pickerItemSelected {
+  background: var(--color-primary-tint);
+  border-color: var(--color-primary);
+}
+
+.pickerItemSelected:hover {
+  background: var(--color-primary-tint);
+}
+
+.pickerItemIcon {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pickerItemSelected .pickerItemIcon {
+  background: rgba(122, 31, 36, 0.1);
+  color: var(--color-primary);
+}
+
+.pickerItemInfo {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.pickerItemName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.pickerItemMeta {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.pickerItemCheck {
+  flex: 0 0 auto;
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 16px;
+}
+
+/* Sidebar action buttons (outside any card) */
+.sidebarActions {
+  display: grid;
+  gap: 10px;
+}
+
+.publishButton {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.publishButton:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.publishButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.saveDraftButton {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border: 1px dashed var(--color-border-input);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.saveDraftButton:hover:not(:disabled) {
+  background: var(--color-surface-alt);
+  border-color: var(--color-border);
+}
+
+.saveDraftButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Sidebar labeled section cards */
+.sideCard {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+
+.sideCardLabel {
+  display: block;
+  padding: 9px 16px;
+  background: rgba(122, 31, 36, 0.06);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sideCardBody {
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+/* Immediately row */
+.immediatelyRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.immediatelyButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  color: var(--color-primary);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.immediatelyButton:hover {
+  text-decoration: underline;
+}
+
+.clearDateButton {
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+.clearDateButton:hover {
+  color: var(--color-error-strong);
+}
+
+/* Error summary */
+.errorSummary {
+  border: 1px solid var(--color-error-border);
+  background: var(--color-error-bg);
+  border-radius: var(--radius-md);
+  padding: 14px 18px;
+}
+
+.errorSummary p {
+  margin: 0 0 6px;
+  font-weight: 700;
+  color: var(--color-error-text);
+}
+
+.errorSummary ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--color-error-text);
+}
+
+/* Loading */
+.loaderWrap {
+  min-height: 40svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 1100px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .mediaLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .galleryGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .card,
+  .mediaCard {
+    padding: 16px;
+  }
+}

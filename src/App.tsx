@@ -17,6 +17,8 @@ import { PressEditorPage } from './pages/PressEditorPage'
 import { PagesListPage } from './pages/PagesListPage'
 import { PageEditorPage } from './pages/PageEditorPage'
 import { MenusPage } from './pages/MenusPage'
+import { MemorialEntriesListPage } from './pages/MemorialEntriesListPage'
+import { MemorialEntryEditorPage } from './pages/MemorialEntryEditorPage'
 import './App.css'
 
 function App() {
@@ -49,6 +51,9 @@ function App() {
           <Route path="/press" element={<PressListPage />} />
           <Route path="/press/new" element={<PressEditorPage mode="create" />} />
           <Route path="/press/:id/edit" element={<PressEditorPage mode="edit" />} />
+          <Route path="/memorial" element={<MemorialEntriesListPage />} />
+          <Route path="/memorial/new" element={<MemorialEntryEditorPage mode="create" />} />
+          <Route path="/memorial/:id/edit" element={<MemorialEntryEditorPage mode="edit" />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
