@@ -11,7 +11,6 @@ import { RichTextEditor } from '../components/cms/RichTextEditor'
 import { UploadDropzone } from '../components/media/UploadDropzone'
 import { CloudUploadIcon } from '../components/icons'
 import {
-  MEMORIAL_CATEGORIES,
   MOCK_MEMORIAL_ENTRIES,
   type MemorialFormErrors,
   type MemorialFormState,
@@ -50,12 +49,6 @@ function emptyForm(): MemorialFormState {
   }
 }
 
-function makeId() {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return crypto.randomUUID()
-  }
-  return `${Date.now()}-${Math.random().toString(36).slice(2)}`
-}
 
 export function MemorialEntryEditorPage({
   mode = 'create',
@@ -71,8 +64,7 @@ export function MemorialEntryEditorPage({
   const [form, setForm] = useState<MemorialFormState>(emptyForm())
   const [errors, setErrors] = useState<MemorialFormErrors>({})
 
-  // Portrait
-  const [portraitFile, setPortraitFile] = useState<File | null>(null)
+  // Portrait (File stored for future API upload; preview URL drives the UI)
   const [portraitPreviewUrl, setPortraitPreviewUrl] = useState<string | null>(null)
 
   // Gallery picker
@@ -147,13 +139,11 @@ export function MemorialEntryEditorPage({
     const file = files[0]
     if (!file) return
     if (portraitPreviewUrl) URL.revokeObjectURL(portraitPreviewUrl)
-    setPortraitFile(file)
     setPortraitPreviewUrl(URL.createObjectURL(file))
   }
 
   function removePortrait() {
     if (portraitPreviewUrl) URL.revokeObjectURL(portraitPreviewUrl)
-    setPortraitFile(null)
     setPortraitPreviewUrl(null)
   }
 

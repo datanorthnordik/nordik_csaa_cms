@@ -1100,7 +1100,6 @@
       }
     }
   },
-<<<<<<< HEAD
   "memorial": {
     "breadcrumb": {
       "entries": "Entrées mémorielles",
@@ -1202,7 +1201,8 @@
     },
     "common": {
       "loading": "Chargement..."
-=======
+    }
+  },
   "resources": {
     "common": {
       "loading": "Chargement..."
@@ -1310,7 +1310,6 @@
         "categoryRequired": "La categorie est obligatoire.",
         "fileRequired": "Veuillez televerser un document avant d enregistrer."
       }
->>>>>>> 48e9a4075269caaa38daa5d75f1eff3cddd63866
     }
   }
 }

@@ -26,13 +26,8 @@ export const cmsNavItems: CmsNavItemConfig[] = [
   { key: 'events', icon: <EventsIcon />, path: '/events' },
   { key: 'newsletters', icon: <NewslettersIcon />, path: '/newsletters' },
   { key: 'press', icon: <PressIcon />, path: '/press' },
-<<<<<<< HEAD
   { key: 'memorial', icon: <MemorialIcon />, path: '/memorial' },
-  { key: 'resources', icon: <ResourcesIcon />, path: '' },
-=======
-  { key: 'memorial', icon: <MemorialIcon />, path: '' },
   { key: 'resources', icon: <ResourcesIcon />, path: '/resources' },
->>>>>>> 48e9a4075269caaa38daa5d75f1eff3cddd63866
   { key: 'media', icon: <MediaIcon />, path: '/media-library' },
 ]
 

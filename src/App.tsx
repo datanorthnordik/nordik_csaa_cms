@@ -53,15 +53,12 @@ function App() {
           <Route path="/press" element={<PressListPage />} />
           <Route path="/press/new" element={<PressEditorPage mode="create" />} />
           <Route path="/press/:id/edit" element={<PressEditorPage mode="edit" />} />
-<<<<<<< HEAD
           <Route path="/memorial" element={<MemorialEntriesListPage />} />
           <Route path="/memorial/new" element={<MemorialEntryEditorPage mode="create" />} />
           <Route path="/memorial/:id/edit" element={<MemorialEntryEditorPage mode="edit" />} />
-=======
           <Route path="/resources" element={<ResourcesListPage />} />
           <Route path="/resources/new" element={<ResourceEditorPage mode="create" />} />
           <Route path="/resources/:id/edit" element={<ResourceEditorPage mode="edit" />} />
->>>>>>> 48e9a4075269caaa38daa5d75f1eff3cddd63866
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

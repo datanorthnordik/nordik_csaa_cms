@@ -41,6 +41,7 @@ export function PagesListPage() {
   const [deletingPageId, setDeletingPageId] = useState<number | null>(null)
 
   useEffect(() => {
+
     setSearchInput(filters.searchTerm)
   }, [filters.searchTerm])
 
@@ -64,6 +65,7 @@ export function PagesListPage() {
 
   useEffect(() => {
     if (deleteCandidate && !items.some((item) => item.id === deleteCandidate.id)) {
+  
       setDeleteCandidate(null)
     }
   }, [deleteCandidate, items])
