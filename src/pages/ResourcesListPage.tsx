@@ -31,7 +31,7 @@ export function ResourcesListPage() {
   })
   const [deleteCandidate, setDeleteCandidate] = useState<ResourceEntry | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [activeDownloadId, setActiveDownloadId] = useState<string | null>(null)
+  const [activeActionId, setActiveActionId] = useState<string | null>(null)
   const deferredSearchTerm = useDeferredValue(filters.searchTerm)
 
   const dateFormatter = useMemo(
@@ -79,17 +79,32 @@ export function ResourcesListPage() {
     })
   }
 
-  async function handleDownload(item: ResourceEntry) {
-    setActiveDownloadId(item.id)
+  async function handlePrimaryResourceAction(item: ResourceEntry) {
+    if (isLinkResource(item)) {
+      const linkUrl = item.linkUrl.trim()
+      if (!linkUrl) {
+        toast.error(t('resources.feedback.linkUnavailable', { defaultValue: 'External link is not available' }))
+        return
+      }
+      window.open(linkUrl, '_blank', 'noopener,noreferrer')
+      return
+    }
+
+    if (!item.hasDocument && !item.contentUrl) {
+      toast.error(t('resources.feedback.downloadError'))
+      return
+    }
+
+    setActiveActionId(item.id)
     try {
       const blob = await resourcesApi.getResourceContent(item.id)
       const objectUrl = URL.createObjectURL(blob)
-      triggerFileDownload(objectUrl, item.fileName)
+      triggerFileDownload(objectUrl, item.fileName || `${item.name}.download`)
       scheduleObjectUrlRevoke(objectUrl)
     } catch {
       toast.error(t('resources.feedback.downloadError'))
     } finally {
-      setActiveDownloadId(null)
+      setActiveActionId(null)
     }
   }
 
@@ -270,55 +285,69 @@ export function ResourcesListPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {items.map((item) => (
-                      <tr key={item.id}>
-                        <td>
-                          <div className={styles.nameCell}>
-                            <span className={styles.fileBadge}>
-                              {resolveFileBadge(item.fileName)}
-                            </span>
-                            <div className={styles.nameStack}>
-                              <span className={styles.fileTitle}>{item.name}</span>
-                              <span className={styles.fileSubline}>{item.fileName}</span>
+                    {items.map((item) => {
+                      const linkResource = isLinkResource(item)
+                      const primaryActionLabel = linkResource
+                        ? t('resources.list.openLink', { defaultValue: 'Open link' })
+                        : t('resources.list.download')
+
+                      return (
+                        <tr key={item.id}>
+                          <td>
+                            <div className={styles.nameCell}>
+                              <span className={styles.fileBadge}>
+                                {resolveResourceBadge(item)}
+                              </span>
+                              <div className={styles.nameStack}>
+                                <span className={styles.fileTitle}>{item.name}</span>
+                                <span className={styles.fileSubline}>{item.description}</span>
+                                <span className={styles.fileSubline}>
+                                  {linkResource ? item.linkUrl : item.fileName}
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td>
-                          <span className={styles.categoryPill}>{item.categoryLabel}</span>
-                        </td>
-                        <td>{formatDate(item.updatedAt)}</td>
-                        <td>{formatFileSize(item.fileSize)}</td>
-                        <td>
-                          <div className={styles.actionsCell}>
-                            <button
-                              type="button"
-                              className={styles.iconButton}
-                              aria-label={t('resources.list.download')}
-                              disabled={activeDownloadId === item.id}
-                              onClick={() => void handleDownload(item)}
-                            >
-                              <DownloadIcon size={16} />
-                            </button>
-                            <button
-                              type="button"
-                              className={styles.iconButton}
-                              aria-label={t('resources.list.edit')}
-                              onClick={() => navigate(`/resources/${item.id}/edit`)}
-                            >
-                              <PencilIcon />
-                            </button>
-                            <button
-                              type="button"
-                              className={`${styles.iconButton} ${styles.iconButtonDanger}`}
-                              aria-label={t('resources.list.delete')}
-                              onClick={() => setDeleteCandidate(item)}
-                            >
-                              <TrashIcon />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                          </td>
+                          <td>
+                            <span className={styles.categoryPill}>{item.categoryLabel}</span>
+                          </td>
+                          <td>{formatDate(item.updatedAt)}</td>
+                          <td>
+                            {linkResource
+                              ? t('resources.list.externalLink', { defaultValue: 'External link' })
+                              : formatFileSize(item.fileSize)}
+                          </td>
+                          <td>
+                            <div className={styles.actionsCell}>
+                              <button
+                                type="button"
+                                className={styles.iconButton}
+                                aria-label={primaryActionLabel}
+                                disabled={!linkResource && activeActionId === item.id}
+                                onClick={() => void handlePrimaryResourceAction(item)}
+                              >
+                                {linkResource ? <ExternalLinkIcon /> : <DownloadIcon size={16} />}
+                              </button>
+                              <button
+                                type="button"
+                                className={styles.iconButton}
+                                aria-label={t('resources.list.edit')}
+                                onClick={() => navigate(`/resources/${item.id}/edit`)}
+                              >
+                                <PencilIcon />
+                              </button>
+                              <button
+                                type="button"
+                                className={`${styles.iconButton} ${styles.iconButtonDanger}`}
+                                aria-label={t('resources.list.delete')}
+                                onClick={() => setDeleteCandidate(item)}
+                              >
+                                <TrashIcon />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -380,6 +409,17 @@ export function ResourcesListPage() {
   )
 }
 
+function isLinkResource(item: ResourceEntry) {
+  return item.category === 'link'
+}
+
+function resolveResourceBadge(item: ResourceEntry) {
+  if (isLinkResource(item)) {
+    return 'LINK'
+  }
+  return resolveFileBadge(item.fileName)
+}
+
 function resolveFileBadge(fileName: string) {
   const extension = fileName.split('.').pop()?.trim().toUpperCase() ?? ''
   if (!extension) {
@@ -427,35 +467,44 @@ function FilterIcon() {
 }
 
 function CategoryGlyph({ category }: { category: ResourceCategory }) {
-  if (category === 'brand_identity') {
+  if (category === 'educational') {
     return (
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-        <circle cx="8" cy="8" r="4.2" stroke="currentColor" strokeWidth="1.5" />
-        <circle cx="16" cy="16" r="4.2" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M11 11 13 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <path d="M5 4.5h10.5A3.5 3.5 0 0 1 19 8v11.5H8.5A3.5 3.5 0 0 1 5 16V4.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+        <path d="M8 8h7M8 11h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
     )
   }
-  if (category === 'governance_legal') {
+  if (category === 'media') {
     return (
       <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-        <path d="M12 4v14M6 8h12M8 8l-3 6h6L8 8Zm8 0-3 6h6l-3-6Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" />
+        <path d="M7 16l3.2-3.2 2.3 2.3 2.8-3.1L18 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="9" cy="9" r="1.2" fill="currentColor" />
       </svg>
     )
   }
-  if (category === 'training_manuals') {
-    return (
-      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-        <path d="M5 6.5 12 3l7 3.5v9L12 19l-7-3.5v-9Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-        <path d="M12 8.2v6.6M8.7 10 12 11.8 15.3 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    )
+  if (category === 'link') {
+    return <ExternalLinkIcon />
   }
   return (
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-      <path d="M5 5h14v14H5z" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M8 15.5V8.5h8v7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M8 13h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M7 3.5h7l3 3V20.5H7z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      <path d="M14 3.5v3h3M9.5 11h5M9.5 14h5M9.5 17h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function ExternalLinkIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" fill="none" aria-hidden="true">
+      <path
+        d="M6.2 3.2H3.6c-.77 0-1.4.63-1.4 1.4v7.8c0 .77.63 1.4 1.4 1.4h7.8c.77 0 1.4-.63 1.4-1.4V9.8M8.6 3.2h4.2v4.2M7.3 8.7l5.2-5.2"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   )
 }
