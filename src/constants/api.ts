@@ -19,6 +19,11 @@ export const API_ROUTES = {
   resources: '/api/resources',
   resourceById: (id: number | string) => `/api/resources/${id}`,
   resourceContentById: (id: number | string) => `/api/resources/${id}/content`,
+  memorial: '/api/memorial',
+  memorialById: (id: number | string) => `/api/memorial/${id}`,
+  memorialPortraitById: (id: number | string) => `/api/memorial/${id}/portrait/content`,
+  memorialGalleryImageContentById: (id: number | string, imageId: number | string) =>
+    `/api/memorial/${id}/gallery/${imageId}/content`,
   newsletters: '/api/newsletters',
   newsletterById: (id: number | string) => `/api/newsletters/${id}`,
   newsletterMediaById: (id: number | string, mediaId: number | string) =>

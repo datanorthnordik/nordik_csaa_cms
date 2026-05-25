@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useDeferredValue, useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { Trans, useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
+import { Loader } from '../components/Loader'
 import { AddIcon } from '../components/icons'
 import { ConfirmDialog } from '../components/cms/ConfirmDialog'
 import { PaginationControls } from '../components/cms/PaginationControls'
@@ -11,10 +12,12 @@ import {
   SearchFilterBar,
   type FilterFieldConfig,
 } from '../components/cms/SearchFilterBar'
+import { useMemorialEntries } from '../hooks/useMemorialEntries'
 import {
-  MOCK_MEMORIAL_ENTRIES,
+  MEMORIAL_CATEGORIES,
   defaultMemorialListFilters,
-  type MemorialEntry,
+  type MemorialCategory,
+  type MemorialEntrySummary,
   type MemorialListFilters,
   type MemorialStatus,
 } from '../lib/memorialTypes'
@@ -25,11 +28,14 @@ const PAGE_SIZE = 10
 export function MemorialEntriesListPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
-
-  const [entries, setEntries] = useState<MemorialEntry[]>(MOCK_MEMORIAL_ENTRIES)
-  const [filters, setFilters] = useState<MemorialListFilters>(defaultMemorialListFilters)
-  const [currentPage, setCurrentPage] = useState(1)
-  const [deleteCandidate, setDeleteCandidate] = useState<MemorialEntry | null>(null)
+  const { items, pagination, loading, error, fetch, remove } = useMemorialEntries(PAGE_SIZE)
+  const [filters, setFilters] = useState<MemorialListFilters>({
+    ...defaultMemorialListFilters,
+    pageSize: PAGE_SIZE,
+  })
+  const [deleteCandidate, setDeleteCandidate] = useState<MemorialEntrySummary | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const deferredSearchTerm = useDeferredValue(filters.searchTerm)
 
   const dateFormatter = useMemo(
     () =>
@@ -41,63 +47,100 @@ export function MemorialEntriesListPage() {
     [i18n.language],
   )
 
-  const filtered = useMemo(() => {
-    return entries.filter((e) => {
-      if (filters.status !== 'all' && e.status !== filters.status) return false
-      if (filters.category && e.category !== filters.category) return false
-      if (filters.searchTerm) {
-        const q = filters.searchTerm.toLowerCase()
-        return (
-          e.fullName.toLowerCase().includes(q) ||
-          e.affiliation.toLowerCase().includes(q)
-        )
-      }
-      return true
+  useEffect(() => {
+    void fetch({
+      ...filters,
+      searchTerm: deferredSearchTerm,
+    }).catch((fetchError) => {
+      toast.error(
+        fetchError instanceof Error
+          ? fetchError.message
+          : t('memorial.feedback.fetchError'),
+      )
     })
-  }, [entries, filters])
+  }, [
+    deferredSearchTerm,
+    fetch,
+    filters.category,
+    filters.page,
+    filters.pageSize,
+    filters.status,
+    t,
+  ])
 
-  const total = filtered.length
-  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
-  const paginated = filtered.slice(
-    (currentPage - 1) * PAGE_SIZE,
-    currentPage * PAGE_SIZE,
-  )
-  const rangeStart = paginated.length ? (currentPage - 1) * PAGE_SIZE + 1 : 0
-  const rangeEnd = Math.min(currentPage * PAGE_SIZE, total)
-
-  function updateFilter<K extends keyof MemorialListFilters>(
-    key: K,
-    value: MemorialListFilters[K],
-  ) {
-    setFilters((c) => ({ ...c, [key]: value }))
-    setCurrentPage(1)
+  function updateFilters(patch: Partial<MemorialListFilters>) {
+    setFilters((current) => ({
+      ...current,
+      ...patch,
+    }))
   }
 
-  function formatDate(iso: string) {
-    const d = Date.parse(iso)
-    return Number.isNaN(d) ? iso : dateFormatter.format(new Date(d))
+  function formatDate(value: string) {
+    const parsed = Date.parse(value)
+    if (Number.isNaN(parsed)) {
+      return value
+    }
+    return dateFormatter.format(new Date(parsed))
   }
 
   function getInitials(name: string) {
     return name
       .split(' ')
       .slice(0, 2)
-      .map((w) => w[0] ?? '')
+      .map((word) => word[0] ?? '')
       .join('')
       .toUpperCase()
   }
 
-  function handleConfirmDelete() {
-    if (!deleteCandidate) return
-    setEntries((c) => c.filter((e) => e.id !== deleteCandidate.id))
-    setDeleteCandidate(null)
-    toast.success(t('memorial.feedback.deleted'))
+  async function handleConfirmDelete() {
+    if (!deleteCandidate) {
+      return
+    }
+
+    setIsDeleting(true)
+    try {
+      await remove(deleteCandidate.id)
+      const nextPage =
+        pagination.page > 1 && items.length === 1
+          ? pagination.page - 1
+          : pagination.page
+
+      await fetch({
+        ...filters,
+        page: nextPage,
+        searchTerm: deferredSearchTerm,
+      })
+
+      setFilters((current) => ({
+        ...current,
+        page: nextPage,
+      }))
+      setDeleteCandidate(null)
+      toast.success(t('memorial.feedback.deleted'))
+    } catch (deleteError) {
+      toast.error(
+        deleteError instanceof Error
+          ? deleteError.message
+          : t('memorial.feedback.deleteError'),
+      )
+    } finally {
+      setIsDeleting(false)
+    }
   }
+
+  const totalItems = pagination.totalItems
+  const rangeStart =
+    totalItems > 0 ? (pagination.page - 1) * pagination.pageSize + 1 : 0
+  const rangeEnd =
+    totalItems > 0
+      ? Math.min(pagination.page * pagination.pageSize, pagination.totalItems)
+      : 0
 
   const statusFilterOptions: Array<'all' | MemorialStatus> = [
     'all',
     'published',
     'draft',
+    'review',
   ]
 
   const fields: FilterFieldConfig[] = [
@@ -106,12 +149,36 @@ export function MemorialEntriesListPage() {
       key: 'status',
       label: t('memorial.filters.status'),
       value: filters.status,
-      options: statusFilterOptions.map((v) => ({
-        value: v,
-        label: t(`memorial.statusFilter.${v}`),
+      options: statusFilterOptions.map((value) => ({
+        value,
+        label: t(`memorial.statusFilter.${value}`),
       })),
-      onChange: (v) =>
-        updateFilter('status', v as MemorialListFilters['status']),
+      onChange: (value) =>
+        updateFilters({
+          status: value as MemorialListFilters['status'],
+          page: 1,
+        }),
+    },
+    {
+      type: 'select',
+      key: 'category',
+      label: t('memorial.filters.category'),
+      value: filters.category,
+      options: [
+        {
+          value: '',
+          label: t('memorial.filters.allCategories'),
+        },
+        ...MEMORIAL_CATEGORIES.map((category) => ({
+          value: category,
+          label: t(`memorial.category.${category}`),
+        })),
+      ],
+      onChange: (value) =>
+        updateFilters({
+          category: value as MemorialCategory | '',
+          page: 1,
+        }),
     },
   ]
 
@@ -137,7 +204,9 @@ export function MemorialEntriesListPage() {
 
         <SearchFilterBar
           searchValue={filters.searchTerm}
-          onSearchChange={(v) => updateFilter('searchTerm', v)}
+          onSearchChange={(value) =>
+            updateFilters({ searchTerm: value, page: 1 })
+          }
           searchPlaceholder={t('memorial.filters.searchPlaceholder')}
           searchLabel={t('memorial.filters.search')}
           fields={fields}
@@ -146,106 +215,129 @@ export function MemorialEntriesListPage() {
         />
 
         <section className={styles.resultsPanel}>
-          {paginated.length > 0 ? (
-            <div className={styles.tableWrap}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>{t('memorial.list.columns.entryName')}</th>
-                    <th>{t('memorial.list.columns.status')}</th>
-                    <th>{t('memorial.list.columns.dateAdded')}</th>
-                    <th>{t('memorial.list.columns.actions')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginated.map((entry) => (
-                    <tr key={entry.id}>
-                      <td>
-                        <div className={styles.nameCell}>
-                          <div className={styles.avatar}>
-                            {getInitials(entry.fullName)}
+          {error && (
+            <div className={styles.errorBox}>
+              <p>{error}</p>
+            </div>
+          )}
+
+          {loading ? (
+            <div className={styles.loadingContainer}>
+              <Loader label={t('memorial.common.loading')} />
+            </div>
+          ) : items.length > 0 ? (
+            <>
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>{t('memorial.list.columns.entryName')}</th>
+                      <th>{t('memorial.list.columns.category')}</th>
+                      <th>{t('memorial.list.columns.status')}</th>
+                      <th>{t('memorial.list.columns.dateAdded')}</th>
+                      <th>{t('memorial.list.columns.actions')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((entry) => (
+                      <tr key={entry.id}>
+                        <td>
+                          <div className={styles.nameCell}>
+                            <div className={styles.avatar}>
+                              {getInitials(entry.fullName)}
+                            </div>
+                            <div>
+                              <button
+                                type="button"
+                                className={styles.entryName}
+                                onClick={() =>
+                                  navigate(`/memorial/${entry.id}/edit`)
+                                }
+                              >
+                                {entry.fullName}
+                              </button>
+                              <span className={styles.entryAffiliation}>
+                                {entry.affiliation}
+                              </span>
+                            </div>
                           </div>
-                          <div>
+                        </td>
+                        <td>
+                          <span
+                            className={[
+                              styles.categoryBadge,
+                              styles[`category_${entry.category}`] ?? '',
+                            ]
+                              .filter(Boolean)
+                              .join(' ')}
+                          >
+                            {entry.categoryLabel}
+                          </span>
+                        </td>
+                        <td>
+                          <span
+                            className={[
+                              styles.statusBadge,
+                              styles[`status_${entry.status}`] ?? '',
+                            ]
+                              .filter(Boolean)
+                              .join(' ')}
+                          >
+                            {t(`memorial.status.${entry.status}`)}
+                          </span>
+                        </td>
+                        <td className={styles.dateCell}>
+                          {formatDate(entry.createdAt)}
+                        </td>
+                        <td className={styles.actionsCell}>
+                          <span className={styles.actionsRow}>
                             <button
                               type="button"
-                              className={styles.entryName}
+                              className={styles.iconButton}
+                              aria-label={t('memorial.list.edit')}
                               onClick={() =>
                                 navigate(`/memorial/${entry.id}/edit`)
                               }
                             >
-                              {entry.fullName}
+                              <PencilIcon />
                             </button>
-                            <span className={styles.entryAffiliation}>
-                              {entry.affiliation}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <span
-                          className={[
-                            styles.statusBadge,
-                            styles[`status_${entry.status}`] ?? '',
-                          ]
-                            .filter(Boolean)
-                            .join(' ')}
-                        >
-                          {t(`memorial.status.${entry.status}`)}
-                        </span>
-                      </td>
-                      <td className={styles.dateCell}>
-                        {formatDate(entry.dateAdded)}
-                      </td>
-                      <td className={styles.actionsCell}>
-                        <span className={styles.actionsRow}>
-                          <button
-                            type="button"
-                            className={styles.iconButton}
-                            aria-label={t('memorial.list.edit')}
-                            onClick={() =>
-                              navigate(`/memorial/${entry.id}/edit`)
-                            }
-                          >
-                            <PencilIcon />
-                          </button>
-                          <button
-                            type="button"
-                            className={`${styles.iconButton} ${styles.iconButtonDanger}`}
-                            aria-label={t('memorial.list.delete')}
-                            onClick={() => setDeleteCandidate(entry)}
-                          >
-                            <TrashIcon />
-                          </button>
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                            <button
+                              type="button"
+                              className={`${styles.iconButton} ${styles.iconButtonDanger}`}
+                              aria-label={t('memorial.list.delete')}
+                              onClick={() => setDeleteCandidate(entry)}
+                            >
+                              <TrashIcon />
+                            </button>
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className={styles.footer}>
+                <span className={styles.footerInfo}>
+                  {t('memorial.list.resultsLabel', {
+                    start: rangeStart,
+                    end: rangeEnd,
+                    total: totalItems,
+                  })}
+                </span>
+                <PaginationControls
+                  page={pagination.page}
+                  totalPages={pagination.totalPages}
+                  onChange={(page) => updateFilters({ page })}
+                />
+              </div>
+            </>
           ) : (
             <div className={styles.emptyState}>
               <p className={styles.emptyTitle}>
                 {t('memorial.list.emptyTitle')}
               </p>
               <p>{t('memorial.list.emptyText')}</p>
-            </div>
-          )}
-
-          {total > 0 && (
-            <div className={styles.footer}>
-              <span className={styles.footerInfo}>
-                {t('memorial.list.resultsLabel', {
-                  start: rangeStart,
-                  end: rangeEnd,
-                  total,
-                })}
-              </span>
-              <PaginationControls
-                page={currentPage}
-                totalPages={totalPages}
-                onChange={setCurrentPage}
-              />
             </div>
           )}
         </section>
@@ -263,7 +355,8 @@ export function MemorialEntriesListPage() {
           confirmLabel={t('memorial.list.confirmDelete')}
           cancelLabel={t('memorial.list.cancelDelete')}
           destructive
-          onConfirm={handleConfirmDelete}
+          busy={isDeleting}
+          onConfirm={() => void handleConfirmDelete()}
           onClose={() => setDeleteCandidate(null)}
         />
       </div>

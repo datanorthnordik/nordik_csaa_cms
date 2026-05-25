@@ -1126,6 +1126,7 @@
       "delete": "Delete entry",
       "deleteDialogTitle": "Delete memorial entry?",
       "deleteDialogDescription": "Are you sure you want to delete <entryName>{{title}}</entryName>? This action cannot be undone.",
+      "deleteDialogDescriptionPlain": "Are you sure you want to delete \"{{title}}\"? This action cannot be undone.",
       "cancelDelete": "Cancel",
       "confirmDelete": "Delete"
     },
@@ -1133,7 +1134,8 @@
       "search": "Search entries",
       "searchPlaceholder": "Search by name or affiliation...",
       "status": "Status",
-      "category": "Category"
+      "category": "Category",
+      "allCategories": "All Categories"
     },
     "statusFilter": {
       "all": "All Statuses",
@@ -1161,25 +1163,26 @@
         "biography": "Biography",
         "media": "Media & Portrait",
         "featuredPortrait": "Featured Portrait",
-        "featuredPortraitHint": "Min size 1200×1500px",
+        "featuredPortraitHint": "Recommended 1200 x 1500px or larger",
         "lifeGallery": "Life Gallery",
         "publishing": "Publishing",
         "entryDetails": "Entry Details",
         "lifeTimeline": "Life Timeline",
         "removePortrait": "Remove portrait",
-        "addGallery": "Add from Gallery Library",
-        "addGalleryHint": "Choose a saved gallery",
-        "changeGallery": "Change",
-        "removeGallery": "Remove",
-        "galleryPickerTitle": "Select a Gallery"
+        "replacePortrait": "Replace portrait",
+        "portraitSelected": "Portrait selected",
+        "addGallery": "Add Gallery Photos",
+        "addGalleryHint": "Upload one or more images",
+        "galleryCount": "{{count}} images",
+        "galleryEmptyTitle": "No gallery photos yet",
+        "galleryEmptyText": "Upload meaningful moments, family photos, or tribute imagery to build the memorial gallery.",
+        "removeGalleryImage": "Remove image"
       },
       "fields": {
         "fullName": "Full Name",
         "fullNamePlaceholder": "Enter full legal name...",
         "biographyPlaceholder": "Start writing the story of their life...",
         "status": "Status",
-        "publishOn": "Publish on",
-        "immediately": "Immediately",
         "category": "Category",
         "categoryPlaceholder": "Select Category...",
         "affiliation": "Affiliation / Class Year",
@@ -1189,10 +1192,12 @@
       },
       "actions": {
         "publish": "Publish Entry",
-        "saveDraft": "Save Draft"
+        "saveDraft": "Save Entry"
       },
       "validation": {
-        "fullNameRequired": "Full name is required."
+        "fullNameRequired": "Full name is required.",
+        "categoryRequired": "Category is required.",
+        "summary": "Please fix the highlighted memorial fields."
       }
     },
     "feedback": {
@@ -1200,7 +1205,9 @@
       "updated": "Memorial entry updated.",
       "deleted": "Memorial entry deleted.",
       "deleteError": "Failed to delete entry.",
-      "fetchError": "Failed to load entries."
+      "fetchError": "Failed to load entries.",
+      "loadError": "Could not load this memorial entry.",
+      "saveError": "Could not save this memorial entry."
     },
     "common": {
       "loading": "Loading..."
