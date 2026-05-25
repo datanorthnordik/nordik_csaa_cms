@@ -1,8 +1,4 @@
-export type ResourceCategory =
-  | 'brand_identity'
-  | 'governance_legal'
-  | 'training_manuals'
-  | 'media_kits'
+
 
 export type ResourceVisibility = 'public' | 'internal'
 
@@ -27,19 +23,7 @@ export type ResourceCategoryCount = {
   count: number
 }
 
-export type ResourceEntry = {
-  id: string
-  name: string
-  category: ResourceCategory
-  categoryLabel: string
-  visibility: ResourceVisibility
-  fileName: string
-  mimeType: string
-  fileSize: number
-  contentUrl: string
-  createdAt: string
-  updatedAt: string
-}
+
 
 export type ResourceListPageMeta = {
   page: number
@@ -58,20 +42,53 @@ export type ResourceListFilters = {
   fileType: ResourceFileType
 }
 
+
+export type ResourceCategory = 'educational' | 'media' | 'link' | 'report'
+
+export const resourceCategoryOptions: Array<{
+  id: ResourceCategory
+  label: string
+}> = [
+  { id: 'educational', label: 'Educational' },
+  { id: 'media', label: 'Media' },
+  { id: 'link', label: 'Link' },
+  { id: 'report', label: 'Report' },
+]
+
 export type ResourceFormState = {
   name: string
+  description: string
   category: ResourceCategory | ''
-  visibility: ResourceVisibility
+  visibility: 'public' | 'internal'
+  linkUrl: string
 }
 
 export type ResourceFormErrors = Partial<Record<keyof ResourceFormState | 'file', string>>
 
-export const resourceCategoryOptions: ResourceCategoryOption[] = [
-  { id: 'brand_identity', label: 'Brand Identity' },
-  { id: 'governance_legal', label: 'Governance & Legal' },
-  { id: 'training_manuals', label: 'Training & Manuals' },
-  { id: 'media_kits', label: 'Media Kits' },
-]
+export type SaveResourceInput = {
+  name: string
+  description: string
+  category: ResourceCategory
+  visibility: 'public' | 'internal'
+  linkUrl?: string
+}
+
+export type ResourceEntry = {
+  id: string
+  name: string
+  description: string
+  category: ResourceCategory
+  categoryLabel: string
+  visibility: 'public' | 'internal'
+  linkUrl: string
+  fileName: string
+  mimeType: string
+  fileSize: number
+  hasDocument: boolean
+  contentUrl: string
+  createdAt: string
+  updatedAt: string
+}
 
 export const resourceFileTypeOptions: Array<{ value: ResourceFileType; label: string }> = [
   { value: 'all', label: 'All Types' },

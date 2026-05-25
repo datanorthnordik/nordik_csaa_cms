@@ -47,16 +47,20 @@ type ResourceEditorPageProps = {
 function emptyFormState(): ResourceFormState {
   return {
     name: '',
+    description: '',
     category: '',
     visibility: 'public',
+    linkUrl: '',
   }
 }
 
 function resourceToFormState(resource: ResourceEntry): ResourceFormState {
   return {
     name: resource.name,
+    description: resource.description ?? '',
     category: resource.category,
     visibility: resource.visibility,
+    linkUrl: resource.linkUrl ?? '',
   }
 }
 
@@ -77,6 +81,8 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [activeDocumentAction, setActiveDocumentAction] = useState<'preview' | 'download' | null>(null)
+
+  const isLinkCategory = form.category === 'link'
 
   const dateFormatter = useMemo(
     () =>
@@ -126,9 +132,15 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
     let nextPreviewUrl: string | null = null
 
     async function loadPreview() {
-      if (selectedFile) {
+      if (isLinkCategory) {
+        nextPreviewUrl = null
+      } else if (selectedFile) {
         nextPreviewUrl = URL.createObjectURL(selectedFile)
-      } else if (currentResource && canPreviewDocument(currentResource.mimeType, currentResource.fileName)) {
+      } else if (
+        currentResource &&
+        currentResource.hasDocument &&
+        canPreviewDocument(currentResource.mimeType, currentResource.fileName)
+      ) {
         try {
           const blob = await resourcesApi.getResourceContent(currentResource.id)
           nextPreviewUrl = URL.createObjectURL(blob)
@@ -156,7 +168,7 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
     return () => {
       cancelled = true
     }
-  }, [currentResource, selectedFile])
+  }, [currentResource, isLinkCategory, selectedFile])
 
   useEffect(() => {
     return () => {
@@ -169,6 +181,11 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
 
   function updateField<K extends keyof ResourceFormState>(key: K, value: ResourceFormState[K]) {
     setForm((current) => ({ ...current, [key]: value }))
+
+    if (key === 'category' && value === 'link') {
+      setSelectedFile(null)
+    }
+
     if (errors[key]) {
       setErrors((current) => {
         const next = { ...current }
@@ -180,15 +197,49 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
 
   function validate() {
     const nextErrors: ResourceFormErrors = {}
+    const category = form.category as ResourceCategory | ''
+    const hasExistingDocument = Boolean(currentResource?.hasDocument && currentResource.category !== 'link')
+
     if (!form.name.trim()) {
       nextErrors.name = t('resources.editor.validation.nameRequired')
     }
-    if (!form.category) {
+    if (!form.description.trim()) {
+      nextErrors.description = t('resources.editor.validation.descriptionRequired', {
+        defaultValue: 'Description is required',
+      })
+    }
+    if (!category) {
       nextErrors.category = t('resources.editor.validation.categoryRequired')
     }
-    if (!isEditMode && !selectedFile) {
-      nextErrors.file = t('resources.editor.validation.fileRequired')
+
+    if (category === 'link') {
+      if (!form.linkUrl.trim()) {
+        nextErrors.linkUrl = t('resources.editor.validation.linkRequired', {
+          defaultValue: 'External website link is required',
+        })
+      } else if (!isValidExternalUrl(form.linkUrl)) {
+        nextErrors.linkUrl = t('resources.editor.validation.linkInvalid', {
+          defaultValue: 'Enter a valid URL starting with http:// or https://',
+        })
+      }
+      if (selectedFile) {
+        nextErrors.file = t('resources.editor.validation.fileNotAllowedForLink', {
+          defaultValue: 'Document upload is not allowed for link resources',
+        })
+      }
+    } else if (category) {
+      if (form.linkUrl.trim()) {
+        nextErrors.linkUrl = t('resources.editor.validation.linkOnlyForLinkCategory', {
+          defaultValue: 'External link is allowed only for the Link category',
+        })
+      }
+      if (!selectedFile && !hasExistingDocument) {
+        nextErrors.file = t('resources.editor.validation.fileRequired', {
+          defaultValue: 'At least one document is required for this category',
+        })
+      }
     }
+
     return nextErrors
   }
 
@@ -203,19 +254,29 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
     setErrors({})
     setIsSubmitting(true)
     try {
+      const category = form.category as ResourceCategory
       const input = {
         name: form.name.trim(),
-        category: form.category as ResourceCategory,
+        description: form.description.trim(),
+        category,
         visibility: form.visibility,
+        linkUrl: category === 'link' ? form.linkUrl.trim() : '',
       }
 
       if (isEditMode && currentResource) {
-        const updated = await update(currentResource.id, input, selectedFile ?? undefined)
+        const updated = await update(
+          currentResource.id,
+          input,
+          category === 'link' ? undefined : selectedFile ?? undefined,
+        )
         setCurrentResource(updated)
         setSelectedFile(null)
         toast.success(t('resources.feedback.saved'))
-      } else if (selectedFile) {
-        const created = await create(input, selectedFile)
+      } else {
+        const created = await create(
+          input,
+          category === 'link' ? undefined : selectedFile ?? undefined,
+        )
         toast.success(t('resources.feedback.created'))
         navigate(`/resources/${created.id}/edit`, { replace: true })
       }
@@ -251,6 +312,13 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
   }
 
   function handleFileSelect(files: File[]) {
+    if (isLinkCategory) {
+      toast.error(t('resources.editor.validation.fileNotAllowedForLink', {
+        defaultValue: 'Document upload is not allowed for link resources',
+      }))
+      return
+    }
+
     const [file] = files
     if (!file) {
       return
@@ -269,11 +337,21 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
     setSelectedFile(null)
   }
 
+  function handleOpenLink() {
+    if (!isValidExternalUrl(form.linkUrl)) {
+      toast.error(t('resources.editor.validation.linkInvalid', {
+        defaultValue: 'Enter a valid URL starting with http:// or https://',
+      }))
+      return
+    }
+    window.open(form.linkUrl.trim(), '_blank', 'noopener,noreferrer')
+  }
+
   async function handlePreviewDocument() {
     const fileName = selectedFile?.name || currentResource?.fileName
     const mimeType = selectedFile?.type || currentResource?.mimeType || ''
 
-    if (!fileName || !canPreviewDocument(mimeType, fileName)) {
+    if (!fileName || !canPreviewDocument(mimeType, fileName) || isLinkCategory) {
       return
     }
 
@@ -292,6 +370,10 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
   }
 
   async function handleDownloadDocument() {
+    if (isLinkCategory) {
+      return
+    }
+
     setActiveDocumentAction('download')
     try {
       const downloadUrl = await createTemporaryResourceObjectUrl(currentResource?.id, selectedFile)
@@ -317,10 +399,11 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
     )
   }
 
-  const documentName = selectedFile?.name || currentResource?.fileName || ''
-  const documentMimeType = selectedFile?.type || currentResource?.mimeType || ''
-  const documentSize = selectedFile?.size ?? currentResource?.fileSize ?? 0
+  const documentName = isLinkCategory ? '' : selectedFile?.name || currentResource?.fileName || ''
+  const documentMimeType = isLinkCategory ? '' : selectedFile?.type || currentResource?.mimeType || ''
+  const documentSize = isLinkCategory ? 0 : selectedFile?.size ?? currentResource?.fileSize ?? 0
   const canPreview = canPreviewDocument(documentMimeType, documentName)
+  const shouldShowDocumentCard = !isLinkCategory && (selectedFile || currentResource?.hasDocument)
   const errorMessages = Array.from(new Set(Object.values(errors).filter(Boolean)))
 
   return (
@@ -385,6 +468,19 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
                   {errors.name && <p className={styles.fieldError}>{errors.name}</p>}
                 </label>
 
+                <label className={`${styles.field} ${styles.fieldFull}`}>
+                  <span>{t('resources.editor.fields.description', { defaultValue: 'Description' })}</span>
+                  <textarea
+                    value={form.description}
+                    rows={4}
+                    placeholder={t('resources.editor.fields.descriptionPlaceholder', {
+                      defaultValue: 'Describe what this resource is for',
+                    })}
+                    onChange={(event) => updateField('description', event.target.value)}
+                  />
+                  {errors.description && <p className={styles.fieldError}>{errors.description}</p>}
+                </label>
+
                 <label className={styles.field}>
                   <span>{t('resources.editor.fields.category')}</span>
                   <select
@@ -431,90 +527,136 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
               </div>
             </section>
 
-            <section className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2>{t('resources.editor.sections.document')}</h2>
-                <span>{t('resources.editor.sections.documentLimit')}</span>
-              </div>
+            {isLinkCategory ? (
+              <section className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <h2>{t('resources.editor.sections.link', { defaultValue: 'External website link' })}</h2>
+                  <span>{t('resources.editor.sections.linkHint', { defaultValue: 'Use http:// or https://' })}</span>
+                </div>
 
-              <div className={styles.mediaSection}>
-                <UploadDropzone
-                  accept={RESOURCE_FILE_ACCEPT}
-                  icon={<UploadCloudIcon />}
-                  label={t('resources.editor.document.dropLabel')}
-                  hint={t('resources.editor.document.dropHint')}
-                  onFiles={handleFileSelect}
-                />
-                {errors.file && <p className={styles.fieldError}>{errors.file}</p>}
+                <div className={styles.mediaSection}>
+                  <label className={`${styles.field} ${styles.fieldFull}`}>
+                    <span>{t('resources.editor.fields.linkUrl', { defaultValue: 'External website URL' })}</span>
+                    <input
+                      type="url"
+                      value={form.linkUrl}
+                      placeholder="https://example.com/resource"
+                      onChange={(event) => updateField('linkUrl', event.target.value)}
+                    />
+                    {errors.linkUrl && <p className={styles.fieldError}>{errors.linkUrl}</p>}
+                  </label>
 
-                {(selectedFile || currentResource) && (
-                  <article className={styles.documentCard}>
-                    <div className={styles.documentPreviewCard} aria-hidden="true">
-                      {canPreview && documentPreviewUrl ? (
-                        <iframe
-                          src={documentPreviewUrl}
-                          title={documentName}
-                          className={styles.documentPreviewFrame}
-                        />
-                      ) : (
-                        <>
-                          <DocumentIcon />
-                          <span className={styles.documentPreviewBadge}>
-                            {resolveDocumentTypeLabel(documentMimeType, documentName)}
-                          </span>
-                        </>
-                      )}
-                    </div>
+                  {form.linkUrl.trim() && (
+                    <article className={styles.documentCard}>
+                      <div className={styles.documentPreviewCard} aria-hidden="true">
+                        <ExternalLinkIcon />
+                        <span className={styles.documentPreviewBadge}>LINK</span>
+                      </div>
 
-                    <div className={styles.documentContent}>
-                      <h3>{form.name || documentName || t('resources.editor.document.untitled')}</h3>
-                      <p className={styles.documentMeta}>
-                        {buildDocumentMeta({
-                          isPendingUpload: Boolean(selectedFile),
-                          fileTypeLabel: resolveDocumentTypeLabel(documentMimeType, documentName),
-                          fileSize: documentSize,
-                          t,
-                        })}
-                      </p>
+                      <div className={styles.documentContent}>
+                        <h3>{form.name || t('resources.editor.link.untitled', { defaultValue: 'External link' })}</h3>
+                        <p className={styles.documentMeta}>{form.linkUrl}</p>
 
-                      <div className={styles.documentActions}>
-                        {canPreview ? (
+                        <div className={styles.documentActions}>
+                          <button
+                            type="button"
+                            className={styles.actionButton}
+                            onClick={handleOpenLink}
+                          >
+                            {t('resources.editor.link.open', { defaultValue: 'Open link' })}
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  )}
+                </div>
+              </section>
+            ) : (
+              <section className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <h2>{t('resources.editor.sections.document')}</h2>
+                  <span>{t('resources.editor.sections.documentLimit')}</span>
+                </div>
+
+                <div className={styles.mediaSection}>
+                  <UploadDropzone
+                    accept={RESOURCE_FILE_ACCEPT}
+                    icon={<UploadCloudIcon />}
+                    label={t('resources.editor.document.dropLabel')}
+                    hint={t('resources.editor.document.dropHint')}
+                    onFiles={handleFileSelect}
+                  />
+                  {errors.file && <p className={styles.fieldError}>{errors.file}</p>}
+
+                  {shouldShowDocumentCard && (
+                    <article className={styles.documentCard}>
+                      <div className={styles.documentPreviewCard} aria-hidden="true">
+                        {canPreview && documentPreviewUrl ? (
+                          <iframe
+                            src={documentPreviewUrl}
+                            title={documentName}
+                            className={styles.documentPreviewFrame}
+                          />
+                        ) : (
+                          <>
+                            <DocumentIcon />
+                            <span className={styles.documentPreviewBadge}>
+                              {resolveDocumentTypeLabel(documentMimeType, documentName)}
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      <div className={styles.documentContent}>
+                        <h3>{form.name || documentName || t('resources.editor.document.untitled')}</h3>
+                        <p className={styles.documentMeta}>
+                          {buildDocumentMeta({
+                            isPendingUpload: Boolean(selectedFile),
+                            fileTypeLabel: resolveDocumentTypeLabel(documentMimeType, documentName),
+                            fileSize: documentSize,
+                            t,
+                          })}
+                        </p>
+
+                        <div className={styles.documentActions}>
+                          {canPreview ? (
+                            <button
+                              type="button"
+                              className={styles.actionButton}
+                              disabled={activeDocumentAction !== null}
+                              onClick={() => void handlePreviewDocument()}
+                            >
+                              {activeDocumentAction === 'preview'
+                                ? t('resources.common.loading')
+                                : t('resources.editor.document.preview')}
+                            </button>
+                          ) : null}
                           <button
                             type="button"
                             className={styles.actionButton}
                             disabled={activeDocumentAction !== null}
-                            onClick={() => void handlePreviewDocument()}
+                            onClick={() => void handleDownloadDocument()}
                           >
-                            {activeDocumentAction === 'preview'
+                            {activeDocumentAction === 'download'
                               ? t('resources.common.loading')
-                              : t('resources.editor.document.preview')}
+                              : t('resources.editor.document.download')}
                           </button>
-                        ) : null}
-                        <button
-                          type="button"
-                          className={styles.actionButton}
-                          disabled={activeDocumentAction !== null}
-                          onClick={() => void handleDownloadDocument()}
-                        >
-                          {activeDocumentAction === 'download'
-                            ? t('resources.common.loading')
-                            : t('resources.editor.document.download')}
-                        </button>
-                        {selectedFile ? (
-                          <button
-                            type="button"
-                            className={styles.dangerButton}
-                            onClick={handleRemoveSelectedFile}
-                          >
-                            {t('resources.editor.document.removeSelected')}
-                          </button>
-                        ) : null}
+                          {selectedFile ? (
+                            <button
+                              type="button"
+                              className={styles.dangerButton}
+                              onClick={handleRemoveSelectedFile}
+                            >
+                              {t('resources.editor.document.removeSelected')}
+                            </button>
+                          ) : null}
+                        </div>
                       </div>
-                    </div>
-                  </article>
-                )}
-              </div>
-            </section>
+                    </article>
+                  )}
+                </div>
+              </section>
+            )}
 
             <div className={styles.actionBar}>
               <button
@@ -556,6 +698,20 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
               </strong>
             </div>
 
+            <div className={styles.metaCard}>
+              <span className={styles.metaLabel}>{t('resources.editor.fields.category')}</span>
+              <strong>
+                {resourceCategoryOptions.find((category) => category.id === form.category)?.label ||
+                  t('resources.editor.fields.categoryPlaceholder')}
+              </strong>
+              <span className={styles.metaLabel}>{t('resources.editor.meta.type', { defaultValue: 'Resource type' })}</span>
+              <strong>
+                {isLinkCategory
+                  ? t('resources.editor.meta.linkResource', { defaultValue: 'External website' })
+                  : t('resources.editor.meta.documentResource', { defaultValue: 'Document resource' })}
+              </strong>
+            </div>
+
             {currentResource && (
               <div className={styles.metaCard}>
                 <span className={styles.metaLabel}>{t('resources.editor.meta.created')}</span>
@@ -567,7 +723,13 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
 
             <div className={styles.helpCard}>
               <h3>{t('resources.editor.help.title')}</h3>
-              <p>{t('resources.editor.help.body')}</p>
+              <p>
+                {isLinkCategory
+                  ? t('resources.editor.help.linkBody', {
+                      defaultValue: 'Link resources open an external website and should not include document uploads.',
+                    })
+                  : t('resources.editor.help.body')}
+              </p>
             </div>
           </aside>
         </div>
@@ -585,6 +747,15 @@ async function createTemporaryResourceObjectUrl(resourceId?: string, file?: File
   }
   const blob = await resourcesApi.getResourceContent(resourceId)
   return URL.createObjectURL(blob)
+}
+
+function isValidExternalUrl(value: string) {
+  try {
+    const url = new URL(value.trim())
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
 }
 
 function buildDocumentMeta({
@@ -685,6 +856,15 @@ function DocumentIcon() {
     <svg viewBox="0 0 24 24" width="28" height="28" fill="none" aria-hidden="true">
       <path d="M8 3.5h6l4 4V20.5H8z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
       <path d="M14 3.5v4h4" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function ExternalLinkIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" aria-hidden="true">
+      <path d="M10 5H6.5A2.5 2.5 0 0 0 4 7.5v10A2.5 2.5 0 0 0 6.5 20h10a2.5 2.5 0 0 0 2.5-2.5V14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M13 4h7v7M11 13 19.5 4.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }

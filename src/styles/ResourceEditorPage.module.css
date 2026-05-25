@@ -363,3 +363,14 @@
     width: 100%;
   }
 }
+
+.field textarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  border: 1px solid var(--cms-border, #d8dee4);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font: inherit;
+  background: #fff;
+}

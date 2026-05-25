@@ -8,7 +8,10 @@ import type {
   ResourceVisibility,
 } from '../lib/resourceTypes'
 
-type PersistedResourceInput = Pick<ResourceEntry, 'name' | 'category' | 'visibility'>
+type PersistedResourceInput = Pick<
+  ResourceEntry,
+  'name' | 'description' | 'category' | 'visibility' | 'linkUrl'
+>
 
 type UseResourcesState = {
   items: ResourceEntry[]
@@ -41,6 +44,7 @@ export function useResources(initialPageSize = 6) {
 
     try {
       const response = await resourcesApi.listResources(filters)
+
       setState({
         items: response.items,
         pagination: response.pagination,
@@ -48,45 +52,62 @@ export function useResources(initialPageSize = 6) {
         loading: false,
         error: null,
       })
+
       return response
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to fetch resources'
+      const message =
+        error instanceof Error ? error.message : 'Failed to fetch resources'
+
       setState((current) => ({
         ...current,
         loading: false,
         error: message,
       }))
+
       throw error
     }
   }, [])
 
-  const create = useCallback(async (input: PersistedResourceInput, file: File) => {
-    const created = await resourcesApi.createResource(
-      {
-        name: input.name,
-        category: input.category,
-        visibility: input.visibility as ResourceVisibility,
-      },
-      file,
-    )
-    return resourcesApi.getResource(String(created.id))
-  }, [])
+  const create = useCallback(
+    async (input: PersistedResourceInput, file?: File) => {
+      const created = await resourcesApi.createResource(
+        {
+          name: input.name,
+          description: input.description,
+          category: input.category,
+          visibility: input.visibility as ResourceVisibility,
+          linkUrl: input.linkUrl,
+        },
+        file,
+      )
 
-  const update = useCallback(async (id: string, input: PersistedResourceInput, file?: File) => {
-    await resourcesApi.updateResource(
-      id,
-      {
-        name: input.name,
-        category: input.category,
-        visibility: input.visibility as ResourceVisibility,
-      },
-      file,
-    )
-    return resourcesApi.getResource(id)
-  }, [])
+      return resourcesApi.getResource(String(created.id))
+    },
+    [],
+  )
+
+  const update = useCallback(
+    async (id: string, input: PersistedResourceInput, file?: File) => {
+      await resourcesApi.updateResource(
+        id,
+        {
+          name: input.name,
+          description: input.description,
+          category: input.category,
+          visibility: input.visibility as ResourceVisibility,
+          linkUrl: input.linkUrl,
+        },
+        file,
+      )
+
+      return resourcesApi.getResource(id)
+    },
+    [],
+  )
 
   const remove = useCallback(async (id: string) => {
     await resourcesApi.deleteResource(id)
+
     setState((current) => ({
       ...current,
       items: current.items.filter((item) => item.id !== id),
