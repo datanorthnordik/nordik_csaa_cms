@@ -103,6 +103,56 @@ describe('validateEventForm', () => {
 
     expect(errors.teaser).toBeUndefined()
   })
+
+  it('rejects invalid contact details and registration url values', () => {
+    const form = createDefaultEventFormState()
+    form.title = 'Spring Gathering'
+    form.categoriesText = 'Community'
+    form.startDate = '2026-05-07'
+    form.contactEmail = 'not-an-email'
+    form.contactPhone = 'call me maybe'
+    form.contactExt = '12A'
+    form.contactFax = 'fax machine'
+    form.registrationEnabled = true
+    form.registrationStartDate = '2026-05-07'
+    form.registrationStartTime = '09:00'
+    form.registrationEndDate = '2026-05-07'
+    form.registrationEndTime = '10:00'
+    form.registrationUrl = 'not-a-url'
+
+    const errors = validateEventForm(form, (key) => key)
+
+    expect(errors.contactEmail).toBe('events.validation.contactEmailInvalid')
+    expect(errors.contactPhone).toBe('events.validation.contactPhoneInvalid')
+    expect(errors.contactExt).toBe('events.validation.contactExtInvalid')
+    expect(errors.contactFax).toBe('events.validation.contactFaxInvalid')
+    expect(errors.registrationUrl).toBe('events.validation.registrationUrlInvalid')
+  })
+
+  it('allows valid contact details and registration url values', () => {
+    const form = createDefaultEventFormState()
+    form.title = 'Spring Gathering'
+    form.categoriesText = 'Community'
+    form.startDate = '2026-05-07'
+    form.contactEmail = 'contact@example.com'
+    form.contactPhone = '+1 (705) 555-1234'
+    form.contactExt = '204'
+    form.contactFax = '705-555-9999'
+    form.registrationEnabled = true
+    form.registrationStartDate = '2026-05-07'
+    form.registrationStartTime = '09:00'
+    form.registrationEndDate = '2026-05-07'
+    form.registrationEndTime = '10:00'
+    form.registrationUrl = 'https://example.com/register'
+
+    const errors = validateEventForm(form, (key) => key)
+
+    expect(errors.contactEmail).toBeUndefined()
+    expect(errors.contactPhone).toBeUndefined()
+    expect(errors.contactExt).toBeUndefined()
+    expect(errors.contactFax).toBeUndefined()
+    expect(errors.registrationUrl).toBeUndefined()
+  })
 })
 
 describe('buildSaveEventRequest', () => {

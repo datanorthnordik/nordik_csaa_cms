@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import type { InputHTMLAttributes } from 'react'
 import { DateInput } from '../components/cms/DateInput'
 import toast from 'react-hot-toast'
 import { Trans, useTranslation } from 'react-i18next'
@@ -656,21 +657,31 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                   type="email"
                   value={form.contactEmail}
                   onChange={(value) => updateField('contactEmail', value)}
+                  error={errors.contactEmail}
                 />
                 <LabeledInput
                   label={t('events.fields.contactPhone')}
+                  type="tel"
+                  inputMode="tel"
                   value={form.contactPhone}
                   onChange={(value) => updateField('contactPhone', value)}
+                  error={errors.contactPhone}
                 />
                 <LabeledInput
                   label={t('events.fields.contactExt')}
+                  inputMode="numeric"
+                  maxLength={6}
                   value={form.contactExt}
                   onChange={(value) => updateField('contactExt', value)}
+                  error={errors.contactExt}
                 />
                 <LabeledInput
                   label={t('events.fields.contactFax')}
+                  type="tel"
+                  inputMode="tel"
                   value={form.contactFax}
                   onChange={(value) => updateField('contactFax', value)}
+                  error={errors.contactFax}
                 />
               </div>
             </section>
@@ -1471,6 +1482,9 @@ type LabeledInputProps = {
   label: string
   value: string
   type?: string
+  inputMode?: InputHTMLAttributes<HTMLInputElement>['inputMode']
+  autoComplete?: string
+  maxLength?: number
   error?: string
   onChange: (value: string) => void
 }
@@ -1479,13 +1493,23 @@ function LabeledInput({
   label,
   value,
   type = 'text',
+  inputMode,
+  autoComplete,
+  maxLength,
   error,
   onChange,
 }: LabeledInputProps) {
   return (
     <label>
       <span>{label}</span>
-      <input type={type} value={value} onChange={(event) => onChange(event.target.value)} />
+      <input
+        type={type}
+        inputMode={inputMode}
+        autoComplete={autoComplete}
+        maxLength={maxLength}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
       <FieldError message={error} />
     </label>
   )

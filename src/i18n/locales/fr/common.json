@@ -635,6 +635,10 @@
       "endDateRequired": "La date de fin est requise.",
       "multiDayEndDate": "La date de fin doit etre posterieure a la date de debut.",
       "privateAudienceRequired": "Selectionnez au moins une audience privee.",
+      "contactEmailInvalid": "Saisissez une adresse courriel de contact valide.",
+      "contactPhoneInvalid": "Saisissez un numero de telephone valide.",
+      "contactExtInvalid": "Saisissez un poste valide en chiffres seulement.",
+      "contactFaxInvalid": "Saisissez un numero de telecopieur valide.",
       "reviewEmailsRequired": "La liste de courriels est requise quand la revision est demandee.",
       "reviewEmailsInvalid": "Saisissez des adresses valides separees par des virgules.",
       "savedLocationRequired": "Choisissez un lieu enregistre.",
@@ -649,6 +653,7 @@
       "registrationEndRequired": "La date de fin des inscriptions est requise.",
       "registrationEndTimeRequired": "L heure de fin des inscriptions est requise.",
       "registrationUrlRequired": "L URL d inscription est requise.",
+      "registrationUrlInvalid": "Saisissez une URL d inscription valide.",
       "registrationRange": "La fin des inscriptions doit etre apres le debut.",
       "repeatTypeRequired": "Choisissez si l evenement repetitif est planifie ou recurrent.",
       "recurrenceFrequencyRequired": "La frequence est requise pour un evenement recurrent.",
@@ -1095,6 +1100,7 @@
       }
     }
   },
+<<<<<<< HEAD
   "memorial": {
     "breadcrumb": {
       "entries": "Entrées mémorielles",
@@ -1196,6 +1202,115 @@
     },
     "common": {
       "loading": "Chargement..."
+=======
+  "resources": {
+    "common": {
+      "loading": "Chargement..."
+    },
+    "breadcrumb": {
+      "library": "Bibliotheque de ressources",
+      "create": "Televerser une ressource",
+      "edit": "Modifier la ressource"
+    },
+    "list": {
+      "title": "Bibliotheque de ressources",
+      "create": "Televerser une ressource",
+      "assetCount": "{{count}} fichiers",
+      "recentFiles": "Fichiers recents",
+      "viewAll": "Voir tous les fichiers",
+      "columns": {
+        "name": "Nom",
+        "category": "Categorie",
+        "modified": "Derniere modification",
+        "size": "Taille",
+        "actions": "Actions"
+      },
+      "resultsLabel": "Affichage de {{start}} a {{end}} sur {{total}} ressources",
+      "download": "Telecharger la ressource",
+      "edit": "Modifier la ressource",
+      "delete": "Supprimer la ressource",
+      "cancelDelete": "Annuler",
+      "deleteDialogTitle": "Supprimer cette ressource ?",
+      "deleteDialogDescription": "Cela supprimera definitivement \"{{title}}\" de la bibliotheque. Cette action est irreversible.",
+      "emptyTitle": "Aucune ressource ne correspond aux filtres",
+      "emptyText": "Essayez une autre recherche, retirez un filtre ou televersez une nouvelle ressource."
+    },
+    "filters": {
+      "searchPlaceholder": "Rechercher des fichiers ou dossiers...",
+      "searchLabel": "Rechercher des ressources",
+      "typeLabel": "Filtrer par type",
+      "fileTypes": {
+        "all": "Tous les types",
+        "pdf": "PDF",
+        "document": "Document",
+        "presentation": "Presentation",
+        "spreadsheet": "Tableur",
+        "image": "Image",
+        "vector": "Vectoriel",
+        "other": "Autre"
+      }
+    },
+    "feedback": {
+      "fetchError": "Impossible de charger les ressources.",
+      "saveError": "Impossible d enregistrer cette ressource.",
+      "deleteError": "Impossible de supprimer cette ressource.",
+      "downloadError": "Impossible de telecharger cette ressource.",
+      "previewError": "Impossible d afficher cet apercu.",
+      "saved": "Ressource mise a jour",
+      "created": "Ressource televersee",
+      "deleted": "Ressource supprimee"
+    },
+    "editor": {
+      "loadError": "Impossible de charger cette ressource.",
+      "titleCreate": "Televerser une ressource",
+      "titleEdit": "Modifier la ressource",
+      "subtitle": "Gerez les details, la visibilite et le document televerse depuis une seule page.",
+      "backToList": "Retour a la bibliotheque",
+      "sections": {
+        "details": "Details de la ressource",
+        "document": "Document",
+        "documentLimit": "20 Mo max / fichier"
+      },
+      "fields": {
+        "name": "Nom de la ressource",
+        "namePlaceholder": "Entrer le nom d affichage du fichier",
+        "category": "Categorie",
+        "categoryPlaceholder": "Choisir une categorie...",
+        "visibility": "Visibilite",
+        "visibilityPublic": "Public",
+        "visibilityInternal": "Interne seulement"
+      },
+      "document": {
+        "dropLabel": "Glissez-deposez les fichiers ici",
+        "dropHint": "Prend en charge PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG et WEBP jusqu a 20 Mo",
+        "preview": "Apercu",
+        "download": "Telecharger",
+        "removeSelected": "Retirer le fichier selectionne",
+        "pendingUpload": "En attente d envoi",
+        "savedUpload": "Fichier enregistre",
+        "untitled": "Ressource sans titre"
+      },
+      "actions": {
+        "save": "Enregistrer les modifications",
+        "create": "Lancer le televersement",
+        "delete": "Supprimer la ressource"
+      },
+      "meta": {
+        "visibility": "Visibilite",
+        "created": "Cree le",
+        "updated": "Derniere modification"
+      },
+      "help": {
+        "title": "Conseil rapide",
+        "body": "Utilisez des noms clairs et choisissez la bonne categorie pour que le personnel retrouve rapidement chaque fichier."
+      },
+      "validation": {
+        "summary": "Veuillez corriger les champs en rouge.",
+        "nameRequired": "Le nom de la ressource est obligatoire.",
+        "categoryRequired": "La categorie est obligatoire.",
+        "fileRequired": "Veuillez televerser un document avant d enregistrer."
+      }
+>>>>>>> 48e9a4075269caaa38daa5d75f1eff3cddd63866
     }
   }
 }
