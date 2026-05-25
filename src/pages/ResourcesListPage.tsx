@@ -86,7 +86,7 @@ export function ResourcesListPage() {
       const objectUrl = URL.createObjectURL(blob)
       triggerFileDownload(objectUrl, item.fileName)
       scheduleObjectUrlRevoke(objectUrl)
-    } catch (downloadError) {
+    } catch {
       toast.error(t('resources.feedback.downloadError'))
     } finally {
       setActiveDownloadId(null)

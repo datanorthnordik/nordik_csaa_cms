@@ -214,7 +214,8 @@
     "filters": {
       "searchPlaceholder": "Rechercher des pages...",
       "status": "Filtrer par statut",
-      "allStatuses": "Filtrer par statut"
+      "allStatuses": "Filtrer par statut",
+      "filters": "Filtres"
     },
     "list": {
       "title": "Pages",
@@ -843,7 +844,8 @@
     "search": "Rechercher",
     "searchPlaceholder": "Rechercher...",
     "apply": "Appliquer",
-    "reset": "Reinitialiser"
+    "reset": "Reinitialiser",
+    "filters": "Filtres"
   },
   "pagination": {
     "previous": "Page precedente",
@@ -1096,6 +1098,109 @@
         "releaseDateRequired": "La date de publication est obligatoire.",
         "sourceUrlInvalid": "URL invalide."
       }
+    }
+  },
+  "memorial": {
+    "breadcrumb": {
+      "entries": "Entrées mémorielles",
+      "createNew": "Créer une entrée"
+    },
+    "list": {
+      "title": "Entrées mémorielles",
+      "subtitle": "Gérez et publiez des hommages aux membres.",
+      "create": "Ajouter une entrée",
+      "columns": {
+        "entryName": "Nom",
+        "category": "Catégorie",
+        "status": "Statut",
+        "dateAdded": "Date d'ajout",
+        "actions": "Actions"
+      },
+      "emptyTitle": "Aucune entrée trouvée",
+      "emptyText": "Créez votre première entrée pour commencer.",
+      "resultsLabel": "Affichage de {{start}} à {{end}} sur {{total}} entrées",
+      "edit": "Modifier l'entrée",
+      "delete": "Supprimer l'entrée",
+      "deleteDialogTitle": "Supprimer l'entrée mémorielle ?",
+      "deleteDialogDescription": "Voulez-vous vraiment supprimer <entryName>{{title}}</entryName> ? Cette action est irréversible.",
+      "cancelDelete": "Annuler",
+      "confirmDelete": "Supprimer"
+    },
+    "filters": {
+      "search": "Rechercher",
+      "searchPlaceholder": "Rechercher par nom ou affiliation...",
+      "status": "Statut",
+      "category": "Catégorie"
+    },
+    "statusFilter": {
+      "all": "Tous les statuts",
+      "published": "Publié",
+      "draft": "Brouillon",
+      "review": "En révision"
+    },
+    "status": {
+      "published": "Publié",
+      "draft": "Brouillon",
+      "review": "En révision"
+    },
+    "category": {
+      "alumnus": "Ancien élève",
+      "veteran": "Vétéran",
+      "founder": "Fondateur",
+      "friend": "Ami"
+    },
+    "editor": {
+      "createTitle": "Créer une entrée mémorielle",
+      "editTitle": "Modifier l'entrée mémorielle",
+      "subtitle": "Rédigez et publiez un hommage.",
+      "backToEntries": "← Retour aux entrées",
+      "sections": {
+        "biography": "Biographie",
+        "media": "Médias et portrait",
+        "featuredPortrait": "Portrait principal",
+        "featuredPortraitHint": "Taille min. 1200×1500px",
+        "lifeGallery": "Galerie de vie",
+        "publishing": "Publication",
+        "entryDetails": "Détails de l'entrée",
+        "lifeTimeline": "Chronologie de vie",
+        "removePortrait": "Supprimer le portrait",
+        "addGallery": "Ajouter depuis la galerie",
+        "addGalleryHint": "Choisir une galerie enregistrée",
+        "changeGallery": "Changer",
+        "removeGallery": "Retirer",
+        "galleryPickerTitle": "Sélectionner une galerie"
+      },
+      "fields": {
+        "fullName": "Nom complet",
+        "fullNamePlaceholder": "Entrez le nom légal complet...",
+        "biographyPlaceholder": "Commencez à écrire l'histoire de leur vie...",
+        "status": "Statut",
+        "publishOn": "Publier le",
+        "immediately": "Immédiatement",
+        "category": "Catégorie",
+        "categoryPlaceholder": "Sélectionner une catégorie...",
+        "affiliation": "Affiliation / Promotion",
+        "affiliationPlaceholder": "ex. Promotion 1984",
+        "dateOfBirth": "Date de naissance",
+        "dateOfPassing": "Date de décès"
+      },
+      "actions": {
+        "publish": "Publier l'entrée",
+        "saveDraft": "Enregistrer le brouillon"
+      },
+      "validation": {
+        "fullNameRequired": "Le nom complet est obligatoire."
+      }
+    },
+    "feedback": {
+      "created": "Entrée mémorielle créée.",
+      "updated": "Entrée mémorielle mise à jour.",
+      "deleted": "Entrée mémorielle supprimée.",
+      "deleteError": "Échec de la suppression.",
+      "fetchError": "Échec du chargement."
+    },
+    "common": {
+      "loading": "Chargement..."
     }
   },
   "resources": {

@@ -127,6 +127,7 @@ describe('NewslettersListPage', () => {
       })
     })
 
+    fireEvent.click(screen.getByRole('button', { name: /filters/i }))
     fireEvent.change(screen.getByLabelText(/sort by/i), {
       target: { value: 'title' },
     })

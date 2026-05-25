@@ -36,10 +36,12 @@ export function PagesListPage() {
   const filters = useAppSelector(selectPageListFilters)
   const { items, status, error } = useAppSelector(selectPageList)
   const [searchInput, setSearchInput] = useState(filters.searchTerm)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [deleteCandidate, setDeleteCandidate] = useState<PageListItem | null>(null)
   const [deletingPageId, setDeletingPageId] = useState<number | null>(null)
 
   useEffect(() => {
+
     setSearchInput(filters.searchTerm)
   }, [filters.searchTerm])
 
@@ -63,6 +65,7 @@ export function PagesListPage() {
 
   useEffect(() => {
     if (deleteCandidate && !items.some((item) => item.id === deleteCandidate.id)) {
+  
       setDeleteCandidate(null)
     }
   }, [deleteCandidate, items])
@@ -148,34 +151,66 @@ export function PagesListPage() {
         </header>
 
         <section className={styles.filterCard}>
-          <div className={styles.searchField}>
-            <span className={styles.searchIcon} aria-hidden="true">
-              <SearchIcon size={18} />
-            </span>
-            <input
-              type="search"
-              value={searchInput}
-              onChange={(event) => setSearchInput(event.target.value)}
-              placeholder={t('pages.filters.searchPlaceholder')}
-              aria-label={t('pages.filters.searchPlaceholder')}
-            />
+          <div className={styles.filterCardTop}>
+            <div className={styles.searchField}>
+              <span className={styles.searchIcon} aria-hidden="true">
+                <SearchIcon size={18} />
+              </span>
+              <input
+                type="search"
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+                placeholder={t('pages.filters.searchPlaceholder')}
+                aria-label={t('pages.filters.searchPlaceholder')}
+              />
+            </div>
+
+            <button
+              type="button"
+              className={[
+                styles.filterToggleButton,
+                isFilterOpen ? styles.filterToggleButtonActive : '',
+              ]
+                .filter(Boolean)
+                .join(' ')}
+              onClick={() => setIsFilterOpen((v) => !v)}
+              aria-expanded={isFilterOpen}
+            >
+              <FilterIcon />
+              {t('pages.filters.filters')}
+              <span
+                className={[
+                  styles.filterChevron,
+                  isFilterOpen ? styles.filterChevronOpen : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
+                aria-hidden="true"
+              >
+                <ChevronDownIcon />
+              </span>
+            </button>
+
+            <p className={styles.totalCount}>
+              {t('pages.list.total', { count: totalItems })}
+            </p>
           </div>
 
-          <label className={styles.filterSelect}>
-            <span className={styles.visuallyHidden}>{t('pages.filters.status')}</span>
-            <select
-              value={filters.status}
-              onChange={(event) => changeStatus(event.target.value as PageStatusFilter)}
-            >
-              <option value="">{t('pages.filters.allStatuses')}</option>
-              <option value="draft">{t('pages.status.draft')}</option>
-              <option value="published">{t('pages.status.live')}</option>
-            </select>
-          </label>
-
-          <p className={styles.totalCount}>
-            {t('pages.list.total', { count: totalItems })}
-          </p>
+          {isFilterOpen && (
+            <div className={styles.filterCardExpanded}>
+              <label className={styles.filterSelect}>
+                <span className={styles.visuallyHidden}>{t('pages.filters.status')}</span>
+                <select
+                  value={filters.status}
+                  onChange={(event) => changeStatus(event.target.value as PageStatusFilter)}
+                >
+                  <option value="">{t('pages.filters.allStatuses')}</option>
+                  <option value="draft">{t('pages.status.draft')}</option>
+                  <option value="published">{t('pages.status.live')}</option>
+                </select>
+              </label>
+            </div>
+          )}
         </section>
 
         <section className={styles.tableCard}>
@@ -370,5 +405,32 @@ export function PagesListPage() {
         </Dialog>
       </div>
     </CmsAppShell>
+  )
+}
+
+function FilterIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="15" height="15" fill="none" aria-hidden="true">
+      <path
+        d="M2 4h12M4.5 8h7M7 12h2"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+function ChevronDownIcon() {
+  return (
+    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
+      <path
+        d="M4 6l4 4 4-4"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }

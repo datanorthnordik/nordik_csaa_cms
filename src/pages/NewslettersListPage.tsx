@@ -174,6 +174,7 @@ export function NewslettersListPage() {
           searchLabel={t('newsletters.filters.search')}
           fields={fields}
           compact
+          collapsible
         />
 
         <section className={styles.resultsPanel}>

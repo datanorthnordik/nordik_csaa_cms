@@ -2,13 +2,21 @@
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  height: calc(100svh - 112px);
+  overflow: hidden;
 }
 
 .pageHeader {
+  position: sticky;
+  top: 64px;
+  z-index: 10;
+  background: var(--color-surface);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
+  padding-bottom: 0.75rem;
+  margin-bottom: -0.75rem;
 }
 
 .title {
@@ -87,14 +95,70 @@
 }
 
 .filterCard {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 220px auto;
-  gap: 1rem;
-  align-items: center;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
   padding: 1rem;
 }
 
+.filterCardTop {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.filterCardExpanded {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.875rem;
+  padding-top: 0.875rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.filterToggleButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0 0.875rem;
+  min-height: 2.75rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.filterToggleButton:hover {
+  background: var(--color-surface-alt);
+  border-color: var(--color-border-input);
+}
+
+.filterToggleButtonActive {
+  border-color: var(--color-primary);
+  background: var(--color-primary-tint);
+  color: var(--color-primary);
+}
+
+.filterChevron {
+  display: inline-flex;
+  transition: transform 0.2s ease;
+}
+
+.filterChevronOpen {
+  transform: rotate(180deg);
+}
+
 .searchField {
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   gap: 0.65rem;
@@ -141,13 +205,19 @@
 
 .totalCount {
   margin: 0;
-  justify-self: end;
+  margin-left: auto;
+  flex-shrink: 0;
   color: var(--color-text-muted);
   font-size: 0.875rem;
+  white-space: nowrap;
 }
 
 .tableCard {
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .errorText {
@@ -177,7 +247,10 @@
 }
 
 .tableWrap {
+  flex: 1;
+  min-height: 0;
   overflow-x: auto;
+  overflow-y: auto;
 }
 
 .table {
@@ -309,6 +382,7 @@
 }
 
 .pagination {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -415,18 +489,17 @@
 
 @media (max-width: 960px) {
   .pageHeader,
-  .filterCard,
   .pagination {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .filterCard {
-    grid-template-columns: 1fr;
+  .filterCardTop {
+    flex-wrap: wrap;
   }
 
   .totalCount {
-    justify-self: start;
+    margin-left: 0;
   }
 
   .paginationControls {

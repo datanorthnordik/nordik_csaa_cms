@@ -201,6 +201,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
 
   useEffect(() => {
     if (isEditMode && parsedPageId) {
+
       setInitializedPageId(null)
       void dispatch(fetchPageById(parsedPageId))
       return
@@ -237,6 +238,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
       return
     }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setForm(
       buildPageFormStateFromDetail(currentPage, {
         parentPageSlug: currentPageParentSlug,
@@ -324,6 +326,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
 
   useEffect(() => {
     if (!form.heroImageFile) {
+
       setHeroImagePreviewUrl(null)
       return
     }
@@ -343,6 +346,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
       form.heroImageFile ||
       !form.existingHeroImageFetchUrl
     ) {
+
       setExistingHeroObjectUrl((current) => {
         if (current) {
           URL.revokeObjectURL(current)

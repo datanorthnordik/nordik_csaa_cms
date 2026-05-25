@@ -165,6 +165,7 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
       return
     }
 
+
     setForm(currentEntry ? entryToFormState(currentEntry) : emptyFormState())
     setCoverImageFile(undefined)
     setRemoveCoverImage(false)
@@ -174,6 +175,7 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
   useEffect(() => {
     if (coverImageFile) {
       const objectUrl = URL.createObjectURL(coverImageFile)
+  
       setCoverPreviewUrl(objectUrl)
       return () => {
         URL.revokeObjectURL(objectUrl)
