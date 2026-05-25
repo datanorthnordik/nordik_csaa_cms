@@ -1123,6 +1123,7 @@
       "delete": "Supprimer l'entrée",
       "deleteDialogTitle": "Supprimer l'entrée mémorielle ?",
       "deleteDialogDescription": "Voulez-vous vraiment supprimer <entryName>{{title}}</entryName> ? Cette action est irréversible.",
+      "deleteDialogDescriptionPlain": "Voulez-vous vraiment supprimer \"{{title}}\" ? Cette action est irréversible.",
       "cancelDelete": "Annuler",
       "confirmDelete": "Supprimer"
     },
@@ -1130,7 +1131,8 @@
       "search": "Rechercher",
       "searchPlaceholder": "Rechercher par nom ou affiliation...",
       "status": "Statut",
-      "category": "Catégorie"
+      "category": "Catégorie",
+      "allCategories": "Toutes les catégories"
     },
     "statusFilter": {
       "all": "Tous les statuts",
@@ -1158,25 +1160,26 @@
         "biography": "Biographie",
         "media": "Médias et portrait",
         "featuredPortrait": "Portrait principal",
-        "featuredPortraitHint": "Taille min. 1200×1500px",
+        "featuredPortraitHint": "Format conseillé 1200 x 1500 px ou plus",
         "lifeGallery": "Galerie de vie",
         "publishing": "Publication",
         "entryDetails": "Détails de l'entrée",
         "lifeTimeline": "Chronologie de vie",
         "removePortrait": "Supprimer le portrait",
-        "addGallery": "Ajouter depuis la galerie",
-        "addGalleryHint": "Choisir une galerie enregistrée",
-        "changeGallery": "Changer",
-        "removeGallery": "Retirer",
-        "galleryPickerTitle": "Sélectionner une galerie"
+        "replacePortrait": "Remplacer le portrait",
+        "portraitSelected": "Portrait sélectionné",
+        "addGallery": "Ajouter des photos à la galerie",
+        "addGalleryHint": "Téléversez une ou plusieurs images",
+        "galleryCount": "{{count}} images",
+        "galleryEmptyTitle": "Aucune photo de galerie pour le moment",
+        "galleryEmptyText": "Téléversez des souvenirs, des photos de famille ou des images hommage pour enrichir la galerie.",
+        "removeGalleryImage": "Retirer l'image"
       },
       "fields": {
         "fullName": "Nom complet",
         "fullNamePlaceholder": "Entrez le nom légal complet...",
         "biographyPlaceholder": "Commencez à écrire l'histoire de leur vie...",
         "status": "Statut",
-        "publishOn": "Publier le",
-        "immediately": "Immédiatement",
         "category": "Catégorie",
         "categoryPlaceholder": "Sélectionner une catégorie...",
         "affiliation": "Affiliation / Promotion",
@@ -1186,10 +1189,12 @@
       },
       "actions": {
         "publish": "Publier l'entrée",
-        "saveDraft": "Enregistrer le brouillon"
+        "saveDraft": "Enregistrer l'entrée"
       },
       "validation": {
-        "fullNameRequired": "Le nom complet est obligatoire."
+        "fullNameRequired": "Le nom complet est obligatoire.",
+        "categoryRequired": "La catégorie est obligatoire.",
+        "summary": "Veuillez corriger les champs mémoriels mis en évidence."
       }
     },
     "feedback": {
@@ -1197,7 +1202,9 @@
       "updated": "Entrée mémorielle mise à jour.",
       "deleted": "Entrée mémorielle supprimée.",
       "deleteError": "Échec de la suppression.",
-      "fetchError": "Échec du chargement."
+      "fetchError": "Échec du chargement.",
+      "loadError": "Impossible de charger cette entrée mémorielle.",
+      "saveError": "Impossible d'enregistrer cette entrée mémorielle."
     },
     "common": {
       "loading": "Chargement..."

@@ -24,6 +24,12 @@ describe('API_ROUTES', () => {
     expect(API_ROUTES.resources).toBe('/api/resources')
     expect(API_ROUTES.resourceById(8)).toBe('/api/resources/8')
     expect(API_ROUTES.resourceContentById(8)).toBe('/api/resources/8/content')
+    expect(API_ROUTES.memorial).toBe('/api/memorial')
+    expect(API_ROUTES.memorialById(8)).toBe('/api/memorial/8')
+    expect(API_ROUTES.memorialPortraitById(8)).toBe('/api/memorial/8/portrait/content')
+    expect(API_ROUTES.memorialGalleryImageContentById(8, 4)).toBe(
+      '/api/memorial/8/gallery/4/content',
+    )
     expect(API_ROUTES.pages).toBe('/api/pages')
     expect(API_ROUTES.pageById(12)).toBe('/api/pages/12')
     expect(API_ROUTES.pageHeroById(12)).toBe('/api/pages/12/hero/content')
