@@ -637,6 +637,10 @@
       "endDateRequired": "End date is required.",
       "multiDayEndDate": "End date must be later than the start date.",
       "privateAudienceRequired": "Select at least one private audience.",
+      "contactEmailInvalid": "Enter a valid contact email address.",
+      "contactPhoneInvalid": "Enter a valid contact phone number.",
+      "contactExtInvalid": "Enter a valid extension using digits only.",
+      "contactFaxInvalid": "Enter a valid fax number.",
       "reviewEmailsRequired": "Review email list is required when request review is enabled.",
       "reviewEmailsInvalid": "Enter valid email addresses separated by commas.",
       "savedLocationRequired": "Choose a saved location.",
@@ -651,6 +655,7 @@
       "registrationEndRequired": "Registration end date is required.",
       "registrationEndTimeRequired": "Registration end time is required.",
       "registrationUrlRequired": "Registration URL is required.",
+      "registrationUrlInvalid": "Enter a valid registration URL.",
       "registrationRange": "Registration end must be after the registration start.",
       "repeatTypeRequired": "Choose whether the repeating event is scheduled or recurring.",
       "recurrenceFrequencyRequired": "Frequency is required for recurring events.",
@@ -1093,6 +1098,115 @@
         "titleRequired": "Title is required.",
         "releaseDateRequired": "Release date is required.",
         "sourceUrlInvalid": "Please enter a valid URL."
+      }
+    }
+  },
+  "resources": {
+    "common": {
+      "loading": "Loading..."
+    },
+    "breadcrumb": {
+      "library": "Resource Library",
+      "create": "Upload Resource",
+      "edit": "Edit Resource"
+    },
+    "list": {
+      "title": "Resource Library",
+      "create": "Upload New Resource",
+      "assetCount": "{{count}} assets",
+      "recentFiles": "Recent Files",
+      "viewAll": "View All Files",
+      "columns": {
+        "name": "Name",
+        "category": "Category",
+        "modified": "Last Modified",
+        "size": "Size",
+        "actions": "Actions"
+      },
+      "resultsLabel": "Showing {{start}} to {{end}} of {{total}} resources",
+      "download": "Download resource",
+      "edit": "Edit resource",
+      "delete": "Delete resource",
+      "cancelDelete": "Cancel",
+      "deleteDialogTitle": "Delete resource?",
+      "deleteDialogDescription": "This will permanently delete \"{{title}}\" from the library. This action cannot be undone.",
+      "emptyTitle": "No resources match these filters",
+      "emptyText": "Try a different search, clear a category filter, or upload a new resource."
+    },
+    "filters": {
+      "searchPlaceholder": "Search files or folders...",
+      "searchLabel": "Search resources",
+      "typeLabel": "Filter by type",
+      "fileTypes": {
+        "all": "All Types",
+        "pdf": "PDF",
+        "document": "Document",
+        "presentation": "Presentation",
+        "spreadsheet": "Spreadsheet",
+        "image": "Image",
+        "vector": "Vector",
+        "other": "Other"
+      }
+    },
+    "feedback": {
+      "fetchError": "Could not load resources.",
+      "saveError": "Could not save this resource.",
+      "deleteError": "Could not delete this resource.",
+      "downloadError": "Could not download this resource.",
+      "previewError": "Could not preview this file.",
+      "saved": "Resource updated",
+      "created": "Resource uploaded",
+      "deleted": "Resource deleted"
+    },
+    "editor": {
+      "loadError": "Could not load this resource.",
+      "titleCreate": "Upload New Resource",
+      "titleEdit": "Edit Resource",
+      "subtitle": "Manage file details, visibility, and the uploaded document from one place.",
+      "backToList": "Back to library",
+      "sections": {
+        "details": "Resource Details",
+        "document": "Resource Document",
+        "documentLimit": "Max 20MB / file"
+      },
+      "fields": {
+        "name": "Resource name",
+        "namePlaceholder": "Enter file display name",
+        "category": "Category",
+        "categoryPlaceholder": "Select a category...",
+        "visibility": "Visibility",
+        "visibilityPublic": "Public",
+        "visibilityInternal": "Internal Only"
+      },
+      "document": {
+        "dropLabel": "Drag and drop files here",
+        "dropHint": "Supports PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP up to 20MB",
+        "preview": "Preview",
+        "download": "Download",
+        "removeSelected": "Remove selected file",
+        "pendingUpload": "Pending upload",
+        "savedUpload": "Saved file",
+        "untitled": "Untitled resource"
+      },
+      "actions": {
+        "save": "Save Changes",
+        "create": "Start Upload",
+        "delete": "Delete Resource"
+      },
+      "meta": {
+        "visibility": "Visibility",
+        "created": "Created",
+        "updated": "Last updated"
+      },
+      "help": {
+        "title": "Quick Tip",
+        "body": "Use clear, searchable names and place each file in the right category so staff can find it fast from the library view."
+      },
+      "validation": {
+        "summary": "Please correct the highlighted fields.",
+        "nameRequired": "Resource name is required.",
+        "categoryRequired": "Category is required.",
+        "fileRequired": "Please upload a document before saving."
       }
     }
   }
