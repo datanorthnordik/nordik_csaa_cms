@@ -103,7 +103,7 @@ export const resourceFileTypeOptions: Array<{ value: ResourceFileType; label: st
 
 export const defaultResourceListFilters: ResourceListFilters = {
   page: 1,
-  pageSize: 6,
+  pageSize: 10,
   searchTerm: '',
   category: '',
   fileType: 'all',
