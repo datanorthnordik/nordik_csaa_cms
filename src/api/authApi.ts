@@ -20,7 +20,8 @@ export type ForgotPasswordRequest = {
 }
 
 export type ResetPasswordRequest = {
-  token: string
+  email: string
+  otp: string
   password: string
 }
 

@@ -90,8 +90,9 @@
     },
     "resetPassword": {
       "title": "Choisir un nouveau mot de passe",
-      "subtitle": "Saisissez le code de reinitialisation recu par courriel et choisissez un nouveau mot de passe.",
+      "subtitle": "Saisissez votre adresse courriel, le code de reinitialisation recu par courriel, puis choisissez un nouveau mot de passe.",
       "fields": {
+        "email": "Adresse courriel",
         "token": "Code de reinitialisation",
         "password": "Nouveau mot de passe",
         "confirmPassword": "Confirmer le nouveau mot de passe"
@@ -100,7 +101,7 @@
         "resetPassword": "Reinitialiser le mot de passe",
         "backToSignIn": "Retour a la connexion"
       },
-      "helper": "Collez le code de reinitialisation a usage unique recu par courriel s'il n'a pas ete rempli automatiquement.",
+      "helper": "Utilisez la meme adresse courriel que celle qui a recu le code de reinitialisation a usage unique.",
       "feedback": {
         "codeSent": "Si un compte existe pour cette adresse, un code de reinitialisation a ete envoye. Saisissez-le ci-dessous avec votre nouveau mot de passe.",
         "codeSentWithEmail": "Si un compte existe pour {{email}}, un code de reinitialisation a ete envoye. Saisissez-le ci-dessous avec votre nouveau mot de passe.",

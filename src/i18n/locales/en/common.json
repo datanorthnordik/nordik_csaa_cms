@@ -90,8 +90,9 @@
     },
     "resetPassword": {
       "title": "Set a new password",
-      "subtitle": "Enter the one-time reset code from your email and choose a new password.",
+      "subtitle": "Enter your email address, the one-time reset code from your email, and choose a new password.",
       "fields": {
+        "email": "Email Address",
         "token": "Reset Code",
         "password": "New Password",
         "confirmPassword": "Confirm New Password"
@@ -100,7 +101,7 @@
         "resetPassword": "Reset Password",
         "backToSignIn": "Back to Sign In"
       },
-      "helper": "Paste the one-time reset code from your email if it was not filled in automatically.",
+      "helper": "Use the same email address that received the one-time reset code.",
       "feedback": {
         "codeSent": "If an account exists for that email, a reset code has been sent. Enter it below with your new password.",
         "codeSentWithEmail": "If an account exists for {{email}}, a reset code has been sent. Enter it below with your new password.",

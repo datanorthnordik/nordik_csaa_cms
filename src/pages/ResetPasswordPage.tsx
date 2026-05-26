@@ -9,10 +9,12 @@ import type { AlertState } from '../components/AuthAlert'
 import { AuthLayout } from '../components/AuthLayout'
 import { FormInput } from '../components/FormInput'
 import { Loader } from '../components/Loader'
+import { isValidEmail } from '../lib/validation'
 import styles from '../styles/AuthActionPage.module.css'
 
 type ResetPasswordValues = {
-  token: string
+  email: string
+  otp: string
   password: string
   confirmPassword: string
 }
@@ -27,7 +29,28 @@ type ResetPasswordLocationState = {
 } | null
 
 function getResetToken(searchParams: URLSearchParams) {
-  for (const key of ['token', 'reset_token', 'resetToken', 'code']) {
+  for (const key of ['otp', 'token', 'reset_token', 'resetToken', 'code']) {
+    const value = searchParams.get(key)?.trim()
+    if (value) {
+      return value
+    }
+  }
+
+  return ''
+}
+
+function getResetEmail(
+  searchParams: URLSearchParams,
+  locationState: ResetPasswordLocationState,
+) {
+  const emailFromState =
+    typeof locationState?.email === 'string' ? locationState.email.trim() : ''
+
+  if (emailFromState) {
+    return emailFromState
+  }
+
+  for (const key of ['email']) {
     const value = searchParams.get(key)?.trim()
     if (value) {
       return value
@@ -39,7 +62,8 @@ function getResetToken(searchParams: URLSearchParams) {
 
 async function submitResetPassword(values: ResetPasswordValues) {
   await authApi.resetPassword({
-    token: values.token,
+    email: values.email,
+    otp: values.otp,
     password: values.password,
   })
 }
@@ -51,6 +75,10 @@ export function ResetPasswordPage({ onSubmit }: ResetPasswordPageProps) {
   const { i18n, t } = useTranslation()
   const [alert, setAlert] = useState<AlertState | null>(null)
   const locationState = location.state as ResetPasswordLocationState
+  const emailFromState = useMemo(
+    () => getResetEmail(searchParams, locationState),
+    [locationState, searchParams],
+  )
   const tokenFromLink = useMemo(() => getResetToken(searchParams), [searchParams])
   const entryAlert =
     locationState?.resetRequested
@@ -72,7 +100,8 @@ export function ResetPasswordPage({ onSubmit }: ResetPasswordPageProps) {
     watch,
   } = useForm<ResetPasswordValues>({
     defaultValues: {
-      token: tokenFromLink,
+      email: emailFromState,
+      otp: tokenFromLink,
       password: '',
       confirmPassword: '',
     },
@@ -94,7 +123,8 @@ export function ResetPasswordPage({ onSubmit }: ResetPasswordPageProps) {
     try {
       await handleResetPassword(values)
       reset({
-        token: values.token,
+        email: values.email,
+        otp: '',
         password: '',
         confirmPassword: '',
       })
@@ -130,16 +160,33 @@ export function ResetPasswordPage({ onSubmit }: ResetPasswordPageProps) {
 
       <form className={styles.form} onSubmit={handleSubmit(onSubmitForm)} noValidate>
         <FormInput
+          label={t('auth.resetPassword.fields.email')}
+          type="email"
+          autoComplete="email"
+          disabled={isSubmitting}
+          {...register('email', {
+            required: t('auth.validation.emailRequired'),
+            validate: (value) =>
+              isValidEmail(value) || t('auth.validation.emailInvalid'),
+          })}
+        />
+        {errors.email && (
+          <div className={styles.error} role="alert">
+            {errors.email.message}
+          </div>
+        )}
+
+        <FormInput
           label={t('auth.resetPassword.fields.token')}
           autoComplete="one-time-code"
           disabled={isSubmitting}
-          {...register('token', {
+          {...register('otp', {
             required: t('auth.validation.resetTokenRequired'),
           })}
         />
-        {errors.token && (
+        {errors.otp && (
           <div className={styles.error} role="alert">
-            {errors.token.message}
+            {errors.otp.message}
           </div>
         )}
 

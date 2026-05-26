@@ -329,9 +329,30 @@ describe('ForgotPasswordPage', () => {
 })
 
 describe('ResetPasswordPage', () => {
+  it('shows a field error when the email address is missing', async () => {
+    renderPage(<ResetPasswordPage />)
+
+    fireEvent.change(screen.getByLabelText(/reset code/i), {
+      target: { value: '834697' },
+    })
+    fireEvent.change(screen.getByLabelText(/^new password$/i), {
+      target: { value: 'Password123!' },
+    })
+    fireEvent.change(screen.getByLabelText(/^confirm new password$/i), {
+      target: { value: 'Password123!' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /reset password/i }))
+
+    await screen.findByText(/email is required/i)
+  })
+
   it('shows a field error when the reset code is missing', async () => {
     renderPage(<ResetPasswordPage />)
 
+    fireEvent.change(screen.getByLabelText(/email address/i), {
+      target: { value: 'user@example.com' },
+    })
     fireEvent.change(screen.getByLabelText(/^new password$/i), {
       target: { value: 'Password123!' },
     })
@@ -344,14 +365,25 @@ describe('ResetPasswordPage', () => {
     await screen.findByText(/reset code is required/i)
   })
 
-  it('uses the token from the url and submits a new password', async () => {
+  it('uses the code and email from state and submits a new password', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
     renderWithProviders(
-      <MemoryRouter initialEntries={['/reset-password?token=test-token']}>
+      <MemoryRouter
+        initialEntries={[
+          {
+            pathname: '/reset-password',
+            search: '?otp=test-token',
+            state: { email: 'user@example.com' },
+          },
+        ]}
+      >
         <ResetPasswordPage onSubmit={onSubmit} />
       </MemoryRouter>,
     )
 
+    expect(
+      (screen.getByLabelText(/email address/i) as HTMLInputElement).value
+    ).toBe('user@example.com')
     expect(
       (screen.getByLabelText(/reset code/i) as HTMLInputElement).value
     ).toBe('test-token')
@@ -367,7 +399,8 @@ describe('ResetPasswordPage', () => {
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     expect(onSubmit).toHaveBeenCalledWith({
-      token: 'test-token',
+      email: 'user@example.com',
+      otp: 'test-token',
       password: 'Password123!',
       confirmPassword: 'Password123!',
     })
