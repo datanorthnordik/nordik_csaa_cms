@@ -23,14 +23,14 @@ type UseResourcesState = {
 
 const defaultPagination: ResourceListPageMeta = {
   page: 1,
-  pageSize: 6,
+  pageSize: 10,
   totalItems: 0,
   totalPages: 0,
   hasNext: false,
   hasPrev: false,
 }
 
-export function useResources(initialPageSize = 6) {
+export function useResources(initialPageSize = 10) {
   const [state, setState] = useState<UseResourcesState>({
     items: [],
     pagination: { ...defaultPagination, pageSize: initialPageSize },

@@ -19,7 +19,7 @@ import {
 } from '../lib/resourceTypes'
 import styles from '../styles/ResourcesListPage.module.css'
 
-const PAGE_SIZE = 6
+const PAGE_SIZE = 10
 
 export function ResourcesListPage() {
   const { t, i18n } = useTranslation()
