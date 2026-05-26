@@ -25,7 +25,7 @@
       "emailRequired": "Email is required",
       "emailInvalid": "Please enter a valid email address",
       "workEmailInvalid": "Please enter a valid work email address",
-      "resetTokenRequired": "Reset token is required",
+      "resetTokenRequired": "Reset code is required",
       "passwordRequired": "Password is required",
       "passwordMinLength": "Password must be at least 6 characters",
       "confirmPasswordRequired": "Please confirm your password",
@@ -73,25 +73,26 @@
     },
     "forgotPassword": {
       "title": "Forgot your password?",
-      "subtitle": "Enter your email address and we will send you a password reset link.",
+      "subtitle": "Enter your email address and we will send you a one-time reset code.",
       "fields": {
         "email": "Email Address"
       },
       "actions": {
-        "sendLink": "Send Reset Link",
+        "sendLink": "Send Reset Code",
+        "enterCode": "I Already Have a Code",
         "backToSignIn": "Back to Sign In"
       },
-      "helper": "If the address matches an account, we will email password reset instructions.",
+      "helper": "If the address matches an account, we will email a one-time reset code. Use it on the next screen to choose a new password.",
       "feedback": {
-        "success": "If an account exists for that email, reset instructions have been sent.",
+        "success": "If an account exists for that email, a reset code has been sent.",
         "errorGeneric": "Could not send reset instructions. Please try again."
       }
     },
     "resetPassword": {
       "title": "Set a new password",
-      "subtitle": "Enter the reset token from your email and choose a new password.",
+      "subtitle": "Enter the one-time reset code from your email and choose a new password.",
       "fields": {
-        "token": "Reset Token",
+        "token": "Reset Code",
         "password": "New Password",
         "confirmPassword": "Confirm New Password"
       },
@@ -99,8 +100,10 @@
         "resetPassword": "Reset Password",
         "backToSignIn": "Back to Sign In"
       },
-      "helper": "Paste the reset token from your email if it was not filled in automatically.",
+      "helper": "Paste the one-time reset code from your email if it was not filled in automatically.",
       "feedback": {
+        "codeSent": "If an account exists for that email, a reset code has been sent. Enter it below with your new password.",
+        "codeSentWithEmail": "If an account exists for {{email}}, a reset code has been sent. Enter it below with your new password.",
         "success": "Your password has been reset. You can sign in with your new password.",
         "errorGeneric": "Could not reset your password. Please try again."
       }

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { Provider } from 'react-redux'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import i18n from './i18n'
@@ -272,35 +272,64 @@ describe('ForgotPasswordPage', () => {
   it('shows a field error when the email address is missing', async () => {
     renderPage(<ForgotPasswordPage />)
 
-    fireEvent.click(screen.getByRole('button', { name: /send reset link/i }))
+    fireEvent.click(screen.getByRole('button', { name: /send reset code/i }))
 
     await screen.findByText(/email is required/i)
   })
 
-  it('submits a valid email address and displays a success message', async () => {
+  it('navigates to reset password after submitting a valid email address', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined)
-    renderPage(<ForgotPasswordPage onSubmit={onSubmit} />)
+    renderWithProviders(
+      <MemoryRouter initialEntries={['/forgot-password']}>
+        <Routes>
+          <Route
+            path="/forgot-password"
+            element={<ForgotPasswordPage onSubmit={onSubmit} />}
+          />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+        </Routes>
+      </MemoryRouter>,
+    )
 
     fireEvent.change(screen.getByLabelText(/email address/i), {
       target: { value: 'user@example.com' },
     })
 
-    fireEvent.click(screen.getByRole('button', { name: /send reset link/i }))
+    fireEvent.click(screen.getByRole('button', { name: /send reset code/i }))
 
     await waitFor(() => expect(onSubmit).toHaveBeenCalledTimes(1))
     expect(onSubmit).toHaveBeenCalledWith({
       email: 'user@example.com',
     })
 
-    await screen.findByRole('alert')
+    expect(
+      await screen.findByRole('heading', { name: /set a new password/i })
+    ).toBeDefined()
     expect(screen.getByRole('alert').textContent).toMatch(
-      /reset instructions have been sent/i
+      /reset code has been sent/i
     )
+  })
+
+  it('lets users open the reset password page when they already have a code', async () => {
+    renderWithProviders(
+      <MemoryRouter initialEntries={['/forgot-password']}>
+        <Routes>
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    fireEvent.click(screen.getByRole('button', { name: /i already have a code/i }))
+
+    expect(
+      await screen.findByRole('heading', { name: /set a new password/i })
+    ).toBeDefined()
   })
 })
 
 describe('ResetPasswordPage', () => {
-  it('shows a field error when the reset token is missing', async () => {
+  it('shows a field error when the reset code is missing', async () => {
     renderPage(<ResetPasswordPage />)
 
     fireEvent.change(screen.getByLabelText(/^new password$/i), {
@@ -312,7 +341,7 @@ describe('ResetPasswordPage', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /reset password/i }))
 
-    await screen.findByText(/reset token is required/i)
+    await screen.findByText(/reset code is required/i)
   })
 
   it('uses the token from the url and submits a new password', async () => {
@@ -324,7 +353,7 @@ describe('ResetPasswordPage', () => {
     )
 
     expect(
-      (screen.getByLabelText(/reset token/i) as HTMLInputElement).value
+      (screen.getByLabelText(/reset code/i) as HTMLInputElement).value
     ).toBe('test-token')
 
     fireEvent.change(screen.getByLabelText(/^new password$/i), {

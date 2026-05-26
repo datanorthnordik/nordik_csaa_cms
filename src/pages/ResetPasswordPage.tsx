@@ -2,7 +2,7 @@ import axios from 'axios'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { authApi } from '../api/authApi'
 import { AuthAlert } from '../components/AuthAlert'
 import type { AlertState } from '../components/AuthAlert'
@@ -20,6 +20,11 @@ type ResetPasswordValues = {
 type ResetPasswordPageProps = {
   onSubmit?: (values: ResetPasswordValues) => void | Promise<void>
 }
+
+type ResetPasswordLocationState = {
+  email?: string
+  resetRequested?: boolean
+} | null
 
 function getResetToken(searchParams: URLSearchParams) {
   for (const key of ['token', 'reset_token', 'resetToken', 'code']) {
@@ -40,11 +45,24 @@ async function submitResetPassword(values: ResetPasswordValues) {
 }
 
 export function ResetPasswordPage({ onSubmit }: ResetPasswordPageProps) {
+  const location = useLocation()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const { i18n, t } = useTranslation()
   const [alert, setAlert] = useState<AlertState | null>(null)
+  const locationState = location.state as ResetPasswordLocationState
   const tokenFromLink = useMemo(() => getResetToken(searchParams), [searchParams])
+  const entryAlert =
+    locationState?.resetRequested
+      ? {
+          type: 'success' as const,
+          message: locationState.email
+            ? t('auth.resetPassword.feedback.codeSentWithEmail', {
+                email: locationState.email,
+              })
+            : t('auth.resetPassword.feedback.codeSent'),
+        }
+      : null
   const {
     register,
     handleSubmit,
@@ -108,7 +126,7 @@ export function ResetPasswordPage({ onSubmit }: ResetPasswordPageProps) {
         <p className={styles.subtitle}>{t('auth.resetPassword.subtitle')}</p>
       </div>
 
-      <AuthAlert alert={alert} />
+      <AuthAlert alert={alert ?? entryAlert} />
 
       <form className={styles.form} onSubmit={handleSubmit(onSubmitForm)} noValidate>
         <FormInput
