@@ -42,6 +42,7 @@ export function ForgotPasswordPage({ onSubmit }: ForgotPasswordPageProps) {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    getValues,
     trigger,
   } = useForm<ForgotPasswordValues>({
     defaultValues: {
@@ -63,9 +64,11 @@ export function ForgotPasswordPage({ onSubmit }: ForgotPasswordPageProps) {
 
     try {
       await handleForgotPassword(values)
-      setAlert({
-        type: 'success',
-        message: t('auth.forgotPassword.feedback.success'),
+      navigate('/reset-password', {
+        state: {
+          email: values.email,
+          resetRequested: true,
+        },
       })
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -117,6 +120,21 @@ export function ForgotPasswordPage({ onSubmit }: ForgotPasswordPageProps) {
       </form>
 
       <p className={styles.helper}>{t('auth.forgotPassword.helper')}</p>
+
+      <button
+        type="button"
+        className={styles.linkButton}
+        disabled={isSubmitting}
+        onClick={() =>
+          navigate('/reset-password', {
+            state: {
+              email: getValues('email'),
+            },
+          })
+        }
+      >
+        {t('auth.forgotPassword.actions.enterCode')}
+      </button>
 
       <button
         type="button"

@@ -37,6 +37,27 @@
   line-height: 1.5;
 }
 
+.linkButton {
+  background: transparent;
+  border: none;
+  color: var(--color-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 0 0;
+  align-self: center;
+}
+
+.linkButton:hover {
+  text-decoration: underline;
+}
+
+.linkButton:disabled {
+  color: #a28386;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
 .primary {
   display: flex;
   align-items: center;

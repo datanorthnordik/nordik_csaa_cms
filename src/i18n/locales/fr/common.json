@@ -25,7 +25,7 @@
       "emailRequired": "L'adresse courriel est requise",
       "emailInvalid": "Veuillez saisir une adresse courriel valide",
       "workEmailInvalid": "Veuillez saisir une adresse courriel professionnelle valide",
-      "resetTokenRequired": "Le jeton de reinitialisation est requis",
+      "resetTokenRequired": "Le code de reinitialisation est requis",
       "passwordRequired": "Le mot de passe est requis",
       "passwordMinLength": "Le mot de passe doit contenir au moins 6 caracteres",
       "confirmPasswordRequired": "Veuillez confirmer votre mot de passe",
@@ -73,25 +73,26 @@
     },
     "forgotPassword": {
       "title": "Mot de passe oublie",
-      "subtitle": "Saisissez votre adresse courriel et nous vous enverrons un lien de reinitialisation.",
+      "subtitle": "Saisissez votre adresse courriel et nous vous enverrons un code de reinitialisation a usage unique.",
       "fields": {
         "email": "Adresse courriel"
       },
       "actions": {
-        "sendLink": "Envoyer le lien",
+        "sendLink": "Envoyer le code",
+        "enterCode": "J'ai deja un code",
         "backToSignIn": "Retour a la connexion"
       },
-      "helper": "Si cette adresse correspond a un compte, nous enverrons les instructions de reinitialisation par courriel.",
+      "helper": "Si cette adresse correspond a un compte, nous enverrons un code de reinitialisation a usage unique. Utilisez-le a l'ecran suivant pour choisir un nouveau mot de passe.",
       "feedback": {
-        "success": "Si un compte existe pour cette adresse, les instructions de reinitialisation ont ete envoyees.",
+        "success": "Si un compte existe pour cette adresse, un code de reinitialisation a ete envoye.",
         "errorGeneric": "Impossible d'envoyer les instructions de reinitialisation. Veuillez reessayer."
       }
     },
     "resetPassword": {
       "title": "Choisir un nouveau mot de passe",
-      "subtitle": "Saisissez le jeton recu par courriel et choisissez un nouveau mot de passe.",
+      "subtitle": "Saisissez le code de reinitialisation recu par courriel et choisissez un nouveau mot de passe.",
       "fields": {
-        "token": "Jeton de reinitialisation",
+        "token": "Code de reinitialisation",
         "password": "Nouveau mot de passe",
         "confirmPassword": "Confirmer le nouveau mot de passe"
       },
@@ -99,8 +100,10 @@
         "resetPassword": "Reinitialiser le mot de passe",
         "backToSignIn": "Retour a la connexion"
       },
-      "helper": "Collez le jeton recu par courriel s'il n'a pas ete rempli automatiquement.",
+      "helper": "Collez le code de reinitialisation a usage unique recu par courriel s'il n'a pas ete rempli automatiquement.",
       "feedback": {
+        "codeSent": "Si un compte existe pour cette adresse, un code de reinitialisation a ete envoye. Saisissez-le ci-dessous avec votre nouveau mot de passe.",
+        "codeSentWithEmail": "Si un compte existe pour {{email}}, un code de reinitialisation a ete envoye. Saisissez-le ci-dessous avec votre nouveau mot de passe.",
         "success": "Votre mot de passe a ete reinitialise. Vous pouvez maintenant vous connecter.",
         "errorGeneric": "Impossible de reinitialiser votre mot de passe. Veuillez reessayer."
       }
