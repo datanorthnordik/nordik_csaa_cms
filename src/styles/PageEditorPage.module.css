@@ -681,6 +681,14 @@
   cursor: pointer;
 }
 
+.segmentedButton:disabled {
+  border-color: #efe2dd;
+  background: #f9f3f1;
+  color: #ab8f93;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 .segmentedButtonActive {
   border-color: #a0111d;
   background: linear-gradient(135deg, #8e0b16, #b1131f);

@@ -335,17 +335,27 @@ export function validatePageForm(
     errors.parentPageId = t('pages.validation.parentPageCycle')
   }
 
+  if (countHeroHeaderSections(form.sections) > 1) {
+    errors.sections = t('pages.validation.singleHeroHeader')
+  }
+
   const hasInvalidDocument = form.sections.some((section) =>
     section.sectionType === 'document' &&
     section.documents.items.some(
       (item) => !item.file && !item.existingStorageUri.trim() && !item.existingObjectKey.trim(),
     ),
   )
-  if (hasInvalidDocument) {
+  if (!errors.sections && hasInvalidDocument) {
     errors.sections = t('pages.validation.documentFileRequired')
   }
 
   return errors
+}
+
+export function countHeroHeaderSections(sections: PageSectionState[]) {
+  return sections.filter(
+    (section) => section.sectionType === 'header' && section.header.hierarchy === 'h1_hero',
+  ).length
 }
 
 export function reorderPageSections(

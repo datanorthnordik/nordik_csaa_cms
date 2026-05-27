@@ -311,6 +311,7 @@
       "pageTitleRequired": "Page title is required.",
       "urlSlugRequired": "URL slug is required.",
       "parentPageCycle": "A page cannot use one of its own descendants as a parent.",
+      "singleHeroHeader": "Only one Header Module can use H1 Hero on a page.",
       "documentFileRequired": "Each document item must keep an uploaded file or an existing saved file."
     },
     "modules": {
@@ -376,6 +377,7 @@
       },
       "hints": {
         "headerDescription": "Use this for supporting copy beneath the heading on the website.",
+        "h1HeroUnavailable": "This page already has an H1 Hero header. Change that section to H2 before using H1 here.",
         "underlineEnabled": "Add a simple underline accent beneath section headings on the website.",
         "underlineUnavailable": "Switch the hierarchy to H2 Section to enable the underline accent.",
         "gallery": "Choose a gallery from the media library. You can reuse the same gallery in multiple sections.",

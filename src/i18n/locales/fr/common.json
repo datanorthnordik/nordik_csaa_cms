@@ -311,6 +311,7 @@
       "pageTitleRequired": "Le titre de la page est requis.",
       "urlSlugRequired": "L URL est requise.",
       "parentPageCycle": "Une page ne peut pas utiliser l un de ses propres descendants comme parent.",
+      "singleHeroHeader": "Un seul module d en-tete peut utiliser H1 Hero sur une page.",
       "documentFileRequired": "Chaque document doit conserver un fichier televerse ou un fichier deja enregistre."
     },
     "modules": {
@@ -376,6 +377,7 @@
       },
       "hints": {
         "headerDescription": "Utilisez ce champ pour ajouter un texte d accompagnement sous le titre sur le site web.",
+        "h1HeroUnavailable": "Cette page a deja un en-tete H1 Hero. Remplacez d abord cette section par H2 avant d utiliser H1 ici.",
         "underlineEnabled": "Ajoute un soulignement discret sous les titres de section sur le site web.",
         "underlineUnavailable": "Passez la hierarchie en H2 Section pour activer le soulignement.",
         "gallery": "Choisissez une galerie depuis la bibliotheque media. Une meme galerie peut etre reutilisee dans plusieurs sections.",

@@ -561,4 +561,20 @@ describe('parent page validation', () => {
 
     expect(errors.sections).toBe('pages.validation.documentFileRequired')
   })
+
+  it('returns a validation error when more than one header section uses h1 hero', () => {
+    const form = createDefaultPageFormState()
+    const firstHeader = createDefaultSectionState('header')
+    const secondHeader = createDefaultSectionState('header')
+
+    form.pageTitle = 'About'
+    form.urlSlug = 'about'
+    firstHeader.header.hierarchy = 'h1_hero'
+    secondHeader.header.hierarchy = 'h1_hero'
+    form.sections = [firstHeader, secondHeader]
+
+    const errors = validatePageForm(form, (key) => key)
+
+    expect(errors.sections).toBe('pages.validation.singleHeroHeader')
+  })
 })
