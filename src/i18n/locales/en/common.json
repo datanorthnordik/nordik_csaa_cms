@@ -343,6 +343,8 @@
         "textAlign": "Text Align",
         "gallery": "Select Media Gallery",
         "viewMode": "View Option",
+        "showTitleDescription": "Display Titles and Descriptions",
+        "autoScrollEnabled": "Automatic Carousel Scroll",
         "documents": "Documents",
         "documentDisplayName": "Document Display Name",
         "documentDescription": "Document Description",
@@ -371,6 +373,8 @@
       },
       "hints": {
         "gallery": "Choose a gallery from the media library. You can reuse the same gallery in multiple sections.",
+        "showTitleDescription": "Show each image title and description on the website.",
+        "autoScrollEnabled": "When enabled, carousel galleries advance automatically on the website.",
         "documents": "Each document section can contain multiple files with independent labels and ordering.",
         "openInNewTab": "Use this when the CTA should open an external page in a separate browser tab."
       },
