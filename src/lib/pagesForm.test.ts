@@ -115,7 +115,7 @@ describe('buildSavePageRequest', () => {
     })
   })
 
-  it('includes header text alignment in page section payloads', () => {
+  it('includes header description, underline, and text alignment in page section payloads', () => {
     const form = createDefaultPageFormState()
     const headerSection = createDefaultSectionState('header')
 
@@ -124,8 +124,10 @@ describe('buildSavePageRequest', () => {
     headerSection.header = {
       mainHeaderText: 'About Us',
       subHeaderText: 'Who we are',
+      description: 'Community stories',
       hierarchy: 'h2_section',
       textAlign: 'center',
+      underlineEnabled: true,
     }
     form.sections = [headerSection]
 
@@ -137,8 +139,42 @@ describe('buildSavePageRequest', () => {
       header: {
         main_header_text: 'About Us',
         sub_header_text: 'Who we are',
+        description: 'Community stories',
         hierarchy: 'h2_section',
         text_align: 'center',
+        underline_enabled: true,
+      },
+    })
+  })
+
+  it('forces header underline off when the hierarchy is not an h2 section', () => {
+    const form = createDefaultPageFormState()
+    const headerSection = createDefaultSectionState('header')
+
+    form.pageTitle = 'About'
+    form.urlSlug = 'about'
+    headerSection.header = {
+      mainHeaderText: 'About Us',
+      subHeaderText: 'Who we are',
+      description: '',
+      hierarchy: 'h1_hero',
+      textAlign: 'center',
+      underlineEnabled: true,
+    }
+    form.sections = [headerSection]
+
+    const request = buildSavePageRequest(form)
+
+    expect(request.page_detail?.sections[0]).toMatchObject({
+      section_type: 'header',
+      sort_order: 0,
+      header: {
+        main_header_text: 'About Us',
+        sub_header_text: 'Who we are',
+        description: '',
+        hierarchy: 'h1_hero',
+        text_align: 'center',
+        underline_enabled: false,
       },
     })
   })
@@ -347,7 +383,7 @@ describe('buildPageFormStateFromDetail', () => {
     })
   })
 
-  it('hydrates header sections with text alignment', () => {
+  it('hydrates header sections with description, underline, and text alignment', () => {
     const form = buildPageFormStateFromDetail({
       id: 11,
       page_title: 'Mission',
@@ -383,8 +419,10 @@ describe('buildPageFormStateFromDetail', () => {
             header: {
               main_header_text: 'Our Mission',
               sub_header_text: 'Building stronger communities',
-              hierarchy: 'h1_hero',
+              description: 'Community stories',
+              hierarchy: 'h2_section',
               text_align: 'right',
+              underline_enabled: true,
             },
             created_at: '2026-05-12T00:00:00Z',
             updated_at: '2026-05-12T00:00:00Z',
@@ -400,8 +438,10 @@ describe('buildPageFormStateFromDetail', () => {
       header: {
         mainHeaderText: 'Our Mission',
         subHeaderText: 'Building stronger communities',
-        hierarchy: 'h1_hero',
+        description: 'Community stories',
+        hierarchy: 'h2_section',
         textAlign: 'right',
+        underlineEnabled: true,
       },
     })
   })

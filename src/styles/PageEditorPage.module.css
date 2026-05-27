@@ -537,6 +537,12 @@
   gap: 0.9rem;
 }
 
+.optionGridSingle {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.9rem;
+}
+
 .optionCard {
   display: flex;
   align-items: center;

@@ -838,6 +838,23 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
   function renderSectionBody(section: PageSectionState) {
     switch (section.sectionType) {
       case 'header':
+        const underlineAvailable = section.header.hierarchy === 'h2_section'
+        const underlineEnabled = underlineAvailable
+          ? (section.header.underlineEnabled ?? false)
+          : false
+        const setHeaderHierarchy = (hierarchy: PageSectionState['header']['hierarchy']) =>
+          updateSection(section.clientId, (current) => ({
+            ...current,
+            header: {
+              ...current.header,
+              hierarchy,
+              underlineEnabled:
+                hierarchy === 'h2_section' && current.header.hierarchy === 'h2_section'
+                  ? (current.header.underlineEnabled ?? false)
+                  : false,
+            },
+          }))
+
         return (
           <div className={[styles.fieldStack, styles.documentSection].join(' ')}>
             <div className={styles.fieldGrid}>
@@ -899,33 +916,36 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                 <div className={styles.segmentedControl}>
                   <SegmentedButton
                     active={section.header.hierarchy === 'h1_hero'}
-                    onClick={() =>
-                      updateSection(section.clientId, (current) => ({
-                        ...current,
-                        header: {
-                          ...current.header,
-                          hierarchy: 'h1_hero',
-                        },
-                      }))
-                    }
+                    onClick={() => setHeaderHierarchy('h1_hero')}
                     label={t('pages.modules.options.h1Hero')}
                   />
                   <SegmentedButton
                     active={section.header.hierarchy === 'h2_section'}
-                    onClick={() =>
-                      updateSection(section.clientId, (current) => ({
-                        ...current,
-                        header: {
-                          ...current.header,
-                          hierarchy: 'h2_section',
-                        },
-                      }))
-                    }
+                    onClick={() => setHeaderHierarchy('h2_section')}
                     label={t('pages.modules.options.h2Section')}
                   />
                 </div>
               </div>
             </div>
+
+            <label className={styles.field}>
+              <span>{t('pages.modules.fields.headerDescription')}</span>
+              <textarea
+                rows={4}
+                value={section.header.description}
+                placeholder={t('pages.modules.placeholders.headerDescription')}
+                onChange={(event) =>
+                  updateSection(section.clientId, (current) => ({
+                    ...current,
+                    header: {
+                      ...current.header,
+                      description: event.target.value,
+                    },
+                  }))
+                }
+              />
+              <p className={styles.fieldHint}>{t('pages.modules.hints.headerDescription')}</p>
+            </label>
 
             <div className={styles.field}>
               <span>{t('pages.modules.fields.textAlign')}</span>
@@ -970,6 +990,32 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                   label={t('pages.modules.options.alignRight')}
                 />
               </div>
+            </div>
+
+            <div className={styles.optionGridSingle}>
+              <ModuleOptionCard
+                eyebrow={t('pages.modules.options.sectionAccent')}
+                title={t('pages.modules.fields.underlineEnabled')}
+                description={
+                  underlineAvailable
+                    ? t('pages.modules.hints.underlineEnabled')
+                    : t('pages.modules.hints.underlineUnavailable')
+                }
+                checkedLabel={t('pages.modules.states.on')}
+                uncheckedLabel={t('pages.modules.states.off')}
+                disabledLabel={t('pages.modules.states.h2Only')}
+                checked={underlineEnabled}
+                disabled={!underlineAvailable}
+                onToggle={(nextChecked) =>
+                  updateSection(section.clientId, (current) => ({
+                    ...current,
+                    header: {
+                      ...current.header,
+                      underlineEnabled: nextChecked,
+                    },
+                  }))
+                }
+              />
             </div>
           </div>
         )
