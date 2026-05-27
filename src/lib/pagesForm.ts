@@ -55,8 +55,10 @@ export type PageSectionState = {
   header: {
     mainHeaderText: string
     subHeaderText: string
+    description: string
     hierarchy: PageHeaderHierarchy
     textAlign: PageTypographyTextAlign
+    underlineEnabled: boolean
   }
   typography: {
     htmlContent: string
@@ -123,8 +125,10 @@ export function createDefaultSectionState(sectionType: PageSectionType): PageSec
     header: {
       mainHeaderText: '',
       subHeaderText: '',
+      description: '',
       hierarchy: 'h1_hero',
       textAlign: 'left',
+      underlineEnabled: false,
     },
     typography: {
       htmlContent: '',
@@ -331,17 +335,27 @@ export function validatePageForm(
     errors.parentPageId = t('pages.validation.parentPageCycle')
   }
 
+  if (countHeroHeaderSections(form.sections) > 1) {
+    errors.sections = t('pages.validation.singleHeroHeader')
+  }
+
   const hasInvalidDocument = form.sections.some((section) =>
     section.sectionType === 'document' &&
     section.documents.items.some(
       (item) => !item.file && !item.existingStorageUri.trim() && !item.existingObjectKey.trim(),
     ),
   )
-  if (hasInvalidDocument) {
+  if (!errors.sections && hasInvalidDocument) {
     errors.sections = t('pages.validation.documentFileRequired')
   }
 
   return errors
+}
+
+export function countHeroHeaderSections(sections: PageSectionState[]) {
+  return sections.filter(
+    (section) => section.sectionType === 'header' && section.header.hierarchy === 'h1_hero',
+  ).length
 }
 
 export function reorderPageSections(
@@ -433,8 +447,13 @@ function buildSaveSectionPayload(
           header: {
             main_header_text: section.header.mainHeaderText.trim(),
             sub_header_text: section.header.subHeaderText.trim(),
+            description: section.header.description.trim(),
             hierarchy: section.header.hierarchy,
             text_align: section.header.textAlign,
+            underline_enabled:
+              section.header.hierarchy === 'h2_section'
+                ? (section.header.underlineEnabled ?? false)
+                : false,
           } satisfies SavePageHeaderSectionPayload,
         }
       : {}),
@@ -579,8 +598,10 @@ function mapHeaderResponse(header?: PageHeaderSectionResponse | null) {
   return {
     mainHeaderText: header?.main_header_text ?? '',
     subHeaderText: header?.sub_header_text ?? '',
+    description: header?.description ?? '',
     hierarchy: header?.hierarchy ?? 'h1_hero',
     textAlign: header?.text_align ?? 'left',
+    underlineEnabled: header?.underline_enabled ?? false,
   }
 }
 

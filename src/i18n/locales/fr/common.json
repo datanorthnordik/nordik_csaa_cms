@@ -311,6 +311,7 @@
       "pageTitleRequired": "Le titre de la page est requis.",
       "urlSlugRequired": "L URL est requise.",
       "parentPageCycle": "Une page ne peut pas utiliser l un de ses propres descendants comme parent.",
+      "singleHeroHeader": "Un seul module d en-tete peut utiliser H1 Hero sur une page.",
       "documentFileRequired": "Chaque document doit conserver un fichier televerse ou un fichier deja enregistre."
     },
     "modules": {
@@ -338,9 +339,11 @@
         "enabled": "Active",
         "mainHeaderText": "Texte principal",
         "subHeaderText": "Sous-titre",
+        "headerDescription": "Description de l en-tete",
         "hierarchy": "Hierarchie",
         "htmlContent": "Contenu typographique",
         "textAlign": "Alignement",
+        "underlineEnabled": "Soulignement optionnel",
         "gallery": "Selectionner une galerie",
         "viewMode": "Option d affichage",
         "showTitleDescription": "Afficher les titres et descriptions",
@@ -360,6 +363,7 @@
         "sectionName": "Libelle interne du module...",
         "mainHeaderText": "Transformer les paysages numeriques",
         "subHeaderText": "Texte d accompagnement optionnel...",
+        "headerDescription": "Paragraphe ou texte d accompagnement optionnel sous le titre...",
         "htmlContent": "Commencez a rediger le contenu mis en forme...",
         "gallery": "Choisir une galerie...",
         "documentDisplayName": "ex., Rapport financier annuel 2024",
@@ -372,6 +376,10 @@
         "buttonUrl": "https://..."
       },
       "hints": {
+        "headerDescription": "Utilisez ce champ pour ajouter un texte d accompagnement sous le titre sur le site web.",
+        "h1HeroUnavailable": "Cette page a deja un en-tete H1 Hero. Remplacez d abord cette section par H2 avant d utiliser H1 ici.",
+        "underlineEnabled": "Ajoute un soulignement discret sous les titres de section sur le site web.",
+        "underlineUnavailable": "Passez la hierarchie en H2 Section pour activer le soulignement.",
         "gallery": "Choisissez une galerie depuis la bibliotheque media. Une meme galerie peut etre reutilisee dans plusieurs sections.",
         "showTitleDescription": "Affiche le titre et la description de chaque image sur le site web.",
         "autoScrollEnabled": "Lorsque cette option est activee, les galeries en carrousel defilent automatiquement sur le site web.",
@@ -382,6 +390,7 @@
       "states": {
         "on": "Actif",
         "off": "Inactif",
+        "h2Only": "H2 uniquement",
         "carouselOnly": "Carrousel uniquement"
       },
       "options": {
@@ -390,6 +399,7 @@
         "alignLeft": "Gauche",
         "alignCenter": "Centre",
         "alignRight": "Droite",
+        "sectionAccent": "Accent de section",
         "captionDisplay": "Affichage des titres",
         "carouselMotion": "Mouvement du carrousel",
         "grid": "Grille",

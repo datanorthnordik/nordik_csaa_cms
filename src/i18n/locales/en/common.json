@@ -311,6 +311,7 @@
       "pageTitleRequired": "Page title is required.",
       "urlSlugRequired": "URL slug is required.",
       "parentPageCycle": "A page cannot use one of its own descendants as a parent.",
+      "singleHeroHeader": "Only one Header Module can use H1 Hero on a page.",
       "documentFileRequired": "Each document item must keep an uploaded file or an existing saved file."
     },
     "modules": {
@@ -338,9 +339,11 @@
         "enabled": "Enabled",
         "mainHeaderText": "Main Header Text",
         "subHeaderText": "Sub-header Text",
+        "headerDescription": "Header Description",
         "hierarchy": "Hierarchy",
         "htmlContent": "Typography Content",
         "textAlign": "Text Align",
+        "underlineEnabled": "Optional Underline",
         "gallery": "Select Media Gallery",
         "viewMode": "View Option",
         "showTitleDescription": "Display Titles and Descriptions",
@@ -360,6 +363,7 @@
         "sectionName": "Internal module label...",
         "mainHeaderText": "Transforming Digital Landscapes",
         "subHeaderText": "Optional supporting text...",
+        "headerDescription": "Optional paragraph or supporting copy beneath the heading...",
         "htmlContent": "Start writing formatted page content...",
         "gallery": "Select a gallery...",
         "documentDisplayName": "e.g., Annual Financial Report 2024",
@@ -372,6 +376,10 @@
         "buttonUrl": "https://..."
       },
       "hints": {
+        "headerDescription": "Use this for supporting copy beneath the heading on the website.",
+        "h1HeroUnavailable": "This page already has an H1 Hero header. Change that section to H2 before using H1 here.",
+        "underlineEnabled": "Add a simple underline accent beneath section headings on the website.",
+        "underlineUnavailable": "Switch the hierarchy to H2 Section to enable the underline accent.",
         "gallery": "Choose a gallery from the media library. You can reuse the same gallery in multiple sections.",
         "showTitleDescription": "Show each image title and description on the website.",
         "autoScrollEnabled": "When enabled, carousel galleries advance automatically on the website.",
@@ -382,6 +390,7 @@
       "states": {
         "on": "On",
         "off": "Off",
+        "h2Only": "H2 only",
         "carouselOnly": "Carousel only"
       },
       "options": {
@@ -390,6 +399,7 @@
         "alignLeft": "Left",
         "alignCenter": "Center",
         "alignRight": "Right",
+        "sectionAccent": "Section Accent",
         "captionDisplay": "Caption Display",
         "carouselMotion": "Carousel Motion",
         "grid": "Grid",

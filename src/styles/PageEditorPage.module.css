@@ -537,6 +537,12 @@
   gap: 0.9rem;
 }
 
+.optionGridSingle {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.9rem;
+}
+
 .optionCard {
   display: flex;
   align-items: center;
@@ -673,6 +679,14 @@
   background: #fff;
   color: #6d5055;
   cursor: pointer;
+}
+
+.segmentedButton:disabled {
+  border-color: #efe2dd;
+  background: #f9f3f1;
+  color: #ab8f93;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 .segmentedButtonActive {

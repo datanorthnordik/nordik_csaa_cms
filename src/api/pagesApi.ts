@@ -83,8 +83,10 @@ type RawPageListResponse = Omit<PageListResponse, 'items'> & {
 export type PageHeaderSectionResponse = {
   main_header_text: string
   sub_header_text: string
+  description?: string
   hierarchy: PageHeaderHierarchy
   text_align: PageTypographyTextAlign
+  underline_enabled?: boolean
 }
 
 export type PageTypographySectionResponse = {
@@ -215,8 +217,10 @@ export type SavePageDocumentsSectionPayload = {
 export type SavePageHeaderSectionPayload = {
   main_header_text: string
   sub_header_text: string
+  description: string
   hierarchy: PageHeaderHierarchy
   text_align: PageTypographyTextAlign
+  underline_enabled: boolean
 }
 
 export type SavePageTypographySectionPayload = {
