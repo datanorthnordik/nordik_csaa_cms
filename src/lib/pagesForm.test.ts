@@ -87,6 +87,72 @@ describe('buildSavePageRequest', () => {
     ])
   })
 
+  it('preserves existing CTA image references and collects new CTA image uploads', () => {
+    const ctaImageFile = new File(['cta-image'], 'cta.png', {
+      type: 'image/png',
+    })
+    const form = createDefaultPageFormState()
+    const existingCTASection = createDefaultSectionState('cta_banner')
+    const uploadedCTASection = createDefaultSectionState('cta_banner')
+
+    form.pageTitle = 'Community Support'
+    form.urlSlug = 'community-support'
+
+    existingCTASection.ctaBanner = {
+      bannerHeading: 'We are here for the Community',
+      bannerMessage: 'Our mission is rooted in honouring survivors.',
+      buttonText: 'Learn more',
+      buttonUrl: 'https://example.com/community-support',
+      openInNewTab: false,
+      imageFile: null,
+      existingImageFetchUrl: `${API_BASE_URL}/api/pages/sections/10/cta-image/content`,
+      existingImageStorageUrl: 'gs://drive-bucket/pages/sections/10/cta.png',
+      existingImageObjectKey: 'pages/sections/10/cta.png',
+    }
+
+    uploadedCTASection.ctaBanner = {
+      bannerHeading: 'Learn more about the CST',
+      bannerMessage: 'Support for survivors, families, and community members.',
+      buttonText: 'Read more',
+      buttonUrl: 'https://example.com/cst',
+      openInNewTab: true,
+      imageFile: ctaImageFile,
+      existingImageFetchUrl: '',
+      existingImageStorageUrl: '',
+      existingImageObjectKey: '',
+    }
+
+    form.sections = [existingCTASection, uploadedCTASection]
+
+    const request = buildSavePageRequest(form)
+
+    expect(request.page_detail?.sections[0]).toMatchObject({
+      section_type: 'cta_banner',
+      cta_banner: {
+        image: {
+          file_url: 'gs://drive-bucket/pages/sections/10/cta.png',
+          storage_uri: 'gs://drive-bucket/pages/sections/10/cta.png',
+          gcp_object_key: 'pages/sections/10/cta.png',
+        },
+      },
+    })
+    expect(request.page_detail?.sections[1]).toMatchObject({
+      section_type: 'cta_banner',
+      cta_banner: {
+        image: {
+          file_name: 'cta.png',
+          mime_type: 'image/png',
+        },
+      },
+    })
+    expect(request.ctaBannerImageFiles).toEqual([
+      {
+        sectionIndex: 1,
+        file: ctaImageFile,
+      },
+    ])
+  })
+
   it('preserves the icons gallery view mode and disables carousel-only scrolling', () => {
     const form = createDefaultPageFormState()
     const gallerySection = createDefaultSectionState('gallery')
@@ -328,6 +394,70 @@ describe('buildPageFormStateFromDetail', () => {
         autoScrollEnabled: true,
       },
     })
+  })
+
+  it('hydrates CTA image metadata from page detail responses', () => {
+    const form = buildPageFormStateFromDetail({
+      id: 9,
+      page_title: 'Support',
+      url_slug: '/support',
+      page_type: 'page',
+      parent_id: null,
+      status: 'draft',
+      hero_image_enabled: false,
+      hero_image_url: '',
+      hero_image_object_key: '',
+      hero_image_fetch_url: '',
+      seo_page_title: '',
+      seo_page_description: '',
+      created_by: null,
+      created_by_name: 'Admin',
+      modified_by: null,
+      modified_by_name: 'Admin',
+      last_modified: '2026-05-12T00:00:00Z',
+      created_at: '2026-05-12T00:00:00Z',
+      updated_at: '2026-05-12T00:00:00Z',
+      page_detail: {
+        id: 12,
+        page_id: 9,
+        template_key: 'default',
+        schema_version: 1,
+        sections: [
+          {
+            id: 3,
+            section_name: 'CTA Banner',
+            section_type: 'cta_banner',
+            sort_order: 0,
+            is_enabled: true,
+            cta_banner: {
+              banner_heading: 'Support',
+              banner_message: 'We are here for the community.',
+              button_text: 'Learn more',
+              button_url: 'https://example.com/support',
+              open_in_new_tab: false,
+              image: {
+                file_url: '/api/pages/sections/3/cta-image/content',
+                fetch_url: '/api/pages/sections/3/cta-image/content',
+                storage_uri: 'gs://drive-bucket/pages/sections/3/cta.png',
+                gcp_object_key: 'pages/sections/3/cta.png',
+              },
+            },
+            created_at: '2026-05-12T00:00:00Z',
+            updated_at: '2026-05-12T00:00:00Z',
+          },
+        ],
+      },
+    })
+
+    expect(form.sections[0]?.ctaBanner.existingImageFetchUrl).toBe(
+      `${API_BASE_URL}/api/pages/sections/3/cta-image/content`,
+    )
+    expect(form.sections[0]?.ctaBanner.existingImageStorageUrl).toBe(
+      'gs://drive-bucket/pages/sections/3/cta.png',
+    )
+    expect(form.sections[0]?.ctaBanner.existingImageObjectKey).toBe(
+      'pages/sections/3/cta.png',
+    )
   })
 
   it('forces auto-scroll off when the gallery is not saved as a carousel', () => {

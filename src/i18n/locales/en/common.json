@@ -357,7 +357,8 @@
         "bannerMessage": "Banner Message",
         "buttonText": "Button Text",
         "buttonUrl": "Button Destination (URL)",
-        "openInNewTab": "Open in New Tab"
+        "openInNewTab": "Open in New Tab",
+        "ctaImage": "CTA Image"
       },
       "placeholders": {
         "sectionName": "Internal module label...",
@@ -385,7 +386,8 @@
         "autoScrollEnabled": "When enabled, carousel galleries advance automatically on the website.",
         "autoScrollUnavailable": "Switch the gallery view to Carousel to enable automatic scrolling.",
         "documents": "Each document section can contain multiple files with independent labels and ordering.",
-        "openInNewTab": "Use this when the CTA should open an external page in a separate browser tab."
+        "openInNewTab": "Use this when the CTA should open an external page in a separate browser tab.",
+        "ctaImage": "Optional. Adding an image switches the website CTA to the split layout with media on the left."
       },
       "states": {
         "on": "On",

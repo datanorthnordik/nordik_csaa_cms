@@ -99,6 +99,8 @@ const DOCUMENT_UPLOAD_ACCEPT = [
   '.pptx',
 ].join(',')
 
+const IMAGE_UPLOAD_ACCEPT = 'image/png,image/jpeg,image/webp'
+
 export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
@@ -137,6 +139,8 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
     Record<string, 'preview' | 'download' | undefined>
   >({})
   const documentPreviewUrlsRef = useRef<Record<string, string>>({})
+  const [ctaImagePreviewUrls, setCtaImagePreviewUrls] = useState<Record<string, string>>({})
+  const ctaImagePreviewUrlsRef = useRef<Record<string, string>>({})
 
   useEffect(() => {
     let cancelled = false
@@ -443,6 +447,41 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
       ),
     [documentPreviewSources],
   )
+  const ctaImagePreviewSources = useMemo(
+    () =>
+      form.sections
+        .filter(
+          (section) =>
+            section.sectionType === 'cta_banner' &&
+            (Boolean(section.ctaBanner.imageFile) ||
+              Boolean(section.ctaBanner.existingImageFetchUrl)),
+        )
+        .map((section) => ({
+          clientId: section.clientId,
+          file: section.ctaBanner.imageFile,
+          fetchUrl: section.ctaBanner.existingImageFetchUrl,
+          sourceKey: section.ctaBanner.imageFile
+            ? [
+                section.ctaBanner.imageFile.name,
+                section.ctaBanner.imageFile.size,
+                section.ctaBanner.imageFile.lastModified,
+                section.ctaBanner.imageFile.type,
+              ].join(':')
+            : section.ctaBanner.existingImageFetchUrl,
+        }))
+        .sort((left, right) => left.clientId.localeCompare(right.clientId)),
+    [form.sections],
+  )
+  const ctaImagePreviewSignature = useMemo(
+    () =>
+      JSON.stringify(
+        ctaImagePreviewSources.map((source) => ({
+          clientId: source.clientId,
+          sourceKey: source.sourceKey,
+        })),
+      ),
+    [ctaImagePreviewSources],
+  )
 
   useEffect(() => {
     let cancelled = false
@@ -511,6 +550,76 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
         URL.revokeObjectURL(url)
       })
       documentPreviewUrlsRef.current = {}
+    }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadCTAImagePreviews() {
+      const nextEntries = await Promise.all(
+        ctaImagePreviewSources.map(async (source) => {
+          try {
+            if (source.file) {
+              return [source.clientId, URL.createObjectURL(source.file)] as const
+            }
+
+            if (!source.fetchUrl) {
+              return [source.clientId, ''] as const
+            }
+
+            const blob = await pagesApi.fetchPageCTABannerImageContent(source.fetchUrl)
+            return [source.clientId, URL.createObjectURL(blob)] as const
+          } catch {
+            return [source.clientId, ''] as const
+          }
+        }),
+      )
+
+      if (cancelled) {
+        nextEntries.forEach(([, url]) => {
+          if (url) {
+            URL.revokeObjectURL(url)
+          }
+        })
+        return
+      }
+
+      setCtaImagePreviewUrls((current) => {
+        Object.values(current).forEach((url) => {
+          URL.revokeObjectURL(url)
+        })
+
+        const next = Object.fromEntries(nextEntries.filter(([, url]) => Boolean(url)))
+        ctaImagePreviewUrlsRef.current = next
+        return next
+      })
+    }
+
+    if (!ctaImagePreviewSources.length) {
+      setCtaImagePreviewUrls((current) => {
+        Object.values(current).forEach((url) => {
+          URL.revokeObjectURL(url)
+        })
+        ctaImagePreviewUrlsRef.current = {}
+        return {}
+      })
+      return
+    }
+
+    void loadCTAImagePreviews()
+
+    return () => {
+      cancelled = true
+    }
+  }, [ctaImagePreviewSignature, ctaImagePreviewSources])
+
+  useEffect(() => {
+    return () => {
+      Object.values(ctaImagePreviewUrlsRef.current).forEach((url) => {
+        URL.revokeObjectURL(url)
+      })
+      ctaImagePreviewUrlsRef.current = {}
     }
   }, [])
 
@@ -612,6 +721,34 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
       ...current,
       heroImageFile: null,
       removeHeroImage: true,
+    }))
+  }
+
+  function handleCTABannerImageFiles(sectionClientId: string, files: File[]) {
+    const file = files[0]
+    if (!file) {
+      return
+    }
+
+    updateSection(sectionClientId, (current) => ({
+      ...current,
+      ctaBanner: {
+        ...current.ctaBanner,
+        imageFile: file,
+      },
+    }))
+  }
+
+  function removeCTABannerImage(sectionClientId: string) {
+    updateSection(sectionClientId, (current) => ({
+      ...current,
+      ctaBanner: {
+        ...current.ctaBanner,
+        imageFile: null,
+        existingImageFetchUrl: '',
+        existingImageStorageUrl: '',
+        existingImageObjectKey: '',
+      },
     }))
   }
 
@@ -1541,7 +1678,12 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
           </div>
         )
 
-      case 'cta_banner':
+      case 'cta_banner': {
+        const currentCTAImagePreview = ctaImagePreviewUrls[section.clientId] || ''
+        const hasCTABannerImage = Boolean(
+          section.ctaBanner.imageFile || section.ctaBanner.existingImageFetchUrl,
+        )
+
         return (
           <div className={styles.fieldStack}>
             <div className={styles.fieldGrid}>
@@ -1656,8 +1798,63 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                 />
               </label>
             </div>
+
+            <div className={styles.fieldStack}>
+              <p className={styles.fieldHint}>{t('pages.modules.hints.ctaImage')}</p>
+              <div className={styles.heroPanel}>
+                {hasCTABannerImage ? (
+                  <div className={styles.heroPreviewCard}>
+                    {currentCTAImagePreview ? (
+                      <img
+                        src={currentCTAImagePreview}
+                        alt={section.ctaBanner.bannerHeading || section.sectionName || 'CTA image'}
+                        className={styles.heroPreview}
+                      />
+                    ) : (
+                      <div className={styles.mediaPreviewPlaceholder} />
+                    )}
+                    {!isReadOnlyMode && (
+                      <div className={styles.heroActions}>
+                        <label className={styles.secondaryButton}>
+                          <input
+                            type="file"
+                            accept={IMAGE_UPLOAD_ACCEPT}
+                            hidden
+                            onChange={(event) => {
+                              const file = event.target.files?.[0]
+                              if (file) {
+                                handleCTABannerImageFiles(section.clientId, [file])
+                              }
+                              event.target.value = ''
+                            }}
+                          />
+                          {t('pages.editor.replaceHeroImage')}
+                        </label>
+                        <button
+                          type="button"
+                          className={styles.dangerButton}
+                          onClick={() => removeCTABannerImage(section.clientId)}
+                        >
+                          {t('pages.editor.removeHeroImage')}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <UploadDropzone
+                    disabled={isReadOnlyMode || isBusy}
+                    icon={<CloudUploadIcon size={24} />}
+                    accept={IMAGE_UPLOAD_ACCEPT}
+                    label={t('pages.modules.fields.ctaImage')}
+                    hint={t('pages.modules.hints.ctaImage')}
+                    onFiles={(files) => handleCTABannerImageFiles(section.clientId, files)}
+                  />
+                )}
+              </div>
+            </div>
           </div>
         )
+      }
     }
   }
 
@@ -1895,7 +2092,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                           <label className={styles.secondaryButton}>
                             <input
                               type="file"
-                              accept="image/png,image/jpeg,image/webp"
+                              accept={IMAGE_UPLOAD_ACCEPT}
                               hidden
                               onChange={(event) => {
                                 const file = event.target.files?.[0]
@@ -1921,7 +2118,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                     <UploadDropzone
                       disabled={isReadOnlyMode || isBusy}
                       icon={<CloudUploadIcon size={24} />}
-                      accept="image/png,image/jpeg,image/webp"
+                      accept={IMAGE_UPLOAD_ACCEPT}
                       label={t('pages.fields.heroImageLabel')}
                       hint={t('pages.fields.heroImageHint')}
                       onFiles={handleHeroFiles}

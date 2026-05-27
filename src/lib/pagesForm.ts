@@ -1,5 +1,6 @@
 import type {
   PageCTABannerSectionResponse,
+  PageCTABannerImageMultipartFile,
   PageContentDetailResponse,
   PageDetailResponse,
   PageDocumentMultipartFile,
@@ -81,6 +82,10 @@ export type PageSectionState = {
     buttonText: string
     buttonUrl: string
     openInNewTab: boolean
+    imageFile: File | null
+    existingImageFetchUrl: string
+    existingImageStorageUrl: string
+    existingImageObjectKey: string
   }
   documents: {
     items: PageSectionDocumentState[]
@@ -151,6 +156,10 @@ export function createDefaultSectionState(sectionType: PageSectionType): PageSec
       buttonText: '',
       buttonUrl: '',
       openInNewTab: false,
+      imageFile: null,
+      existingImageFetchUrl: '',
+      existingImageStorageUrl: '',
+      existingImageObjectKey: '',
     },
     documents: {
       items: [],
@@ -420,6 +429,11 @@ export function buildSavePageRequest(
     request.documentFiles = documentFiles
   }
 
+  const ctaBannerImageFiles = collectCTABannerImageFiles(form.sections)
+  if (ctaBannerImageFiles.length > 0) {
+    request.ctaBannerImageFiles = ctaBannerImageFiles
+  }
+
   return request
 }
 
@@ -497,6 +511,9 @@ function buildSaveSectionPayload(
             button_text: section.ctaBanner.buttonText.trim(),
             button_url: section.ctaBanner.buttonUrl.trim(),
             open_in_new_tab: section.ctaBanner.openInNewTab,
+            ...(buildCTABannerImagePayload(section)
+              ? { image: buildCTABannerImagePayload(section) }
+              : {}),
           } satisfies SavePageCTABannerSectionPayload,
         }
       : {}),
@@ -558,6 +575,55 @@ function collectDocumentFiles(sections: PageSectionState[]): PageDocumentMultipa
   })
 
   return files
+}
+
+function collectCTABannerImageFiles(
+  sections: PageSectionState[],
+): PageCTABannerImageMultipartFile[] {
+  const files: PageCTABannerImageMultipartFile[] = []
+
+  sections.forEach((section, sectionIndex) => {
+    if (section.sectionType !== 'cta_banner' || !section.ctaBanner.imageFile) {
+      return
+    }
+
+    files.push({
+      sectionIndex,
+      file: section.ctaBanner.imageFile,
+    })
+  })
+
+  return files
+}
+
+function buildCTABannerImagePayload(section: PageSectionState): PageUploadInput | undefined {
+  if (section.sectionType !== 'cta_banner') {
+    return undefined
+  }
+
+  if (section.ctaBanner.imageFile) {
+    return {
+      file_name: section.ctaBanner.imageFile.name,
+      mime_type: section.ctaBanner.imageFile.type || 'application/octet-stream',
+    }
+  }
+
+  const existingStorageUri = section.ctaBanner.existingImageStorageUrl.trim()
+  const existingObjectKey = section.ctaBanner.existingImageObjectKey.trim()
+
+  if (!existingStorageUri && !existingObjectKey) {
+    return undefined
+  }
+
+  return {
+    ...(existingStorageUri
+      ? {
+          file_url: existingStorageUri,
+          storage_uri: existingStorageUri,
+        }
+      : {}),
+    ...(existingObjectKey ? { gcp_object_key: existingObjectKey } : {}),
+  }
 }
 
 function mapSectionResponseToState(section: PageSectionResponse): PageSectionState {
@@ -637,6 +703,10 @@ function mapCTABannerResponse(ctaBanner?: PageCTABannerSectionResponse | null) {
     buttonText: ctaBanner?.button_text ?? '',
     buttonUrl: ctaBanner?.button_url ?? '',
     openInNewTab: Boolean(ctaBanner?.open_in_new_tab),
+    imageFile: null,
+    existingImageFetchUrl: resolvePageAssetUrl(ctaBanner?.image?.fetch_url ?? ''),
+    existingImageStorageUrl: ctaBanner?.image?.storage_uri ?? '',
+    existingImageObjectKey: ctaBanner?.image?.gcp_object_key ?? '',
   }
 }
 
