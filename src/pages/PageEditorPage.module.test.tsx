@@ -287,19 +287,100 @@ describe('PageEditorPage module pages', () => {
     })
 
     expect(
-      (
-        screen.getByRole('checkbox', {
+      screen
+        .getByRole('switch', {
           name: /display titles and descriptions/i,
-        }) as HTMLInputElement
-      ).checked,
-    ).toBe(false)
+        })
+        .getAttribute('aria-checked'),
+    ).toBe('false')
     expect(
-      (
-        screen.getByRole('checkbox', {
+      screen
+        .getByRole('switch', {
           name: /automatic carousel scroll/i,
-        }) as HTMLInputElement
-      ).checked,
-    ).toBe(true)
+        })
+        .getAttribute('aria-checked'),
+    ).toBe('true')
+  })
+
+  it('disables automatic carousel scroll outside carousel view', async () => {
+    listGalleriesMock.mockResolvedValue([{ id: 14, name: 'Partner Logos' }])
+    useAppSelectorMock.mockImplementation((selector: (state: unknown) => unknown) =>
+      selector({
+        pages: {
+          detail: {
+            item: {
+              id: 12,
+              page_title: 'Partners',
+              url_slug: '/partners',
+              page_type: 'page',
+              parent_id: null,
+              parent_page_title: '',
+              parent_page_url_slug: '',
+              status: 'draft',
+              hero_image_enabled: false,
+              hero_image_url: '',
+              hero_image_object_key: '',
+              hero_image_fetch_url: '',
+              seo_page_title: 'Partners',
+              seo_page_description: 'Partner logos',
+              created_by: null,
+              created_by_name: '',
+              modified_by: null,
+              modified_by_name: '',
+              last_modified: '2026-05-13T00:00:00Z',
+              created_at: '2026-05-13T00:00:00Z',
+              updated_at: '2026-05-13T00:00:00Z',
+              page_detail: {
+                id: 3,
+                page_id: 12,
+                template_key: 'default',
+                schema_version: 1,
+                sections: [
+                  {
+                    id: 4,
+                    section_name: 'Partner logos',
+                    section_type: 'gallery',
+                    sort_order: 0,
+                    is_enabled: true,
+                    gallery: {
+                      gallery_id: 14,
+                      view_mode: 'grid',
+                      show_title_description: true,
+                      auto_scroll_enabled: true,
+                    },
+                    created_at: '2026-05-13T00:00:00Z',
+                    updated_at: '2026-05-13T00:00:00Z',
+                  },
+                ],
+              },
+            },
+            status: 'succeeded',
+            error: null,
+          },
+          save: {
+            status: 'idle',
+            error: null,
+            lastResult: null,
+          },
+        },
+      }),
+    )
+
+    render(<PageEditorPage />)
+
+    await waitFor(() => {
+      expect(listGalleriesMock).toHaveBeenCalledTimes(1)
+    })
+
+    const autoScrollSwitch = screen.getByRole('switch', {
+      name: /automatic carousel scroll/i,
+    }) as HTMLButtonElement
+
+    expect(autoScrollSwitch.disabled).toBe(true)
+    expect(autoScrollSwitch.getAttribute('aria-checked')).toBe('false')
+    expect(
+      screen.getByText('Switch the gallery view to Carousel to enable automatic scrolling.'),
+    ).toBeDefined()
   })
 
   it('shows text alignment controls for editable header sections', async () => {

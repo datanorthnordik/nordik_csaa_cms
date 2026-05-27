@@ -87,7 +87,7 @@ describe('buildSavePageRequest', () => {
     ])
   })
 
-  it('preserves the icons gallery view mode in page section payloads', () => {
+  it('preserves the icons gallery view mode and disables carousel-only scrolling', () => {
     const form = createDefaultPageFormState()
     const gallerySection = createDefaultSectionState('gallery')
 
@@ -110,7 +110,7 @@ describe('buildSavePageRequest', () => {
         gallery_id: 14,
         view_mode: 'icons',
         show_title_description: false,
-        auto_scroll_enabled: true,
+        auto_scroll_enabled: false,
       },
     })
   })
@@ -290,6 +290,59 @@ describe('buildPageFormStateFromDetail', () => {
         viewMode: 'icons',
         showTitleDescription: false,
         autoScrollEnabled: true,
+      },
+    })
+  })
+
+  it('forces auto-scroll off when the gallery is not saved as a carousel', () => {
+    const form = createDefaultPageFormState()
+    const gallerySection = createDefaultSectionState('gallery')
+
+    form.pageTitle = 'Partners'
+    form.urlSlug = 'partners'
+    gallerySection.gallery = {
+      galleryId: '14',
+      viewMode: 'grid',
+      showTitleDescription: true,
+      autoScrollEnabled: true,
+    }
+    form.sections = [gallerySection]
+
+    const request = buildSavePageRequest(form)
+
+    expect(request.page_detail?.sections[0]).toMatchObject({
+      section_type: 'gallery',
+      sort_order: 0,
+      gallery: {
+        gallery_id: 14,
+        view_mode: 'grid',
+        show_title_description: true,
+        auto_scroll_enabled: false,
+      },
+    })
+  })
+
+  it('defaults legacy gallery option flags when they are missing from section state', () => {
+    const form = createDefaultPageFormState()
+    const gallerySection = createDefaultSectionState('gallery')
+
+    form.pageTitle = 'Partners'
+    form.urlSlug = 'partners'
+    gallerySection.gallery.galleryId = '14'
+    gallerySection.gallery.viewMode = 'grid'
+    Reflect.deleteProperty(gallerySection.gallery as Record<string, unknown>, 'showTitleDescription')
+    Reflect.deleteProperty(gallerySection.gallery as Record<string, unknown>, 'autoScrollEnabled')
+    form.sections = [gallerySection]
+
+    const request = buildSavePageRequest(form)
+
+    expect(request.page_detail?.sections[0]).toMatchObject({
+      section_type: 'gallery',
+      gallery: {
+        gallery_id: 14,
+        view_mode: 'grid',
+        show_title_description: true,
+        auto_scroll_enabled: false,
       },
     })
   })

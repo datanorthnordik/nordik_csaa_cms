@@ -1061,6 +1061,24 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
         )
 
       case 'gallery':
+        const showTitleDescriptionEnabled = section.gallery.showTitleDescription ?? true
+        const autoScrollAvailable = section.gallery.viewMode === 'carousel'
+        const autoScrollEnabled = autoScrollAvailable
+          ? (section.gallery.autoScrollEnabled ?? false)
+          : false
+        const setGalleryViewMode = (viewMode: PageSectionState['gallery']['viewMode']) =>
+          updateSection(section.clientId, (current) => ({
+            ...current,
+            gallery: {
+              ...current.gallery,
+              viewMode,
+              autoScrollEnabled:
+                viewMode === 'carousel' && current.gallery.viewMode === 'carousel'
+                  ? (current.gallery.autoScrollEnabled ?? false)
+                  : false,
+            },
+          }))
+
         return (
           <div className={styles.fieldStack}>
             <div className={styles.fieldGrid}>
@@ -1112,114 +1130,75 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
               <div className={styles.segmentedControl}>
                 <SegmentedButton
                   active={section.gallery.viewMode === 'grid'}
-                  onClick={() =>
-                    updateSection(section.clientId, (current) => ({
-                      ...current,
-                      gallery: {
-                        ...current.gallery,
-                        viewMode: 'grid',
-                      },
-                    }))
-                  }
+                  onClick={() => setGalleryViewMode('grid')}
                   label={t('pages.modules.options.grid')}
                 />
                 <SegmentedButton
                   active={section.gallery.viewMode === 'carousel'}
-                  onClick={() =>
-                    updateSection(section.clientId, (current) => ({
-                      ...current,
-                      gallery: {
-                        ...current.gallery,
-                        viewMode: 'carousel',
-                      },
-                    }))
-                  }
+                  onClick={() => setGalleryViewMode('carousel')}
                   label={t('pages.modules.options.carousel')}
                 />
                 <SegmentedButton
                   active={section.gallery.viewMode === 'masonry'}
-                  onClick={() =>
-                    updateSection(section.clientId, (current) => ({
-                      ...current,
-                      gallery: {
-                        ...current.gallery,
-                        viewMode: 'masonry',
-                      },
-                    }))
-                  }
+                  onClick={() => setGalleryViewMode('masonry')}
                   label={t('pages.modules.options.masonry')}
                 />
                 <SegmentedButton
                   active={section.gallery.viewMode === 'focus'}
-                  onClick={() =>
-                    updateSection(section.clientId, (current) => ({
-                      ...current,
-                      gallery: {
-                        ...current.gallery,
-                        viewMode: 'focus',
-                      },
-                    }))
-                  }
+                  onClick={() => setGalleryViewMode('focus')}
                   label={t('pages.modules.options.focus')}
                 />
                 <SegmentedButton
                   active={section.gallery.viewMode === 'icons'}
-                  onClick={() =>
-                    updateSection(section.clientId, (current) => ({
-                      ...current,
-                      gallery: {
-                        ...current.gallery,
-                        viewMode: 'icons',
-                      },
-                    }))
-                  }
+                  onClick={() => setGalleryViewMode('icons')}
                   label={t('pages.modules.options.icons')}
                 />
               </div>
             </div>
 
-            <div className={styles.fieldStack}>
-              <label className={styles.toggleRow}>
-                <div>
-                  <span>{t('pages.modules.fields.showTitleDescription')}</span>
-                  <p>{t('pages.modules.hints.showTitleDescription')}</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={section.gallery.showTitleDescription}
-                  onChange={(event) =>
-                    updateSection(section.clientId, (current) => ({
-                      ...current,
-                      gallery: {
-                        ...current.gallery,
-                        showTitleDescription: event.target.checked,
-                      },
-                    }))
-                  }
-                />
-              </label>
+            <div className={styles.optionGrid}>
+              <ModuleOptionCard
+                eyebrow={t('pages.modules.options.captionDisplay')}
+                title={t('pages.modules.fields.showTitleDescription')}
+                description={t('pages.modules.hints.showTitleDescription')}
+                checkedLabel={t('pages.modules.states.on')}
+                uncheckedLabel={t('pages.modules.states.off')}
+                checked={showTitleDescriptionEnabled}
+                disabled={false}
+                onToggle={(nextChecked) =>
+                  updateSection(section.clientId, (current) => ({
+                    ...current,
+                    gallery: {
+                      ...current.gallery,
+                      showTitleDescription: nextChecked,
+                    },
+                  }))
+                }
+              />
 
-              {section.gallery.viewMode === 'carousel' ? (
-                <label className={styles.toggleRow}>
-                  <div>
-                    <span>{t('pages.modules.fields.autoScrollEnabled')}</span>
-                    <p>{t('pages.modules.hints.autoScrollEnabled')}</p>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={section.gallery.autoScrollEnabled}
-                    onChange={(event) =>
-                      updateSection(section.clientId, (current) => ({
-                        ...current,
-                        gallery: {
-                          ...current.gallery,
-                          autoScrollEnabled: event.target.checked,
-                        },
-                      }))
-                    }
-                  />
-                </label>
-              ) : null}
+              <ModuleOptionCard
+                eyebrow={t('pages.modules.options.carouselMotion')}
+                title={t('pages.modules.fields.autoScrollEnabled')}
+                description={
+                  autoScrollAvailable
+                    ? t('pages.modules.hints.autoScrollEnabled')
+                    : t('pages.modules.hints.autoScrollUnavailable')
+                }
+                checkedLabel={t('pages.modules.states.on')}
+                uncheckedLabel={t('pages.modules.states.off')}
+                disabledLabel={t('pages.modules.states.carouselOnly')}
+                checked={autoScrollEnabled}
+                disabled={!autoScrollAvailable}
+                onToggle={(nextChecked) =>
+                  updateSection(section.clientId, (current) => ({
+                    ...current,
+                    gallery: {
+                      ...current.gallery,
+                      autoScrollEnabled: nextChecked,
+                    },
+                  }))
+                }
+              />
             </div>
           </div>
         )
@@ -2172,6 +2151,90 @@ function SegmentedButton({
     >
       {label}
     </button>
+  )
+}
+
+function ModuleOptionCard({
+  eyebrow,
+  title,
+  description,
+  checkedLabel,
+  uncheckedLabel,
+  disabledLabel,
+  checked,
+  disabled,
+  onToggle,
+}: {
+  eyebrow: string
+  title: string
+  description: string
+  checkedLabel: string
+  uncheckedLabel: string
+  disabledLabel?: string
+  checked: boolean
+  disabled: boolean
+  onToggle: (nextChecked: boolean) => void
+}) {
+  const statusLabel = disabled
+    ? (disabledLabel ?? uncheckedLabel)
+    : checked
+      ? checkedLabel
+      : uncheckedLabel
+
+  return (
+    <div
+      className={[
+        styles.optionCard,
+        checked && !disabled ? styles.optionCardActive : '',
+        disabled ? styles.optionCardDisabled : '',
+      ]
+        .filter(Boolean)
+        .join(' ')}
+    >
+      <div className={styles.optionCardContent}>
+        <span className={styles.optionCardEyebrow}>{eyebrow}</span>
+        <div className={styles.optionCardHeader}>
+          <h4 className={styles.optionCardTitle}>{title}</h4>
+          <span
+            className={[
+              styles.optionStatus,
+              disabled
+                ? styles.optionStatusDisabled
+                : checked
+                  ? styles.optionStatusActive
+                  : styles.optionStatusInactive,
+            ].join(' ')}
+          >
+            {statusLabel}
+          </span>
+        </div>
+        <p className={styles.optionCardDescription}>{description}</p>
+      </div>
+
+      <button
+        type="button"
+        className={[
+          styles.optionSwitch,
+          checked && !disabled ? styles.optionSwitchActive : '',
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        role="switch"
+        aria-checked={checked}
+        aria-label={title}
+        disabled={disabled}
+        onClick={() => onToggle(!checked)}
+      >
+        <span
+          className={[
+            styles.optionSwitchThumb,
+            checked && !disabled ? styles.optionSwitchThumbActive : '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        />
+      </button>
+    </div>
   )
 }
 
