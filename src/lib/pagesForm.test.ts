@@ -96,6 +96,8 @@ describe('buildSavePageRequest', () => {
     gallerySection.gallery = {
       galleryId: '14',
       viewMode: 'icons',
+      showTitleDescription: false,
+      autoScrollEnabled: true,
     }
     form.sections = [gallerySection]
 
@@ -107,6 +109,8 @@ describe('buildSavePageRequest', () => {
       gallery: {
         gallery_id: 14,
         view_mode: 'icons',
+        show_title_description: false,
+        auto_scroll_enabled: true,
       },
     })
   })
@@ -267,6 +271,8 @@ describe('buildPageFormStateFromDetail', () => {
             gallery: {
               gallery_id: 14,
               view_mode: 'icons',
+              show_title_description: false,
+              auto_scroll_enabled: true,
             },
             created_at: '2026-05-12T00:00:00Z',
             updated_at: '2026-05-12T00:00:00Z',
@@ -282,6 +288,8 @@ describe('buildPageFormStateFromDetail', () => {
       gallery: {
         galleryId: '14',
         viewMode: 'icons',
+        showTitleDescription: false,
+        autoScrollEnabled: true,
       },
     })
   })

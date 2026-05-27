@@ -66,6 +66,8 @@ export type PageSectionState = {
   gallery: {
     galleryId: string
     viewMode: PageGalleryViewMode
+    showTitleDescription: boolean
+    autoScrollEnabled: boolean
   }
   quote: {
     quoteContent: string
@@ -132,6 +134,8 @@ export function createDefaultSectionState(sectionType: PageSectionType): PageSec
     gallery: {
       galleryId: '',
       viewMode: 'grid',
+      showTitleDescription: true,
+      autoScrollEnabled: false,
     },
     quote: {
       quoteContent: '',
@@ -450,6 +454,8 @@ function buildSaveSectionPayload(
               ? Number.parseInt(section.gallery.galleryId, 10)
               : null,
             view_mode: section.gallery.viewMode,
+            show_title_description: section.gallery.showTitleDescription,
+            auto_scroll_enabled: section.gallery.autoScrollEnabled,
           } satisfies SavePageGallerySectionPayload,
         }
       : {}),
@@ -588,6 +594,8 @@ function mapGalleryResponse(gallery?: PageGallerySectionResponse | null) {
     galleryId:
       typeof gallery?.gallery_id === 'number' ? String(gallery.gallery_id) : '',
     viewMode: gallery?.view_mode ?? 'grid',
+    showTitleDescription: gallery?.show_title_description ?? true,
+    autoScrollEnabled: gallery?.auto_scroll_enabled ?? false,
   }
 }
 

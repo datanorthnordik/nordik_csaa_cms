@@ -96,6 +96,8 @@ export type PageTypographySectionResponse = {
 export type PageGallerySectionResponse = {
   gallery_id?: number | null
   view_mode: PageGalleryViewMode
+  show_title_description?: boolean
+  auto_scroll_enabled?: boolean
 }
 
 export type PageQuoteSectionResponse = {
@@ -226,6 +228,8 @@ export type SavePageTypographySectionPayload = {
 export type SavePageGallerySectionPayload = {
   gallery_id?: number | null
   view_mode: PageGalleryViewMode
+  show_title_description: boolean
+  auto_scroll_enabled: boolean
 }
 
 export type SavePageQuoteSectionPayload = {

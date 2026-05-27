@@ -1177,6 +1177,50 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                 />
               </div>
             </div>
+
+            <div className={styles.fieldStack}>
+              <label className={styles.toggleRow}>
+                <div>
+                  <span>{t('pages.modules.fields.showTitleDescription')}</span>
+                  <p>{t('pages.modules.hints.showTitleDescription')}</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={section.gallery.showTitleDescription}
+                  onChange={(event) =>
+                    updateSection(section.clientId, (current) => ({
+                      ...current,
+                      gallery: {
+                        ...current.gallery,
+                        showTitleDescription: event.target.checked,
+                      },
+                    }))
+                  }
+                />
+              </label>
+
+              {section.gallery.viewMode === 'carousel' ? (
+                <label className={styles.toggleRow}>
+                  <div>
+                    <span>{t('pages.modules.fields.autoScrollEnabled')}</span>
+                    <p>{t('pages.modules.hints.autoScrollEnabled')}</p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={section.gallery.autoScrollEnabled}
+                    onChange={(event) =>
+                      updateSection(section.clientId, (current) => ({
+                        ...current,
+                        gallery: {
+                          ...current.gallery,
+                          autoScrollEnabled: event.target.checked,
+                        },
+                      }))
+                    }
+                  />
+                </label>
+              ) : null}
+            </div>
           </div>
         )
 
