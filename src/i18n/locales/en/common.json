@@ -375,8 +375,14 @@
         "gallery": "Choose a gallery from the media library. You can reuse the same gallery in multiple sections.",
         "showTitleDescription": "Show each image title and description on the website.",
         "autoScrollEnabled": "When enabled, carousel galleries advance automatically on the website.",
+        "autoScrollUnavailable": "Switch the gallery view to Carousel to enable automatic scrolling.",
         "documents": "Each document section can contain multiple files with independent labels and ordering.",
         "openInNewTab": "Use this when the CTA should open an external page in a separate browser tab."
+      },
+      "states": {
+        "on": "On",
+        "off": "Off",
+        "carouselOnly": "Carousel only"
       },
       "options": {
         "h1Hero": "H1 Hero",
@@ -384,6 +390,8 @@
         "alignLeft": "Left",
         "alignCenter": "Center",
         "alignRight": "Right",
+        "captionDisplay": "Caption Display",
+        "carouselMotion": "Carousel Motion",
         "grid": "Grid",
         "carousel": "Carousel",
         "masonry": "Masonry",

@@ -454,8 +454,11 @@ function buildSaveSectionPayload(
               ? Number.parseInt(section.gallery.galleryId, 10)
               : null,
             view_mode: section.gallery.viewMode,
-            show_title_description: section.gallery.showTitleDescription,
-            auto_scroll_enabled: section.gallery.autoScrollEnabled,
+            show_title_description: section.gallery.showTitleDescription ?? true,
+            auto_scroll_enabled:
+              section.gallery.viewMode === 'carousel'
+                ? (section.gallery.autoScrollEnabled ?? false)
+                : false,
           } satisfies SavePageGallerySectionPayload,
         }
       : {}),
