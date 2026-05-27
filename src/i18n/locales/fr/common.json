@@ -357,7 +357,8 @@
         "bannerMessage": "Message de banniere",
         "buttonText": "Texte du bouton",
         "buttonUrl": "Destination du bouton (URL)",
-        "openInNewTab": "Ouvrir dans un nouvel onglet"
+        "openInNewTab": "Ouvrir dans un nouvel onglet",
+        "ctaImage": "Image du CTA"
       },
       "placeholders": {
         "sectionName": "Libelle interne du module...",
@@ -385,7 +386,8 @@
         "autoScrollEnabled": "Lorsque cette option est activee, les galeries en carrousel defilent automatiquement sur le site web.",
         "autoScrollUnavailable": "Passez la galerie en mode carrousel pour activer le defilement automatique.",
         "documents": "Chaque section de documents peut contenir plusieurs fichiers avec des libelles et un ordre independants.",
-        "openInNewTab": "Utilisez cette option lorsque le CTA doit ouvrir une page externe dans un autre onglet."
+        "openInNewTab": "Utilisez cette option lorsque le CTA doit ouvrir une page externe dans un autre onglet.",
+        "ctaImage": "Optionnel. Ajouter une image active la mise en page avec media a gauche sur le site web."
       },
       "states": {
         "on": "Actif",

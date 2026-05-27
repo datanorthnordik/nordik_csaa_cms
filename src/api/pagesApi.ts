@@ -107,12 +107,20 @@ export type PageQuoteSectionResponse = {
   attribution: string
 }
 
+export type PageSectionAssetResponse = {
+  file_url: string
+  fetch_url: string
+  storage_uri: string
+  gcp_object_key: string
+}
+
 export type PageCTABannerSectionResponse = {
   banner_heading: string
   banner_message: string
   button_text: string
   button_url: string
   open_in_new_tab: boolean
+  image?: PageSectionAssetResponse | null
 }
 
 export type PageDocumentResponse = {
@@ -247,6 +255,7 @@ export type SavePageCTABannerSectionPayload = {
   button_text: string
   button_url: string
   open_in_new_tab: boolean
+  image?: PageUploadInput
 }
 
 export type SavePageSectionPayload = {
@@ -289,9 +298,15 @@ export type PageDocumentMultipartFile = {
   file: File
 }
 
+export type PageCTABannerImageMultipartFile = {
+  sectionIndex: number
+  file: File
+}
+
 export type SavePageRequest = SavePagePayload & {
   heroImageFile?: File
   documentFiles?: PageDocumentMultipartFile[]
+  ctaBannerImageFiles?: PageCTABannerImageMultipartFile[]
 }
 
 export type PageParentOption = {
@@ -331,6 +346,10 @@ function pageDocumentFileField(sectionIndex: number, documentIndex: number) {
   return `page_detail.sections[${sectionIndex}].documents.items[${documentIndex}].file`
 }
 
+function pageCTABannerImageFileField(sectionIndex: number) {
+  return `page_detail.sections[${sectionIndex}].cta_banner.image.file`
+}
+
 async function fetchAllPageListItems(filters: PageListFilters) {
   const response = await apiClient.get<RawPageListResponse>(API_ROUTES.pages, {
     params: buildListQuery(filters),
@@ -340,7 +359,7 @@ async function fetchAllPageListItems(filters: PageListFilters) {
 }
 
 function buildPageMultipartBody(request: SavePageRequest) {
-  const { heroImageFile, documentFiles, ...payload } = request
+  const { heroImageFile, documentFiles, ctaBannerImageFiles, ...payload } = request
   const files = [
     {
       fieldName: 'hero_image_file',
@@ -349,6 +368,11 @@ function buildPageMultipartBody(request: SavePageRequest) {
     },
     ...(documentFiles ?? []).map((entry) => ({
       fieldName: pageDocumentFileField(entry.sectionIndex, entry.documentIndex),
+      file: entry.file,
+      fileName: entry.file.name,
+    })),
+    ...(ctaBannerImageFiles ?? []).map((entry) => ({
+      fieldName: pageCTABannerImageFileField(entry.sectionIndex),
       file: entry.file,
       fileName: entry.file.name,
     })),
@@ -432,6 +456,14 @@ export const pagesApi = {
     return response.data
   },
 
+  async fetchPageCTABannerImageContent(path: string) {
+    const response = await apiClient.get<Blob>(path, {
+      responseType: 'blob',
+      skipErrorToast: true,
+    })
+    return response.data
+  },
+
   async fetchPageDocumentContent(path: string) {
     const response = await apiClient.get<Blob>(path, {
       responseType: 'blob',
@@ -441,14 +473,20 @@ export const pagesApi = {
   },
 
   async createPage(request: SavePageRequest) {
-    const hasFiles = Boolean(request.heroImageFile) || Boolean(request.documentFiles?.length)
+    const hasFiles =
+      Boolean(request.heroImageFile) ||
+      Boolean(request.documentFiles?.length) ||
+      Boolean(request.ctaBannerImageFiles?.length)
     const body = hasFiles ? buildPageMultipartBody(request) : request
     const response = await apiClient.post<PageMutationResponse>(API_ROUTES.pages, body)
     return response.data
   },
 
   async updatePage(id: number, request: SavePageRequest) {
-    const hasFiles = Boolean(request.heroImageFile) || Boolean(request.documentFiles?.length)
+    const hasFiles =
+      Boolean(request.heroImageFile) ||
+      Boolean(request.documentFiles?.length) ||
+      Boolean(request.ctaBannerImageFiles?.length)
     const body = hasFiles ? buildPageMultipartBody(request) : request
     const response = await apiClient.put<PageMutationResponse>(API_ROUTES.pageById(id), body)
     return response.data

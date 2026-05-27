@@ -11,6 +11,7 @@ const {
   listPageParentOptionsMock,
   listGalleriesMock,
   fetchPageHeroImageContentMock,
+  fetchPageCTABannerImageContentMock,
 } = vi.hoisted(() => ({
   dispatchMock: vi.fn(),
   navigateMock: vi.fn(),
@@ -18,6 +19,7 @@ const {
   listPageParentOptionsMock: vi.fn(),
   listGalleriesMock: vi.fn(),
   fetchPageHeroImageContentMock: vi.fn(),
+  fetchPageCTABannerImageContentMock: vi.fn(),
 }))
 
 vi.mock('react-hot-toast', () => ({
@@ -44,6 +46,7 @@ vi.mock('../api/pagesApi', async () => {
       ...actual.pagesApi,
       listPageParentOptions: listPageParentOptionsMock,
       fetchPageHeroImageContent: fetchPageHeroImageContentMock,
+      fetchPageCTABannerImageContent: fetchPageCTABannerImageContentMock,
     },
   }
 })
@@ -83,6 +86,7 @@ describe('PageEditorPage module pages', () => {
     listPageParentOptionsMock.mockReset()
     listGalleriesMock.mockReset()
     fetchPageHeroImageContentMock.mockReset()
+    fetchPageCTABannerImageContentMock.mockReset()
     listPageParentOptionsMock.mockResolvedValue([])
     listGalleriesMock.mockResolvedValue([])
     useAppSelectorMock.mockImplementation((selector: (state: unknown) => unknown) =>

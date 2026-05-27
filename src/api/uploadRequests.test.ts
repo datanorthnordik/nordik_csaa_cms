@@ -137,6 +137,95 @@ describe('upload request bodies', () => {
     ).toBe('policy.pdf')
   })
 
+  it('sends CTA banner image uploads with the section-specific multipart field', async () => {
+    const ctaImageFile = new File(['cta-image'], 'cta.png', { type: 'image/png' })
+
+    await pagesApi.createPage({
+      page_title: 'Community Support',
+      url_slug: '/community-support',
+      parent_id: null,
+      status: 'draft',
+      hero_image_enabled: false,
+      remove_hero_image: false,
+      seo_page_title: 'Community Support',
+      seo_page_description: 'Support details',
+      page_detail: {
+        template_key: 'default',
+        settings: {},
+        sections: [
+          {
+            section_name: 'CTA Banner',
+            section_type: 'cta_banner',
+            sort_order: 0,
+            is_enabled: true,
+            settings: {},
+            cta_banner: {
+              banner_heading: 'We are here for the Community',
+              banner_message: 'Our mission is rooted in honouring survivors.',
+              button_text: 'Learn more',
+              button_url: 'https://example.com/community-support',
+              open_in_new_tab: false,
+              image: {
+                file_name: 'cta.png',
+                mime_type: 'image/png',
+              },
+            },
+          },
+        ],
+      },
+      ctaBannerImageFiles: [
+        {
+          sectionIndex: 0,
+          file: ctaImageFile,
+        },
+      ],
+    })
+
+    expect(postMock).toHaveBeenCalledTimes(1)
+
+    const body = postMock.mock.calls[0]?.[1] as FormData
+    expect(body).toBeInstanceOf(FormData)
+    expect((body.get('page_detail.sections[0].cta_banner.image.file') as File).name).toBe(
+      'cta.png',
+    )
+    expect(body.get('payload')).toBe(
+      JSON.stringify({
+        page_title: 'Community Support',
+        url_slug: '/community-support',
+        parent_id: null,
+        status: 'draft',
+        hero_image_enabled: false,
+        remove_hero_image: false,
+        seo_page_title: 'Community Support',
+        seo_page_description: 'Support details',
+        page_detail: {
+          template_key: 'default',
+          settings: {},
+          sections: [
+            {
+              section_name: 'CTA Banner',
+              section_type: 'cta_banner',
+              sort_order: 0,
+              is_enabled: true,
+              settings: {},
+              cta_banner: {
+                banner_heading: 'We are here for the Community',
+                banner_message: 'Our mission is rooted in honouring survivors.',
+                button_text: 'Learn more',
+                button_url: 'https://example.com/community-support',
+                open_in_new_tab: false,
+                image: {
+                  file_name: 'cta.png',
+                  mime_type: 'image/png',
+                },
+              },
+            },
+          ],
+        },
+      }),
+    )
+  })
+
   it('sends gallery image uploads as multipart payload with indexed file fields', async () => {
     const bannerFile = new File(['banner'], 'banner.png', { type: 'image/png' })
     const detailFile = new File(['detail'], 'detail.png', { type: 'image/png' })

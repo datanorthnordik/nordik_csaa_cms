@@ -249,6 +249,16 @@
   background: var(--color-surface-alt);
 }
 
+.mediaPreviewPlaceholder {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(135deg, rgba(122, 31, 36, 0.08), rgba(255, 255, 255, 0.8)),
+    var(--color-surface-alt);
+}
+
 .primaryButton,
 .secondaryButton,
 .dangerButton,
