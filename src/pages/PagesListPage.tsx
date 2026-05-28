@@ -150,70 +150,69 @@ export function PagesListPage() {
           </button>
         </header>
 
-        <section className={styles.filterCard}>
-          <div className={styles.filterCardTop}>
-            <div className={styles.searchField}>
-              <span className={styles.searchIcon} aria-hidden="true">
-                <SearchIcon size={18} />
-              </span>
-              <input
-                type="search"
-                value={searchInput}
-                onChange={(event) => setSearchInput(event.target.value)}
-                placeholder={t('pages.filters.searchPlaceholder')}
-                aria-label={t('pages.filters.searchPlaceholder')}
-              />
-            </div>
+        <section className={styles.tableCard}>
+          <div className={styles.tableToolbar}>
+            <div className={styles.filterCardTop}>
+              <div className={styles.searchField}>
+                <span className={styles.searchIcon} aria-hidden="true">
+                  <SearchIcon size={18} />
+                </span>
+                <input
+                  type="search"
+                  value={searchInput}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                  placeholder={t('pages.filters.searchPlaceholder')}
+                  aria-label={t('pages.filters.searchPlaceholder')}
+                />
+              </div>
 
-            <button
-              type="button"
-              className={[
-                styles.filterToggleButton,
-                isFilterOpen ? styles.filterToggleButtonActive : '',
-              ]
-                .filter(Boolean)
-                .join(' ')}
-              onClick={() => setIsFilterOpen((v) => !v)}
-              aria-expanded={isFilterOpen}
-            >
-              <FilterIcon />
-              {t('pages.filters.filters')}
-              <span
+              <button
+                type="button"
                 className={[
-                  styles.filterChevron,
-                  isFilterOpen ? styles.filterChevronOpen : '',
+                  styles.filterToggleButton,
+                  isFilterOpen ? styles.filterToggleButtonActive : '',
                 ]
                   .filter(Boolean)
                   .join(' ')}
-                aria-hidden="true"
+                onClick={() => setIsFilterOpen((v) => !v)}
+                aria-expanded={isFilterOpen}
               >
-                <ChevronDownIcon />
-              </span>
-            </button>
-
-            <p className={styles.totalCount}>
-              {t('pages.list.total', { count: totalItems })}
-            </p>
-          </div>
-
-          {isFilterOpen && (
-            <div className={styles.filterCardExpanded}>
-              <label className={styles.filterSelect}>
-                <span className={styles.visuallyHidden}>{t('pages.filters.status')}</span>
-                <select
-                  value={filters.status}
-                  onChange={(event) => changeStatus(event.target.value as PageStatusFilter)}
+                <FilterIcon />
+                {t('pages.filters.filters')}
+                <span
+                  className={[
+                    styles.filterChevron,
+                    isFilterOpen ? styles.filterChevronOpen : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                  aria-hidden="true"
                 >
-                  <option value="">{t('pages.filters.allStatuses')}</option>
-                  <option value="draft">{t('pages.status.draft')}</option>
-                  <option value="published">{t('pages.status.live')}</option>
-                </select>
-              </label>
-            </div>
-          )}
-        </section>
+                  <ChevronDownIcon />
+                </span>
+              </button>
 
-        <section className={styles.tableCard}>
+              <p className={styles.totalCount}>
+                {t('pages.list.total', { count: totalItems })}
+              </p>
+            </div>
+
+            {isFilterOpen && (
+              <div className={styles.filterCardExpanded}>
+                <label className={styles.filterSelect}>
+                  <span className={styles.visuallyHidden}>{t('pages.filters.status')}</span>
+                  <select
+                    value={filters.status}
+                    onChange={(event) => changeStatus(event.target.value as PageStatusFilter)}
+                  >
+                    <option value="">{t('pages.filters.allStatuses')}</option>
+                    <option value="draft">{t('pages.status.draft')}</option>
+                    <option value="published">{t('pages.status.live')}</option>
+                  </select>
+                </label>
+              </div>
+            )}
+          </div>
           {error && <p className={styles.errorText}>{error}</p>}
 
           {isLoading && !items.length ? (

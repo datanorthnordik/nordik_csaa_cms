@@ -167,17 +167,19 @@ export function NewslettersListPage() {
           </button>
         </div>
 
-        <SearchFilterBar
-          searchValue={filters.searchTerm}
-          onSearchChange={(value) => updateFilter('searchTerm', value)}
-          searchPlaceholder={t('newsletters.filters.searchPlaceholder')}
-          searchLabel={t('newsletters.filters.search')}
-          fields={fields}
-          compact
-          collapsible
-        />
-
         <section className={styles.resultsPanel}>
+          <div className={styles.resultsToolbar}>
+            <SearchFilterBar
+              searchValue={filters.searchTerm}
+              onSearchChange={(value) => updateFilter('searchTerm', value)}
+              searchPlaceholder={t('newsletters.filters.searchPlaceholder')}
+              searchLabel={t('newsletters.filters.search')}
+              fields={fields}
+              compact
+              embedded
+              collapsible
+            />
+          </div>
           {error && (
             <div className={styles.errorBox}>
               <p>{error}</p>

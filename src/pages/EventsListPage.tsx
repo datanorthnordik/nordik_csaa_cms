@@ -278,82 +278,85 @@ export function EventsListPage() {
           </button>
         </div>
 
-        <SearchFilterBar
-          searchValue={draftFilters.searchTerm}
-          onSearchChange={(value) => updateDraft('searchTerm', value)}
-          searchPlaceholder={t('events.filters.searchPlaceholder')}
-          searchLabel={t('events.filters.search')}
-          applyLabel={t('events.filters.apply')}
-          resetLabel={t('events.filters.reset')}
-          onApply={() => applyFilters()}
-          onReset={resetFilters}
-          collapsible
-          fields={[
-            {
-              type: 'select',
-              key: 'dateRange',
-              label: t('events.filters.dateRange'),
-              value: draftFilters.dateRange,
-              onChange: (value) => updateDraft('dateRange', value as EventDateRange),
-              options: dateRangeOptions.map((option) => ({
-                value: option,
-                label: t(`events.dateRanges.${option}`),
-              })),
-            },
-            {
-              type: 'date',
-              key: 'startDate',
-              label: t('events.filters.startDate'),
-              value: draftFilters.startDate,
-              disabled: draftFilters.dateRange !== 'custom',
-              onChange: (value) => updateDraft('startDate', value),
-            },
-            {
-              type: 'date',
-              key: 'endDate',
-              label: t('events.filters.endDate'),
-              value: draftFilters.endDate,
-              disabled: draftFilters.dateRange !== 'custom',
-              onChange: (value) => updateDraft('endDate', value),
-            },
-            {
-              type: 'select',
-              key: 'sortBy',
-              label: t('events.filters.sortBy'),
-              value: draftFilters.sortBy,
-              onChange: (value) => updateDraft('sortBy', value as EventSortBy),
-              options: sortByOptions.map((option) => ({
-                value: option,
-                label: t(`events.sortBy.${option}`),
-              })),
-            },
-            {
-              type: 'select',
-              key: 'sortOrder',
-              label: t('events.filters.sortOrder'),
-              value: draftFilters.sortOrder,
-              onChange: (value) =>
-                updateDraft('sortOrder', value as EventSortOrder),
-              options: sortOrderOptions.map((option) => ({
-                value: option,
-                label: t(`events.sortOrder.${option}`),
-              })),
-            },
-            {
-              type: 'multi-pills',
-              key: 'statuses',
-              label: t('events.filters.status'),
-              values: draftFilters.statuses,
-              onToggle: (value) => toggleStatus(value as EventStatus),
-              options: statusOptions.map((option) => ({
-                value: option,
-                label: t(`events.status.${option}`),
-              })),
-            },
-          ]}
-        />
-
         <section className={styles.resultsPanel}>
+          <div className={styles.resultsToolbar}>
+            <SearchFilterBar
+              searchValue={draftFilters.searchTerm}
+              onSearchChange={(value) => updateDraft('searchTerm', value)}
+              searchPlaceholder={t('events.filters.searchPlaceholder')}
+              searchLabel={t('events.filters.search')}
+              applyLabel={t('events.filters.apply')}
+              resetLabel={t('events.filters.reset')}
+              onApply={() => applyFilters()}
+              onReset={resetFilters}
+              compact
+              embedded
+              collapsible
+              fields={[
+                {
+                  type: 'select',
+                  key: 'dateRange',
+                  label: t('events.filters.dateRange'),
+                  value: draftFilters.dateRange,
+                  onChange: (value) => updateDraft('dateRange', value as EventDateRange),
+                  options: dateRangeOptions.map((option) => ({
+                    value: option,
+                    label: t(`events.dateRanges.${option}`),
+                  })),
+                },
+                {
+                  type: 'date',
+                  key: 'startDate',
+                  label: t('events.filters.startDate'),
+                  value: draftFilters.startDate,
+                  disabled: draftFilters.dateRange !== 'custom',
+                  onChange: (value) => updateDraft('startDate', value),
+                },
+                {
+                  type: 'date',
+                  key: 'endDate',
+                  label: t('events.filters.endDate'),
+                  value: draftFilters.endDate,
+                  disabled: draftFilters.dateRange !== 'custom',
+                  onChange: (value) => updateDraft('endDate', value),
+                },
+                {
+                  type: 'select',
+                  key: 'sortBy',
+                  label: t('events.filters.sortBy'),
+                  value: draftFilters.sortBy,
+                  onChange: (value) => updateDraft('sortBy', value as EventSortBy),
+                  options: sortByOptions.map((option) => ({
+                    value: option,
+                    label: t(`events.sortBy.${option}`),
+                  })),
+                },
+                {
+                  type: 'select',
+                  key: 'sortOrder',
+                  label: t('events.filters.sortOrder'),
+                  value: draftFilters.sortOrder,
+                  onChange: (value) =>
+                    updateDraft('sortOrder', value as EventSortOrder),
+                  options: sortOrderOptions.map((option) => ({
+                    value: option,
+                    label: t(`events.sortOrder.${option}`),
+                  })),
+                },
+                {
+                  type: 'multi-pills',
+                  key: 'statuses',
+                  label: t('events.filters.status'),
+                  values: draftFilters.statuses,
+                  onToggle: (value) => toggleStatus(value as EventStatus),
+                  options: statusOptions.map((option) => ({
+                    value: option,
+                    label: t(`events.status.${option}`),
+                  })),
+                },
+              ]}
+            />
+          </div>
           {totalItems > 0 && (
             <div className={styles.resultsHeader}>
               <span className={styles.resultsLabel}>

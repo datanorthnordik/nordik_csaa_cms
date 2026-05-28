@@ -1,19 +1,15 @@
 .page {
   display: grid;
-  gap: 24px;
+  gap: var(--cms-page-gap);
 }
 
 .header {
-  position: sticky;
-  top: 64px;
-  z-index: 10;
-  background: var(--color-surface);
   display: flex;
   justify-content: space-between;
-  gap: 20px;
+  gap: var(--cms-page-header-gap);
   align-items: flex-end;
   flex-wrap: wrap;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.25rem;
 }
 
 .headerText h1 {
@@ -24,7 +20,7 @@
 }
 
 .headerText p {
-  margin: 8px 0 0;
+  margin: var(--cms-page-subtitle-gap) 0 0;
   color: var(--color-text-muted);
 }
 
@@ -45,14 +41,14 @@
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
-  gap: 24px;
+  gap: var(--cms-page-layout-gap);
   align-items: start;
 }
 
 .mainColumn,
 .sideColumn {
   display: grid;
-  gap: 20px;
+  gap: var(--cms-page-gap);
   min-width: 0;
 }
 

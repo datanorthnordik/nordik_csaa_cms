@@ -1,28 +1,23 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  height: calc(100svh - 112px);
+  gap: 12px;
+  height: calc(100svh - 104px);
   overflow: hidden;
 }
 
 .pageHeader {
-  position: sticky;
-  top: 64px;
-  z-index: 10;
-  background: var(--color-surface);
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  gap: 24px;
+  align-items: flex-start;
+  gap: 12px;
   flex-wrap: wrap;
-  padding-bottom: 0.75rem;
-  margin-bottom: -0.75rem;
+  padding-bottom: 0.25rem;
 }
 
 .title {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   font-weight: 700;
   line-height: 1.2;
   color: var(--color-text);
@@ -36,9 +31,9 @@
   border-radius: var(--radius-md);
   background: var(--color-primary);
   color: var(--color-on-primary);
-  padding: 0.65rem 1rem;
+  padding: 0.58rem 0.9rem;
   font: inherit;
-  font-size: 0.875rem;
+  font-size: 0.84rem;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.15s ease;
@@ -50,8 +45,8 @@
 
 .searchRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 220px;
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) 190px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
@@ -59,12 +54,13 @@
 .typeFilter {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 14px;
-  border: 1px solid var(--color-border-input);
+  gap: 8px;
+  padding: 0 12px;
+  border: 1px solid #c4c7cf;
   border-radius: var(--radius-md);
   background: var(--color-surface);
-  min-height: 50px;
+  box-shadow: inset 0 0 0 1px rgba(31, 31, 35, 0.02);
+  min-height: 42px;
 }
 
 .searchField input,
@@ -74,6 +70,7 @@
   background: transparent;
   color: var(--color-text);
   font: inherit;
+  font-size: 0.95rem;
 }
 
 .searchField input:focus,
@@ -91,6 +88,11 @@
   color: var(--color-text-placeholder);
 }
 
+.typeFilter select {
+  appearance: none;
+  cursor: pointer;
+}
+
 .searchIcon,
 .filterIcon {
   color: var(--color-text-muted);
@@ -100,18 +102,20 @@
 .categoryGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
 .categoryCard {
   display: grid;
-  gap: 12px;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 10px;
+  row-gap: 0;
   text-align: left;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: var(--color-surface);
-  padding: 18px 16px;
+  padding: 12px;
   cursor: pointer;
   transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
 }
@@ -129,8 +133,8 @@
 }
 
 .categoryIcon {
-  width: 42px;
-  height: 42px;
+  width: 34px;
+  height: 34px;
   border-radius: var(--radius-md);
   display: inline-flex;
   align-items: center;
@@ -140,57 +144,34 @@
 }
 
 .categoryTitle {
+  align-self: center;
   font-weight: 700;
+  font-size: 0.95rem;
   color: var(--color-text);
+  white-space: nowrap;
 }
 
 .categoryMeta {
-  font-size: 13px;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--color-text-muted);
 }
 
 .resultsPanel {
   flex: 1;
   min-height: 0;
-  overflow-y: auto;
+  overflow: hidden;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
   background: var(--color-surface);
-  padding: 20px;
-  display: grid;
-  gap: 20px;
-  align-content: start;
-}
-
-.resultsHeader {
+  padding: 10px 12px 8px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.resultsHeader h2 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.viewAllButton {
-  border: none;
-  background: transparent;
-  color: var(--color-primary);
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-}
-
-.viewAllButton:hover {
-  text-decoration: underline;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .errorBox {
-  padding: 16px;
+  padding: 12px;
   border: 1px solid var(--color-error-border);
   border-radius: var(--radius-md);
   background: var(--color-error-bg);
@@ -202,83 +183,88 @@
 }
 
 .loadingWrap {
-  min-height: 280px;
+  min-height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 16px;
 }
 
 .tableWrap {
-  overflow-x: auto;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 760px;
+  min-width: 700px;
 }
 
 .table th,
 .table td {
-  padding: 16px 14px;
+  padding: 8px 12px;
   text-align: left;
   border-top: 1px solid var(--color-border);
   vertical-align: middle;
 }
 
 .table th {
-  font-size: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-surface);
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
+.table thead th {
+  border-top: none;
+}
+
 .nameCell {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-width: 220px;
+  gap: 8px;
+  min-width: 180px;
 }
 
 .fileBadge {
-  min-width: 38px;
-  height: 38px;
+  min-width: 32px;
+  height: 32px;
   border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   background: var(--color-surface-alt);
   color: var(--color-primary);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.08em;
 }
 
 .nameStack {
   display: grid;
-  gap: 3px;
 }
 
 .fileTitle {
   font-weight: 600;
+  font-size: 0.94rem;
   color: var(--color-text);
-}
-
-.fileSubline {
-  font-size: 12px;
-  color: var(--color-text-muted);
 }
 
 .categoryPill {
   display: inline-flex;
   align-items: center;
-  min-height: 24px;
-  padding: 0 10px;
+  min-height: 22px;
+  padding: 0 8px;
   border-radius: 999px;
   background: var(--color-primary-tint);
   color: var(--color-primary);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -286,12 +272,12 @@
 
 .actionsCell {
   display: inline-flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .iconButton {
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
@@ -324,23 +310,25 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
   flex-wrap: wrap;
+  padding-top: 4px;
+  border-top: 1px solid var(--color-border);
 }
 
 .footerInfo {
-  font-size: 14px;
+  font-size: 12px;
   color: var(--color-text-muted);
 }
 
 .pager {
   display: inline-flex;
-  gap: 8px;
+  gap: 4px;
 }
 
 .pagerButton {
-  width: 38px;
-  height: 38px;
+  width: 28px;
+  height: 28px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   background: var(--color-surface);
@@ -362,7 +350,7 @@
 }
 
 .emptyState {
-  padding: 48px 24px;
+  padding: 32px 16px;
   text-align: center;
   color: var(--color-text-muted);
 }

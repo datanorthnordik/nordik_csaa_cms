@@ -1,11 +1,11 @@
 .page {
   display: grid;
-  gap: 20px;
+  gap: var(--cms-page-gap);
 }
 
 .layout {
   display: flex;
-  gap: 24px;
+  gap: var(--cms-page-layout-gap);
   align-items: flex-start;
 }
 
@@ -13,12 +13,12 @@
   flex: 1;
   min-width: 0;
   display: grid;
-  gap: 20px;
+  gap: var(--cms-page-gap);
 }
 
 .galleryHeader {
   display: grid;
-  gap: 12px;
+  gap: 8px;
 }
 
 .headerTop {

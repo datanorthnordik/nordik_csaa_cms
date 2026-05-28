@@ -1,12 +1,12 @@
 .page {
   display: grid;
-  gap: 24px;
+  gap: var(--cms-page-gap);
 }
 
 .header {
   display: flex;
   justify-content: space-between;
-  gap: 20px;
+  gap: var(--cms-page-header-gap);
   align-items: flex-end;
   flex-wrap: wrap;
 }
@@ -19,7 +19,7 @@
 }
 
 .headerText p {
-  margin: 8px 0 0;
+  margin: var(--cms-page-subtitle-gap) 0 0;
   color: var(--color-text-muted);
 }
 
@@ -46,14 +46,14 @@
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.9fr);
-  gap: 24px;
+  gap: var(--cms-page-layout-gap);
   align-items: start;
 }
 
 .mainColumn,
 .sideColumn {
   display: grid;
-  gap: 20px;
+  gap: var(--cms-page-gap);
   min-width: 0;
 }
 

@@ -1,6 +1,6 @@
 .page {
   display: grid;
-  gap: 1.5rem;
+  gap: var(--cms-page-gap);
 }
 
 .loaderWrap,

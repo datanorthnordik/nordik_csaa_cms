@@ -46,6 +46,7 @@ export type SearchFilterBarProps = {
   applyLabel?: string
   resetLabel?: string
   compact?: boolean
+  embedded?: boolean
   collapsible?: boolean
   className?: string
 }
@@ -61,6 +62,7 @@ export function SearchFilterBar({
   applyLabel,
   resetLabel,
   compact = false,
+  embedded = false,
   collapsible = false,
   className,
 }: SearchFilterBarProps) {
@@ -132,7 +134,12 @@ export function SearchFilterBar({
     })
   }
 
-  const classNames = [styles.panel, compact ? styles.compact : '', className]
+  const classNames = [
+    styles.panel,
+    compact ? styles.compact : '',
+    embedded ? styles.embedded : '',
+    className,
+  ]
     .filter(Boolean)
     .join(' ')
 

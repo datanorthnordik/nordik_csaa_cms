@@ -1,23 +1,18 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  height: calc(100svh - 112px);
+  gap: var(--cms-page-gap);
+  height: calc(100svh - var(--cms-page-viewport-offset));
   overflow: hidden;
 }
 
 .pageHeader {
-  position: sticky;
-  top: 64px;
-  z-index: 10;
-  background: var(--color-surface);
   display: flex;
   justify-content: space-between;
-  gap: 24px;
+  gap: var(--cms-page-header-gap);
   align-items: flex-end;
   flex-wrap: wrap;
-  padding-bottom: 0.75rem;
-  margin-bottom: -0.75rem;
+  padding-bottom: 0.25rem;
 }
 
 .title {
@@ -29,7 +24,7 @@
 }
 
 .subtitle {
-  margin: 6px 0 0;
+  margin: var(--cms-page-subtitle-gap) 0 0;
   color: var(--color-text-muted);
   font-size: 0.875rem;
   max-width: 60ch;
@@ -66,6 +61,11 @@
   display: grid;
   gap: 20px;
   align-content: start;
+}
+
+.resultsToolbar {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .errorBox {
@@ -217,13 +217,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .footerInfo {
   color: var(--color-text-muted);
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .emptyState {
