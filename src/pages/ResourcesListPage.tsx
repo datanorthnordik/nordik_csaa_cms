@@ -240,9 +240,9 @@ export function ResourcesListPage() {
                 <span className={styles.categoryIcon}>
                   <CategoryGlyph category={category.id} />
                 </span>
-                <span className={styles.categoryTitle}>{category.label}</span>
-                <span className={styles.categoryMeta}>
-                  {t('resources.list.assetCount', { count })}
+                <span className={styles.categoryTitle}>
+                  {category.label}
+                  <span className={styles.categoryMeta}> ({count})</span>
                 </span>
               </button>
             )
@@ -250,17 +250,6 @@ export function ResourcesListPage() {
         </div>
 
         <section className={styles.resultsPanel}>
-          <div className={styles.resultsHeader}>
-            <h2>{t('resources.list.recentFiles')}</h2>
-            <button
-              type="button"
-              className={styles.viewAllButton}
-              onClick={() => updateFilters({ category: '', page: 1 })}
-            >
-              {t('resources.list.viewAll')}
-            </button>
-          </div>
-
           {error && (
             <div className={styles.errorBox}>
               <p>{error}</p>
@@ -300,10 +289,6 @@ export function ResourcesListPage() {
                               </span>
                               <div className={styles.nameStack}>
                                 <span className={styles.fileTitle}>{item.name}</span>
-                                <span className={styles.fileSubline}>{item.description}</span>
-                                <span className={styles.fileSubline}>
-                                  {linkResource ? item.linkUrl : item.fileName}
-                                </span>
                               </div>
                             </div>
                           </td>

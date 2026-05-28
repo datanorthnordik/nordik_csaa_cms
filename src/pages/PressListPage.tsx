@@ -129,7 +129,6 @@ export function PressListPage() {
     }
   }, [])
 
-  // Fetch data when filters or page changes
   useEffect(() => {
     const apiFilters = {
       status: filters.status !== 'all' ? filters.status : undefined,
@@ -220,17 +219,19 @@ export function PressListPage() {
           </button>
         </div>
 
-        <SearchFilterBar
-          searchValue={filters.searchTerm}
-          onSearchChange={(value) => updateFilter('searchTerm', value)}
-          searchPlaceholder={t('press.filters.searchPlaceholder')}
-          searchLabel={t('press.filters.search')}
-          fields={fields}
-          compact
-          collapsible
-        />
-
         <section className={styles.resultsPanel}>
+          <div className={styles.resultsToolbar}>
+            <SearchFilterBar
+              searchValue={filters.searchTerm}
+              onSearchChange={(value) => updateFilter('searchTerm', value)}
+              searchPlaceholder={t('press.filters.searchPlaceholder')}
+              searchLabel={t('press.filters.search')}
+              fields={fields}
+              compact
+              embedded
+              collapsible
+            />
+          </div>
           {error && (
             <div className={styles.errorBox}>
               <p>{error}</p>

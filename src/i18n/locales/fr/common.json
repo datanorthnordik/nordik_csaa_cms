@@ -1304,7 +1304,7 @@
       "sections": {
         "details": "Details de la ressource",
         "document": "Document",
-        "documentLimit": "20 Mo max / fichier"
+        "documentLimit": "{{maxSizeMb}} Mo max / fichier"
       },
       "fields": {
         "name": "Nom de la ressource",
@@ -1317,7 +1317,7 @@
       },
       "document": {
         "dropLabel": "Glissez-deposez les fichiers ici",
-        "dropHint": "Prend en charge PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG et WEBP jusqu a 20 Mo",
+        "dropHint": "Prend en charge PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG et WEBP jusqu a {{maxSizeMb}} Mo",
         "preview": "Apercu",
         "download": "Telecharger",
         "removeSelected": "Retirer le fichier selectionne",
@@ -1343,7 +1343,9 @@
         "summary": "Veuillez corriger les champs en rouge.",
         "nameRequired": "Le nom de la ressource est obligatoire.",
         "categoryRequired": "La categorie est obligatoire.",
-        "fileRequired": "Veuillez televerser un document avant d enregistrer."
+        "fileRequired": "Veuillez televerser un document avant d enregistrer.",
+        "fileTooLarge": "Ce fichier depasse la limite de {{maxSizeMb}} Mo.",
+        "fileUnsupported": "Seuls les fichiers PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG et WEBP sont pris en charge."
       }
     }
   }

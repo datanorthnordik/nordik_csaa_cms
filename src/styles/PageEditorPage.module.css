@@ -1,14 +1,14 @@
 .page {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--cms-page-gap);
 }
 
 .header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
+  gap: var(--cms-page-header-gap);
 }
 
 .title {
@@ -19,7 +19,7 @@
 }
 
 .subtitle {
-  margin: 0.4rem 0 0;
+  margin: var(--cms-page-subtitle-gap) 0 0;
   color: var(--color-text-muted);
 }
 

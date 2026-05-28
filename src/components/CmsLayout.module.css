@@ -15,11 +15,11 @@
   flex: 1;
   min-width: 0;
   background: var(--color-surface);
-  padding: 24px 32px;
+  padding: var(--cms-page-main-padding-y) var(--cms-page-main-padding-x);
 }
 
 @media (max-width: 768px) {
   .main {
-    padding: 16px;
+    padding: 14px 16px;
   }
 }

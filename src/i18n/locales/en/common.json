@@ -1307,7 +1307,7 @@
       "sections": {
         "details": "Resource Details",
         "document": "Resource Document",
-        "documentLimit": "Max 20MB / file"
+        "documentLimit": "Max {{maxSizeMb}}MB / file"
       },
       "fields": {
         "name": "Resource name",
@@ -1320,7 +1320,7 @@
       },
       "document": {
         "dropLabel": "Drag and drop files here",
-        "dropHint": "Supports PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP up to 20MB",
+        "dropHint": "Supports PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP up to {{maxSizeMb}}MB",
         "preview": "Preview",
         "download": "Download",
         "removeSelected": "Remove selected file",
@@ -1346,7 +1346,9 @@
         "summary": "Please correct the highlighted fields.",
         "nameRequired": "Resource name is required.",
         "categoryRequired": "Category is required.",
-        "fileRequired": "Please upload a document before saving."
+        "fileRequired": "Please upload a document before saving.",
+        "fileTooLarge": "This file exceeds the {{maxSizeMb}}MB limit.",
+        "fileUnsupported": "Only PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP are supported."
       }
     }
   }

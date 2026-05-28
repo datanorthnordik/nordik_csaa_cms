@@ -9,6 +9,11 @@ import { Loader } from '../components/Loader'
 import { UploadDropzone } from '../components/media/UploadDropzone'
 import { useResources } from '../hooks/useResources'
 import {
+  RESOURCE_FILE_ACCEPT,
+  RESOURCE_UPLOAD_MAX_FILE_SIZE_MB,
+  validateResourceUploadFile,
+} from '../lib/resourceUpload'
+import {
   resourceCategoryOptions,
   type ResourceCategory,
   type ResourceEntry,
@@ -16,29 +21,6 @@ import {
   type ResourceFormState,
 } from '../lib/resourceTypes'
 import styles from '../styles/ResourceEditorPage.module.css'
-
-const RESOURCE_FILE_ACCEPT = [
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.ms-powerpoint',
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-  'image/*',
-  '.pdf',
-  '.doc',
-  '.docx',
-  '.xls',
-  '.xlsx',
-  '.ppt',
-  '.pptx',
-  '.svg',
-  '.png',
-  '.jpg',
-  '.jpeg',
-  '.webp',
-].join(',')
 
 type ResourceEditorPageProps = {
   mode?: 'create' | 'edit'
@@ -186,10 +168,13 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
       setSelectedFile(null)
     }
 
-    if (errors[key]) {
+    if (errors[key] || (key === 'category' && errors.file)) {
       setErrors((current) => {
         const next = { ...current }
         delete next[key]
+        if (key === 'category') {
+          delete next.file
+        }
         return next
       })
     }
@@ -233,10 +218,18 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
           defaultValue: 'External link is allowed only for the Link category',
         })
       }
+      if (selectedFile) {
+        const fileError = getResourceUploadValidationMessage(selectedFile, t)
+        if (fileError) {
+          nextErrors.file = fileError
+        }
+      }
       if (!selectedFile && !hasExistingDocument) {
-        nextErrors.file = t('resources.editor.validation.fileRequired', {
-          defaultValue: 'At least one document is required for this category',
-        })
+        nextErrors.file =
+          errors.file ||
+          t('resources.editor.validation.fileRequired', {
+            defaultValue: 'At least one document is required for this category',
+          })
       }
     }
 
@@ -313,9 +306,11 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
 
   function handleFileSelect(files: File[]) {
     if (isLinkCategory) {
-      toast.error(t('resources.editor.validation.fileNotAllowedForLink', {
+      const message = t('resources.editor.validation.fileNotAllowedForLink', {
         defaultValue: 'Document upload is not allowed for link resources',
-      }))
+      })
+      setErrors((current) => ({ ...current, file: message }))
+      toast.error(message)
       return
     }
 
@@ -323,6 +318,14 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
     if (!file) {
       return
     }
+
+    const validationMessage = getResourceUploadValidationMessage(file, t)
+    if (validationMessage) {
+      setErrors((current) => ({ ...current, file: validationMessage }))
+      toast.error(validationMessage)
+      return
+    }
+
     setSelectedFile(file)
     if (errors.file) {
       setErrors((current) => {
@@ -575,7 +578,11 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
               <section className={styles.card}>
                 <div className={styles.cardHeader}>
                   <h2>{t('resources.editor.sections.document')}</h2>
-                  <span>{t('resources.editor.sections.documentLimit')}</span>
+                  <span>
+                    {t('resources.editor.sections.documentLimit', {
+                      maxSizeMb: RESOURCE_UPLOAD_MAX_FILE_SIZE_MB,
+                    })}
+                  </span>
                 </div>
 
                 <div className={styles.mediaSection}>
@@ -583,7 +590,9 @@ export function ResourceEditorPage({ mode = 'create' }: ResourceEditorPageProps)
                     accept={RESOURCE_FILE_ACCEPT}
                     icon={<UploadCloudIcon />}
                     label={t('resources.editor.document.dropLabel')}
-                    hint={t('resources.editor.document.dropHint')}
+                    hint={t('resources.editor.document.dropHint', {
+                      maxSizeMb: RESOURCE_UPLOAD_MAX_FILE_SIZE_MB,
+                    })}
                     onFiles={handleFileSelect}
                   />
                   {errors.file && <p className={styles.fieldError}>{errors.file}</p>}
@@ -776,6 +785,24 @@ function buildDocumentMeta({
   ].filter(Boolean)
 
   return parts.join(' | ')
+}
+
+function getResourceUploadValidationMessage(
+  file: Pick<File, 'name' | 'size' | 'type'>,
+  t: (key: string, options?: Record<string, unknown>) => string,
+) {
+  const validationError = validateResourceUploadFile(file)
+  if (!validationError) {
+    return null
+  }
+
+  if (validationError === 'file-too-large') {
+    return t('resources.editor.validation.fileTooLarge', {
+      maxSizeMb: RESOURCE_UPLOAD_MAX_FILE_SIZE_MB,
+    })
+  }
+
+  return t('resources.editor.validation.fileUnsupported')
 }
 
 function formatFileSize(size: number) {

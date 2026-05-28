@@ -60,6 +60,15 @@
   --radius-lg: 16px;
   --radius-pill: 999px;
 
+  /* CMS page spacing */
+  --cms-page-main-padding-y: 16px;
+  --cms-page-main-padding-x: 24px;
+  --cms-page-viewport-offset: 104px;
+  --cms-page-gap: 10px;
+  --cms-page-header-gap: 12px;
+  --cms-page-layout-gap: 20px;
+  --cms-page-subtitle-gap: 2px;
+
   --sans: 'Poppins', sans-serif;
 
   font: 16px/1.5 var(--sans);
