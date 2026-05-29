@@ -70,6 +70,87 @@ type EventEditorPageProps = {
   mode?: 'edit' | 'view'
 }
 
+type EventTouchedFields = Partial<Record<string, boolean>>
+
+function getUniqueErrorMessages(errors: EventFormErrors) {
+  return Array.from(new Set(Object.values(errors).filter(Boolean)))
+}
+
+function filterVisibleEventErrors(
+  errors: EventFormErrors,
+  touchedFields: EventTouchedFields,
+  showAllErrors: boolean,
+) {
+  if (showAllErrors) {
+    return errors
+  }
+
+  const visibleErrors: EventFormErrors = {}
+
+  for (const [key, message] of Object.entries(errors)) {
+    if (message && shouldShowEventError(key, touchedFields)) {
+      visibleErrors[key] = message
+    }
+  }
+
+  return visibleErrors
+}
+
+function shouldShowEventError(key: string, touchedFields: EventTouchedFields) {
+  if (touchedFields[key]) {
+    return true
+  }
+
+  if (key.startsWith('scheduledOccurrences.')) {
+    return Boolean(
+      touchedFields.repeatEnabled ||
+        touchedFields.recurrenceType ||
+        touchedFields.scheduledOccurrences,
+    )
+  }
+
+  switch (key) {
+    case 'startTime':
+    case 'endTime':
+    case 'endDate':
+      return Boolean(touchedFields.eventType)
+    case 'privateAudiences':
+      return Boolean(
+        touchedFields.privacyType ||
+          touchedFields.audienceMembers ||
+          touchedFields.audiencePublic,
+      )
+    case 'reviewEmailsText':
+      return Boolean(touchedFields.requestReview || touchedFields.reviewEmailsText)
+    case 'selectedLocationId':
+    case 'locationName':
+    case 'addressLine1':
+    case 'city':
+    case 'provinceState':
+    case 'postalCode':
+    case 'country':
+      return Boolean(touchedFields.locationChoice)
+    case 'registrationStartDate':
+    case 'registrationStartTime':
+    case 'registrationEndDate':
+    case 'registrationEndTime':
+    case 'registrationUrl':
+      return Boolean(touchedFields.registrationEnabled)
+    case 'recurrenceType':
+      return Boolean(touchedFields.repeatEnabled || touchedFields.recurrenceType)
+    case 'recurrenceFrequency':
+    case 'recurrenceInterval':
+    case 'scheduledOccurrences':
+      return Boolean(
+        touchedFields.repeatEnabled ||
+          touchedFields.recurrenceType ||
+          touchedFields.scheduledOccurrences,
+      )
+    default:
+      return false
+  }
+}
+
 export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
@@ -89,6 +170,8 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
   const isInvalidEditId = params.id !== undefined && !isEditMode
   const [form, setForm] = useState<EventFormState>(createDefaultEventFormState())
   const [errors, setErrors] = useState<EventFormErrors>({})
+  const [touchedFields, setTouchedFields] = useState<EventTouchedFields>({})
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false)
   const [displayImagePreviewUrl, setDisplayImagePreviewUrl] = useState<string | null>(null)
   const [attachmentPreviewUrls, setAttachmentPreviewUrls] = useState<string[]>([])
   const [existingMediaObjectUrls, setExistingMediaObjectUrls] = useState<
@@ -108,14 +191,30 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
 
     dispatch(clearCurrentEvent())
     setForm(createDefaultEventFormState())
+    setTouchedFields({})
+    setHasAttemptedSubmit(false)
   }, [dispatch, isEditMode, parsedEventId])
 
   useEffect(() => {
     if (isEditMode && currentEvent) {
       setForm(buildEventFormStateFromDetail(currentEvent))
+      setTouchedFields({})
+      setHasAttemptedSubmit(false)
       setErrors({})
     }
   }, [currentEvent, isEditMode])
+
+  useEffect(() => {
+    if (isViewMode) {
+      setErrors({})
+      return
+    }
+
+    const validationErrors = validateEventForm(form, t)
+    setErrors(
+      filterVisibleEventErrors(validationErrors, touchedFields, hasAttemptedSubmit),
+    )
+  }, [form, hasAttemptedSubmit, isViewMode, t, touchedFields])
 
   useEffect(() => {
     return () => {
@@ -215,10 +314,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
     form.existingDisplayImage,
     existingMediaObjectUrls,
   )
-  const errorMessages = useMemo(
-    () => Array.from(new Set(Object.values(errors).filter(Boolean))),
-    [errors],
-  )
+  const errorMessages = useMemo(() => getUniqueErrorMessages(errors), [errors])
   const breadcrumbItems = useMemo(
     () => [
       { label: t('events.breadcrumb.events'), to: '/events' },
@@ -233,11 +329,11 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
     [isEditMode, isViewMode, t],
   )
 
-  function clearErrors(...keys: string[]) {
-    setErrors((current) => {
+  function touchFields(...keys: string[]) {
+    setTouchedFields((current) => {
       const next = { ...current }
       for (const key of keys) {
-        delete next[key]
+        next[key] = true
       }
       return next
     })
@@ -246,12 +342,17 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
   function updateField<K extends keyof EventFormState>(
     key: K,
     value: EventFormState[K],
+    options: { touch?: boolean; touchKeys?: string[] } = {},
   ) {
+    const { touch = true, touchKeys = [String(key)] } = options
+    if (touch) {
+      touchFields(...touchKeys)
+    }
+
     setForm((current) => ({
       ...current,
       [key]: value,
     }))
-    clearErrors(String(key))
   }
 
   function handleEventTypeChange(eventType: EventType) {
@@ -278,7 +379,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
       return next
     })
 
-    clearErrors('startTime', 'endTime', 'endDate', 'scheduledOccurrences')
+    touchFields('eventType')
   }
 
   function handleRepeatEnabledChange(checked: boolean) {
@@ -307,7 +408,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
             : current.scheduledOccurrences,
       }
     })
-    clearErrors('recurrenceType', 'scheduledOccurrences')
+    touchFields('repeatEnabled')
   }
 
   function handleRecurrenceTypeChange(value: 'scheduled' | 'recurring') {
@@ -322,7 +423,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
             : [createOccurrenceFromMain(current)]
           : [],
     }))
-    clearErrors('recurrenceType', 'scheduledOccurrences', 'recurrenceFrequency')
+    touchFields('recurrenceType')
   }
 
   function handleOccurrenceChange(
@@ -330,6 +431,13 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
     key: keyof EventOccurrenceForm,
     value: string,
   ) {
+    const occurrenceIndex = form.scheduledOccurrences.findIndex(
+      (occurrence) => occurrence.id === occurrenceId,
+    )
+    if (occurrenceIndex >= 0) {
+      touchFields(`scheduledOccurrences.${occurrenceIndex}.${String(key)}`)
+    }
+
     setForm((current) => ({
       ...current,
       scheduledOccurrences: current.scheduledOccurrences.map((occurrence) =>
@@ -351,10 +459,11 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
         createOccurrenceFromMain(current),
       ],
     }))
-    clearErrors('scheduledOccurrences')
+    touchFields('scheduledOccurrences')
   }
 
   function removeOccurrence(occurrenceId: string) {
+    touchFields('scheduledOccurrences')
     setForm((current) => ({
       ...current,
       scheduledOccurrences: current.scheduledOccurrences.filter(
@@ -364,7 +473,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
   }
 
   function handleDisplayImageChange(fileList: FileList | null) {
-    updateField('displayImageFile', fileList?.[0] ?? null)
+    updateField('displayImageFile', fileList?.[0] ?? null, { touch: false })
   }
 
   function handleAttachmentsChange(fileList: FileList | null) {
@@ -465,11 +574,13 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
 
     const validationErrors = validateEventForm(submissionState, t)
     if (Object.keys(validationErrors).length > 0) {
+      setHasAttemptedSubmit(true)
       setErrors(validationErrors)
       toast.error(t('events.feedback.validation'))
       return
     }
 
+    setHasAttemptedSubmit(false)
     setErrors({})
 
     try {
@@ -578,7 +689,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
           </button>
         </div>
 
-        {!isViewMode && errorMessages.length > 0 && (
+        {!isViewMode && hasAttemptedSubmit && errorMessages.length > 0 && (
           <div className={styles.errorSummary} role="alert">
             <p className={styles.errorSummaryTitle}>{t('events.feedback.validation')}</p>
             <ul>
@@ -611,6 +722,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                     type="text"
                     value={form.title}
                     onChange={(event) => updateField('title', event.target.value)}
+                    onBlur={() => touchFields('title')}
                   />
                   <FieldError message={errors.title} />
                 </label>
@@ -634,6 +746,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                     value={form.categoriesText}
                     placeholder={t('events.fields.categoriesPlaceholder')}
                     onChange={(event) => updateField('categoriesText', event.target.value)}
+                    onBlur={() => touchFields('categoriesText')}
                   />
                   <FieldError message={errors.categoriesText} />
                 </label>
@@ -651,12 +764,14 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                   label={t('events.fields.contactName')}
                   value={form.contactName}
                   onChange={(value) => updateField('contactName', value)}
+                  onBlur={() => touchFields('contactName')}
                 />
                 <LabeledInput
                   label={t('events.fields.contactEmail')}
                   type="email"
                   value={form.contactEmail}
                   onChange={(value) => updateField('contactEmail', value)}
+                  onBlur={() => touchFields('contactEmail')}
                   error={errors.contactEmail}
                 />
                 <LabeledInput
@@ -665,6 +780,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                   inputMode="tel"
                   value={form.contactPhone}
                   onChange={(value) => updateField('contactPhone', value)}
+                  onBlur={() => touchFields('contactPhone')}
                   error={errors.contactPhone}
                 />
                 <LabeledInput
@@ -673,6 +789,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                   maxLength={6}
                   value={form.contactExt}
                   onChange={(value) => updateField('contactExt', value)}
+                  onBlur={() => touchFields('contactExt')}
                   error={errors.contactExt}
                 />
                 <LabeledInput
@@ -681,6 +798,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                   inputMode="tel"
                   value={form.contactFax}
                   onChange={(value) => updateField('contactFax', value)}
+                  onBlur={() => touchFields('contactFax')}
                   error={errors.contactFax}
                 />
               </div>
@@ -720,6 +838,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                   <DateInput
                     value={form.startDate}
                     onChange={(value) => updateField('startDate', value)}
+                    onBlur={() => touchFields('startDate')}
                   />
                   <FieldError message={errors.startDate} />
                 </label>
@@ -730,6 +849,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                     <DateInput
                       value={form.endDate}
                       onChange={(value) => updateField('endDate', value)}
+                      onBlur={() => touchFields('endDate')}
                     />
                     <FieldError message={errors.endDate} />
                   </label>
@@ -742,6 +862,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                       type="time"
                       value={form.startTime}
                       onChange={(event) => updateField('startTime', event.target.value)}
+                      onBlur={() => touchFields('startTime')}
                     />
                     <FieldError message={errors.startTime} />
                   </label>
@@ -754,6 +875,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                       type="time"
                       value={form.endTime}
                       onChange={(event) => updateField('endTime', event.target.value)}
+                      onBlur={() => touchFields('endTime')}
                     />
                     <FieldError message={errors.endTime} />
                   </label>
@@ -810,6 +932,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                               event.target.value as EventFormState['recurrenceFrequency'],
                             )
                           }
+                          onBlur={() => touchFields('recurrenceFrequency')}
                         >
                           <option value="">{t('events.common.select')}</option>
                           {recurrenceFrequencyOptions.map((option) => (
@@ -830,6 +953,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                           onChange={(event) =>
                             updateField('recurrenceInterval', event.target.value)
                           }
+                          onBlur={() => touchFields('recurrenceInterval')}
                         />
                         <FieldError message={errors.recurrenceInterval} />
                       </label>
@@ -839,6 +963,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                         <DateInput
                           value={form.recurrenceUntilDate}
                           onChange={(value) => updateField('recurrenceUntilDate', value)}
+                          onBlur={() => touchFields('recurrenceUntilDate')}
                         />
                       </label>
                     </div>
@@ -887,6 +1012,9 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                               onChange={(value) =>
                                 handleOccurrenceChange(occurrence.id, 'startDate', value)
                               }
+                              onBlur={() =>
+                                touchFields(`scheduledOccurrences.${index}.startDate`)
+                              }
                               error={errors[`scheduledOccurrences.${index}.startDate`]}
                             />
 
@@ -897,6 +1025,9 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                                 value={occurrence.endDate}
                                 onChange={(value) =>
                                   handleOccurrenceChange(occurrence.id, 'endDate', value)
+                                }
+                                onBlur={() =>
+                                  touchFields(`scheduledOccurrences.${index}.endDate`)
                                 }
                                 error={errors[`scheduledOccurrences.${index}.endDate`]}
                               />
@@ -910,6 +1041,9 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                                 onChange={(value) =>
                                   handleOccurrenceChange(occurrence.id, 'startTime', value)
                                 }
+                                onBlur={() =>
+                                  touchFields(`scheduledOccurrences.${index}.startTime`)
+                                }
                                 error={errors[`scheduledOccurrences.${index}.startTime`]}
                               />
                             )}
@@ -921,6 +1055,9 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                                 value={occurrence.endTime}
                                 onChange={(value) =>
                                   handleOccurrenceChange(occurrence.id, 'endTime', value)
+                                }
+                                onBlur={() =>
+                                  touchFields(`scheduledOccurrences.${index}.endTime`)
                                 }
                                 error={errors[`scheduledOccurrences.${index}.endTime`]}
                               />
@@ -961,6 +1098,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                     <DateInput
                       value={form.registrationStartDate}
                       onChange={(value) => updateField('registrationStartDate', value)}
+                      onBlur={() => touchFields('registrationStartDate')}
                     />
                     <FieldError message={errors.registrationStartDate} />
                   </label>
@@ -972,6 +1110,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                       onChange={(event) =>
                         updateField('registrationStartTime', event.target.value)
                       }
+                      onBlur={() => touchFields('registrationStartTime')}
                     />
                     <FieldError message={errors.registrationStartTime} />
                   </label>
@@ -980,6 +1119,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                     <DateInput
                       value={form.registrationEndDate}
                       onChange={(value) => updateField('registrationEndDate', value)}
+                      onBlur={() => touchFields('registrationEndDate')}
                     />
                     <FieldError message={errors.registrationEndDate} />
                   </label>
@@ -991,6 +1131,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                       onChange={(event) =>
                         updateField('registrationEndTime', event.target.value)
                       }
+                      onBlur={() => touchFields('registrationEndTime')}
                     />
                     <FieldError message={errors.registrationEndTime} />
                   </label>
@@ -1000,6 +1141,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                       type="url"
                       value={form.registrationUrl}
                       onChange={(event) => updateField('registrationUrl', event.target.value)}
+                      onBlur={() => touchFields('registrationUrl')}
                     />
                     <FieldError message={errors.registrationUrl} />
                   </label>
@@ -1126,6 +1268,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                     rows={3}
                     value={form.teaser}
                     onChange={(event) => updateField('teaser', event.target.value)}
+                    onBlur={() => touchFields('teaser')}
                   />
                   <FieldError message={errors.teaser} />
                 </label>
@@ -1136,6 +1279,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                     rows={8}
                     value={form.descriptionHtml}
                     onChange={(event) => updateField('descriptionHtml', event.target.value)}
+                    onBlur={() => touchFields('descriptionHtml')}
                   />
                 </label>
 
@@ -1352,6 +1496,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                                   event.target.value,
                                 )
                               }
+                              onBlur={() => touchFields('reviewEmailsText')}
                             />
                             <FieldError message={errors.reviewEmailsText} />
                           </label>
@@ -1380,6 +1525,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                         event.target.value as EventFormState['locationChoice'],
                       )
                     }
+                    onBlur={() => touchFields('locationChoice')}
                   >
                     <option value="none">{t('events.locationMode.none')}</option>
                     <option value="to_be_determined">
@@ -1398,6 +1544,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                       onChange={(event) =>
                         updateField('selectedLocationId', event.target.value)
                       }
+                      onBlur={() => touchFields('selectedLocationId')}
                     >
                       <option value="">{t('events.common.select')}</option>
                       {savedLocations.map((location) => (
@@ -1416,41 +1563,48 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                       label={t('events.fields.locationName')}
                       value={form.locationName}
                       onChange={(value) => updateField('locationName', value)}
+                      onBlur={() => touchFields('locationName')}
                       error={errors.locationName}
                     />
                     <LabeledInput
                       label={t('events.fields.addressLine1')}
                       value={form.addressLine1}
                       onChange={(value) => updateField('addressLine1', value)}
+                      onBlur={() => touchFields('addressLine1')}
                       error={errors.addressLine1}
                     />
                     <LabeledInput
                       label={t('events.fields.addressLine2')}
                       value={form.addressLine2}
                       onChange={(value) => updateField('addressLine2', value)}
+                      onBlur={() => touchFields('addressLine2')}
                     />
                     <LabeledInput
                       label={t('events.fields.city')}
                       value={form.city}
                       onChange={(value) => updateField('city', value)}
+                      onBlur={() => touchFields('city')}
                       error={errors.city}
                     />
                     <LabeledInput
                       label={t('events.fields.provinceState')}
                       value={form.provinceState}
                       onChange={(value) => updateField('provinceState', value)}
+                      onBlur={() => touchFields('provinceState')}
                       error={errors.provinceState}
                     />
                     <LabeledInput
                       label={t('events.fields.postalCode')}
                       value={form.postalCode}
                       onChange={(value) => updateField('postalCode', value)}
+                      onBlur={() => touchFields('postalCode')}
                       error={errors.postalCode}
                     />
                     <LabeledInput
                       label={t('events.fields.country')}
                       value={form.country}
                       onChange={(value) => updateField('country', value)}
+                      onBlur={() => touchFields('country')}
                       error={errors.country}
                     />
 
@@ -1486,6 +1640,7 @@ type LabeledInputProps = {
   autoComplete?: string
   maxLength?: number
   error?: string
+  onBlur?: () => void
   onChange: (value: string) => void
 }
 
@@ -1497,6 +1652,7 @@ function LabeledInput({
   autoComplete,
   maxLength,
   error,
+  onBlur,
   onChange,
 }: LabeledInputProps) {
   return (
@@ -1509,6 +1665,7 @@ function LabeledInput({
         maxLength={maxLength}
         value={value}
         onChange={(event) => onChange(event.target.value)}
+        onBlur={onBlur}
       />
       <FieldError message={error} />
     </label>
@@ -1520,6 +1677,7 @@ type OccurrenceFieldProps = {
   type: 'date' | 'time'
   value: string
   error?: string
+  onBlur?: () => void
   onChange: (value: string) => void
 }
 
@@ -1528,15 +1686,21 @@ function OccurrenceField({
   type,
   value,
   error,
+  onBlur,
   onChange,
 }: OccurrenceFieldProps) {
   return (
     <label>
       <span>{label}</span>
       {type === 'date' ? (
-        <DateInput value={value} onChange={onChange} />
+        <DateInput value={value} onChange={onChange} onBlur={onBlur} />
       ) : (
-        <input type={type} value={value} onChange={(event) => onChange(event.target.value)} />
+        <input
+          type={type}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          onBlur={onBlur}
+        />
       )}
       <FieldError message={error} />
     </label>

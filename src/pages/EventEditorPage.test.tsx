@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen } from '@testing-library/react'
 import { Provider } from 'react-redux'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -6,6 +6,11 @@ import { apiClient } from '../api/apiClient'
 import i18n from '../i18n'
 import { createAppStore } from '../store/store'
 import { EventEditorPage } from './EventEditorPage'
+
+const { toastError, toastSuccess } = vi.hoisted(() => ({
+  toastError: vi.fn(),
+  toastSuccess: vi.fn(),
+}))
 
 vi.mock('../api/apiClient', () => ({
   apiClient: {
@@ -16,7 +21,15 @@ vi.mock('../api/apiClient', () => ({
   },
 }))
 
+vi.mock('react-hot-toast', () => ({
+  default: {
+    success: toastSuccess,
+    error: toastError,
+  },
+}))
+
 const mockedGet = vi.mocked(apiClient.get)
+const mockedPost = vi.mocked(apiClient.post)
 
 function renderPage(initialEntry = '/events/new') {
   const store = createAppStore()
@@ -36,6 +49,9 @@ function renderPage(initialEntry = '/events/new') {
 
 beforeEach(async () => {
   mockedGet.mockReset()
+  mockedPost.mockReset()
+  toastError.mockReset()
+  toastSuccess.mockReset()
   await i18n.changeLanguage('en')
 
   mockedGet.mockResolvedValue({ data: { items: [] } })
@@ -91,5 +107,46 @@ describe('EventEditorPage', () => {
     await screen.findByRole('navigation', { name: /breadcrumb/i })
     expect(screen.queryByRole('button', { name: /publish/i })).toBeNull()
     expect(screen.queryByRole('button', { name: /save draft/i })).toBeNull()
+  })
+
+  it('shows required validation messages inline when submit is attempted', async () => {
+    renderPage()
+    await screen.findByRole('heading', { name: /create new event/i })
+
+    fireEvent.click(screen.getByRole('button', { name: /publish/i }))
+
+    expect(mockedPost).not.toHaveBeenCalled()
+    expect(toastError).toHaveBeenCalledWith(
+      'Please fix the highlighted fields before continuing.',
+    )
+    expect((await screen.findAllByText('Title is required.')).length).toBeGreaterThan(0)
+    expect((await screen.findAllByText('At least one category is required.')).length).toBeGreaterThan(0)
+    expect((await screen.findAllByText('Start date is required.')).length).toBeGreaterThan(0)
+  })
+
+  it('shows inline errors for invalid contact email and phone values before submit', async () => {
+    renderPage()
+    await screen.findByRole('heading', { name: /create new event/i })
+
+    fireEvent.change(screen.getByLabelText(/^title$/i), {
+      target: { value: 'Spring Gathering' },
+    })
+    fireEvent.change(screen.getByLabelText(/^categories$/i), {
+      target: { value: 'Community' },
+    })
+    fireEvent.change(screen.getByLabelText(/^start date$/i), {
+      target: { value: '2026-05-07' },
+    })
+    fireEvent.change(screen.getByLabelText(/^email$/i), {
+      target: { value: 'contact@example..com' },
+    })
+    fireEvent.change(screen.getByLabelText(/^phone$/i), {
+      target: { value: '1234567' },
+    })
+
+    expect(mockedPost).not.toHaveBeenCalled()
+    expect(toastError).not.toHaveBeenCalled()
+    expect((await screen.findAllByText('Enter a valid contact email address.')).length).toBeGreaterThan(0)
+    expect((await screen.findAllByText('Enter a valid contact phone number.')).length).toBeGreaterThan(0)
   })
 })

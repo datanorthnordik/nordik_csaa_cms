@@ -3,7 +3,28 @@ const PHONE_ALLOWED_CHARS_RE = /^\+?[\d\s().-]+$/
 const EXTENSION_RE = /^\d{1,6}$/
 
 export function isValidEmail(email: string): boolean {
-  return EMAIL_RE.test(email)
+  const trimmed = email.trim()
+  if (!trimmed || !EMAIL_RE.test(trimmed) || trimmed.includes('..')) {
+    return false
+  }
+
+  const [localPart, domain] = trimmed.split('@')
+  if (!localPart || !domain) {
+    return false
+  }
+
+  if (
+    localPart.startsWith('.') ||
+    localPart.endsWith('.') ||
+    domain.startsWith('.') ||
+    domain.endsWith('.')
+  ) {
+    return false
+  }
+
+  return domain
+    .split('.')
+    .every((label) => label && !label.startsWith('-') && !label.endsWith('-'))
 }
 
 export function isValidPhoneNumber(phoneNumber: string): boolean {
@@ -13,7 +34,7 @@ export function isValidPhoneNumber(phoneNumber: string): boolean {
   }
 
   const digitsOnly = trimmed.replace(/\D/g, '')
-  return digitsOnly.length >= 7 && digitsOnly.length <= 15
+  return digitsOnly.length >= 10 && digitsOnly.length <= 15
 }
 
 export function isValidExtension(extension: string): boolean {
