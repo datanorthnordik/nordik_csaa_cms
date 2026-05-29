@@ -81,6 +81,19 @@ function uploadFile(file: File) {
   fireEvent.change(input)
 }
 
+function dropFile(file: File) {
+  const dropzone = screen.getByText('Drag and drop files here').closest('label')
+  if (!dropzone) {
+    throw new Error('Expected upload dropzone label')
+  }
+
+  fireEvent.drop(dropzone, {
+    dataTransfer: {
+      files: [file],
+    },
+  })
+}
+
 beforeEach(async () => {
   mockNavigate.mockReset()
   mockCreate.mockReset()
@@ -131,6 +144,24 @@ describe('ResourceEditorPage', () => {
       'Only PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP are supported.',
     )
     expect(screen.queryByText('clip.mp4')).toBeNull()
+  })
+
+  it('rejects unsupported files dropped onto the upload area', async () => {
+    renderPage()
+
+    dropFile(new File(['audio'], 'voice.mp3', { type: 'audio/mpeg' }))
+
+    expect(
+      (
+        await screen.findAllByText(
+          'Only PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP are supported.',
+        )
+      ).length,
+    ).toBeGreaterThan(0)
+    expect(toast.error).toHaveBeenCalledWith(
+      'Only PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP are supported.',
+    )
+    expect(screen.queryByText('voice.mp3')).toBeNull()
   })
 
   it('submits supported files within the limit', async () => {
