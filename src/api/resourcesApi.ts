@@ -1,4 +1,5 @@
 import { API_ROUTES } from '../constants/api'
+import { assertValidResourceUploadFile } from '../lib/resourceUpload'
 import {
   type ResourceCategoryCount,
   type ResourceEntry,
@@ -108,6 +109,8 @@ function buildResourceMutationBody(input: ResourceApiMutationInput, file?: File)
   if (!file) {
     return payload
   }
+
+  assertValidResourceUploadFile(file)
 
   return buildMultipartPayload(payload, [
     {
