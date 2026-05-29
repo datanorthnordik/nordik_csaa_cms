@@ -129,6 +129,25 @@ describe('validateEventForm', () => {
     expect(errors.registrationUrl).toBe('events.validation.registrationUrlInvalid')
   })
 
+  it('rejects malformed email domains and phone numbers that are too short', () => {
+    const form = createDefaultEventFormState()
+    form.title = 'Spring Gathering'
+    form.categoriesText = 'Community'
+    form.startDate = '2026-05-07'
+    form.contactEmail = 'contact@example..com'
+    form.contactPhone = '1234567'
+    form.contactFax = '555-1234'
+    form.requestReview = true
+    form.reviewEmailsText = 'reviewer@example.com, second@example..com'
+
+    const errors = validateEventForm(form, (key) => key)
+
+    expect(errors.contactEmail).toBe('events.validation.contactEmailInvalid')
+    expect(errors.contactPhone).toBe('events.validation.contactPhoneInvalid')
+    expect(errors.contactFax).toBe('events.validation.contactFaxInvalid')
+    expect(errors.reviewEmailsText).toBe('events.validation.reviewEmailsInvalid')
+  })
+
   it('allows valid contact details and registration url values', () => {
     const form = createDefaultEventFormState()
     form.title = 'Spring Gathering'
