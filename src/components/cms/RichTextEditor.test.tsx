@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { Editor } from '@tiptap/core'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import i18n from '../../i18n'
@@ -60,5 +60,17 @@ describe('RichTextEditor', () => {
     expect(editor.getHTML()).toContain('<em>Hello</em>')
 
     editor.destroy()
+  })
+
+  it('opens the link editor when the toolbar link button is clicked', async () => {
+    render(<RichTextEditor value="<p>Hello</p>" onChange={vi.fn()} />)
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: 'Insert link' })).toBeDefined()
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Insert link' }))
+
+    expect(screen.getByRole('textbox', { name: 'Link destination' })).toBeDefined()
   })
 })

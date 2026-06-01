@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useState, type FormEvent, type MouseEvent, type ReactNode } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type MouseEvent,
+  type ReactNode,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { Mark, mergeAttributes } from '@tiptap/core'
 import { EditorContent, useEditor, type Editor } from '@tiptap/react'
@@ -324,7 +332,24 @@ type ToolbarButtonProps = {
 }
 
 function ToolbarButton({ editor, label, isActive, onClick, children }: ToolbarButtonProps) {
+  const didHandleMouseDownRef = useRef(false)
+
   function handleMouseDown(event: MouseEvent<HTMLButtonElement>) {
+    if (event.button !== 0) {
+      return
+    }
+
+    event.preventDefault()
+    didHandleMouseDownRef.current = true
+    onClick()
+  }
+
+  function handleClick(event: MouseEvent<HTMLButtonElement>) {
+    if (didHandleMouseDownRef.current) {
+      didHandleMouseDownRef.current = false
+      return
+    }
+
     event.preventDefault()
     onClick()
   }
@@ -337,6 +362,7 @@ function ToolbarButton({ editor, label, isActive, onClick, children }: ToolbarBu
       title={label}
       disabled={!editor.isEditable}
       onMouseDown={handleMouseDown}
+      onClick={handleClick}
       className={[styles.toolbarButton, isActive ? styles.toolbarButtonActive : '']
         .filter(Boolean)
         .join(' ')}
