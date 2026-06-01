@@ -998,8 +998,7 @@
       },
       "proTip": {
         "title": "Conseils de redaction",
-        "body": "Limitez l objet du courriel a 50 caracteres pour un meilleur taux d'ouverture. Commencez par l information la plus importante et incluez un appel a l action clair.",
-        "cta": "Voir le guide de bulletin →"
+        "body": "Limitez l objet du courriel a 50 caracteres pour un meilleur taux d'ouverture. Commencez par l information la plus importante et incluez un appel a l action clair."
       },
       "validation": {
         "summary": "Veuillez corriger les champs en rouge.",
@@ -1117,8 +1116,7 @@
       },
       "proTip": {
         "title": "Astuce",
-        "body": "Limitez les titres a 60 caracteres pour un affichage optimal. Verifiez que la date de publication respecte les embargos.",
-        "cta": "Voir le guide de style →"
+        "body": "Limitez les titres a 60 caracteres pour un affichage optimal. Verifiez que la date de publication respecte les embargos."
       },
       "validation": {
         "summary": "Veuillez corriger les champs en rouge.",

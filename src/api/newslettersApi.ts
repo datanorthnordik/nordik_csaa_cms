@@ -5,6 +5,7 @@ import type {
   NewsletterStatus,
   NewsletterVisibility,
 } from '../lib/newsletterTypes'
+import { assertValidResourceUploadFile } from '../lib/resourceUpload'
 import { apiClient } from './apiClient'
 import { buildMultipartPayload } from './multipartForm'
 
@@ -205,6 +206,10 @@ export async function addNewsletterMedia(
   files: File[],
   metadata: NewsletterMediaUploadInput[],
 ): Promise<AddNewsletterMediaResponse> {
+  files.forEach((file) => {
+    assertValidResourceUploadFile(file)
+  })
+
   const media = files.map((file, index) => ({
     display_name: metadata[index]?.display_name || file.name,
     file_name: metadata[index]?.file_name || file.name,

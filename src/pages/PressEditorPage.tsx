@@ -958,9 +958,6 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
             <div className={styles.proTip}>
               <h3>{t('press.editor.proTip.title')}</h3>
               <p>{t('press.editor.proTip.body')}</p>
-              <button type="button" className={styles.proTipLink}>
-                {t('press.editor.proTip.cta')}
-              </button>
             </div>
           </aside>
         </div>

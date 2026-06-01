@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { RESOURCE_UPLOAD_MAX_FILE_SIZE_BYTES } from '../lib/resourceUpload'
 import { apiClient } from './apiClient'
 import {
   addNewsletterMedia,
@@ -280,6 +281,38 @@ describe('newslettersApi media endpoints', () => {
       'august-newsletter.pdf',
     )
     expect(result.uploadedCount).toBe(2)
+  })
+
+  it('rejects unsupported newsletter document types before upload requests are sent', async () => {
+    await expect(
+      addNewsletterMedia(
+        '123',
+        [new File(['legacy'], 'legacy-newsletter.doc', { type: 'application/msword' })],
+        [{ display_name: 'Legacy newsletter' }],
+      ),
+    ).rejects.toThrow('Only PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP are supported.')
+
+    expect(mockedPost).not.toHaveBeenCalled()
+  })
+
+  it('rejects oversized newsletter files before upload requests are sent', async () => {
+    const largePdf = new File(['newsletter'], 'oversized-newsletter.pdf', {
+      type: 'application/pdf',
+    })
+    Object.defineProperty(largePdf, 'size', {
+      configurable: true,
+      value: RESOURCE_UPLOAD_MAX_FILE_SIZE_BYTES + 1,
+    })
+
+    await expect(
+      addNewsletterMedia(
+        '123',
+        [largePdf],
+        [{ display_name: 'Oversized newsletter' }],
+      ),
+    ).rejects.toThrow('This file exceeds the 20MB limit.')
+
+    expect(mockedPost).not.toHaveBeenCalled()
   })
 
   it('updates media metadata and maps the response', async () => {

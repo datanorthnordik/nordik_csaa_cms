@@ -11,6 +11,7 @@ import {
   getNewsletterMediaContent,
 } from '../api/newslettersApi'
 import i18n from '../i18n'
+import { RESOURCE_UPLOAD_MAX_FILE_SIZE_BYTES } from '../lib/resourceUpload'
 import type { NewsletterEntry } from '../lib/newsletterTypes'
 import {
   NewsletterEditorPage,
@@ -87,21 +88,18 @@ vi.mock('../components/cms/RichTextEditor', () => ({
 vi.mock('../components/media/UploadDropzone', () => ({
   UploadDropzone: ({
     onFiles,
+    label,
   }: {
     onFiles: (files: File[]) => void
+    label?: ReactNode
   }) => (
-    <button
-      type="button"
-      onClick={() =>
-        onFiles([
-          new File(['newsletter'], 'newsletter-preview.pdf', {
-            type: 'application/pdf',
-          }),
-        ])
-      }
-    >
-      Mock upload file
-    </button>
+    <label>
+      <span>{label}</span>
+      <input
+        type="file"
+        onChange={(event) => onFiles(Array.from(event.target.files ?? []))}
+      />
+    </label>
   ),
 }))
 
@@ -196,6 +194,24 @@ function renderPage(initialEntry = '/newsletters/new') {
       </Routes>
     </MemoryRouter>,
   )
+}
+
+function uploadFileForLabel(labelText: string, file: File) {
+  const label = screen.getByText(labelText).closest('label')
+  if (!label) {
+    throw new Error(`Expected upload dropzone label for ${labelText}`)
+  }
+
+  const input = label.querySelector('input[type="file"]') as HTMLInputElement | null
+  if (!input) {
+    throw new Error(`Expected file input for ${labelText}`)
+  }
+
+  Object.defineProperty(input, 'files', {
+    configurable: true,
+    value: [file],
+  })
+  fireEvent.change(input)
 }
 
 describe('NewsletterEditorPage helpers', () => {
@@ -350,7 +366,12 @@ describe('NewsletterEditorPage', () => {
     const dateInput = container.querySelector('input[type="date"]') as HTMLInputElement
     fireEvent.change(dateInput, { target: { value: '2026-08-20' } })
 
-    fireEvent.click(screen.getByRole('button', { name: 'Mock upload file' }))
+    uploadFileForLabel(
+      'Drag and drop files here',
+      new File(['newsletter'], 'newsletter-preview.pdf', {
+        type: 'application/pdf',
+      }),
+    )
 
     await screen.findByText('newsletter-preview')
     expect(screen.getByText(/pending upload/i)).toBeDefined()
@@ -396,6 +417,45 @@ describe('NewsletterEditorPage', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/newsletters/77/edit', {
       replace: true,
     })
+  })
+
+  it('rejects unsupported newsletter document uploads with the press validation message', async () => {
+    renderPage()
+
+    uploadFileForLabel(
+      'Drag and drop files here',
+      new File(['legacy'], 'legacy-newsletter.doc', { type: 'application/msword' }),
+    )
+
+    expect(
+      (
+        await screen.findAllByText(
+          'Only PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP are supported.',
+        )
+      ).length,
+    ).toBeGreaterThan(0)
+    expect(toastError).toHaveBeenCalledWith(
+      'Only PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP are supported.',
+    )
+    expect(screen.queryByText('legacy-newsletter.doc')).toBeNull()
+  })
+
+  it('rejects oversized newsletter uploads before they are added', async () => {
+    renderPage()
+
+    const largePdf = new File(['newsletter'], 'large-newsletter.pdf', {
+      type: 'application/pdf',
+    })
+    Object.defineProperty(largePdf, 'size', {
+      configurable: true,
+      value: RESOURCE_UPLOAD_MAX_FILE_SIZE_BYTES + 1,
+    })
+
+    uploadFileForLabel('Drag and drop files here', largePdf)
+
+    expect((await screen.findAllByText('This file exceeds the 20MB limit.')).length).toBeGreaterThan(0)
+    expect(toastError).toHaveBeenCalledWith('This file exceeds the 20MB limit.')
+    expect(screen.queryByText('large-newsletter.pdf')).toBeNull()
   })
 
   it('loads an existing newsletter, prepopulates fields, and removes saved media', async () => {
