@@ -281,20 +281,19 @@
   outline: none;
 }
 
-.editor :global(.ProseMirror) {
-  min-height: 160px;
+.editor {
   outline: none;
 }
 
-.editor :global(.ProseMirror p) {
+.editor :global(p) {
   margin: 0 0 12px;
 }
 
-.editor :global(.ProseMirror p:last-child) {
+.editor :global(p:last-child) {
   margin-bottom: 0;
 }
 
-.editor :global(.ProseMirror p.is-editor-empty:first-child::before) {
+.editor :global(p.is-editor-empty:first-child::before) {
   content: attr(data-placeholder);
   color: var(--color-text-placeholder);
   pointer-events: none;
@@ -302,7 +301,7 @@
   float: left;
 }
 
-.editor :global(.ProseMirror blockquote) {
+.editor :global(blockquote) {
   border-left: 3px solid var(--color-primary);
   padding-left: 14px;
   margin: 12px 0;
@@ -310,21 +309,26 @@
   font-style: italic;
 }
 
-.editor :global(.ProseMirror ul),
-.editor :global(.ProseMirror ol) {
+.editor :global(ul),
+.editor :global(ol) {
   margin: 12px 0;
   padding-left: 22px;
 }
 
-.editor :global(.ProseMirror a) {
+.editor :global(a) {
   color: var(--color-primary);
   text-decoration: underline;
 }
 
-.editor :global(.ProseMirror img) {
+.editor :global(img) {
   max-width: 100%;
   height: auto;
   border-radius: 10px;
+}
+
+.editor :global(em),
+.editor :global(i) {
+  font-style: italic;
 }
 
 .italic {

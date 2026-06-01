@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
   RESOURCE_FILE_ACCEPT,
+  RESOURCE_IMAGE_FILE_ACCEPT,
   RESOURCE_UPLOAD_MAX_FILE_SIZE_BYTES,
   RESOURCE_UPLOAD_MAX_FILE_SIZE_MB,
+  RESOURCE_UPLOAD_SUPPORTED_IMAGE_FORMATS_LABEL,
   validateResourceUploadFile,
+  validateResourceImageUploadFile,
 } from './resourceUpload'
 
 describe('resourceUpload', () => {
@@ -41,6 +44,16 @@ describe('resourceUpload', () => {
     expect(validateResourceUploadFile(largePdf)).toBe('file-too-large')
   })
 
+  it('accepts only the supported image types for image-only uploads', () => {
+    expect(validateResourceImageUploadFile(new File(['image'], 'cover.webp', {
+      type: 'image/webp',
+    }))).toBeNull()
+
+    expect(validateResourceImageUploadFile(new File(['document'], 'cover.pdf', {
+      type: 'application/pdf',
+    }))).toBe('unsupported-file-type')
+  })
+
   it('exposes an exact accept list instead of broad wildcards', () => {
     expect(RESOURCE_FILE_ACCEPT).toContain('application/pdf')
     expect(RESOURCE_FILE_ACCEPT).toContain('image/webp')
@@ -49,5 +62,9 @@ describe('resourceUpload', () => {
     expect(RESOURCE_FILE_ACCEPT).not.toContain('.doc,')
     expect(RESOURCE_FILE_ACCEPT).not.toContain('.xls,')
     expect(RESOURCE_FILE_ACCEPT).not.toContain('.ppt,')
+    expect(RESOURCE_IMAGE_FILE_ACCEPT).toContain('image/png')
+    expect(RESOURCE_IMAGE_FILE_ACCEPT).toContain('.webp')
+    expect(RESOURCE_IMAGE_FILE_ACCEPT).not.toContain('application/pdf')
+    expect(RESOURCE_UPLOAD_SUPPORTED_IMAGE_FORMATS_LABEL).toBe('SVG, PNG, JPG, and WEBP')
   })
 })

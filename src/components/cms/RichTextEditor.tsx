@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useState, type FormEvent, type MouseEvent, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Mark, mergeAttributes } from '@tiptap/core'
 import { EditorContent, useEditor, type Editor } from '@tiptap/react'
@@ -89,13 +89,26 @@ const FontSize = Mark.create({
   },
 })
 
+export function createRichTextEditorExtensions() {
+  return [
+    StarterKit.configure({ heading: false, link: false, underline: false }),
+    Underline,
+    FontSize,
+    Link.configure({
+      openOnClick: false,
+      HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },
+    }),
+    // Keep image support in the schema so previously saved image content still renders.
+    Image,
+  ]
+}
+
 export function RichTextEditor({
   value,
   onChange,
   placeholder,
   disabled = false,
   className,
-  allowImages = true,
 }: RichTextEditorProps) {
   const { t } = useTranslation()
   const [isFocused, setIsFocused] = useState(false)
@@ -104,16 +117,7 @@ export function RichTextEditor({
   const resolvedPlaceholder = placeholder ?? t('richText.placeholder')
 
   const editor = useEditor({
-    extensions: [
-      StarterKit.configure({ heading: false, link: false, underline: false }),
-      Underline,
-      FontSize,
-      Link.configure({
-        openOnClick: false,
-        HTMLAttributes: { rel: 'noopener noreferrer', target: '_blank' },
-      }),
-      Image,
-    ],
+    extensions: createRichTextEditorExtensions(),
     content: value,
     editable: !disabled,
     onUpdate: ({ editor: currentEditor }) => {
@@ -182,17 +186,6 @@ export function RichTextEditor({
     setLinkUrl('')
     setIsLinkEditorOpen(false)
   }, [editor])
-
-  const handleSetImage = useCallback(() => {
-    if (!editor) {
-      return
-    }
-    const url = window.prompt(t('richText.imagePrompt'), 'https://')
-    if (!url) {
-      return
-    }
-    editor.chain().focus().setImage({ src: url }).run()
-  }, [editor, t])
 
   if (!editor) {
     return null
@@ -266,16 +259,6 @@ export function RichTextEditor({
           >
             <LinkIcon />
           </ToolbarButton>
-          {allowImages ? (
-            <ToolbarButton
-              editor={editor}
-              label={t('richText.image')}
-              isActive={false}
-              onClick={handleSetImage}
-            >
-              <ImageIcon />
-            </ToolbarButton>
-          ) : null}
           <ToolbarButton
             editor={editor}
             label={t('richText.quote')}
@@ -341,6 +324,11 @@ type ToolbarButtonProps = {
 }
 
 function ToolbarButton({ editor, label, isActive, onClick, children }: ToolbarButtonProps) {
+  function handleMouseDown(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault()
+    onClick()
+  }
+
   return (
     <button
       type="button"
@@ -348,7 +336,7 @@ function ToolbarButton({ editor, label, isActive, onClick, children }: ToolbarBu
       aria-pressed={isActive}
       title={label}
       disabled={!editor.isEditable}
-      onClick={onClick}
+      onMouseDown={handleMouseDown}
       className={[styles.toolbarButton, isActive ? styles.toolbarButtonActive : '']
         .filter(Boolean)
         .join(' ')}
@@ -449,16 +437,6 @@ function LinkIcon() {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-    </svg>
-  )
-}
-
-function ImageIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
-      <rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
-      <circle cx="6" cy="7" r="1.2" fill="currentColor" />
-      <path d="m3 12 3-3 2 2 2.5-2.5L14 12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }

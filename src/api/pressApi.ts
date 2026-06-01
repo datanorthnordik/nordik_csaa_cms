@@ -1,5 +1,9 @@
 import { API_ROUTES } from '../constants/api'
 import type { PressEntry, PressMedia, PressStatus, PressVisibility } from '../lib/pressTypes'
+import {
+  assertValidResourceImageUploadFile,
+  assertValidResourceUploadFile,
+} from '../lib/resourceUpload'
 import { buildMultipartPayload } from './multipartForm'
 import { apiClient } from './apiClient'
 
@@ -206,6 +210,10 @@ export async function createPressApiEntry(
   input: PressApiCreateInput,
   coverImageFile?: File,
 ): Promise<PressMutationResponse> {
+  if (coverImageFile) {
+    assertValidResourceImageUploadFile(coverImageFile)
+  }
+
   const body = coverImageFile
     ? buildMultipartPayload(input, [
         {
@@ -225,6 +233,10 @@ export async function updatePressApiEntry(
   patch: Partial<PressApiCreateInput>,
   coverImageFile?: File,
 ): Promise<PressMutationResponse> {
+  if (coverImageFile) {
+    assertValidResourceImageUploadFile(coverImageFile)
+  }
+
   const body = coverImageFile
     ? buildMultipartPayload(patch, [
         {
@@ -248,6 +260,10 @@ export async function addPressMedia(
   files: File[],
   metadata: PressMediaUploadInput[],
 ): Promise<AddPressMediaResponse> {
+  files.forEach((file) => {
+    assertValidResourceUploadFile(file)
+  })
+
   const media = files.map((file, index) => ({
     display_name: metadata[index]?.display_name || file.name,
     file_name: metadata[index]?.file_name || file.name,
