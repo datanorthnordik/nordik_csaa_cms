@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap');
 
 :root {
   /* Surfaces */
@@ -74,7 +74,8 @@
   font: 16px/1.5 var(--sans);
   color: var(--color-text);
   background: var(--color-bg);
-  font-synthesis: none;
+  /* Keep real font weights, but allow italic fallback when the italic face is unavailable. */
+  font-synthesis: style;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

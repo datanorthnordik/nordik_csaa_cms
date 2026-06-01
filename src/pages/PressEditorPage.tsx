@@ -27,25 +27,15 @@ import type {
   PressFormState,
   PressStatus,
 } from '../lib/pressTypes'
+import {
+  RESOURCE_FILE_ACCEPT,
+  RESOURCE_IMAGE_FILE_ACCEPT,
+  getResourceImageUploadValidationErrorMessage,
+  getResourceUploadValidationErrorMessage,
+  validateResourceImageUploadFile,
+  validateResourceUploadFile,
+} from '../lib/resourceUpload'
 import styles from '../styles/PressEditorPage.module.css'
-
-const PRESS_MEDIA_ACCEPT = [
-  'image/*',
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.ms-powerpoint',
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-  '.pdf',
-  '.doc',
-  '.docx',
-  '.xls',
-  '.xlsx',
-  '.ppt',
-  '.pptx',
-].join(',')
 
 type PendingPressMedia = {
   id: string
@@ -373,15 +363,21 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
     ]
   }, [categories, form.categoryId, t])
 
+  function clearError(key: keyof PressFormErrors) {
+    if (!errors[key]) {
+      return
+    }
+
+    setErrors((current) => {
+      const next = { ...current }
+      delete next[key]
+      return next
+    })
+  }
+
   function updateField<K extends keyof PressFormState>(key: K, value: PressFormState[K]) {
     setForm((current) => ({ ...current, [key]: value }))
-    if (errors[key]) {
-      setErrors((current) => {
-        const next = { ...current }
-        delete next[key]
-        return next
-      })
-    }
+    clearError(key)
   }
 
   function buildPersistedShape(state: PressFormState, status: PressStatus) {
@@ -414,7 +410,17 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
   }
 
   async function handleSave(targetStatus: PressStatus) {
-    const validationErrors = validate(form, t)
+    const validationErrors: PressFormErrors = {
+      ...validate(form, t),
+    }
+
+    if (errors.coverImage) {
+      validationErrors.coverImage = errors.coverImage
+    }
+    if (errors.media) {
+      validationErrors.media = errors.media
+    }
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors)
       toast.error(t('press.editor.validation.summary'))
@@ -480,13 +486,35 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
       return
     }
 
-    setPendingMedia((current) => [
-      ...current,
-      ...files.map((file) => ({
-        id: makePendingMediaId(),
-        file,
-      })),
-    ])
+    const validFiles: File[] = []
+    let validationMessage: string | null = null
+
+    files.forEach((file) => {
+      const nextValidationMessage = getPressUploadValidationMessage(file)
+      if (nextValidationMessage) {
+        validationMessage ??= nextValidationMessage
+        return
+      }
+
+      validFiles.push(file)
+    })
+
+    if (validFiles.length > 0) {
+      setPendingMedia((current) => [
+        ...current,
+        ...validFiles.map((file) => ({
+          id: makePendingMediaId(),
+          file,
+        })),
+      ])
+      clearError('media')
+    }
+
+    if (validationMessage) {
+      const message = validationMessage
+      setErrors((current) => ({ ...current, media: message }))
+      toast.error(message)
+    }
   }
 
   async function handleRemoveMedia(mediaId: string) {
@@ -518,17 +546,28 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
     if (!file) {
       return
     }
+
+    const validationMessage = getPressCoverImageValidationMessage(file)
+    if (validationMessage) {
+      setErrors((current) => ({ ...current, coverImage: validationMessage }))
+      toast.error(validationMessage)
+      return
+    }
+
     setCoverImageFile(file)
     setRemoveCoverImage(false)
+    clearError('coverImage')
   }
 
   function handleRemoveSelectedCover() {
     setCoverImageFile(undefined)
+    clearError('coverImage')
   }
 
   function handleRemoveExistingCover() {
     setCoverImageFile(undefined)
     setRemoveCoverImage(true)
+    clearError('coverImage')
   }
 
   async function handlePreviewDocument(mediaItem: PressMediaListItem) {
@@ -713,12 +752,13 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
                 <h2>{t('press.editor.sections.coverImage')}</h2>
               </div>
               <UploadDropzone
-                accept="image/*"
+                accept={RESOURCE_IMAGE_FILE_ACCEPT}
                 icon={<AddPhotoIcon />}
                 label={t('press.editor.media.coverLabel')}
                 hint={t('press.editor.media.coverHint')}
                 onFiles={handleCoverImageSelect}
               />
+              {errors.coverImage && <p className={styles.fieldError}>{errors.coverImage}</p>}
 
               {coverPreviewUrl && (
                 <div className={styles.coverPreviewCard}>
@@ -778,12 +818,13 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
               <div className={styles.mediaSection}>
                 <UploadDropzone
                   multiple
-                  accept={PRESS_MEDIA_ACCEPT}
+                  accept={RESOURCE_FILE_ACCEPT}
                   icon={<AddPhotoIcon />}
                   label={t('press.editor.media.dropLabel')}
                   hint={t('press.editor.media.dropHint')}
                   onFiles={handleAddMedia}
                 />
+                {errors.media && <p className={styles.fieldError}>{errors.media}</p>}
 
                 {mediaItems.length > 0 && (
                   <div className={styles.documentList}>
@@ -926,6 +967,24 @@ export function PressEditorPage({ mode = 'create' }: PressEditorPageProps) {
       </div>
     </CmsAppShell>
   )
+}
+
+function getPressUploadValidationMessage(file: Pick<File, 'name' | 'size' | 'type'>) {
+  const validationError = validateResourceUploadFile(file)
+  if (!validationError) {
+    return null
+  }
+
+  return getResourceUploadValidationErrorMessage(validationError)
+}
+
+function getPressCoverImageValidationMessage(file: Pick<File, 'name' | 'size' | 'type'>) {
+  const validationError = validateResourceImageUploadFile(file)
+  if (!validationError) {
+    return null
+  }
+
+  return getResourceImageUploadValidationErrorMessage(validationError)
 }
 
 function stripFileExtension(value: string) {

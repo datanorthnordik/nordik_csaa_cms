@@ -45,7 +45,9 @@ export type PressFormState = {
   media: PressMedia[]
 }
 
-export type PressFormErrors = Partial<Record<keyof PressFormState, string>>
+export type PressFormErrors = Partial<
+  Record<keyof PressFormState | 'coverImage' | 'media', string>
+>
 
 export type PressListFilters = {
   searchTerm: string

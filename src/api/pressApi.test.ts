@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { RESOURCE_UPLOAD_MAX_FILE_SIZE_BYTES } from '../lib/resourceUpload'
 import { apiClient } from './apiClient'
 import {
   addPressMedia,
@@ -223,6 +224,28 @@ describe('pressApi CRUD', () => {
     expect(((body as FormData).get('cover_image_file') as File).name).toBe('cover.png')
   })
 
+  it('rejects unsupported cover image files before create requests are sent', async () => {
+    const coverImage = new File(['cover'], 'cover.gif', { type: 'image/gif' })
+
+    await expect(
+      createPressApiEntry(
+        {
+          title: 'Spring Release',
+          release_date: '2026-03-20',
+          category_id: null,
+          source_url: '',
+          content_html: '<p>Body</p>',
+          status: 'draft',
+          visibility: 'private',
+          publish_at: null,
+        },
+        coverImage,
+      ),
+    ).rejects.toThrow('Only SVG, PNG, JPG, and WEBP are supported.')
+
+    expect(mockedPost).not.toHaveBeenCalled()
+  })
+
   it('puts multipart update data when a new cover image is provided', async () => {
     mockedPut.mockResolvedValue({
       data: { message: 'updated', entry: { id: 123, title: 'Updated Release', release_date: '2026-03-21', status: 'draft', visibility: 'private' } },
@@ -245,6 +268,27 @@ describe('pressApi CRUD', () => {
       title: 'Updated Release',
       release_date: '2026-03-21',
     })
+  })
+
+  it('rejects oversized cover image files before update requests are sent', async () => {
+    const coverImage = new File(['cover'], 'cover.png', { type: 'image/png' })
+    Object.defineProperty(coverImage, 'size', {
+      configurable: true,
+      value: RESOURCE_UPLOAD_MAX_FILE_SIZE_BYTES + 1,
+    })
+
+    await expect(
+      updatePressApiEntry(
+        '123',
+        {
+          title: 'Updated Release',
+          release_date: '2026-03-21',
+        },
+        coverImage,
+      ),
+    ).rejects.toThrow('This file exceeds the 20MB limit.')
+
+    expect(mockedPut).not.toHaveBeenCalled()
   })
 
   it('deletes a press entry by id', async () => {
@@ -289,6 +333,18 @@ describe('pressApi media endpoints', () => {
     expect((body as FormData).get('media[1].file')).toBeInstanceOf(File)
     expect(((body as FormData).get('media[1].file') as File).name).toBe('minutes.pdf')
     expect(result.uploadedCount).toBe(2)
+  })
+
+  it('rejects unsupported media files before upload requests are sent', async () => {
+    await expect(
+      addPressMedia(
+        '123',
+        [new File(['audio'], 'voice.mp3', { type: 'audio/mpeg' })],
+        [{ display_name: 'Voice memo' }],
+      ),
+    ).rejects.toThrow('Only PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP are supported.')
+
+    expect(mockedPost).not.toHaveBeenCalled()
   })
 
   it('updates media metadata and maps the response', async () => {
