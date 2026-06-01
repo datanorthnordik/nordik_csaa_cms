@@ -19,6 +19,11 @@ import { RichTextEditor } from '../components/cms/RichTextEditor'
 import { AddPhotoIcon, DownloadIcon, PagesIcon } from '../components/icons'
 import { UploadDropzone } from '../components/media/UploadDropzone'
 import { useNewsletterEntries } from '../hooks/useNewsletterEntries'
+import {
+  RESOURCE_FILE_ACCEPT,
+  getResourceUploadValidationErrorMessage,
+  validateResourceUploadFile,
+} from '../lib/resourceUpload'
 import type {
   NewsletterCategory,
   NewsletterEntry,
@@ -27,24 +32,6 @@ import type {
   NewsletterStatus,
 } from '../lib/newsletterTypes'
 import styles from '../styles/NewsletterEditorPage.module.css'
-
-const NEWSLETTER_MEDIA_ACCEPT = [
-  'image/*',
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.ms-powerpoint',
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-  '.pdf',
-  '.doc',
-  '.docx',
-  '.xls',
-  '.xlsx',
-  '.ppt',
-  '.pptx',
-].join(',')
 
 type PendingNewsletterMedia = {
   id: string
@@ -308,18 +295,24 @@ export function NewsletterEditorPage({
     [i18n.language],
   )
 
+  function clearError(key: keyof NewsletterFormErrors) {
+    if (!errors[key]) {
+      return
+    }
+
+    setErrors((current) => {
+      const next = { ...current }
+      delete next[key]
+      return next
+    })
+  }
+
   function updateField<K extends keyof NewsletterFormState>(
     key: K,
     value: NewsletterFormState[K],
   ) {
     setForm((current) => ({ ...current, [key]: value }))
-    if (errors[key]) {
-      setErrors((current) => {
-        const next = { ...current }
-        delete next[key]
-        return next
-      })
-    }
+    clearError(key)
   }
 
   function buildPersistedShape(
@@ -357,7 +350,14 @@ export function NewsletterEditorPage({
   }
 
   async function handleSave(targetStatus: NewsletterStatus) {
-    const validationErrors = validate(form, t)
+    const validationErrors: NewsletterFormErrors = {
+      ...validate(form, t),
+    }
+
+    if (errors.media) {
+      validationErrors.media = errors.media
+    }
+
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors)
       toast.error(t('newsletters.editor.validation.summary'))
@@ -424,13 +424,35 @@ export function NewsletterEditorPage({
       return
     }
 
-    setPendingMedia((current) => [
-      ...current,
-      ...files.map((file) => ({
-        id: makePendingMediaId(),
-        file,
-      })),
-    ])
+    const validFiles: File[] = []
+    let validationMessage: string | null = null
+
+    files.forEach((file) => {
+      const nextValidationMessage = getNewsletterUploadValidationMessage(file)
+      if (nextValidationMessage) {
+        validationMessage ??= nextValidationMessage
+        return
+      }
+
+      validFiles.push(file)
+    })
+
+    if (validFiles.length > 0) {
+      setPendingMedia((current) => [
+        ...current,
+        ...validFiles.map((file) => ({
+          id: makePendingMediaId(),
+          file,
+        })),
+      ])
+      clearError('media')
+    }
+
+    if (validationMessage) {
+      const message = validationMessage
+      setErrors((current) => ({ ...current, media: message }))
+      toast.error(message)
+    }
   }
 
   async function handleRemoveMedia(mediaId: string) {
@@ -702,12 +724,13 @@ export function NewsletterEditorPage({
               <div className={styles.mediaSection}>
                 <UploadDropzone
                   multiple
-                  accept={NEWSLETTER_MEDIA_ACCEPT}
+                  accept={RESOURCE_FILE_ACCEPT}
                   icon={<AddPhotoIcon />}
                   label={t('newsletters.editor.media.dropLabel')}
                   hint={t('newsletters.editor.media.dropHint')}
                   onFiles={handleAddMedia}
                 />
+                {errors.media && <p className={styles.fieldError}>{errors.media}</p>}
 
                 {mediaItems.length > 0 && (
                   <div className={styles.documentList}>
@@ -841,15 +864,21 @@ export function NewsletterEditorPage({
             <div className={styles.proTip}>
               <h3>{t('newsletters.editor.proTip.title')}</h3>
               <p>{t('newsletters.editor.proTip.body')}</p>
-              <button type="button" className={styles.proTipLink}>
-                {t('newsletters.editor.proTip.cta')}
-              </button>
             </div>
           </aside>
         </div>
       </div>
     </CmsAppShell>
   )
+}
+
+function getNewsletterUploadValidationMessage(file: Pick<File, 'name' | 'size' | 'type'>) {
+  const validationError = validateResourceUploadFile(file)
+  if (!validationError) {
+    return null
+  }
+
+  return getResourceUploadValidationErrorMessage(validationError)
 }
 
 export function stripFileExtension(value: string) {
