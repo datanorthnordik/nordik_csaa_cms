@@ -74,7 +74,8 @@
   font: 16px/1.5 var(--sans);
   color: var(--color-text);
   background: var(--color-bg);
-  font-synthesis: none;
+  /* Keep real font weights, but allow italic fallback when the italic face is unavailable. */
+  font-synthesis: style;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
