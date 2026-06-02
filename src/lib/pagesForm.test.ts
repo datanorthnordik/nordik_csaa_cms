@@ -8,7 +8,9 @@ import {
   createDefaultPageFormState,
   createDefaultSectionState,
   getDisallowedParentPageIds,
+  validatePageDocumentFields,
   validatePageForm,
+  validatePageSectionFields,
 } from './pagesForm'
 
 describe('buildSavePageRequest', () => {
@@ -103,7 +105,7 @@ describe('buildSavePageRequest', () => {
       bannerMessage: 'Our mission is rooted in honouring survivors.',
       buttonText: 'Learn more',
       buttonUrl: 'https://example.com/community-support',
-      openInNewTab: false,
+      openInNewTab: true,
       imageFile: null,
       existingImageFetchUrl: `${API_BASE_URL}/api/pages/sections/10/cta-image/content`,
       existingImageStorageUrl: 'gs://drive-bucket/pages/sections/10/cta.png',
@@ -129,6 +131,7 @@ describe('buildSavePageRequest', () => {
     expect(request.page_detail?.sections[0]).toMatchObject({
       section_type: 'cta_banner',
       cta_banner: {
+        open_in_new_tab: true,
         image: {
           file_url: 'gs://drive-bucket/pages/sections/10/cta.png',
           storage_uri: 'gs://drive-bucket/pages/sections/10/cta.png',
@@ -139,6 +142,7 @@ describe('buildSavePageRequest', () => {
     expect(request.page_detail?.sections[1]).toMatchObject({
       section_type: 'cta_banner',
       cta_banner: {
+        open_in_new_tab: true,
         image: {
           file_name: 'cta.png',
           mime_type: 'image/png',
@@ -458,6 +462,7 @@ describe('buildPageFormStateFromDetail', () => {
     expect(form.sections[0]?.ctaBanner.existingImageObjectKey).toBe(
       'pages/sections/3/cta.png',
     )
+    expect(form.sections[0]?.ctaBanner.openInNewTab).toBe(true)
   })
 
   it('forces auto-scroll off when the gallery is not saved as a carousel', () => {
@@ -706,5 +711,73 @@ describe('parent page validation', () => {
     const errors = validatePageForm(form, (key) => key)
 
     expect(errors.sections).toBe('pages.validation.singleHeroHeader')
+  })
+
+  it('returns field-level validation errors for required header, typography, and quote content', () => {
+    const headerSection = createDefaultSectionState('header')
+    const typographySection = createDefaultSectionState('typography')
+    const quoteSection = createDefaultSectionState('quote')
+
+    headerSection.header.mainHeaderText = '   '
+    typographySection.typography.htmlContent = '<p><br></p>'
+    quoteSection.quote.quoteContent = '   '
+
+    const errors = validatePageSectionFields(
+      [headerSection, typographySection, quoteSection],
+      (key) => key,
+    )
+
+    expect(errors[headerSection.clientId]?.mainHeaderText).toBe(
+      'pages.validation.mainHeaderTextRequired',
+    )
+    expect(errors[typographySection.clientId]?.htmlContent).toBe(
+      'pages.validation.typographyContentRequired',
+    )
+    expect(errors[quoteSection.clientId]?.quoteContent).toBe(
+      'pages.validation.quoteContentRequired',
+    )
+  })
+
+  it('returns field-level validation errors for required document and CTA fields', () => {
+    const documentSection = createDefaultSectionState('document')
+    const quoteSection = createDefaultSectionState('cta_banner')
+
+    quoteSection.ctaBanner.bannerHeading = '   '
+    quoteSection.ctaBanner.buttonText = '   '
+    quoteSection.ctaBanner.buttonUrl = '   '
+
+    const sectionErrors = validatePageSectionFields(
+      [documentSection, quoteSection],
+      (key) => key,
+    )
+
+    expect(sectionErrors[documentSection.clientId]?.documents).toBe(
+      'pages.validation.documentsRequired',
+    )
+    expect(sectionErrors[quoteSection.clientId]?.bannerHeading).toBe(
+      'pages.validation.bannerHeadingRequired',
+    )
+    expect(sectionErrors[quoteSection.clientId]?.buttonText).toBe(
+      'pages.validation.buttonTextRequired',
+    )
+    expect(sectionErrors[quoteSection.clientId]?.buttonUrl).toBe(
+      'pages.validation.buttonUrlRequired',
+    )
+  })
+
+  it('returns field-level validation errors for required document display names', () => {
+    const documentSection = createDefaultSectionState('document')
+    const document = createDefaultDocumentState(
+      new File(['content'], 'agenda.pdf', { type: 'application/pdf' }),
+    )
+
+    document.displayName = '   '
+    documentSection.documents.items = [document]
+
+    const errors = validatePageDocumentFields([documentSection], (key) => key)
+
+    expect(errors[document.clientId]?.displayName).toBe(
+      'pages.validation.documentDisplayNameRequired',
+    )
   })
 })

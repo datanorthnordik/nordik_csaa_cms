@@ -164,7 +164,7 @@ describe('upload request bodies', () => {
               banner_message: 'Our mission is rooted in honouring survivors.',
               button_text: 'Learn more',
               button_url: 'https://example.com/community-support',
-              open_in_new_tab: false,
+              open_in_new_tab: true,
               image: {
                 file_name: 'cta.png',
                 mime_type: 'image/png',
@@ -213,7 +213,7 @@ describe('upload request bodies', () => {
                 banner_message: 'Our mission is rooted in honouring survivors.',
                 button_text: 'Learn more',
                 button_url: 'https://example.com/community-support',
-                open_in_new_tab: false,
+                open_in_new_tab: true,
                 image: {
                   file_name: 'cta.png',
                   mime_type: 'image/png',
