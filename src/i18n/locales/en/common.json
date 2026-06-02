@@ -271,7 +271,7 @@
       "enableHeroImage": "Enable Hero Image",
       "enableHeroImageHint": "Upload a hero image and store its source with the page record.",
       "heroImageLabel": "Drop image here or browse",
-      "heroImageHint": "Supports PNG, JPG, and WEBP.",
+      "heroImageHint": "Supports PNG, JPG, and WEBP up to 5MB.",
       "heroImageAlt": "Page hero image",
       "seoPageTitle": "SEO Page Title",
       "seoPageTitlePlaceholder": "Search engine optimized title...",
@@ -310,9 +310,19 @@
     "validation": {
       "pageTitleRequired": "Page title is required.",
       "urlSlugRequired": "URL slug is required.",
+      "mainHeaderTextRequired": "Main header text is required for the Header Module.",
+      "typographyContentRequired": "Typography content is required.",
+      "quoteContentRequired": "Quote text is required.",
+      "documentsRequired": "At least one document is required for the Document Module.",
+      "documentDisplayNameRequired": "Document display name is required.",
+      "bannerHeadingRequired": "Banner heading is required for the CTA Banner Module.",
+      "buttonTextRequired": "Button text is required for the CTA Banner Module.",
+      "buttonUrlRequired": "Button URL is required for the CTA Banner Module.",
       "parentPageCycle": "A page cannot use one of its own descendants as a parent.",
       "singleHeroHeader": "Only one Header Module can use H1 Hero on a page.",
-      "documentFileRequired": "Each document item must keep an uploaded file or an existing saved file."
+      "documentFileRequired": "Each document item must keep an uploaded file or an existing saved file.",
+      "heroImageTooLarge": "Hero image must be {{maxSizeMb}}MB or smaller.",
+      "heroImageUnsupported": "Hero image must be a PNG, JPG, or WEBP file."
     },
     "modules": {
       "types": {
@@ -386,7 +396,7 @@
         "autoScrollEnabled": "When enabled, carousel galleries advance automatically on the website.",
         "autoScrollUnavailable": "Switch the gallery view to Carousel to enable automatic scrolling.",
         "documents": "Each document section can contain multiple files with independent labels and ordering.",
-        "openInNewTab": "Use this when the CTA should open an external page in a separate browser tab.",
+        "openInNewTab": "CTA links always open in a new browser tab.",
         "ctaImage": "Optional. Adding an image switches the website CTA to the split layout with media on the left."
       },
       "states": {

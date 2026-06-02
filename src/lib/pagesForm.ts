@@ -112,6 +112,25 @@ export type PageFormErrors = Partial<
   Record<'pageTitle' | 'urlSlug' | 'parentPageId' | 'heroImageFile' | 'sections', string>
 >
 
+export type PageSectionFieldErrors = Partial<
+  Record<
+    | 'mainHeaderText'
+    | 'htmlContent'
+    | 'quoteContent'
+    | 'documents'
+    | 'bannerHeading'
+    | 'buttonText'
+    | 'buttonUrl',
+    string
+  >
+>
+
+export type PageSectionValidationErrors = Record<string, PageSectionFieldErrors>
+
+export type PageDocumentFieldErrors = Partial<Record<'displayName', string>>
+
+export type PageDocumentValidationErrors = Record<string, PageDocumentFieldErrors>
+
 export function createPageEditorId(prefix: string) {
   if (typeof globalThis.crypto?.randomUUID === 'function') {
     return `${prefix}-${globalThis.crypto.randomUUID()}`
@@ -155,7 +174,7 @@ export function createDefaultSectionState(sectionType: PageSectionType): PageSec
       bannerMessage: '',
       buttonText: '',
       buttonUrl: '',
-      openInNewTab: false,
+      openInNewTab: true,
       imageFile: null,
       existingImageFetchUrl: '',
       existingImageStorageUrl: '',
@@ -361,6 +380,132 @@ export function validatePageForm(
   return errors
 }
 
+export function validatePageSectionFields(
+  sections: PageSectionState[],
+  t: (key: string) => string,
+): PageSectionValidationErrors {
+  const errors: PageSectionValidationErrors = {}
+
+  for (const section of sections) {
+    switch (section.sectionType) {
+      case 'header':
+        if (!section.header.mainHeaderText.trim()) {
+          errors[section.clientId] = {
+            ...errors[section.clientId],
+            mainHeaderText: t('pages.validation.mainHeaderTextRequired'),
+          }
+        }
+        break
+
+      case 'typography':
+        if (isTypographyContentEmpty(section.typography.htmlContent)) {
+          errors[section.clientId] = {
+            ...errors[section.clientId],
+            htmlContent: t('pages.validation.typographyContentRequired'),
+          }
+        }
+        break
+
+      case 'quote':
+        if (!section.quote.quoteContent.trim()) {
+          errors[section.clientId] = {
+            ...errors[section.clientId],
+            quoteContent: t('pages.validation.quoteContentRequired'),
+          }
+        }
+        break
+
+      case 'document': {
+        const hasDocumentItems = section.documents.items.length > 0
+        const hasInvalidDocumentFile = section.documents.items.some(
+          (item) =>
+            !item.file && !item.existingStorageUri.trim() && !item.existingObjectKey.trim(),
+        )
+
+        if (!hasDocumentItems) {
+          errors[section.clientId] = {
+            ...errors[section.clientId],
+            documents: t('pages.validation.documentsRequired'),
+          }
+        } else if (hasInvalidDocumentFile) {
+          errors[section.clientId] = {
+            ...errors[section.clientId],
+            documents: t('pages.validation.documentFileRequired'),
+          }
+        }
+        break
+      }
+
+      case 'cta_banner':
+        if (!section.ctaBanner.bannerHeading.trim()) {
+          errors[section.clientId] = {
+            ...errors[section.clientId],
+            bannerHeading: t('pages.validation.bannerHeadingRequired'),
+          }
+        }
+
+        if (!section.ctaBanner.buttonText.trim()) {
+          errors[section.clientId] = {
+            ...errors[section.clientId],
+            buttonText: t('pages.validation.buttonTextRequired'),
+          }
+        }
+
+        if (!section.ctaBanner.buttonUrl.trim()) {
+          errors[section.clientId] = {
+            ...errors[section.clientId],
+            buttonUrl: t('pages.validation.buttonUrlRequired'),
+          }
+        }
+        break
+
+      default:
+        break
+    }
+  }
+
+  return errors
+}
+
+export function getPageSectionValidationMessages(
+  errors: PageSectionValidationErrors,
+) {
+  return Object.values(errors).flatMap((sectionErrors) =>
+    Object.values(sectionErrors).filter((message): message is string => Boolean(message)),
+  )
+}
+
+export function validatePageDocumentFields(
+  sections: PageSectionState[],
+  t: (key: string) => string,
+): PageDocumentValidationErrors {
+  const errors: PageDocumentValidationErrors = {}
+
+  sections.forEach((section) => {
+    if (section.sectionType !== 'document') {
+      return
+    }
+
+    section.documents.items.forEach((document) => {
+      if (!document.displayName.trim()) {
+        errors[document.clientId] = {
+          displayName: t('pages.validation.documentDisplayNameRequired'),
+        }
+      }
+    })
+  })
+
+  return errors
+}
+
+export function getPageDocumentValidationMessages(
+  errors: PageDocumentValidationErrors,
+) {
+  return Object.values(errors).flatMap((documentErrors) =>
+    Object.values(documentErrors).filter((message): message is string => Boolean(message)),
+  )
+}
+
 export function countHeroHeaderSections(sections: PageSectionState[]) {
   return sections.filter(
     (section) => section.sectionType === 'header' && section.header.hierarchy === 'h1_hero',
@@ -510,7 +655,7 @@ function buildSaveSectionPayload(
             banner_message: section.ctaBanner.bannerMessage.trim(),
             button_text: section.ctaBanner.buttonText.trim(),
             button_url: section.ctaBanner.buttonUrl.trim(),
-            open_in_new_tab: section.ctaBanner.openInNewTab,
+            open_in_new_tab: true,
             ...(buildCTABannerImagePayload(section)
               ? { image: buildCTABannerImagePayload(section) }
               : {}),
@@ -702,7 +847,7 @@ function mapCTABannerResponse(ctaBanner?: PageCTABannerSectionResponse | null) {
     bannerMessage: ctaBanner?.banner_message ?? '',
     buttonText: ctaBanner?.button_text ?? '',
     buttonUrl: ctaBanner?.button_url ?? '',
-    openInNewTab: Boolean(ctaBanner?.open_in_new_tab),
+    openInNewTab: true,
     imageFile: null,
     existingImageFetchUrl: resolvePageAssetUrl(ctaBanner?.image?.fetch_url ?? ''),
     existingImageStorageUrl: ctaBanner?.image?.storage_uri ?? '',
@@ -782,4 +927,8 @@ function buildPlainTextFromHtml(html: string) {
     .replace(/<[^>]*>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+}
+
+export function isTypographyContentEmpty(html: string) {
+  return !buildPlainTextFromHtml(html)
 }

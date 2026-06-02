@@ -39,14 +39,23 @@ import {
   createDefaultDocumentState,
   createDefaultPageFormState,
   createDefaultSectionState,
+  getPageDocumentValidationMessages,
   getDisallowedParentPageIds,
+  getPageSectionValidationMessages,
+  isTypographyContentEmpty,
   normalizePageSlugInput,
   reorderPageSections,
+  validatePageDocumentFields,
   validatePageForm,
+  validatePageSectionFields,
+  type PageDocumentFieldErrors,
+  type PageDocumentValidationErrors,
   type PageFormErrors,
+  type PageSectionFieldErrors,
   type PageFormState,
   type PageSectionDocumentState,
   type PageSectionState,
+  type PageSectionValidationErrors,
 } from '../lib/pagesForm'
 import {
   clearCurrentPage,
@@ -99,7 +108,25 @@ const DOCUMENT_UPLOAD_ACCEPT = [
   '.pptx',
 ].join(',')
 
-const IMAGE_UPLOAD_ACCEPT = 'image/png,image/jpeg,image/webp'
+const PAGE_HERO_IMAGE_MAX_FILE_SIZE_MB = 5
+const PAGE_HERO_IMAGE_MAX_FILE_SIZE_BYTES =
+  PAGE_HERO_IMAGE_MAX_FILE_SIZE_MB * 1024 * 1024
+const HERO_IMAGE_SUPPORTED_MIME_TYPES = new Set([
+  'image/png',
+  'image/jpeg',
+  'image/jpg',
+  'image/webp',
+])
+const HERO_IMAGE_SUPPORTED_EXTENSIONS = new Set([
+  '.png',
+  '.jpg',
+  '.jpeg',
+  '.webp',
+])
+const IMAGE_UPLOAD_ACCEPT = [
+  ...HERO_IMAGE_SUPPORTED_MIME_TYPES,
+  ...HERO_IMAGE_SUPPORTED_EXTENSIONS,
+].join(',')
 
 export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
   const dispatch = useAppDispatch()
@@ -119,6 +146,8 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
 
   const [form, setForm] = useState<PageFormState>(createDefaultPageFormState())
   const [errors, setErrors] = useState<PageFormErrors>({})
+  const [sectionFieldErrors, setSectionFieldErrors] = useState<PageSectionValidationErrors>({})
+  const [documentFieldErrors, setDocumentFieldErrors] = useState<PageDocumentValidationErrors>({})
   const [slugTouched, setSlugTouched] = useState(false)
   const [heroImagePreviewUrl, setHeroImagePreviewUrl] = useState<string | null>(null)
   const [existingHeroObjectUrl, setExistingHeroObjectUrl] = useState<string | null>(null)
@@ -214,6 +243,9 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
 
     dispatch(clearCurrentPage())
     setForm(createDefaultPageFormState())
+    setErrors({})
+    setSectionFieldErrors({})
+    setDocumentFieldErrors({})
     setSlugTouched(false)
     setInitializedPageId(null)
   }, [dispatch, isEditMode, parsedPageId])
@@ -250,6 +282,8 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
       }),
     )
     setErrors({})
+    setSectionFieldErrors({})
+    setDocumentFieldErrors({})
     setSlugTouched(true)
     setInitializedPageId(currentPage.id)
   }, [
@@ -405,8 +439,15 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
   const isInitialLoad =
     (isEditMode && detailState.status === 'loading' && !currentPage) || isWaitingForParentContext
   const errorMessages = useMemo(
-    () => Array.from(new Set(Object.values(errors).filter(Boolean))),
-    [errors],
+    () =>
+      Array.from(
+        new Set([
+          ...Object.values(errors).filter((message): message is string => Boolean(message)),
+          ...getPageSectionValidationMessages(sectionFieldErrors),
+          ...getPageDocumentValidationMessages(documentFieldErrors),
+        ]),
+      ),
+    [documentFieldErrors, errors, sectionFieldErrors],
   )
   const currentHeroPreview =
     heroImagePreviewUrl ??
@@ -542,7 +583,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
     return () => {
       cancelled = true
     }
-  }, [documentPreviewSignature, documentPreviewSources])
+  }, [documentPreviewSignature])
 
   useEffect(() => {
     return () => {
@@ -612,7 +653,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
     return () => {
       cancelled = true
     }
-  }, [ctaImagePreviewSignature, ctaImagePreviewSources])
+  }, [ctaImagePreviewSignature])
 
   useEffect(() => {
     return () => {
@@ -631,6 +672,118 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
       }
       return next
     })
+  }
+
+  function setFieldError<K extends keyof PageFormErrors>(
+    key: K,
+    message?: PageFormErrors[K],
+  ) {
+    setErrors((current) => {
+      if (!message) {
+        if (!(key in current)) {
+          return current
+        }
+
+        const next = { ...current }
+        delete next[key]
+        return next
+      }
+
+      return {
+        ...current,
+        [key]: message,
+      }
+    })
+  }
+
+  function setSectionFieldError(
+    sectionClientId: string,
+    key: keyof PageSectionFieldErrors,
+    message?: string,
+  ) {
+    setSectionFieldErrors((current) => {
+      const currentSectionErrors = current[sectionClientId] ?? {}
+
+      if (!message) {
+        if (!(key in currentSectionErrors)) {
+          return current
+        }
+
+        const nextSectionErrors = { ...currentSectionErrors }
+        delete nextSectionErrors[key]
+
+        if (Object.keys(nextSectionErrors).length === 0) {
+          const next = { ...current }
+          delete next[sectionClientId]
+          return next
+        }
+
+        return {
+          ...current,
+          [sectionClientId]: nextSectionErrors,
+        }
+      }
+
+      return {
+        ...current,
+        [sectionClientId]: {
+          ...currentSectionErrors,
+          [key]: message,
+        },
+      }
+    })
+  }
+
+  function getSectionFieldError(
+    sectionClientId: string,
+    key: keyof PageSectionFieldErrors,
+  ) {
+    return sectionFieldErrors[sectionClientId]?.[key]
+  }
+
+  function setDocumentFieldError(
+    documentClientId: string,
+    key: keyof PageDocumentFieldErrors,
+    message?: string,
+  ) {
+    setDocumentFieldErrors((current) => {
+      const currentDocumentErrors = current[documentClientId] ?? {}
+
+      if (!message) {
+        if (!(key in currentDocumentErrors)) {
+          return current
+        }
+
+        const nextDocumentErrors = { ...currentDocumentErrors }
+        delete nextDocumentErrors[key]
+
+        if (Object.keys(nextDocumentErrors).length === 0) {
+          const next = { ...current }
+          delete next[documentClientId]
+          return next
+        }
+
+        return {
+          ...current,
+          [documentClientId]: nextDocumentErrors,
+        }
+      }
+
+      return {
+        ...current,
+        [documentClientId]: {
+          ...currentDocumentErrors,
+          [key]: message,
+        },
+      }
+    })
+  }
+
+  function getDocumentFieldError(
+    documentClientId: string,
+    key: keyof PageDocumentFieldErrors,
+  ) {
+    return documentFieldErrors[documentClientId]?.[key]
   }
 
   function updateField<K extends keyof PageFormState>(key: K, value: PageFormState[K]) {
@@ -670,17 +823,37 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
   }
 
   function handlePageTitleChange(value: string) {
+    const nextUrlSlug = slugTouched ? form.urlSlug : normalizePageSlugInput(value)
+
     setForm((current) => ({
       ...current,
       pageTitle: value,
-      urlSlug: slugTouched ? current.urlSlug : normalizePageSlugInput(value),
+      urlSlug: slugTouched ? current.urlSlug : nextUrlSlug,
     }))
-    clearErrors('pageTitle', 'urlSlug')
+    setFieldError(
+      'pageTitle',
+      value.trim() ? undefined : t('pages.validation.pageTitleRequired'),
+    )
+
+    if (!slugTouched) {
+      setFieldError(
+        'urlSlug',
+        nextUrlSlug ? undefined : t('pages.validation.urlSlugRequired'),
+      )
+    }
   }
 
   function handleSlugChange(value: string) {
     setSlugTouched(true)
-    updateField('urlSlug', normalizePageSlugInput(value))
+    const normalizedSlug = normalizePageSlugInput(value)
+    setForm((current) => ({
+      ...current,
+      urlSlug: normalizedSlug,
+    }))
+    setFieldError(
+      'urlSlug',
+      normalizedSlug ? undefined : t('pages.validation.urlSlugRequired'),
+    )
   }
 
   function handleParentPageChange(value: string) {
@@ -707,6 +880,16 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
       return
     }
 
+    const validationMessage = getHeroImageValidationMessage(file, t)
+    if (validationMessage) {
+      setErrors((current) => ({
+        ...current,
+        heroImageFile: validationMessage,
+      }))
+      toast.error(validationMessage)
+      return
+    }
+
     setForm((current) => ({
       ...current,
       heroImageEnabled: true,
@@ -722,6 +905,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
       heroImageFile: null,
       removeHeroImage: true,
     }))
+    clearErrors('heroImageFile')
   }
 
   function handleCTABannerImageFiles(sectionClientId: string, files: File[]) {
@@ -768,10 +952,41 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
   }
 
   function handleRemoveSection(sectionClientId: string) {
+    const documentClientIds =
+      form.sections.find((section) => section.clientId === sectionClientId)?.documents.items.map(
+        (document) => document.clientId,
+      ) ?? []
+
     setForm((current) => ({
       ...current,
       sections: current.sections.filter((section) => section.clientId !== sectionClientId),
     }))
+    setSectionFieldErrors((current) => {
+      if (!(sectionClientId in current)) {
+        return current
+      }
+
+      const next = { ...current }
+      delete next[sectionClientId]
+      return next
+    })
+    setDocumentFieldErrors((current) => {
+      if (!documentClientIds.length) {
+        return current
+      }
+
+      const next = { ...current }
+      let changed = false
+
+      documentClientIds.forEach((documentClientId) => {
+        if (documentClientId in next) {
+          delete next[documentClientId]
+          changed = true
+        }
+      })
+
+      return changed ? next : current
+    })
     clearErrors('sections')
   }
 
@@ -840,6 +1055,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
         items: [...section.documents.items, ...files.map(createDefaultDocumentState)],
       },
     }))
+    setSectionFieldError(sectionClientId, 'documents', undefined)
   }
 
   function handleReplaceDocumentFile(
@@ -855,15 +1071,35 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
       existingMimeType: file.type || document.existingMimeType,
       existingFileSize: file.size,
     }))
+    setSectionFieldError(sectionClientId, 'documents', undefined)
+    setDocumentFieldError(documentClientId, 'displayName', undefined)
   }
 
   function handleRemoveDocument(sectionClientId: string, documentClientId: string) {
+    const remainingDocuments =
+      (form.sections.find((section) => section.clientId === sectionClientId)?.documents.items
+        .length ?? 0) - 1
+
     updateSection(sectionClientId, (section) => ({
       ...section,
       documents: {
         items: section.documents.items.filter((document) => document.clientId !== documentClientId),
       },
     }))
+    setSectionFieldError(
+      sectionClientId,
+      'documents',
+      remainingDocuments > 0 ? undefined : t('pages.validation.documentsRequired'),
+    )
+    setDocumentFieldErrors((current) => {
+      if (!(documentClientId in current)) {
+        return current
+      }
+
+      const next = { ...current }
+      delete next[documentClientId]
+      return next
+    })
   }
 
   function handleMoveDocument(
@@ -938,17 +1174,38 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
       status: submitMode === 'publish' ? 'published' : 'draft',
     }
 
-    const validationErrors = validatePageForm(submissionState, t, {
-      currentPageId: isEditMode ? parsedPageId : null,
-      pageOptions: parentPageOptions,
-    })
-    if (Object.keys(validationErrors).length > 0) {
+    const heroImageValidationMessage =
+      submissionState.heroImageEnabled && submissionState.heroImageFile
+        ? getHeroImageValidationMessage(submissionState.heroImageFile, t)
+        : null
+    const validationErrors = {
+      ...validatePageForm(submissionState, t, {
+        currentPageId: isEditMode ? parsedPageId : null,
+        pageOptions: parentPageOptions,
+      }),
+      ...(heroImageValidationMessage
+        ? { heroImageFile: heroImageValidationMessage }
+        : {}),
+    }
+    const nextSectionFieldErrors = validatePageSectionFields(submissionState.sections, t)
+    const nextDocumentFieldErrors = validatePageDocumentFields(submissionState.sections, t)
+    const validationMessages = [
+      ...Object.values(validationErrors).filter((message): message is string => Boolean(message)),
+      ...getPageSectionValidationMessages(nextSectionFieldErrors),
+      ...getPageDocumentValidationMessages(nextDocumentFieldErrors),
+    ]
+
+    if (validationMessages.length > 0) {
       setErrors(validationErrors)
-      toast.error(t('pages.feedback.validation'))
+      setSectionFieldErrors(nextSectionFieldErrors)
+      setDocumentFieldErrors(nextDocumentFieldErrors)
+      toast.error(validationMessages[0] ?? t('pages.feedback.validation'))
       return
     }
 
     setErrors({})
+    setSectionFieldErrors({})
+    setDocumentFieldErrors({})
 
     try {
       const payload = buildSavePageRequest(submissionState, selectedParentPageSlug)
@@ -1024,7 +1281,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                   type="text"
                   value={section.header.mainHeaderText}
                   placeholder={t('pages.modules.placeholders.mainHeaderText')}
-                  onChange={(event) =>
+                  onChange={(event) => {
                     updateSection(section.clientId, (current) => ({
                       ...current,
                       header: {
@@ -1032,8 +1289,16 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                         mainHeaderText: event.target.value,
                       },
                     }))
-                  }
+                    setSectionFieldError(
+                      section.clientId,
+                      'mainHeaderText',
+                      event.target.value.trim()
+                        ? undefined
+                        : t('pages.validation.mainHeaderTextRequired'),
+                    )
+                  }}
                 />
+                <FieldError message={getSectionFieldError(section.clientId, 'mainHeaderText')} />
               </label>
             </div>
 
@@ -1238,7 +1503,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
               <span>{t('pages.modules.fields.htmlContent')}</span>
               <RichTextEditor
                 value={section.typography.htmlContent}
-                onChange={(html) =>
+                onChange={(html) => {
                   updateSection(section.clientId, (current) => ({
                     ...current,
                     typography: {
@@ -1246,11 +1511,19 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                       htmlContent: html,
                     },
                   }))
-                }
+                  setSectionFieldError(
+                    section.clientId,
+                    'htmlContent',
+                    isTypographyContentEmpty(html)
+                      ? t('pages.validation.typographyContentRequired')
+                      : undefined,
+                  )
+                }}
                 placeholder={t('pages.modules.placeholders.htmlContent')}
                 disabled={isReadOnlyMode || isBusy}
                 allowImages={false}
               />
+              <FieldError message={getSectionFieldError(section.clientId, 'htmlContent')} />
             </div>
           </div>
         )
@@ -1420,6 +1693,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
               <div className={styles.field}>
                 <span>{t('pages.modules.fields.documents')}</span>
                 <p className={styles.fieldHint}>{t('pages.modules.hints.documents')}</p>
+                <FieldError message={getSectionFieldError(section.clientId, 'documents')} />
               </div>
             </div>
 
@@ -1588,12 +1862,22 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                             type="text"
                             value={document.displayName}
                             placeholder={t('pages.modules.placeholders.documentDisplayName')}
-                            onChange={(event) =>
+                            onChange={(event) => {
                               updateDocument(section.clientId, document.clientId, (current) => ({
                                 ...current,
                                 displayName: event.target.value,
                               }))
-                            }
+                              setDocumentFieldError(
+                                document.clientId,
+                                'displayName',
+                                event.target.value.trim()
+                                  ? undefined
+                                  : t('pages.validation.documentDisplayNameRequired'),
+                              )
+                            }}
+                          />
+                          <FieldError
+                            message={getDocumentFieldError(document.clientId, 'displayName')}
                           />
                         </label>
 
@@ -1664,7 +1948,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                 rows={5}
                 value={section.quote.quoteContent}
                 placeholder={t('pages.modules.placeholders.quoteContent')}
-                onChange={(event) =>
+                onChange={(event) => {
                   updateSection(section.clientId, (current) => ({
                     ...current,
                     quote: {
@@ -1672,8 +1956,16 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                       quoteContent: event.target.value,
                     },
                   }))
-                }
+                  setSectionFieldError(
+                    section.clientId,
+                    'quoteContent',
+                    event.target.value.trim()
+                      ? undefined
+                      : t('pages.validation.quoteContentRequired'),
+                  )
+                }}
               />
+              <FieldError message={getSectionFieldError(section.clientId, 'quoteContent')} />
             </label>
           </div>
         )
@@ -1708,7 +2000,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                   type="text"
                   value={section.ctaBanner.bannerHeading}
                   placeholder={t('pages.modules.placeholders.bannerHeading')}
-                  onChange={(event) =>
+                  onChange={(event) => {
                     updateSection(section.clientId, (current) => ({
                       ...current,
                       ctaBanner: {
@@ -1716,8 +2008,16 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                         bannerHeading: event.target.value,
                       },
                     }))
-                  }
+                    setSectionFieldError(
+                      section.clientId,
+                      'bannerHeading',
+                      event.target.value.trim()
+                        ? undefined
+                        : t('pages.validation.bannerHeadingRequired'),
+                    )
+                  }}
                 />
+                <FieldError message={getSectionFieldError(section.clientId, 'bannerHeading')} />
               </label>
             </div>
 
@@ -1746,7 +2046,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                   type="text"
                   value={section.ctaBanner.buttonText}
                   placeholder={t('pages.modules.placeholders.buttonText')}
-                  onChange={(event) =>
+                  onChange={(event) => {
                     updateSection(section.clientId, (current) => ({
                       ...current,
                       ctaBanner: {
@@ -1754,8 +2054,16 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                         buttonText: event.target.value,
                       },
                     }))
-                  }
+                    setSectionFieldError(
+                      section.clientId,
+                      'buttonText',
+                      event.target.value.trim()
+                        ? undefined
+                        : t('pages.validation.buttonTextRequired'),
+                    )
+                  }}
                 />
+                <FieldError message={getSectionFieldError(section.clientId, 'buttonText')} />
               </label>
             </div>
 
@@ -1766,7 +2074,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                   type="url"
                   value={section.ctaBanner.buttonUrl}
                   placeholder={t('pages.modules.placeholders.buttonUrl')}
-                  onChange={(event) =>
+                  onChange={(event) => {
                     updateSection(section.clientId, (current) => ({
                       ...current,
                       ctaBanner: {
@@ -1774,8 +2082,16 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                         buttonUrl: event.target.value,
                       },
                     }))
-                  }
+                    setSectionFieldError(
+                      section.clientId,
+                      'buttonUrl',
+                      event.target.value.trim()
+                        ? undefined
+                        : t('pages.validation.buttonUrlRequired'),
+                    )
+                  }}
                 />
+                <FieldError message={getSectionFieldError(section.clientId, 'buttonUrl')} />
               </label>
 
               <label className={styles.toggleRow}>
@@ -1785,16 +2101,9 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                 </div>
                 <input
                   type="checkbox"
-                  checked={section.ctaBanner.openInNewTab}
-                  onChange={(event) =>
-                    updateSection(section.clientId, (current) => ({
-                      ...current,
-                      ctaBanner: {
-                        ...current.ctaBanner,
-                        openInNewTab: event.target.checked,
-                      },
-                    }))
-                  }
+                  checked
+                  disabled
+                  readOnly
                 />
               </label>
             </div>
@@ -2124,6 +2433,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                       onFiles={handleHeroFiles}
                     />
                   )}
+                  <FieldError message={errors.heroImageFile} />
                 </div>
               )}
             </div>
@@ -2573,6 +2883,24 @@ function buildDocumentMeta({
   return parts.join(' • ')
 }
 
+function getHeroImageValidationMessage(
+  file: Pick<File, 'name' | 'size' | 'type'>,
+  t: (key: string, options?: Record<string, unknown>) => string,
+) {
+  const validationError = validateHeroImageFile(file)
+  if (!validationError) {
+    return null
+  }
+
+  if (validationError === 'file-too-large') {
+    return t('pages.validation.heroImageTooLarge', {
+      maxSizeMb: PAGE_HERO_IMAGE_MAX_FILE_SIZE_MB,
+    })
+  }
+
+  return t('pages.validation.heroImageUnsupported')
+}
+
 function canPreviewDocument(mimeType: string, fileName: string) {
   const normalizedMimeType = mimeType.trim().toLowerCase()
   const extension = fileName.split('.').pop()?.trim().toLowerCase() ?? ''
@@ -2611,6 +2939,37 @@ function scheduleObjectUrlRevoke(url: string) {
   globalThis.setTimeout(() => {
     URL.revokeObjectURL(url)
   }, 60_000)
+}
+
+function validateHeroImageFile(file: Pick<File, 'name' | 'size' | 'type'>) {
+  if (!isSupportedHeroImageFile(file)) {
+    return 'unsupported-file-type' as const
+  }
+
+  if (file.size > PAGE_HERO_IMAGE_MAX_FILE_SIZE_BYTES) {
+    return 'file-too-large' as const
+  }
+
+  return null
+}
+
+function isSupportedHeroImageFile(file: Pick<File, 'name' | 'type'>) {
+  const normalizedMimeType = file.type.trim().toLowerCase()
+  if (normalizedMimeType && HERO_IMAGE_SUPPORTED_MIME_TYPES.has(normalizedMimeType)) {
+    return true
+  }
+
+  const extension = getFileExtension(file.name)
+  return extension ? HERO_IMAGE_SUPPORTED_EXTENSIONS.has(extension) : false
+}
+
+function getFileExtension(fileName: string) {
+  const lastDotIndex = fileName.lastIndexOf('.')
+  if (lastDotIndex < 0) {
+    return ''
+  }
+
+  return fileName.slice(lastDotIndex).trim().toLowerCase()
 }
 
 function DragHandleIcon() {
