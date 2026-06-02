@@ -314,8 +314,12 @@
 }
 
 .fieldError {
-  color: var(--color-error-strong);
+  display: block;
+  margin: 0.35rem 0 0;
+  color: #b1131f;
   font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
 .errorSummary {
@@ -417,6 +421,7 @@
 }
 
 .moduleCard {
+  position: relative;
   border: 1px solid #eed8d2;
   border-radius: 1rem;
   background: #fffdfa;
@@ -431,6 +436,18 @@
 .moduleCardDragOver {
   border-color: #b1131f;
   box-shadow: 0 0 0 3px rgba(177, 19, 31, 0.1);
+}
+
+.moduleCardDragOverBefore {
+  box-shadow:
+    0 0 0 3px rgba(177, 19, 31, 0.1),
+    inset 0 4px 0 #b1131f;
+}
+
+.moduleCardDragOverAfter {
+  box-shadow:
+    0 0 0 3px rgba(177, 19, 31, 0.1),
+    inset 0 -4px 0 #b1131f;
 }
 
 .moduleHeader {

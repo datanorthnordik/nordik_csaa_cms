@@ -437,7 +437,7 @@
       },
       "document": {
         "dropLabel": "Glissez-deposez les documents ici ou parcourez",
-        "dropHint": "Formats pris en charge : PDF, Word, Excel et PowerPoint.",
+        "dropHint": "Prend en charge PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG et WEBP jusqu a 20 Mo.",
         "emptyTitle": "Aucun document dans ce module",
         "emptyText": "Televersez un ou plusieurs fichiers pour composer cette section de documents.",
         "itemLabel": "Document {{index}}",

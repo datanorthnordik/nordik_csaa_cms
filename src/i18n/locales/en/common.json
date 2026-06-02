@@ -437,7 +437,7 @@
       },
       "document": {
         "dropLabel": "Drag and drop documents here or browse",
-        "dropHint": "Supports PDF, Word, Excel, and PowerPoint files.",
+        "dropHint": "Supports PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP up to 20MB.",
         "emptyTitle": "No documents in this module yet",
         "emptyText": "Upload one or more files to build this document section.",
         "itemLabel": "Document {{index}}",

@@ -52,11 +52,17 @@ import {
   type PageDocumentValidationErrors,
   type PageFormErrors,
   type PageSectionFieldErrors,
+  type PageSectionDropPlacement,
   type PageFormState,
   type PageSectionDocumentState,
   type PageSectionState,
   type PageSectionValidationErrors,
 } from '../lib/pagesForm'
+import {
+  RESOURCE_FILE_ACCEPT,
+  getResourceUploadValidationErrorMessage,
+  validateResourceUploadFile,
+} from '../lib/resourceUpload'
 import {
   clearCurrentPage,
   clearPageSaveState,
@@ -91,22 +97,21 @@ type ModuleTypeOption = {
   icon: ReactNode
 }
 
-const DOCUMENT_UPLOAD_ACCEPT = [
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.ms-powerpoint',
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-  '.pdf',
-  '.doc',
-  '.docx',
-  '.xls',
-  '.xlsx',
-  '.ppt',
-  '.pptx',
-].join(',')
+const DOCUMENT_UPLOAD_ACCEPT = RESOURCE_FILE_ACCEPT
+const SECTION_DRAG_AUTO_SCROLL_EDGE_PX = 96
+const SECTION_DRAG_AUTO_SCROLL_STEP_PX = 32
+
+export function getSectionDragAutoScrollDelta(clientY: number, viewportHeight: number) {
+  if (clientY <= SECTION_DRAG_AUTO_SCROLL_EDGE_PX) {
+    return -SECTION_DRAG_AUTO_SCROLL_STEP_PX
+  }
+
+  if (viewportHeight - clientY <= SECTION_DRAG_AUTO_SCROLL_EDGE_PX) {
+    return SECTION_DRAG_AUTO_SCROLL_STEP_PX
+  }
+
+  return 0
+}
 
 const PAGE_HERO_IMAGE_MAX_FILE_SIZE_MB = 5
 const PAGE_HERO_IMAGE_MAX_FILE_SIZE_BYTES =
@@ -163,6 +168,11 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
   const [modulePickerOpen, setModulePickerOpen] = useState(false)
   const [draggedSectionClientId, setDraggedSectionClientId] = useState<string | null>(null)
   const [dragOverSectionClientId, setDragOverSectionClientId] = useState<string | null>(null)
+  const [dragOverSectionPlacement, setDragOverSectionPlacement] =
+    useState<PageSectionDropPlacement | null>(null)
+  const draggedSectionClientIdRef = useRef<string | null>(null)
+  const dragOverSectionClientIdRef = useRef<string | null>(null)
+  const dragOverSectionPlacementRef = useRef<PageSectionDropPlacement | null>(null)
   const [documentPreviewUrls, setDocumentPreviewUrls] = useState<Record<string, string>>({})
   const [activeDocumentAction, setActiveDocumentAction] = useState<
     Record<string, 'preview' | 'download' | undefined>
@@ -586,6 +596,28 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
   }, [documentPreviewSignature])
 
   useEffect(() => {
+    function handleWindowDragOver(event: globalThis.DragEvent) {
+      if (!draggedSectionClientIdRef.current || isReadOnlyMode || isBusy) {
+        return
+      }
+
+      const delta = getSectionDragAutoScrollDelta(event.clientY, globalThis.window.innerHeight)
+      if (delta !== 0) {
+        globalThis.window.scrollBy({
+          top: delta,
+          behavior: 'auto',
+        })
+      }
+    }
+
+    globalThis.window.addEventListener('dragover', handleWindowDragOver)
+
+    return () => {
+      globalThis.window.removeEventListener('dragover', handleWindowDragOver)
+    }
+  }, [isBusy, isReadOnlyMode])
+
+  useEffect(() => {
     return () => {
       Object.values(documentPreviewUrlsRef.current).forEach((url) => {
         URL.revokeObjectURL(url)
@@ -1002,46 +1034,85 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
     if (isReadOnlyMode || isBusy) {
       return
     }
+    draggedSectionClientIdRef.current = sectionClientId
+    dragOverSectionClientIdRef.current = sectionClientId
+    dragOverSectionPlacementRef.current = 'before'
     setDraggedSectionClientId(sectionClientId)
+    setDragOverSectionClientId(sectionClientId)
+    setDragOverSectionPlacement('before')
+  }
+
+  function resolveSectionDropPlacement(event: DragEvent<HTMLElement>): PageSectionDropPlacement {
+    const bounds = event.currentTarget.getBoundingClientRect()
+    if (bounds.height <= 0) {
+      return 'after'
+    }
+
+    return event.clientY - bounds.top <= bounds.height / 2 ? 'before' : 'after'
   }
 
   function handleSectionDragOver(event: DragEvent<HTMLElement>, sectionClientId: string) {
+    const activeDraggedSectionClientId = draggedSectionClientIdRef.current
     if (
       isReadOnlyMode ||
       isBusy ||
-      !draggedSectionClientId ||
-      draggedSectionClientId === sectionClientId
+      !activeDraggedSectionClientId ||
+      activeDraggedSectionClientId === sectionClientId
     ) {
       return
     }
 
     event.preventDefault()
     event.dataTransfer.dropEffect = 'move'
+    const placement = resolveSectionDropPlacement(event)
+    dragOverSectionClientIdRef.current = sectionClientId
+    dragOverSectionPlacementRef.current = placement
     setDragOverSectionClientId(sectionClientId)
+    setDragOverSectionPlacement(placement)
   }
 
-  function handleSectionDrop(sectionClientId: string) {
+  function handleSectionDrop(event: DragEvent<HTMLElement>, sectionClientId: string) {
+    const activeDraggedSectionClientId = draggedSectionClientIdRef.current
     if (
       isReadOnlyMode ||
       isBusy ||
-      !draggedSectionClientId ||
-      draggedSectionClientId === sectionClientId
+      !activeDraggedSectionClientId ||
+      activeDraggedSectionClientId === sectionClientId
     ) {
       return
     }
 
+    event.preventDefault()
+    const placement =
+      dragOverSectionClientIdRef.current === sectionClientId && dragOverSectionPlacementRef.current
+        ? dragOverSectionPlacementRef.current
+        : resolveSectionDropPlacement(event)
+
     setForm((current) => ({
       ...current,
-      sections: reorderPageSections(current.sections, draggedSectionClientId, sectionClientId),
+      sections: reorderPageSections(
+        current.sections,
+        activeDraggedSectionClientId,
+        sectionClientId,
+        placement,
+      ),
     }))
+    draggedSectionClientIdRef.current = null
+    dragOverSectionClientIdRef.current = null
+    dragOverSectionPlacementRef.current = null
     setDraggedSectionClientId(null)
     setDragOverSectionClientId(null)
+    setDragOverSectionPlacement(null)
     clearErrors('sections')
   }
 
   function handleSectionDragEnd() {
+    draggedSectionClientIdRef.current = null
+    dragOverSectionClientIdRef.current = null
+    dragOverSectionPlacementRef.current = null
     setDraggedSectionClientId(null)
     setDragOverSectionClientId(null)
+    setDragOverSectionPlacement(null)
   }
 
   function handleDocumentFiles(sectionClientId: string, files: File[]) {
@@ -1049,13 +1120,38 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
       return
     }
 
+    const validFiles: File[] = []
+    let validationMessage: string | null = null
+
+    files.forEach((file) => {
+      const nextValidationMessage = getDocumentUploadValidationMessage(file)
+      if (nextValidationMessage) {
+        validationMessage ??= nextValidationMessage
+        return
+      }
+
+      validFiles.push(file)
+    })
+
+    if (!validFiles.length) {
+      if (validationMessage) {
+        setSectionFieldError(sectionClientId, 'documents', validationMessage)
+        toast.error(validationMessage)
+      }
+      return
+    }
+
     updateSection(sectionClientId, (section) => ({
       ...section,
       documents: {
-        items: [...section.documents.items, ...files.map(createDefaultDocumentState)],
+        items: [...section.documents.items, ...validFiles.map(createDefaultDocumentState)],
       },
     }))
     setSectionFieldError(sectionClientId, 'documents', undefined)
+
+    if (validationMessage) {
+      toast.error(validationMessage)
+    }
   }
 
   function handleReplaceDocumentFile(
@@ -1063,6 +1159,13 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
     documentClientId: string,
     file: File,
   ) {
+    const validationMessage = getDocumentUploadValidationMessage(file)
+    if (validationMessage) {
+      setSectionFieldError(sectionClientId, 'documents', validationMessage)
+      toast.error(validationMessage)
+      return
+    }
+
     updateDocument(sectionClientId, documentClientId, (document) => ({
       ...document,
       file,
@@ -2468,7 +2571,8 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
             </div>
           </section>
 
-          <section className={styles.card}>
+          {!isModuleManaged && (
+            <section className={styles.card}>
             <div className={styles.cardHeaderBlock}>
               <h2>{t('pages.sections.contentModules')}</h2>
               <p>{t('pages.sections.contentModulesHint')}</p>
@@ -2494,6 +2598,9 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                   const moduleType = moduleTypeOptions.find(
                     (option) => option.type === section.sectionType,
                   )
+                  const isDragOverTarget =
+                    dragOverSectionClientId === section.clientId &&
+                    draggedSectionClientId !== section.clientId
 
                   return (
                     <article
@@ -2501,9 +2608,12 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                       className={[
                         styles.moduleCard,
                         draggedSectionClientId === section.clientId ? styles.moduleCardDragging : '',
-                        dragOverSectionClientId === section.clientId &&
-                        draggedSectionClientId !== section.clientId
-                          ? styles.moduleCardDragOver
+                        isDragOverTarget ? styles.moduleCardDragOver : '',
+                        isDragOverTarget && dragOverSectionPlacement === 'before'
+                          ? styles.moduleCardDragOverBefore
+                          : '',
+                        isDragOverTarget && dragOverSectionPlacement === 'after'
+                          ? styles.moduleCardDragOverAfter
                           : '',
                       ]
                         .filter(Boolean)
@@ -2511,7 +2621,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                       draggable={!isReadOnlyMode && !isBusy}
                       onDragStart={() => handleSectionDragStart(section.clientId)}
                       onDragOver={(event) => handleSectionDragOver(event, section.clientId)}
-                      onDrop={() => handleSectionDrop(section.clientId)}
+                      onDrop={(event) => handleSectionDrop(event, section.clientId)}
                       onDragEnd={handleSectionDragEnd}
                     >
                       <div className={styles.moduleHeader}>
@@ -2659,7 +2769,8 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                 )}
               </div>
             )}
-          </section>
+            </section>
+          )}
         </fieldset>
 
         {!isReadOnlyMode && (
@@ -2694,7 +2805,11 @@ function FieldError({ message }: { message?: string }) {
     return null
   }
 
-  return <span className={styles.fieldError}>{message}</span>
+  return (
+    <p role="alert" className={styles.fieldError}>
+      {message}
+    </p>
+  )
 }
 
 function SegmentedButton({
@@ -2899,6 +3014,15 @@ function getHeroImageValidationMessage(
   }
 
   return t('pages.validation.heroImageUnsupported')
+}
+
+function getDocumentUploadValidationMessage(file: Pick<File, 'name' | 'size' | 'type'>) {
+  const validationError = validateResourceUploadFile(file)
+  if (!validationError) {
+    return null
+  }
+
+  return getResourceUploadValidationErrorMessage(validationError)
 }
 
 function canPreviewDocument(mimeType: string, fileName: string) {
