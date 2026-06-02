@@ -26,3 +26,4 @@ coverage
 
 # Claude workspace data
 .claude/
+AGENTS.md
