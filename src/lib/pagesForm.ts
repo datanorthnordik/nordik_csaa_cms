@@ -131,6 +131,8 @@ export type PageDocumentFieldErrors = Partial<Record<'displayName', string>>
 
 export type PageDocumentValidationErrors = Record<string, PageDocumentFieldErrors>
 
+export type PageSectionDropPlacement = 'before' | 'after'
+
 export function createPageEditorId(prefix: string) {
   if (typeof globalThis.crypto?.randomUUID === 'function') {
     return `${prefix}-${globalThis.crypto.randomUUID()}`
@@ -516,16 +518,22 @@ export function reorderPageSections(
   sections: PageSectionState[],
   draggedClientId: string,
   targetClientId: string,
+  placement: PageSectionDropPlacement = 'before',
 ) {
   const fromIndex = sections.findIndex((section) => section.clientId === draggedClientId)
-  const toIndex = sections.findIndex((section) => section.clientId === targetClientId)
-  if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
+  if (fromIndex < 0) {
     return sections
   }
 
   const next = sections.slice()
   const [moved] = next.splice(fromIndex, 1)
-  next.splice(toIndex, 0, moved)
+  const targetIndex = next.findIndex((section) => section.clientId === targetClientId)
+  if (!moved || targetIndex < 0) {
+    return sections
+  }
+
+  const insertIndex = placement === 'after' ? targetIndex + 1 : targetIndex
+  next.splice(insertIndex, 0, moved)
   return next
 }
 

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import toast from 'react-hot-toast'
 import i18n from '../i18n'
-import { PageEditorPage } from './PageEditorPage'
+import { PageEditorPage, getSectionDragAutoScrollDelta } from './PageEditorPage'
 
 const {
   dispatchMock,
@@ -158,6 +158,32 @@ function setEditablePageState(
   )
 }
 
+function getSectionCard(title: string) {
+  const card = screen.getByRole('heading', { name: title }).closest('article')
+  if (!card) {
+    throw new Error(`Expected section card for ${title}`)
+  }
+
+  return card as HTMLElement
+}
+
+function mockElementRect(
+  element: HTMLElement,
+  rect: Partial<Pick<DOMRect, 'top' | 'left' | 'width' | 'height'>>,
+) {
+  return vi.spyOn(element, 'getBoundingClientRect').mockReturnValue({
+    top: rect.top ?? 0,
+    left: rect.left ?? 0,
+    width: rect.width ?? 320,
+    height: rect.height ?? 120,
+    right: (rect.left ?? 0) + (rect.width ?? 320),
+    bottom: (rect.top ?? 0) + (rect.height ?? 120),
+    x: rect.left ?? 0,
+    y: rect.top ?? 0,
+    toJSON: () => ({}),
+  } as DOMRect)
+}
+
 describe('PageEditorPage module pages', () => {
   beforeEach(async () => {
     await i18n.changeLanguage('en')
@@ -175,6 +201,7 @@ describe('PageEditorPage module pages', () => {
     fetchPageDocumentContentMock.mockResolvedValue(new Blob(['document-preview']))
     URL.createObjectURL = vi.fn(() => 'blob:preview')
     URL.revokeObjectURL = vi.fn()
+    globalThis.window.scrollBy = vi.fn()
     useAppSelectorMock.mockImplementation((selector: (state: unknown) => unknown) =>
       selector({
         pages: {
@@ -233,6 +260,88 @@ describe('PageEditorPage module pages', () => {
     expect(screen.queryByRole('button', { name: 'Save as Draft' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Publish Page' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Edit Page' })).toBeNull()
+    expect(screen.queryByRole('heading', { name: 'Content Modules' })).toBeNull()
+  })
+
+  it('moves the first section to the end when dropped on the lower half of the last section', async () => {
+    setEditablePageState([
+      {
+        id: 1,
+        section_name: 'First Section',
+        section_type: 'header',
+        sort_order: 0,
+        is_enabled: true,
+        header: {
+          main_header_text: 'First',
+          sub_header_text: '',
+          description: '',
+          hierarchy: 'h2_section',
+          text_align: 'left',
+          underline_enabled: false,
+        },
+        created_at: '2026-05-13T00:00:00Z',
+        updated_at: '2026-05-13T00:00:00Z',
+      },
+      {
+        id: 2,
+        section_name: 'Middle Section',
+        section_type: 'quote',
+        sort_order: 1,
+        is_enabled: true,
+        quote: {
+          quote_content: 'Middle quote',
+          attribution: '',
+        },
+        created_at: '2026-05-13T00:00:00Z',
+        updated_at: '2026-05-13T00:00:00Z',
+      },
+      {
+        id: 3,
+        section_name: 'Last Section',
+        section_type: 'cta_banner',
+        sort_order: 2,
+        is_enabled: true,
+        cta_banner: {
+          banner_heading: 'Last CTA',
+          banner_message: '',
+          button_text: 'Learn more',
+          button_url: 'https://example.com',
+          open_in_new_tab: true,
+        },
+        created_at: '2026-05-13T00:00:00Z',
+        updated_at: '2026-05-13T00:00:00Z',
+      },
+    ])
+
+    render(<PageEditorPage />)
+
+    await waitFor(() => {
+      expect(listPageParentOptionsMock).toHaveBeenCalledTimes(1)
+      expect(listGalleriesMock).toHaveBeenCalledTimes(1)
+    })
+
+    const firstCard = getSectionCard('First Section')
+    const lastCard = getSectionCard('Last Section')
+    const dataTransfer = { dropEffect: '' }
+    const rectSpy = mockElementRect(lastCard, { top: 0, height: 120 })
+
+    fireEvent.dragStart(firstCard)
+    fireEvent.dragOver(lastCard, { clientY: 100, dataTransfer })
+    fireEvent.drop(lastCard, { clientY: 100, dataTransfer })
+
+    expect(screen.getAllByRole('heading', { level: 3 }).map((node) => node.textContent)).toEqual([
+      'Middle Section',
+      'Last Section',
+      'First Section',
+    ])
+
+    rectSpy.mockRestore()
+  })
+
+  it('returns scroll offsets while dragging near the viewport edges', () => {
+    expect(getSectionDragAutoScrollDelta(20, 900)).toBe(-32)
+    expect(getSectionDragAutoScrollDelta(880, 900)).toBe(32)
+    expect(getSectionDragAutoScrollDelta(300, 900)).toBe(0)
   })
 
   it('rejects unsupported hero image uploads', async () => {
@@ -564,6 +673,47 @@ describe('PageEditorPage module pages', () => {
     ).toBeGreaterThan(0)
     expect(toast.error).toHaveBeenCalledWith(
       'At least one document is required for the Document Module.',
+    )
+  })
+
+  it('rejects unsupported document uploads with the press-entry file rules', async () => {
+    setEditablePageState([
+      {
+        id: 4,
+        section_name: 'Documents',
+        section_type: 'document',
+        sort_order: 0,
+        is_enabled: true,
+        documents: {
+          items: [],
+        },
+        created_at: '2026-05-13T00:00:00Z',
+        updated_at: '2026-05-13T00:00:00Z',
+      },
+    ])
+
+    render(<PageEditorPage />)
+
+    await waitFor(() => {
+      expect(listPageParentOptionsMock).toHaveBeenCalledTimes(1)
+      expect(listGalleriesMock).toHaveBeenCalledTimes(1)
+    })
+
+    fireEvent.change(screen.getByLabelText('Drag and drop documents here or browse'), {
+      target: {
+        files: [new File(['zip'], 'archive.zip', { type: 'application/zip' })],
+      },
+    })
+
+    expect(
+      (
+        await screen.findAllByText(
+          'Only PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP are supported.',
+        )
+      ).length,
+    ).toBeGreaterThan(0)
+    expect(toast.error).toHaveBeenCalledWith(
+      'Only PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP are supported.',
     )
   })
 

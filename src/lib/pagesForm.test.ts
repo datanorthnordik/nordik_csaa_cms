@@ -8,6 +8,7 @@ import {
   createDefaultPageFormState,
   createDefaultSectionState,
   getDisallowedParentPageIds,
+  reorderPageSections,
   validatePageDocumentFields,
   validatePageForm,
   validatePageSectionFields,
@@ -779,5 +780,24 @@ describe('parent page validation', () => {
     expect(errors[document.clientId]?.displayName).toBe(
       'pages.validation.documentDisplayNameRequired',
     )
+  })
+
+  it('reorders sections before or after the drop target', () => {
+    const first = createDefaultSectionState('header')
+    const middle = createDefaultSectionState('typography')
+    const last = createDefaultSectionState('cta_banner')
+    const sections = [first, middle, last]
+
+    expect(
+      reorderPageSections(sections, last.clientId, first.clientId, 'before').map(
+        (section) => section.clientId,
+      ),
+    ).toEqual([last.clientId, first.clientId, middle.clientId])
+
+    expect(
+      reorderPageSections(sections, first.clientId, last.clientId, 'after').map(
+        (section) => section.clientId,
+      ),
+    ).toEqual([middle.clientId, last.clientId, first.clientId])
   })
 })
