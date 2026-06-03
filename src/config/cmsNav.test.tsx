@@ -11,7 +11,6 @@ vi.mock('../components/icons', () => ({
   MemorialIcon: () => <svg data-testid="memorial-icon" />,
   ResourcesIcon: () => <svg data-testid="resources-icon" />,
   MediaIcon: () => <svg data-testid="media-icon" />,
-  SettingsIcon: () => <svg data-testid="settings-icon" />,
   LogoutIcon: () => <svg data-testid="logout-icon" />,
 }))
 
@@ -35,7 +34,7 @@ describe('cmsNav', () => {
     })
   })
 
-  it('keeps settings and logout in the footer navigation', () => {
-    expect(cmsFooterItems.map((item) => item.key)).toEqual(['settings', 'logout'])
+  it('keeps only logout in the footer navigation', () => {
+    expect(cmsFooterItems.map((item) => item.key)).toEqual(['logout'])
   })
 })
