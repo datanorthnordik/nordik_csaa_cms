@@ -213,12 +213,13 @@
     },
     "status": {
       "draft": "Brouillon",
-      "live": "En ligne"
+      "live": "En ligne",
+      "published": "Publiee"
     },
     "filters": {
       "searchPlaceholder": "Rechercher des pages...",
       "status": "Filtrer par statut",
-      "allStatuses": "Filtrer par statut",
+      "allStatuses": "TOUS",
       "filters": "Filtres"
     },
     "list": {

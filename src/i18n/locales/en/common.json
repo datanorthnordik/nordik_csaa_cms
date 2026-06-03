@@ -213,12 +213,13 @@
     },
     "status": {
       "draft": "Draft",
-      "live": "Live"
+      "live": "Live",
+      "published": "Published"
     },
     "filters": {
       "searchPlaceholder": "Search pages...",
       "status": "Filter by status",
-      "allStatuses": "Filter by Status",
+      "allStatuses": "ALL",
       "filters": "Filters"
     },
     "list": {

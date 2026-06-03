@@ -36,7 +36,6 @@ export function PagesListPage() {
   const filters = useAppSelector(selectPageListFilters)
   const { items, status, error } = useAppSelector(selectPageList)
   const [searchInput, setSearchInput] = useState(filters.searchTerm)
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [deleteCandidate, setDeleteCandidate] = useState<PageListItem | null>(null)
   const [deletingPageId, setDeletingPageId] = useState<number | null>(null)
 
@@ -115,6 +114,12 @@ export function PagesListPage() {
     )
   }
 
+  function formatStatus(statusValue: PageListItem['status']) {
+    return statusValue === 'published'
+      ? t('pages.status.published')
+      : t('pages.status.draft')
+  }
+
   function renderPageType(item: PageListItem) {
     const modulePage = isModulePage(item)
 
@@ -166,52 +171,23 @@ export function PagesListPage() {
                 />
               </div>
 
-              <button
-                type="button"
-                className={[
-                  styles.filterToggleButton,
-                  isFilterOpen ? styles.filterToggleButtonActive : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
-                onClick={() => setIsFilterOpen((v) => !v)}
-                aria-expanded={isFilterOpen}
-              >
-                <FilterIcon />
-                {t('pages.filters.filters')}
-                <span
-                  className={[
-                    styles.filterChevron,
-                    isFilterOpen ? styles.filterChevronOpen : '',
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                  aria-hidden="true"
+              <label className={styles.filterSelect}>
+                <span className={styles.visuallyHidden}>{t('pages.filters.status')}</span>
+                <select
+                  aria-label={t('pages.filters.status')}
+                  value={filters.status}
+                  onChange={(event) => changeStatus(event.target.value as PageStatusFilter)}
                 >
-                  <ChevronDownIcon />
-                </span>
-              </button>
+                  <option value="">{t('pages.filters.allStatuses')}</option>
+                  <option value="draft">{t('pages.status.draft')}</option>
+                  <option value="published">{t('pages.status.published')}</option>
+                </select>
+              </label>
 
               <p className={styles.totalCount}>
                 {t('pages.list.total', { count: totalItems })}
               </p>
             </div>
-
-            {isFilterOpen && (
-              <div className={styles.filterCardExpanded}>
-                <label className={styles.filterSelect}>
-                  <span className={styles.visuallyHidden}>{t('pages.filters.status')}</span>
-                  <select
-                    value={filters.status}
-                    onChange={(event) => changeStatus(event.target.value as PageStatusFilter)}
-                  >
-                    <option value="">{t('pages.filters.allStatuses')}</option>
-                    <option value="draft">{t('pages.status.draft')}</option>
-                    <option value="published">{t('pages.status.live')}</option>
-                  </select>
-                </label>
-              </div>
-            )}
           </div>
           {error && <p className={styles.errorText}>{error}</p>}
 
@@ -254,9 +230,7 @@ export function PagesListPage() {
                                 : styles.statusDraft,
                             ].join(' ')}
                           >
-                            {item.status === 'published'
-                              ? t('pages.status.live')
-                              : t('pages.status.draft')}
+                            {formatStatus(item.status)}
                           </span>
                         </td>
                         <td>{formatLastModified(item)}</td>
@@ -316,9 +290,7 @@ export function PagesListPage() {
                             : styles.statusDraft,
                         ].join(' ')}
                       >
-                        {item.status === 'published'
-                          ? t('pages.status.live')
-                          : t('pages.status.draft')}
+                        {formatStatus(item.status)}
                       </span>
                     </div>
                     <div className={styles.mobileCardMeta}>{formatLastModified(item)}</div>
@@ -404,32 +376,5 @@ export function PagesListPage() {
         </Dialog>
       </div>
     </CmsAppShell>
-  )
-}
-
-function FilterIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="15" height="15" fill="none" aria-hidden="true">
-      <path
-        d="M2 4h12M4.5 8h7M7 12h2"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-    </svg>
-  )
-}
-
-function ChevronDownIcon() {
-  return (
-    <svg viewBox="0 0 16 16" width="14" height="14" fill="none" aria-hidden="true">
-      <path
-        d="M4 6l4 4 4-4"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   )
 }

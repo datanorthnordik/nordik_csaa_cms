@@ -103,54 +103,6 @@
   gap: 0.75rem;
 }
 
-.filterCardExpanded {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 0.875rem;
-  padding-top: 0.875rem;
-  border-top: 1px solid var(--color-border);
-}
-
-.filterToggleButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 0 0.875rem;
-  min-height: 2.75rem;
-  background: var(--color-surface);
-  color: var(--color-text);
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
-.filterToggleButton:hover {
-  background: var(--color-surface-alt);
-  border-color: var(--color-border-input);
-}
-
-.filterToggleButtonActive {
-  border-color: var(--color-primary);
-  background: var(--color-primary-tint);
-  color: var(--color-primary);
-}
-
-.filterChevron {
-  display: inline-flex;
-  transition: transform 0.2s ease;
-}
-
-.filterChevronOpen {
-  transform: rotate(180deg);
-}
-
 .searchField {
   flex: 1;
   min-width: 0;
@@ -189,6 +141,8 @@
 }
 
 .filterSelect {
+  flex-shrink: 0;
+  min-width: 10rem;
   padding: 0 0.875rem;
   min-height: 2.75rem;
   display: flex;
