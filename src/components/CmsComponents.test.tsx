@@ -158,6 +158,8 @@ describe('CmsAppShell', () => {
       expect(screen.getByRole('button', { name: /submit ticket/i })).toBeDefined()
     })
 
+    expect(screen.queryByRole('button', { name: /settings/i })).toBeNull()
+
     fireEvent.click(screen.getByRole('button', { name: /submit ticket/i }))
     expect(onSubmitTicket).toHaveBeenCalledTimes(1)
 

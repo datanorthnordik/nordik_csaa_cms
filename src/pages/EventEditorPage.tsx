@@ -7,6 +7,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
+import { UploadDropzone } from '../components/media/UploadDropzone'
 import { PublishingControls } from '../components/cms/PublishingControls'
 import { EntryActions } from '../components/cms/EntryActions'
 import { StatusBadge } from '../components/cms/StatusBadge'
@@ -25,6 +26,14 @@ import {
   usesTime,
   validateEventForm,
 } from '../lib/eventsForm'
+import {
+  RESOURCE_FILE_ACCEPT,
+  RESOURCE_IMAGE_FILE_ACCEPT,
+  getResourceImageUploadValidationErrorMessage,
+  getResourceUploadValidationErrorMessage,
+  validateResourceImageUploadFile,
+  validateResourceUploadFile,
+} from '../lib/resourceUpload'
 import {
   clearCurrentEvent,
   clearEventSaveState,
@@ -472,19 +481,54 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
     }))
   }
 
-  function handleDisplayImageChange(fileList: FileList | null) {
-    updateField('displayImageFile', fileList?.[0] ?? null, { touch: false })
-  }
-
-  function handleAttachmentsChange(fileList: FileList | null) {
-    if (!fileList?.length) {
+  function handleDisplayImageFiles(files: File[]) {
+    const [file] = files
+    if (!file) {
+      updateField('displayImageFile', null, { touch: false })
       return
     }
 
-    setForm((current) => ({
-      ...current,
-      attachmentFiles: [...current.attachmentFiles, ...Array.from(fileList)],
-    }))
+    const validationMessage = getEventDisplayImageValidationMessage(file)
+    if (validationMessage) {
+      setErrors((current) => ({ ...current, displayImage: validationMessage }))
+      toast.error(validationMessage)
+      return
+    }
+
+    setErrors((current) => ({ ...current, displayImage: undefined }))
+    updateField('displayImageFile', file, { touch: false })
+  }
+
+  function handleAttachmentFiles(files: File[]) {
+    if (!files.length) {
+      return
+    }
+
+    const validFiles: File[] = []
+    let validationMessage: string | null = null
+
+    files.forEach((file) => {
+      const nextValidationMessage = getEventAttachmentValidationMessage(file)
+      if (nextValidationMessage) {
+        validationMessage ??= nextValidationMessage
+        return
+      }
+
+      validFiles.push(file)
+    })
+
+    if (validFiles.length > 0) {
+      setErrors((current) => ({ ...current, attachments: undefined }))
+      setForm((current) => ({
+        ...current,
+        attachmentFiles: [...current.attachmentFiles, ...validFiles],
+      }))
+    }
+
+    if (validationMessage) {
+      setErrors((current) => ({ ...current, attachments: validationMessage }))
+      toast.error(validationMessage)
+    }
   }
 
   function removeNewAttachment(index: number) {
@@ -1156,14 +1200,15 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
               </div>
 
               <div className={styles.fieldGrid}>
-                <label className={styles.fieldFull}>
+                <div className={styles.fieldFull}>
                   <span>{t('events.fields.displayImage')}</span>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(event) => handleDisplayImageChange(event.target.files)}
+                  <UploadDropzone
+                    accept={RESOURCE_IMAGE_FILE_ACCEPT}
+                    label={t('events.fields.displayImage')}
+                    onFiles={handleDisplayImageFiles}
                   />
-                </label>
+                  <FieldError message={errors.displayImage} />
+                </div>
 
                 {(form.existingDisplayImage || form.displayImageFile) && (
                   <div className={`${styles.mediaList} ${styles.displayImageList}`}>
@@ -1283,14 +1328,16 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
                   />
                 </label>
 
-                <label className={styles.fieldFull}>
+                <div className={styles.fieldFull}>
                   <span>{t('events.fields.attachments')}</span>
-                  <input
-                    type="file"
+                  <UploadDropzone
                     multiple
-                    onChange={(event) => handleAttachmentsChange(event.target.files)}
+                    accept={RESOURCE_FILE_ACCEPT}
+                    label={t('events.fields.attachments')}
+                    onFiles={handleAttachmentFiles}
                   />
-                </label>
+                  <FieldError message={errors.attachments} />
+                </div>
 
                 {(form.existingAttachments.length > 0 || form.attachmentFiles.length > 0) && (
                   <div className={styles.mediaGrid}>
@@ -1713,6 +1760,24 @@ function FieldError({ message }: { message?: string }) {
   }
 
   return <span className={styles.fieldError}>{message}</span>
+}
+
+function getEventAttachmentValidationMessage(file: Pick<File, 'name' | 'size' | 'type'>) {
+  const validationError = validateResourceUploadFile(file)
+  if (!validationError) {
+    return null
+  }
+
+  return getResourceUploadValidationErrorMessage(validationError)
+}
+
+function getEventDisplayImageValidationMessage(file: Pick<File, 'name' | 'size' | 'type'>) {
+  const validationError = validateResourceImageUploadFile(file)
+  if (!validationError) {
+    return null
+  }
+
+  return getResourceImageUploadValidationErrorMessage(validationError)
 }
 
 type MediaPreviewFooterProps = {

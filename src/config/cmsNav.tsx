@@ -9,7 +9,6 @@ import {
   MemorialIcon,
   ResourcesIcon,
   MediaIcon,
-  SettingsIcon,
   LogoutIcon,
 } from '../components/icons'
 
@@ -32,6 +31,5 @@ export const cmsNavItems: CmsNavItemConfig[] = [
 ]
 
 export const cmsFooterItems: CmsNavItemConfig[] = [
-  { key: 'settings', icon: <SettingsIcon />, path: '' },
   { key: 'logout', icon: <LogoutIcon /> },
 ]

@@ -149,4 +149,43 @@ describe('EventEditorPage', () => {
     expect((await screen.findAllByText('Enter a valid contact email address.')).length).toBeGreaterThan(0)
     expect((await screen.findAllByText('Enter a valid contact phone number.')).length).toBeGreaterThan(0)
   })
+
+  it('rejects unsupported display image and attachment files from picker and drag-and-drop', async () => {
+    renderPage()
+    await screen.findByRole('heading', { name: /create new event/i })
+
+    const invalidDisplayImage = new File(['gif'], 'cover.gif', { type: 'image/gif' })
+    fireEvent.change(screen.getByLabelText(/^display image$/i), {
+      target: { files: [invalidDisplayImage] },
+    })
+
+    expect(toastError).toHaveBeenNthCalledWith(
+      1,
+      'Only SVG, PNG, JPG, and WEBP are supported.',
+    )
+    expect(screen.getByText('Only SVG, PNG, JPG, and WEBP are supported.')).toBeDefined()
+    expect(screen.queryByText('cover.gif')).toBeNull()
+
+    const invalidAttachment = new File(['exe'], 'agenda.exe', {
+      type: 'application/octet-stream',
+    })
+    const attachmentDropzone = screen
+      .getAllByText(/^additional files$/i)
+      .map((element) => element.closest('label'))
+      .find((element): element is HTMLLabelElement => element instanceof HTMLLabelElement)
+    expect(attachmentDropzone).not.toBeNull()
+
+    fireEvent.drop(attachmentDropzone, {
+      dataTransfer: { files: [invalidAttachment] },
+    })
+
+    expect(toastError).toHaveBeenNthCalledWith(
+      2,
+      'Only PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP are supported.',
+    )
+    expect(
+      screen.getByText('Only PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP are supported.'),
+    ).toBeDefined()
+    expect(screen.queryByText('agenda.exe')).toBeNull()
+  })
 })
