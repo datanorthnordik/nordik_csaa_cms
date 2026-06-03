@@ -47,6 +47,7 @@ function createItem(
   id: number,
   pageTitle: string,
   pageType: PageListItem['page_type'],
+  status: PageListItem['status'] = 'published',
 ): PageListItem {
   return {
     id,
@@ -56,7 +57,7 @@ function createItem(
     parent_id: null,
     parent_page_title: '',
     parent_page_url_slug: '',
-    status: 'published',
+    status,
     last_modified: '2026-05-13T00:00:00Z',
     modified_by: null,
     modified_by_name: 'Admin',
@@ -75,8 +76,8 @@ describe('PagesListPage', () => {
         pages: {
           list: {
             items: [
-              createItem(1, 'About Us', 'page'),
-              createItem(2, 'Events', 'module'),
+              createItem(1, 'About Us', 'page', 'published'),
+              createItem(2, 'Events', 'module', 'draft'),
             ],
             pagination: null,
             appliedFilters: null,
@@ -99,6 +100,9 @@ describe('PagesListPage', () => {
   it('shows module pages in the list without edit or delete actions', () => {
     render(<PagesListPage />)
 
+    expect(screen.queryByRole('button', { name: 'Filters' })).toBeNull()
+    expect(screen.getByRole('combobox', { name: 'Filter by status' })).toBeDefined()
+
     const moduleRow = screen
       .getAllByText('Events')
       .map((element) => element.closest('tr'))
@@ -112,6 +116,7 @@ describe('PagesListPage', () => {
     expect(standardRow).not.toBeNull()
 
     expect(within(moduleRow as HTMLElement).getByText('Module')).toBeDefined()
+    expect(within(moduleRow as HTMLElement).getByText('Draft')).toBeDefined()
     expect(
       within(moduleRow as HTMLElement).getByRole('button', { name: 'View page' }),
     ).toBeDefined()
@@ -123,6 +128,7 @@ describe('PagesListPage', () => {
     ).toBeNull()
 
     expect(within(standardRow as HTMLElement).getByText('Page')).toBeDefined()
+    expect(within(standardRow as HTMLElement).getByText('Published')).toBeDefined()
     expect(
       within(standardRow as HTMLElement).getByRole('button', { name: 'Edit page' }),
     ).toBeDefined()
