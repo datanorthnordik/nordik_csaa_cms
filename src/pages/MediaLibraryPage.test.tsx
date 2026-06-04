@@ -136,8 +136,8 @@ describe('MediaLibraryPage', () => {
       target: { files: [frontImage] },
     })
 
-    expect(await screen.findByText('This file exceeds the 9MB limit.')).toBeDefined()
-    expect(toastError).toHaveBeenCalledWith('This file exceeds the 9MB limit.')
+    expect(await screen.findByText('This file exceeds the 5MB limit.')).toBeDefined()
+    expect(toastError).toHaveBeenCalledWith('This file exceeds the 5MB limit.')
     expect(screen.queryByText('hero.png')).toBeNull()
   })
 })

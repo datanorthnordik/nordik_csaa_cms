@@ -16,8 +16,8 @@ describe('resourceUpload', () => {
   it('keeps the max upload size in a single MB and byte constant', () => {
     expect(RESOURCE_UPLOAD_MAX_FILE_SIZE_MB).toBe(20)
     expect(RESOURCE_UPLOAD_MAX_FILE_SIZE_BYTES).toBe(20 * 1024 * 1024)
-    expect(GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_MB).toBe(9)
-    expect(GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_BYTES).toBe(9 * 1024 * 1024)
+    expect(GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_MB).toBe(5)
+    expect(GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_BYTES).toBe(5 * 1024 * 1024)
   })
 
   it('accepts supported office and image file types only', () => {

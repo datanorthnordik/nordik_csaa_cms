@@ -291,7 +291,7 @@ describe('upload request bodies', () => {
         published: false,
         coverImageFile: largeCover,
       }),
-    ).rejects.toThrow('This file exceeds the 9MB limit.')
+    ).rejects.toThrow('This file exceeds the 5MB limit.')
 
     expect(postMock).not.toHaveBeenCalled()
   })

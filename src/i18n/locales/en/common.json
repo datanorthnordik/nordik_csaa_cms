@@ -753,7 +753,7 @@
         "visibility": "Visibility",
         "frontImage": "Front image selection",
         "frontImageLabel": "Drop image here or browse",
-        "frontImageHint": "Supports SVG, PNG, JPG, and WEBP up to 9MB."
+        "frontImageHint": "Supports SVG, PNG, JPG, and WEBP up to 5MB."
       },
       "errors": {
         "nameRequired": "Gallery name is required."
@@ -791,7 +791,7 @@
       "replace": "Replace cover",
       "remove": "Remove cover",
       "dropLabel": "Drop cover image here or browse",
-      "dropHint": "Supports SVG, PNG, JPG, and WEBP up to 9MB."
+      "dropHint": "Supports SVG, PNG, JPG, and WEBP up to 5MB."
     },
     "actions": {
       "title": "Actions",
@@ -804,7 +804,7 @@
     "uploads": {
       "title": "Add Images to Gallery",
       "dropLabel": "Drop image here or browse",
-      "dropHint": "Supports SVG, PNG, JPG, and WEBP up to 9MB.",
+      "dropHint": "Supports SVG, PNG, JPG, and WEBP up to 5MB.",
       "maxLabel": "Max {{count}} uploads",
       "maxNote": "Maximum {{count}} images per gallery",
       "titleLabel": "Image title",
