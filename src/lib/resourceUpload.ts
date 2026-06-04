@@ -1,6 +1,9 @@
 export const RESOURCE_UPLOAD_MAX_FILE_SIZE_MB = 20
 export const RESOURCE_UPLOAD_MAX_FILE_SIZE_BYTES =
   RESOURCE_UPLOAD_MAX_FILE_SIZE_MB * 1024 * 1024
+export const GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_MB = 9
+export const GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_BYTES =
+  GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_MB * 1024 * 1024
 export const RESOURCE_UPLOAD_SUPPORTED_FORMATS_LABEL =
   'PDF, DOCX, PPTX, XLSX, SVG, PNG, JPG, and WEBP'
 export const RESOURCE_UPLOAD_SUPPORTED_IMAGE_FORMATS_LABEL =
@@ -65,6 +68,7 @@ export function validateResourceUploadFile(file: Pick<File, 'name' | 'size' | 't
     file,
     RESOURCE_SUPPORTED_MIME_TYPES,
     RESOURCE_SUPPORTED_EXTENSIONS,
+    RESOURCE_UPLOAD_MAX_FILE_SIZE_BYTES,
   )
 }
 
@@ -73,6 +77,16 @@ export function validateResourceImageUploadFile(file: Pick<File, 'name' | 'size'
     file,
     RESOURCE_SUPPORTED_IMAGE_MIME_TYPES,
     RESOURCE_SUPPORTED_IMAGE_EXTENSIONS,
+    RESOURCE_UPLOAD_MAX_FILE_SIZE_BYTES,
+  )
+}
+
+export function validateGalleryImageUploadFile(file: Pick<File, 'name' | 'size' | 'type'>) {
+  return validateFileAgainstAllowedTypes(
+    file,
+    RESOURCE_SUPPORTED_IMAGE_MIME_TYPES,
+    RESOURCE_SUPPORTED_IMAGE_EXTENSIONS,
+    GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_BYTES,
   )
 }
 
@@ -96,6 +110,16 @@ export function getResourceImageUploadValidationErrorMessage(
   return `Only ${RESOURCE_UPLOAD_SUPPORTED_IMAGE_FORMATS_LABEL} are supported.`
 }
 
+export function getGalleryImageUploadValidationErrorMessage(
+  validationError: ResourceUploadValidationError,
+) {
+  if (validationError === 'file-too-large') {
+    return `This file exceeds the ${GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_MB}MB limit.`
+  }
+
+  return `Only ${RESOURCE_UPLOAD_SUPPORTED_IMAGE_FORMATS_LABEL} are supported.`
+}
+
 export function assertValidResourceUploadFile(file: Pick<File, 'name' | 'size' | 'type'>) {
   const validationError = validateResourceUploadFile(file)
   if (!validationError) {
@@ -114,16 +138,26 @@ export function assertValidResourceImageUploadFile(file: Pick<File, 'name' | 'si
   throw new Error(getResourceImageUploadValidationErrorMessage(validationError))
 }
 
+export function assertValidGalleryImageUploadFile(file: Pick<File, 'name' | 'size' | 'type'>) {
+  const validationError = validateGalleryImageUploadFile(file)
+  if (!validationError) {
+    return
+  }
+
+  throw new Error(getGalleryImageUploadValidationErrorMessage(validationError))
+}
+
 function validateFileAgainstAllowedTypes(
   file: Pick<File, 'name' | 'size' | 'type'>,
   supportedMimeTypes: Set<string>,
   supportedExtensions: Set<string>,
+  maxFileSizeBytes: number,
 ) {
   if (!isSupportedFile(file, supportedMimeTypes, supportedExtensions)) {
     return 'unsupported-file-type' satisfies ResourceUploadValidationError
   }
 
-  if (file.size > RESOURCE_UPLOAD_MAX_FILE_SIZE_BYTES) {
+  if (file.size > maxFileSizeBytes) {
     return 'file-too-large' satisfies ResourceUploadValidationError
   }
 

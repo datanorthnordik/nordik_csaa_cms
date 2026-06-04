@@ -3,9 +3,20 @@ import { Provider } from 'react-redux'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import i18n from '../i18n'
+import { GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_BYTES } from '../lib/resourceUpload'
 import { createAppStore } from '../store/store'
 import type { GalleryDetail } from '../types/media'
 import { GalleryManagerPage } from './GalleryManagerPage'
+
+const { toastError } = vi.hoisted(() => ({
+  toastError: vi.fn(),
+}))
+
+vi.mock('react-hot-toast', () => ({
+  default: {
+    error: toastError,
+  },
+}))
 
 function renderPage(
   props: Parameters<typeof GalleryManagerPage>[0] = {},
@@ -28,6 +39,7 @@ function renderPage(
 
 beforeEach(async () => {
   await i18n.changeLanguage('en')
+  toastError.mockReset()
   if (typeof URL.createObjectURL !== 'function') {
     Object.defineProperty(URL, 'createObjectURL', {
       configurable: true,
@@ -57,6 +69,15 @@ function makeAsset(id: number, fileName: string) {
 
 function fileFromName(name: string) {
   return new File(['x'], name, { type: 'image/jpeg' })
+}
+
+function oversizedImageFromName(name: string) {
+  const file = new File(['x'], name, { type: 'image/jpeg' })
+  Object.defineProperty(file, 'size', {
+    configurable: true,
+    value: GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_BYTES + 1,
+  })
+  return file
 }
 
 describe('GalleryManagerPage', () => {
@@ -201,6 +222,40 @@ describe('GalleryManagerPage', () => {
     expect(
       screen.getByRole('textbox', { name: /click-through link for b\.jpg/i }),
     ).toBeDefined()
+  })
+
+  it('rejects oversized gallery uploads before they are queued', async () => {
+    renderPage({ gallery: baseGallery, onUploadAssets: vi.fn() })
+
+    const fileInputs = document.querySelectorAll('input[type="file"]')
+    const dropInput = fileInputs[fileInputs.length - 1] as HTMLInputElement
+    fireEvent.change(dropInput, {
+      target: { files: [oversizedImageFromName('too-large.jpg')] },
+    })
+
+    expect(await screen.findByText('This file exceeds the 9MB limit.')).toBeDefined()
+    expect(toastError).toHaveBeenCalledWith('This file exceeds the 9MB limit.')
+    expect(screen.queryByText('too-large.jpg')).toBeNull()
+  })
+
+  it('rejects non-image gallery uploads before they are queued', async () => {
+    renderPage({ gallery: baseGallery, onUploadAssets: vi.fn() })
+
+    const fileInputs = document.querySelectorAll('input[type="file"]')
+    const dropInput = fileInputs[fileInputs.length - 1] as HTMLInputElement
+    fireEvent.change(dropInput, {
+      target: {
+        files: [new File(['pdf'], 'guide.pdf', { type: 'application/pdf' })],
+      },
+    })
+
+    expect(
+      await screen.findByText('Only SVG, PNG, JPG, and WEBP are supported.'),
+    ).toBeDefined()
+    expect(toastError).toHaveBeenCalledWith(
+      'Only SVG, PNG, JPG, and WEBP are supported.',
+    )
+    expect(screen.queryByText('guide.pdf')).toBeNull()
   })
 
   it('only enables submit when every pending upload has title and details', () => {
@@ -413,6 +468,27 @@ describe('GalleryManagerPage', () => {
     expect(onSetCover).toHaveBeenCalledTimes(1)
     expect(onSetCover.mock.calls[0][0]).toBeInstanceOf(File)
     expect((onSetCover.mock.calls[0][0] as File).name).toBe('new-cover.jpg')
+  })
+
+  it('rejects invalid cover uploads before invoking onSetCover', async () => {
+    const onSetCover = vi.fn()
+    renderPage({ gallery: baseGallery, onSetCover })
+
+    const fileInputs = document.querySelectorAll('input[type="file"]')
+    const coverInput = fileInputs[0] as HTMLInputElement
+    fireEvent.change(coverInput, {
+      target: {
+        files: [new File(['pdf'], 'cover.pdf', { type: 'application/pdf' })],
+      },
+    })
+
+    expect(
+      await screen.findByText('Only SVG, PNG, JPG, and WEBP are supported.'),
+    ).toBeDefined()
+    expect(onSetCover).not.toHaveBeenCalled()
+    expect(toastError).toHaveBeenCalledWith(
+      'Only SVG, PNG, JPG, and WEBP are supported.',
+    )
   })
 
   it('lets users edit an existing asset title, details, and click-through link', () => {

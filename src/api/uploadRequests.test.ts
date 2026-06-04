@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { API_ROUTES } from '../constants/api'
+import { GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_BYTES } from '../lib/resourceUpload'
 
 const { deleteMock, getMock, patchMock, postMock, putMock } = vi.hoisted(() => ({
   deleteMock: vi.fn(),
@@ -275,6 +276,44 @@ describe('upload request bodies', () => {
         ],
       }),
     )
+  })
+
+  it('rejects oversized gallery cover uploads before sending the request', async () => {
+    const largeCover = new File(['cover'], 'cover.png', { type: 'image/png' })
+    Object.defineProperty(largeCover, 'size', {
+      configurable: true,
+      value: GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_BYTES + 1,
+    })
+
+    await expect(
+      mediaApi.createGallery({
+        name: 'Summer Collection',
+        published: false,
+        coverImageFile: largeCover,
+      }),
+    ).rejects.toThrow('This file exceeds the 9MB limit.')
+
+    expect(postMock).not.toHaveBeenCalled()
+  })
+
+  it('rejects non-image gallery uploads before building multipart payloads', async () => {
+    const pdfFile = new File(['pdf'], 'guide.pdf', { type: 'application/pdf' })
+
+    await expect(
+      mediaApi.uploadGalleryImages(7, {
+        images: [
+          {
+            title: 'Guide',
+            alt_text: 'Guide',
+            file_name: 'guide.pdf',
+            mime_type: 'application/pdf',
+          },
+        ],
+        imageFiles: [pdfFile],
+      }),
+    ).rejects.toThrow('Only SVG, PNG, JPG, and WEBP are supported.')
+
+    expect(postMock).not.toHaveBeenCalled()
   })
 
   it('sends gallery image metadata updates with an optional link_url', async () => {

@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
+  GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_BYTES,
+  GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_MB,
   RESOURCE_FILE_ACCEPT,
   RESOURCE_IMAGE_FILE_ACCEPT,
   RESOURCE_UPLOAD_MAX_FILE_SIZE_BYTES,
   RESOURCE_UPLOAD_MAX_FILE_SIZE_MB,
   RESOURCE_UPLOAD_SUPPORTED_IMAGE_FORMATS_LABEL,
+  validateGalleryImageUploadFile,
   validateResourceUploadFile,
   validateResourceImageUploadFile,
 } from './resourceUpload'
@@ -13,6 +16,8 @@ describe('resourceUpload', () => {
   it('keeps the max upload size in a single MB and byte constant', () => {
     expect(RESOURCE_UPLOAD_MAX_FILE_SIZE_MB).toBe(20)
     expect(RESOURCE_UPLOAD_MAX_FILE_SIZE_BYTES).toBe(20 * 1024 * 1024)
+    expect(GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_MB).toBe(9)
+    expect(GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_BYTES).toBe(9 * 1024 * 1024)
   })
 
   it('accepts supported office and image file types only', () => {
@@ -52,6 +57,24 @@ describe('resourceUpload', () => {
     expect(validateResourceImageUploadFile(new File(['document'], 'cover.pdf', {
       type: 'application/pdf',
     }))).toBe('unsupported-file-type')
+  })
+
+  it('applies the stricter gallery image size limit', () => {
+    const largeImage = new File(['image'], 'gallery-cover.png', {
+      type: 'image/png',
+    })
+    Object.defineProperty(largeImage, 'size', {
+      value: GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_BYTES + 1,
+    })
+
+    expect(validateGalleryImageUploadFile(largeImage)).toBe('file-too-large')
+    expect(
+      validateGalleryImageUploadFile(
+        new File(['image'], 'gallery-cover.webp', {
+          type: 'image/webp',
+        }),
+      ),
+    ).toBeNull()
   })
 
   it('exposes an exact accept list instead of broad wildcards', () => {
