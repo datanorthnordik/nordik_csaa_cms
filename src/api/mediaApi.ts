@@ -1,4 +1,5 @@
 import { API_ROUTES } from '../constants/api'
+import { assertValidGalleryImageUploadFile } from '../lib/resourceUpload'
 import type { GalleryAsset, GalleryDetail, GallerySummary } from '../types/media'
 import { buildMultipartPayload } from './multipartForm'
 import { apiClient } from './apiClient'
@@ -201,6 +202,10 @@ export const mediaApi = {
 
   async createGallery(request: SaveGalleryRequest) {
     const { coverImageFile, ...payload } = request
+    if (coverImageFile) {
+      assertValidGalleryImageUploadFile(coverImageFile)
+    }
+
     const body = coverImageFile
       ? buildMultipartPayload(payload, [
           {
@@ -219,6 +224,10 @@ export const mediaApi = {
 
   async updateGallery(id: number, request: SaveGalleryRequest) {
     const { coverImageFile, ...payload } = request
+    if (coverImageFile) {
+      assertValidGalleryImageUploadFile(coverImageFile)
+    }
+
     const body = coverImageFile
       ? buildMultipartPayload(payload, [
           {
@@ -244,6 +253,12 @@ export const mediaApi = {
 
   async uploadGalleryImages(id: number, request: UploadGalleryImagesRequest) {
     const { imageFiles, ...payload } = request
+    imageFiles?.forEach((file) => {
+      if (file) {
+        assertValidGalleryImageUploadFile(file)
+      }
+    })
+
     const hasFiles = Boolean(imageFiles?.some(Boolean))
     const body = hasFiles
       ? buildMultipartPayload(

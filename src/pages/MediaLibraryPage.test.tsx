@@ -3,9 +3,20 @@ import { Provider } from 'react-redux'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import i18n from '../i18n'
+import { GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_BYTES } from '../lib/resourceUpload'
 import { createAppStore } from '../store/store'
 import type { GallerySummary } from '../types/media'
 import { MediaLibraryPage } from './MediaLibraryPage'
+
+const { toastError } = vi.hoisted(() => ({
+  toastError: vi.fn(),
+}))
+
+vi.mock('react-hot-toast', () => ({
+  default: {
+    error: toastError,
+  },
+}))
 
 function renderPage(props: Parameters<typeof MediaLibraryPage>[0] = {}) {
   const store = createAppStore()
@@ -20,6 +31,7 @@ function renderPage(props: Parameters<typeof MediaLibraryPage>[0] = {}) {
 
 beforeEach(async () => {
   await i18n.changeLanguage('en')
+  toastError.mockReset()
 })
 
 describe('MediaLibraryPage', () => {
@@ -89,5 +101,26 @@ describe('MediaLibraryPage', () => {
       expect(onCreate).toHaveBeenCalledTimes(1)
     })
     expect(onCreate.mock.calls[0][0]).toMatchObject({ name: 'New Gallery' })
+  })
+
+  it('rejects oversized front image selections in the create dialog', async () => {
+    renderPage()
+
+    fireEvent.click(screen.getByRole('button', { name: /create new gallery/i }))
+
+    const frontImage = new File(['image'], 'hero.png', { type: 'image/png' })
+    Object.defineProperty(frontImage, 'size', {
+      configurable: true,
+      value: GALLERY_IMAGE_UPLOAD_MAX_FILE_SIZE_BYTES + 1,
+    })
+
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement
+    fireEvent.change(fileInput, {
+      target: { files: [frontImage] },
+    })
+
+    expect(await screen.findByText('This file exceeds the 9MB limit.')).toBeDefined()
+    expect(toastError).toHaveBeenCalledWith('This file exceeds the 9MB limit.')
+    expect(screen.queryByText('hero.png')).toBeNull()
   })
 })

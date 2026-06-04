@@ -1,8 +1,14 @@
 import Dialog from '@mui/material/Dialog'
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { CloseIcon, CloudUploadIcon } from '../icons'
+import {
+  getGalleryImageUploadValidationErrorMessage,
+  RESOURCE_IMAGE_FILE_ACCEPT,
+  validateGalleryImageUploadFile,
+} from '../../lib/resourceUpload'
 import type { MediaVisibility } from '../../types/media'
 import { UploadDropzone } from './UploadDropzone'
 import styles from './CreateGalleryDialog.module.css'
@@ -40,6 +46,7 @@ export function CreateGalleryDialog({
     formState: { errors, isSubmitting },
   } = useForm<CreateGalleryFormValues>({ defaultValues })
   const [frontImage, setFrontImage] = useState<File | null>(null)
+  const [frontImageError, setFrontImageError] = useState<string | null>(null)
 
   function onValid(values: CreateGalleryFormValues) {
     onSubmit?.(values, frontImage ?? undefined)
@@ -53,7 +60,29 @@ export function CreateGalleryDialog({
     }
     reset(defaultValues)
     setFrontImage(null)
+    setFrontImageError(null)
     onClose()
+  }
+
+  function handleFrontImageSelect(files: File[]) {
+    const file = files[0] ?? null
+    if (!file) {
+      setFrontImage(null)
+      setFrontImageError(null)
+      return
+    }
+
+    const validationError = validateGalleryImageUploadFile(file)
+    if (validationError) {
+      const message = getGalleryImageUploadValidationErrorMessage(validationError)
+      setFrontImage(null)
+      setFrontImageError(message)
+      toast.error(message)
+      return
+    }
+
+    setFrontImage(file)
+    setFrontImageError(null)
   }
 
   return (
@@ -148,12 +177,17 @@ export function CreateGalleryDialog({
             </span>
             <UploadDropzone
               icon={<CloudUploadIcon />}
-              accept="image/png,image/jpeg"
+              accept={RESOURCE_IMAGE_FILE_ACCEPT}
               label={t('mediaLibrary.create.fields.frontImageLabel')}
               hint={t('mediaLibrary.create.fields.frontImageHint')}
               disabled={isBusy}
-              onFiles={(files) => setFrontImage(files[0] ?? null)}
+              onFiles={handleFrontImageSelect}
             />
+            {frontImageError && (
+              <p className={styles.errorText} role="alert">
+                {frontImageError}
+              </p>
+            )}
             {frontImage && (
               <p className={styles.fileName}>{frontImage.name}</p>
             )}

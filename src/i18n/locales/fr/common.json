@@ -744,7 +744,7 @@
         "visibility": "Visibilite",
         "frontImage": "Image de couverture",
         "frontImageLabel": "Deposez l image ici ou parcourez",
-        "frontImageHint": "Formats pris en charge : PNG, JPG (max 5 Mo)"
+        "frontImageHint": "Formats pris en charge : SVG, PNG, JPG et WEBP jusqu a 9 Mo."
       },
       "errors": {
         "nameRequired": "Le nom de la galerie est requis."
@@ -782,7 +782,7 @@
       "replace": "Remplacer la couverture",
       "remove": "Retirer la couverture",
       "dropLabel": "Deposez l image de couverture ici ou parcourez",
-      "dropHint": "Formats pris en charge : PNG, JPG (max 5 Mo)"
+      "dropHint": "Formats pris en charge : SVG, PNG, JPG et WEBP jusqu a 9 Mo."
     },
     "actions": {
       "title": "Actions",
@@ -795,7 +795,7 @@
     "uploads": {
       "title": "Ajouter des images a la galerie",
       "dropLabel": "Deposez l image ici ou parcourez",
-      "dropHint": "Formats pris en charge : PNG, JPG (max 5 Mo)",
+      "dropHint": "Formats pris en charge : SVG, PNG, JPG et WEBP jusqu a 9 Mo.",
       "maxLabel": "Max {{count}} televersements",
       "maxNote": "Maximum de {{count}} images par galerie",
       "titleLabel": "Titre de l image",

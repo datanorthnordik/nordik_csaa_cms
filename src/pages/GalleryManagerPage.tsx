@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
@@ -14,6 +15,11 @@ import {
   getGalleryAssetTitle,
   suggestGalleryAssetTitle,
 } from '../lib/galleryAssets'
+import {
+  getGalleryImageUploadValidationErrorMessage,
+  RESOURCE_IMAGE_FILE_ACCEPT,
+  validateGalleryImageUploadFile,
+} from '../lib/resourceUpload'
 import type {
   GalleryAsset,
   GalleryAssetContentPatch,
@@ -92,6 +98,8 @@ export function GalleryManagerPage({
   const [pendingUploads, setPendingUploads] = useState<PendingUpload[]>([])
   const [draggedAssetId, setDraggedAssetId] = useState<number | null>(null)
   const [dragOverAssetId, setDragOverAssetId] = useState<number | null>(null)
+  const [coverValidationError, setCoverValidationError] = useState<string | null>(null)
+  const [uploadValidationError, setUploadValidationError] = useState<string | null>(null)
 
   const selectedAsset =
     gallery?.assets && selectedAssetId !== null
@@ -117,9 +125,22 @@ export function GalleryManagerPage({
     )
 
   function handleFilesDropped(files: File[]) {
+    const validFiles: File[] = []
+    let validationMessage: string | null = null
+
+    files.forEach((file) => {
+      const nextValidationMessage = getGalleryImageValidationMessage(file)
+      if (nextValidationMessage) {
+        validationMessage ??= nextValidationMessage
+        return
+      }
+
+      validFiles.push(file)
+    })
+
     const accepted =
-      remainingSlots === Infinity ? files : files.slice(0, remainingSlots)
-    const rejected = files.length - accepted.length
+      remainingSlots === Infinity ? validFiles : validFiles.slice(0, remainingSlots)
+    const rejected = validFiles.length - accepted.length
 
     if (rejected > 0) {
       console.warn(
@@ -128,6 +149,10 @@ export function GalleryManagerPage({
     }
 
     if (!accepted.length) {
+      if (validationMessage) {
+        setUploadValidationError(validationMessage)
+        toast.error(validationMessage)
+      }
       return
     }
 
@@ -141,6 +166,12 @@ export function GalleryManagerPage({
     }))
 
     setPendingUploads((current) => [...current, ...additions])
+    setUploadValidationError(null)
+
+    if (validationMessage) {
+      setUploadValidationError(validationMessage)
+      toast.error(validationMessage)
+    }
   }
 
   function updatePendingUpload(
@@ -182,6 +213,19 @@ export function GalleryManagerPage({
 
     pendingUploads.forEach((upload) => URL.revokeObjectURL(upload.previewUrl))
     setPendingUploads([])
+    setUploadValidationError(null)
+  }
+
+  function handleCoverFileSelect(file: File) {
+    const validationMessage = getGalleryImageValidationMessage(file)
+    if (validationMessage) {
+      setCoverValidationError(validationMessage)
+      toast.error(validationMessage)
+      return
+    }
+
+    setCoverValidationError(null)
+    onSetCover?.(file)
   }
 
   function commitName(value: string) {
@@ -323,13 +367,13 @@ export function GalleryManagerPage({
                           <label className={styles.coverReplaceButton}>
                             <input
                               type="file"
-                              accept="image/png,image/jpeg"
+                              accept={RESOURCE_IMAGE_FILE_ACCEPT}
                               hidden
                               disabled={!onSetCover}
                               onChange={(event) => {
                                 const file = event.target.files?.[0]
                                 if (file) {
-                                  onSetCover?.(file)
+                                  handleCoverFileSelect(file)
                                 }
                                 event.target.value = ''
                               }}
@@ -339,7 +383,10 @@ export function GalleryManagerPage({
                           <button
                             type="button"
                             className={styles.coverRemoveButton}
-                            onClick={() => onSetCover?.(null)}
+                            onClick={() => {
+                              setCoverValidationError(null)
+                              onSetCover?.(null)
+                            }}
                             disabled={!onSetCover}
                           >
                             {t('galleryManager.cover.remove')}
@@ -349,19 +396,24 @@ export function GalleryManagerPage({
                     ) : (
                       <UploadDropzone
                         icon={<CloudUploadIcon />}
-                        accept="image/png,image/jpeg"
+                        accept={RESOURCE_IMAGE_FILE_ACCEPT}
                         label={t('galleryManager.cover.dropLabel')}
                         hint={t('galleryManager.cover.dropHint')}
                         disabled={!onSetCover}
                         onFiles={(files) => {
                           const file = files[0]
                           if (file) {
-                            onSetCover?.(file)
+                            handleCoverFileSelect(file)
                           }
                         }}
                       />
                     )}
                   </div>
+                  {coverValidationError && (
+                    <p className={styles.errorText} role="alert">
+                      {coverValidationError}
+                    </p>
+                  )}
 
                   <label className={styles.coverDescription}>
                     <span className={styles.fieldLabel}>
@@ -477,13 +529,18 @@ export function GalleryManagerPage({
                 <form className={styles.uploadForm} onSubmit={handleUpload}>
                   <UploadDropzone
                     icon={<CloudUploadIcon />}
-                    accept="image/png,image/jpeg"
+                    accept={RESOURCE_IMAGE_FILE_ACCEPT}
                     multiple
                     label={t('galleryManager.uploads.dropLabel')}
                     hint={t('galleryManager.uploads.dropHint')}
                     disabled={isLimitReached}
                     onFiles={handleFilesDropped}
                   />
+                  {uploadValidationError && (
+                    <p className={styles.errorText} role="alert">
+                      {uploadValidationError}
+                    </p>
+                  )}
 
                   {isLimitReached && (
                     <p className={styles.limitWarning} role="alert">
@@ -672,4 +729,13 @@ export function GalleryManagerPage({
       </div>
     </CmsAppShell>
   )
+}
+
+function getGalleryImageValidationMessage(file: Pick<File, 'name' | 'size' | 'type'>) {
+  const validationError = validateGalleryImageUploadFile(file)
+  if (!validationError) {
+    return null
+  }
+
+  return getGalleryImageUploadValidationErrorMessage(validationError)
 }
