@@ -727,7 +727,13 @@
       "assetCount_other": "{{count}} ressources",
       "updatedAt": "Mis a jour le {{date}}",
       "updatedRelative": "Mis a jour {{relative}}",
-      "manage": "Gerer la galerie"
+      "manage": "Gerer la galerie",
+      "delete": "Supprimer la galerie"
+    },
+    "delete": {
+      "title": "Supprimer la galerie ?",
+      "description": "Cette action supprimera definitivement <galleryName>\"{{title}}\"</galleryName>. Cette action est irreversible.",
+      "confirm": "Supprimer la galerie"
     },
     "create": {
       "trigger": "Creer une galerie",

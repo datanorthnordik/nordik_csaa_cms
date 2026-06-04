@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('../components/icons', () => ({
   DashboardIcon: () => <svg data-testid="dashboard-icon" />,
+  MenusIcon: () => <svg data-testid="menus-icon" />,
   PagesIcon: () => <svg data-testid="pages-icon" />,
   EventsIcon: () => <svg data-testid="events-icon" />,
   NewslettersIcon: () => <svg data-testid="newsletters-icon" />,
@@ -20,7 +21,7 @@ describe('cmsNav', () => {
       key: 'menus',
       path: '/menus',
     })
-    expect(cmsNavItems[1]?.icon).toBeNull()
+    expect(cmsNavItems[1]?.icon).not.toBeNull()
   })
 
   it('wires the resources entry to the library route', () => {

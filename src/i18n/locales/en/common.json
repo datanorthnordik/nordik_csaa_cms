@@ -730,7 +730,13 @@
       "assetCount_other": "{{count}} Assets",
       "updatedAt": "Updated {{date}}",
       "updatedRelative": "Updated {{relative}}",
-      "manage": "Manage Gallery"
+      "manage": "Manage Gallery",
+      "delete": "Delete Gallery"
+    },
+    "delete": {
+      "title": "Delete gallery?",
+      "description": "This will permanently delete <galleryName>\"{{title}}\"</galleryName>. This action cannot be undone.",
+      "confirm": "Delete Gallery"
     },
     "create": {
       "trigger": "Create New Gallery",

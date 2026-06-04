@@ -6,16 +6,19 @@ import { MediaLibraryPage } from './MediaLibraryPage'
 import { useAppDispatch, useAppSelector } from '../store/hooks'
 import {
   createGallery,
+  deleteGallery,
   fetchMediaLibrary,
   selectMediaCreate,
   selectMediaLibrary,
 } from '../store/mediaSlice'
+import type { GallerySummary } from '../types/media'
 
 export function MediaLibraryRoute() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const listState = useAppSelector(selectMediaLibrary)
   const createState = useAppSelector(selectMediaCreate)
+  const deleteState = useAppSelector((state) => state.media.deleteGallery)
   const [previewUrls, setPreviewUrls] = useState<Record<number, string>>({})
 
   useEffect(() => {
@@ -115,13 +118,25 @@ export function MediaLibraryRoute() {
     }
   }
 
+  async function handleDelete(gallery: GallerySummary) {
+    try {
+      const result = await dispatch(deleteGallery(gallery.id)).unwrap()
+      toast.success(result.result.message)
+      return true
+    } catch {
+      return false
+    }
+  }
+
   return (
     <MediaLibraryPage
       galleries={galleries}
       loading={listState.status === 'loading'}
       error={listState.error ?? undefined}
       creating={createState.status === 'loading'}
+      deleting={deleteState.status === 'loading'}
       onCreate={handleCreate}
+      onDelete={handleDelete}
     />
   )
 }

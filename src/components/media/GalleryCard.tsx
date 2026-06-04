@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { GalleryIcon } from '../icons'
+import { DeleteIcon, GalleryIcon } from '../icons'
 import type { GallerySummary } from '../../types/media'
 import { GalleryStatusChip } from './GalleryStatusChip'
 import styles from './GalleryCard.module.css'
@@ -7,12 +7,14 @@ import styles from './GalleryCard.module.css'
 type GalleryCardProps = {
   gallery: GallerySummary
   onManage?: (gallery: GallerySummary) => void
+  onDelete?: (gallery: GallerySummary) => void
   formatRelativeTime?: (isoDate: string) => string
 }
 
 export function GalleryCard({
   gallery,
   onManage,
+  onDelete,
   formatRelativeTime,
 }: GalleryCardProps) {
   const { t } = useTranslation()
@@ -63,13 +65,25 @@ export function GalleryCard({
           )}
         </div>
 
-        <button
-          type="button"
-          className={styles.manageButton}
-          onClick={() => onManage?.(gallery)}
-        >
-          {t('mediaLibrary.card.manage')}
-        </button>
+        <div className={styles.actions}>
+          <button
+            type="button"
+            className={styles.manageButton}
+            onClick={() => onManage?.(gallery)}
+          >
+            {t('mediaLibrary.card.manage')}
+          </button>
+          {onDelete && (
+            <button
+              type="button"
+              className={styles.deleteButton}
+              onClick={() => onDelete(gallery)}
+            >
+              <DeleteIcon size={14} />
+              {t('mediaLibrary.card.delete')}
+            </button>
+          )}
+        </div>
       </div>
     </article>
   )

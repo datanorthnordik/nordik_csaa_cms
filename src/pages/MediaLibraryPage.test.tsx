@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { Provider } from 'react-redux'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -101,6 +101,23 @@ describe('MediaLibraryPage', () => {
       expect(onCreate).toHaveBeenCalledTimes(1)
     })
     expect(onCreate.mock.calls[0][0]).toMatchObject({ name: 'New Gallery' })
+  })
+
+  it('only invokes onDelete after the confirm dialog is confirmed', async () => {
+    const onDelete = vi.fn().mockResolvedValue(true)
+    const galleries: GallerySummary[] = [{ id: 1, name: 'Annual Gala 2023' }]
+
+    renderPage({ galleries, onDelete })
+
+    fireEvent.click(screen.getByRole('button', { name: /delete gallery/i }))
+    expect(onDelete).not.toHaveBeenCalled()
+
+    const dialog = screen.getByRole('dialog')
+    fireEvent.click(within(dialog).getByRole('button', { name: /^delete gallery$/i }))
+
+    await waitFor(() => {
+      expect(onDelete).toHaveBeenCalledWith(galleries[0])
+    })
   })
 
   it('rejects oversized front image selections in the create dialog', async () => {
