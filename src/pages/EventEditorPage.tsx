@@ -526,7 +526,7 @@ export function EventEditorPage({ mode = 'edit' }: EventEditorPageProps) {
     }
 
     if (validationMessage) {
-      setErrors((current) => ({ ...current, attachments: validationMessage }))
+      setErrors((current) => ({ ...current, attachments: validationMessage ?? undefined }))
       toast.error(validationMessage)
     }
   }
