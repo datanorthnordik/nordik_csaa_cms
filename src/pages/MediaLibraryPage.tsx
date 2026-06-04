@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
+import { ConfirmDialog } from '../components/cms/ConfirmDialog'
 import { AddIcon, SearchIcon } from '../components/icons'
 import { Loader } from '../components/Loader'
 import {
@@ -18,10 +19,12 @@ type MediaLibraryPageProps = {
   loading?: boolean
   error?: string
   creating?: boolean
+  deleting?: boolean
   onCreate?: (
     values: CreateGalleryFormValues,
     frontImage?: File,
   ) => void | boolean | Promise<void | boolean>
+  onDelete?: (gallery: GallerySummary) => void | boolean | Promise<void | boolean>
 }
 
 export function MediaLibraryPage({
@@ -29,12 +32,15 @@ export function MediaLibraryPage({
   loading = false,
   error,
   creating = false,
+  deleting = false,
   onCreate,
+  onDelete,
 }: MediaLibraryPageProps = {}) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState('')
   const [isCreateOpen, setIsCreateOpen] = useState(false)
+  const [deleteCandidate, setDeleteCandidate] = useState<GallerySummary | null>(null)
 
   const filteredGalleries = useMemo(() => {
     if (!galleries) {
@@ -58,6 +64,17 @@ export function MediaLibraryPage({
     const result = await onCreate?.(values, frontImage)
     if (result !== false) {
       setIsCreateOpen(false)
+    }
+  }
+
+  async function handleDeleteConfirm() {
+    if (!deleteCandidate) {
+      return
+    }
+
+    const result = await onDelete?.(deleteCandidate)
+    if (result !== false) {
+      setDeleteCandidate(null)
     }
   }
 
@@ -133,6 +150,7 @@ export function MediaLibraryPage({
                 key={gallery.id}
                 gallery={gallery}
                 onManage={(item) => navigate(`/media-library/${item.id}`)}
+                onDelete={(item) => setDeleteCandidate(item)}
               />
             ))}
           </div>
@@ -143,6 +161,22 @@ export function MediaLibraryPage({
           onClose={() => setIsCreateOpen(false)}
           onSubmit={handleCreateSubmit}
           submitting={creating}
+        />
+        <ConfirmDialog
+          open={Boolean(deleteCandidate)}
+          title={t('mediaLibrary.delete.title')}
+          body={
+            <Trans
+              i18nKey="mediaLibrary.delete.description"
+              values={{ title: deleteCandidate?.name ?? '' }}
+              components={{ galleryName: <strong /> }}
+            />
+          }
+          confirmLabel={t('mediaLibrary.delete.confirm')}
+          destructive
+          busy={deleting}
+          onConfirm={() => void handleDeleteConfirm()}
+          onClose={() => setDeleteCandidate(null)}
         />
       </div>
     </CmsAppShell>
