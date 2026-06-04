@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import {
   DashboardIcon,
-  MenusIcon,
   PagesIcon,
   EventsIcon,
   NewslettersIcon,
@@ -20,7 +19,7 @@ export type CmsNavItemConfig = {
 
 export const cmsNavItems: CmsNavItemConfig[] = [
   { key: 'dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-  { key: 'menus', icon: <MenusIcon />, path: '/menus' },
+  { key: 'menus', icon: null, path: '/menus' },
   { key: 'pages', icon: <PagesIcon />, path: '/pages' },
   { key: 'events', icon: <EventsIcon />, path: '/events' },
   { key: 'newsletters', icon: <NewslettersIcon />, path: '/newsletters' },

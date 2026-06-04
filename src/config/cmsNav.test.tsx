@@ -1,9 +1,7 @@
-import { render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('../components/icons', () => ({
   DashboardIcon: () => <svg data-testid="dashboard-icon" />,
-  MenusIcon: () => <svg data-testid="menus-icon" />,
   PagesIcon: () => <svg data-testid="pages-icon" />,
   EventsIcon: () => <svg data-testid="events-icon" />,
   NewslettersIcon: () => <svg data-testid="newsletters-icon" />,
@@ -22,9 +20,7 @@ describe('cmsNav', () => {
       key: 'menus',
       path: '/menus',
     })
-
-    render(<>{cmsNavItems[1]?.icon}</>)
-    expect(screen.getByTestId('menus-icon')).toBeDefined()
+    expect(cmsNavItems[1]?.icon).toBeNull()
   })
 
   it('wires the resources entry to the library route', () => {
