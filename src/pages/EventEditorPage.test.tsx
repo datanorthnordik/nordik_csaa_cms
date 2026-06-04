@@ -173,7 +173,9 @@ describe('EventEditorPage', () => {
       .getAllByText(/^additional files$/i)
       .map((element) => element.closest('label'))
       .find((element): element is HTMLLabelElement => element instanceof HTMLLabelElement)
-    expect(attachmentDropzone).not.toBeNull()
+    if (!attachmentDropzone) {
+      throw new Error('Expected attachment dropzone')
+    }
 
     fireEvent.drop(attachmentDropzone, {
       dataTransfer: { files: [invalidAttachment] },
