@@ -48,7 +48,13 @@
 .grid {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  align-content: start;
+}
+
+.singleItemGrid {
+  grid-template-columns: minmax(280px, 360px);
+  justify-content: start;
 }
 
 .card {
@@ -201,6 +207,10 @@
 @media (max-width: 720px) {
   .title {
     font-size: 1.6rem;
+  }
+
+  .singleItemGrid {
+    grid-template-columns: 1fr;
   }
 
   .cardActions {
