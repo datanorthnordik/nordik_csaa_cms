@@ -102,6 +102,12 @@ export function VideoLibraryRoute() {
 
     return packages.filter((item) => item.title.toLowerCase().includes(trimmed))
   }, [packages, searchTerm])
+  const gridClassName = [
+    styles.grid,
+    filteredPackages.length === 1 ? styles.singleItemGrid : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   async function handleDeleteConfirm() {
     if (!deleteCandidate) {
@@ -179,7 +185,7 @@ export function VideoLibraryRoute() {
             </p>
           </div>
         ) : (
-          <div className={styles.grid}>
+          <div className={gridClassName}>
             {filteredPackages.map((item) => (
               <article key={item.id} className={styles.card}>
                 <div className={styles.cardMedia}>

@@ -15,6 +15,7 @@ import {
   RESOURCE_IMAGE_FILE_ACCEPT,
   validateGalleryImageUploadFile,
 } from '../lib/resourceUpload'
+import { getYouTubeEmbedUrl } from '../lib/videoPreview'
 import styles from '../styles/VideoManagerPage.module.css'
 
 type SingleVideoDraft = {
@@ -87,7 +88,8 @@ export function VideoManagerRoute() {
   const [singleVideo, setSingleVideo] = useState<SingleVideoDraft>(createEmptySingleVideoDraft())
   const [existingItems, setExistingItems] = useState<CollectionVideoDraft[]>([])
   const [pendingItems, setPendingItems] = useState<CollectionVideoDraft[]>([])
-  const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({})
+  const [storedPreviewUrls, setStoredPreviewUrls] = useState<Record<string, string>>({})
+  const [localPreviewUrls, setLocalPreviewUrls] = useState<Record<string, string>>({})
 
   function applyLoadedPackage(detail: VideoPackageDetail) {
     setVideoPackage(detail)
@@ -174,8 +176,50 @@ export function VideoManagerRoute() {
   }, [existingItems, packageType, singleVideo.existingTeaserPath])
 
   useEffect(() => {
+    const previewFiles: Array<{ key: string; file: File }> = []
+
+    if (packageType === 'single' && singleVideo.teaserImageFile) {
+      previewFiles.push({ key: 'single', file: singleVideo.teaserImageFile })
+    }
+
+    for (const item of existingItems) {
+      if (item.teaserImageFile) {
+        previewFiles.push({ key: item.clientId, file: item.teaserImageFile })
+      }
+    }
+
+    for (const item of pendingItems) {
+      if (item.teaserImageFile) {
+        previewFiles.push({ key: item.clientId, file: item.teaserImageFile })
+      }
+    }
+
+    if (!previewFiles.length) {
+      setLocalPreviewUrls((current) => {
+        Object.values(current).forEach((url) => URL.revokeObjectURL(url))
+        return {}
+      })
+      return
+    }
+
+    const nextUrls = previewFiles.reduce<Record<string, string>>((result, entry) => {
+      result[entry.key] = URL.createObjectURL(entry.file)
+      return result
+    }, {})
+
+    setLocalPreviewUrls((current) => {
+      Object.values(current).forEach((url) => URL.revokeObjectURL(url))
+      return nextUrls
+    })
+
+    return () => {
+      Object.values(nextUrls).forEach((url) => URL.revokeObjectURL(url))
+    }
+  }, [existingItems, packageType, pendingItems, singleVideo.teaserImageFile])
+
+  useEffect(() => {
     if (!previewSources.length) {
-      setPreviewUrls((current) => {
+      setStoredPreviewUrls((current) => {
         Object.values(current).forEach((url) => URL.revokeObjectURL(url))
         return {}
       })
@@ -208,7 +252,7 @@ export function VideoManagerRoute() {
         return
       }
 
-      setPreviewUrls((current) => {
+      setStoredPreviewUrls((current) => {
         Object.values(current).forEach((url) => URL.revokeObjectURL(url))
         return nextUrls
       })
@@ -594,8 +638,33 @@ export function VideoManagerRoute() {
     setError(null)
   }
 
+  function renderVideoPreview(youtubeUrl: string, title: string) {
+    const embedUrl = getYouTubeEmbedUrl(youtubeUrl)
+    if (!embedUrl) {
+      return null
+    }
+
+    const previewTitle = title.trim() || t('videos.manager.untitledVideo')
+
+    return (
+      <div className={styles.previewCard}>
+        <span className={styles.previewLabel}>{t('videos.manager.videoPreview')}</span>
+        <div className={styles.videoPreviewFrameWrap}>
+          <iframe
+            src={embedUrl}
+            title={`${t('videos.manager.videoPreview')}: ${previewTitle}`}
+            className={styles.videoPreviewFrame}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            referrerPolicy="strict-origin-when-cross-origin"
+          />
+        </div>
+      </div>
+    )
+  }
+
   function renderSingleVideoSection() {
-    const teaserPreview = previewUrls.single
+    const teaserPreview = localPreviewUrls.single ?? storedPreviewUrls.single
 
     return (
       <section className={styles.card}>
@@ -652,9 +721,10 @@ export function VideoManagerRoute() {
         </label>
 
         <div className={styles.mediaBlock}>
+          {renderVideoPreview(singleVideo.youtubeUrl, packageTitle)}
           {teaserPreview ? (
             <div className={styles.previewCard}>
-              <span className={styles.previewLabel}>{t('videos.manager.currentTeaser')}</span>
+              <span className={styles.previewLabel}>{t('videos.manager.teaserPreview')}</span>
               <img src={teaserPreview} alt="" className={styles.previewImage} />
             </div>
           ) : null}
@@ -717,8 +787,7 @@ export function VideoManagerRoute() {
       removeLabel: string
     },
   ) {
-    const teaserPreview =
-      options.scope === 'existing' ? previewUrls[item.clientId] : undefined
+    const teaserPreview = localPreviewUrls[item.clientId] ?? storedPreviewUrls[item.clientId]
 
     return (
       <article key={item.clientId} className={styles.videoCard}>
@@ -786,9 +855,10 @@ export function VideoManagerRoute() {
         </label>
 
         <div className={styles.mediaBlock}>
+          {renderVideoPreview(item.youtubeUrl, item.title)}
           {teaserPreview ? (
             <div className={styles.previewCard}>
-              <span className={styles.previewLabel}>{t('videos.manager.currentTeaser')}</span>
+              <span className={styles.previewLabel}>{t('videos.manager.teaserPreview')}</span>
               <img src={teaserPreview} alt="" className={styles.previewImage} />
             </div>
           ) : null}
