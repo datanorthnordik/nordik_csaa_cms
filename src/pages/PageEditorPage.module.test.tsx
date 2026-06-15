@@ -11,6 +11,7 @@ const {
   useAppSelectorMock,
   listPageParentOptionsMock,
   listGalleriesMock,
+  listVideoPackagesMock,
   fetchPageDocumentContentMock,
   fetchPageHeroImageContentMock,
   fetchPageCTABannerImageContentMock,
@@ -20,6 +21,7 @@ const {
   useAppSelectorMock: vi.fn(),
   listPageParentOptionsMock: vi.fn(),
   listGalleriesMock: vi.fn(),
+  listVideoPackagesMock: vi.fn(),
   fetchPageDocumentContentMock: vi.fn(),
   fetchPageHeroImageContentMock: vi.fn(),
   fetchPageCTABannerImageContentMock: vi.fn(),
@@ -58,6 +60,12 @@ vi.mock('../api/pagesApi', async () => {
 vi.mock('../api/mediaApi', () => ({
   mediaApi: {
     listGalleries: listGalleriesMock,
+  },
+}))
+
+vi.mock('../api/videoApi', () => ({
+  videoApi: {
+    listVideoPackages: listVideoPackagesMock,
   },
 }))
 
@@ -191,6 +199,7 @@ describe('PageEditorPage module pages', () => {
     navigateMock.mockReset()
     listPageParentOptionsMock.mockReset()
     listGalleriesMock.mockReset()
+    listVideoPackagesMock.mockReset()
     fetchPageDocumentContentMock.mockReset()
     fetchPageHeroImageContentMock.mockReset()
     fetchPageCTABannerImageContentMock.mockReset()
@@ -198,6 +207,7 @@ describe('PageEditorPage module pages', () => {
     vi.mocked(toast.success).mockReset()
     listPageParentOptionsMock.mockResolvedValue([])
     listGalleriesMock.mockResolvedValue([])
+    listVideoPackagesMock.mockResolvedValue([])
     fetchPageDocumentContentMock.mockResolvedValue(new Blob(['document-preview']))
     URL.createObjectURL = vi.fn(() => 'blob:preview')
     URL.revokeObjectURL = vi.fn()
@@ -878,6 +888,25 @@ describe('PageEditorPage module pages', () => {
     })
 
     expect(screen.getByRole('button', { name: 'Icons' })).toBeDefined()
+  })
+
+  it('adds video modules and loads saved video package options', async () => {
+    listVideoPackagesMock.mockResolvedValue([
+      { id: 27, title: 'Community Stories', packageType: 'collection', videoCount: 3 },
+    ])
+    setEditablePageState([])
+
+    render(<PageEditorPage />)
+
+    await waitFor(() => {
+      expect(listVideoPackagesMock).toHaveBeenCalledTimes(1)
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add Content Module' }))
+    fireEvent.click(screen.getByRole('button', { name: /video module/i }))
+
+    expect(screen.getByText('Select Video Package')).toBeDefined()
+    expect(screen.getByRole('option', { name: 'Community Stories' })).toBeDefined()
   })
 
   it('shows gallery caption and carousel auto-scroll toggles for editable gallery sections', async () => {

@@ -186,6 +186,26 @@ describe('buildSavePageRequest', () => {
     })
   })
 
+  it('includes video module selections in page section payloads', () => {
+    const form = createDefaultPageFormState()
+    const videoSection = createDefaultSectionState('video')
+
+    form.pageTitle = 'Stories'
+    form.urlSlug = 'stories'
+    videoSection.video.videoPackageId = '27'
+    form.sections = [videoSection]
+
+    const request = buildSavePageRequest(form)
+
+    expect(request.page_detail?.sections[0]).toMatchObject({
+      section_type: 'video',
+      sort_order: 0,
+      video: {
+        video_package_id: 27,
+      },
+    })
+  })
+
   it('includes header description, underline, and text alignment in page section payloads', () => {
     const form = createDefaultPageFormState()
     const headerSection = createDefaultSectionState('header')
@@ -397,6 +417,59 @@ describe('buildPageFormStateFromDetail', () => {
         viewMode: 'icons',
         showTitleDescription: false,
         autoScrollEnabled: true,
+      },
+    })
+  })
+
+  it('hydrates video modules from page detail responses', () => {
+    const form = buildPageFormStateFromDetail({
+      id: 15,
+      page_title: 'Stories',
+      url_slug: '/stories',
+      page_type: 'page',
+      parent_id: null,
+      status: 'draft',
+      hero_image_enabled: false,
+      hero_image_url: '',
+      hero_image_object_key: '',
+      hero_image_fetch_url: '',
+      seo_page_title: '',
+      seo_page_description: '',
+      created_by: null,
+      created_by_name: 'Admin',
+      modified_by: null,
+      modified_by_name: 'Admin',
+      last_modified: '2026-05-12T00:00:00Z',
+      created_at: '2026-05-12T00:00:00Z',
+      updated_at: '2026-05-12T00:00:00Z',
+      page_detail: {
+        id: 30,
+        page_id: 15,
+        template_key: 'default',
+        schema_version: 1,
+        sections: [
+          {
+            id: 19,
+            section_name: 'Story videos',
+            section_type: 'video',
+            sort_order: 0,
+            is_enabled: true,
+            video: {
+              video_package_id: 27,
+            },
+            created_at: '2026-05-12T00:00:00Z',
+            updated_at: '2026-05-12T00:00:00Z',
+          },
+        ],
+      },
+    })
+
+    expect(form.sections[0]).toMatchObject({
+      id: 19,
+      sectionName: 'Story videos',
+      sectionType: 'video',
+      video: {
+        videoPackageId: '27',
       },
     })
   })

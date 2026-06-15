@@ -46,4 +46,10 @@ export const API_ROUTES = {
     `/api/galleries/${id}/images/${imageId}/content`,
   galleryImageOrderById: (id: number | string) =>
     `/api/galleries/${id}/images/order`,
+  videos: '/api/videos',
+  videoById: (id: number | string) => `/api/videos/${id}`,
+  videoItemById: (id: number | string, itemId: number | string) =>
+    `/api/videos/${id}/items/${itemId}`,
+  videoItemTeaserById: (id: number | string, itemId: number | string) =>
+    `/api/videos/${id}/items/${itemId}/teaser/content`,
 } as const

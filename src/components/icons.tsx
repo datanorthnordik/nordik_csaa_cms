@@ -26,6 +26,7 @@ import Newspaper from '@mui/icons-material/Newspaper'
 import Notifications from '@mui/icons-material/Notifications'
 import Search from '@mui/icons-material/Search'
 import Settings from '@mui/icons-material/Settings'
+import SmartDisplay from '@mui/icons-material/SmartDisplay'
 import Tune from '@mui/icons-material/Tune'
 import type { CSSProperties } from 'react'
 
@@ -90,6 +91,10 @@ export function ResourcesIcon({ size = 18, className }: IconProps) {
 
 export function MediaIcon({ size = 18, className }: IconProps) {
   return <Image style={getIconStyle(size)} className={className} />
+}
+
+export function VideoIcon({ size = 18, className }: IconProps) {
+  return <SmartDisplay style={getIconStyle(size)} className={className} />
 }
 
 export function SettingsIcon({ size = 18, className }: IconProps) {

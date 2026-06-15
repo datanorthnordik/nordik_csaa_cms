@@ -120,6 +120,7 @@
     "memorial": "Memorial Entries",
     "resources": "Resources",
     "media": "Media Library",
+    "videos": "Videos",
     "settings": "Settings",
     "logout": "Logout",
     "submitTicket": "Submit Ticket"
@@ -330,6 +331,7 @@
         "header": "Header Module",
         "typography": "Typography",
         "gallery": "Gallery Module",
+        "video": "Video Module",
         "document": "Document Module",
         "quote": "Quote Module",
         "cta_banner": "CTA Banner"
@@ -338,6 +340,7 @@
         "header": "Lead with a primary heading and optional supporting text.",
         "typography": "Store rich HTML content using the CMS text editor.",
         "gallery": "Attach a reusable media gallery with a chosen layout.",
+        "video": "Attach a reusable single video or collection from the video library.",
         "document": "Upload one or more documents and control their order.",
         "quote": "Highlight a featured quote with attribution.",
         "cta_banner": "Promote a call to action with copy and a destination link."
@@ -356,6 +359,7 @@
         "textAlign": "Text Align",
         "underlineEnabled": "Optional Underline",
         "gallery": "Select Media Gallery",
+        "videoPackage": "Select Video Package",
         "viewMode": "View Option",
         "showTitleDescription": "Display Titles and Descriptions",
         "autoScrollEnabled": "Automatic Carousel Scroll",
@@ -378,6 +382,7 @@
         "headerDescription": "Optional paragraph or supporting copy beneath the heading...",
         "htmlContent": "Start writing formatted page content...",
         "gallery": "Select a gallery...",
+        "videoPackage": "Select a video package...",
         "documentDisplayName": "e.g., Annual Financial Report 2024",
         "documentDescription": "Optional internal note or public description",
         "quoteContent": "Enter the featured quote text...",
@@ -393,6 +398,7 @@
         "underlineEnabled": "Add a simple underline accent beneath section headings on the website.",
         "underlineUnavailable": "Switch the hierarchy to H2 Section to enable the underline accent.",
         "gallery": "Choose a gallery from the media library. You can reuse the same gallery in multiple sections.",
+        "videoPackage": "Choose a saved video package from the video library. You can reuse it across multiple sections.",
         "showTitleDescription": "Show each image title and description on the website.",
         "autoScrollEnabled": "When enabled, carousel galleries advance automatically on the website.",
         "autoScrollUnavailable": "Switch the gallery view to Carousel to enable automatic scrolling.",
@@ -857,6 +863,110 @@
       "draftSaved": "Gallery saved as draft.",
       "published": "Gallery published successfully.",
       "downloadFailed": "Could not download the image right now."
+    }
+  },
+  "videos": {
+    "types": {
+      "single": "Single Video",
+      "collection": "Video Collection"
+    },
+    "breadcrumb": {
+      "library": "Video Library",
+      "create": "Create Video Package",
+      "edit": "Manage Video Package"
+    },
+    "library": {
+      "title": "Video Library",
+      "subtitle": "Create and manage single videos or reusable video collections for CMS pages.",
+      "create": "Create New Video Package",
+      "searchPlaceholder": "Search video packages...",
+      "loading": "Loading video packages...",
+      "empty": {
+        "title": "No video packages yet",
+        "text": "Create your first video package to start adding reusable video content.",
+        "noMatchTitle": "No video packages match your search",
+        "noMatchText": "We couldn't find video packages matching \"{{term}}\". Try a different search."
+      },
+      "card": {
+        "videoCount_one": "{{count}} video",
+        "videoCount_other": "{{count}} videos",
+        "updatedAt": "Updated {{date}}",
+        "manage": "Manage Package",
+        "delete": "Delete Package"
+      },
+      "delete": {
+        "title": "Delete video package?",
+        "description": "This will permanently delete \"{{title}}\" and its saved videos. This action cannot be undone.",
+        "confirm": "Delete Package"
+      }
+    },
+    "manager": {
+      "loading": "Loading video package...",
+      "createTitle": "Create Video Package",
+      "editTitle": "Manage Video Package",
+      "subtitle": "Configure a single featured video or build a reusable collection for page modules.",
+      "sectionHint": "Add the title, YouTube link, teaser image, and description for this video.",
+      "collectionHint": "Set the collection title used throughout the CMS and website.",
+      "savedVideosHint": "Edit or remove individual videos already saved in this collection.",
+      "newVideosHint": "Add one or more new videos to this collection.",
+      "packageTypeHint": "Choose whether this package contains one video or a list of videos.",
+      "currentTeaser": "Current teaser image",
+      "selectedTeaser": "Selected teaser: {{name}}",
+      "dropLabel": "Drop teaser image here or browse",
+      "dropHint": "Supports SVG, PNG, JPG, and WEBP up to 5MB.",
+      "untitledVideo": "Untitled video",
+      "pendingEmpty": "Add a video card to start building this collection.",
+      "sections": {
+        "packageType": "Package Type",
+        "singleVideo": "Single Video Details",
+        "collectionDetails": "Collection Details",
+        "savedVideos": "Saved Videos",
+        "newVideos": "New Videos"
+      },
+      "fields": {
+        "videoTitle": "Video Title",
+        "collectionTitle": "Collection Title",
+        "youtubeUrl": "YouTube Link",
+        "description": "Description"
+      },
+      "placeholders": {
+        "videoTitle": "Enter a clear video title...",
+        "collectionTitle": "Enter a collection title...",
+        "youtubeUrl": "https://www.youtube.com/watch?v=...",
+        "description": "Optional supporting description..."
+      },
+      "actions": {
+        "createSingle": "Create Video",
+        "saveSingle": "Save Video",
+        "createCollection": "Create Collection",
+        "saveCollectionTitle": "Save Collection Title",
+        "addVideo": "Add Another Video",
+        "addItems": "Add Videos",
+        "saveItem": "Save Video Changes",
+        "removeVideo": "Remove Video",
+        "deleteItem": "Delete Video",
+        "deletePackage": "Delete Package"
+      },
+      "empty": {
+        "title": "No videos saved yet",
+        "text": "Use the section below to add the first video to this collection."
+      },
+      "notFound": {
+        "title": "Video package unavailable",
+        "text": "We couldn't load video package #{{id}}. It may have been removed or you may not have access.",
+        "back": "Back to Video Library"
+      },
+      "delete": {
+        "title": "Delete video package?",
+        "description": "This will permanently delete \"{{title}}\" and every video saved inside it. This action cannot be undone.",
+        "confirm": "Delete Package"
+      }
+    },
+    "validation": {
+      "packageTitleRequired": "Collection title is required.",
+      "videoTitleRequired": "Video title is required.",
+      "youtubeUrlRequired": "YouTube link is required.",
+      "teaserRequired": "A teaser image is required."
     }
   },
   "publishing": {

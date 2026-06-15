@@ -10,6 +10,8 @@ import { EventsListPage } from './pages/EventsListPage'
 import { EventEditorPage } from './pages/EventEditorPage'
 import { MediaLibraryRoute } from './pages/MediaLibraryRoute'
 import { GalleryManagerRoute } from './pages/GalleryManagerRoute'
+import { VideoLibraryRoute } from './pages/VideoLibraryRoute'
+import { VideoManagerRoute } from './pages/VideoManagerRoute'
 import { NewslettersListPage } from './pages/NewslettersListPage'
 import { NewsletterEditorPage } from './pages/NewsletterEditorPage'
 import { PressListPage } from './pages/PressListPage'
@@ -47,6 +49,9 @@ function App() {
           <Route path="/events/:id/edit" element={<EventEditorPage />} />
           <Route path="/media-library" element={<MediaLibraryRoute />} />
           <Route path="/media-library/:galleryId" element={<GalleryManagerRoute />} />
+          <Route path="/videos" element={<VideoLibraryRoute />} />
+          <Route path="/videos/new" element={<VideoManagerRoute />} />
+          <Route path="/videos/:videoId" element={<VideoManagerRoute />} />
           <Route path="/newsletters" element={<NewslettersListPage />} />
           <Route path="/newsletters/new" element={<NewsletterEditorPage mode="create" />} />
           <Route path="/newsletters/:id/edit" element={<NewsletterEditorPage mode="edit" />} />

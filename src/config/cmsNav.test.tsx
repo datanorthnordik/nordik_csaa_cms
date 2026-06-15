@@ -10,6 +10,7 @@ vi.mock('../components/icons', () => ({
   MemorialIcon: () => <svg data-testid="memorial-icon" />,
   ResourcesIcon: () => <svg data-testid="resources-icon" />,
   MediaIcon: () => <svg data-testid="media-icon" />,
+  VideoIcon: () => <svg data-testid="video-icon" />,
   LogoutIcon: () => <svg data-testid="logout-icon" />,
 }))
 
@@ -28,6 +29,13 @@ describe('cmsNav', () => {
     expect(cmsNavItems.find((item) => item.key === 'resources')).toMatchObject({
       key: 'resources',
       path: '/resources',
+    })
+  })
+
+  it('includes a videos entry that links to the video library', () => {
+    expect(cmsNavItems.find((item) => item.key === 'videos')).toMatchObject({
+      key: 'videos',
+      path: '/videos',
     })
   })
 

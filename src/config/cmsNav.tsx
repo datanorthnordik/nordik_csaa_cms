@@ -9,6 +9,7 @@ import {
   MemorialIcon,
   ResourcesIcon,
   MediaIcon,
+  VideoIcon,
   LogoutIcon,
 } from '../components/icons'
 
@@ -28,6 +29,7 @@ export const cmsNavItems: CmsNavItemConfig[] = [
   { key: 'memorial', icon: <MemorialIcon />, path: '/memorial' },
   { key: 'resources', icon: <ResourcesIcon />, path: '/resources' },
   { key: 'media', icon: <MediaIcon />, path: '/media-library' },
+  { key: 'videos', icon: <VideoIcon />, path: '/videos' },
 ]
 
 export const cmsFooterItems: CmsNavItemConfig[] = [

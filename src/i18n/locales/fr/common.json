@@ -120,6 +120,7 @@
     "memorial": "Entrees memorial",
     "resources": "Ressources",
     "media": "Bibliotheque multimedia",
+    "videos": "Videos",
     "settings": "Parametres",
     "logout": "Deconnexion",
     "submitTicket": "Soumettre un ticket"
@@ -330,6 +331,7 @@
         "header": "Module d en-tete",
         "typography": "Typographie",
         "gallery": "Module galerie",
+        "video": "Module video",
         "document": "Module document",
         "quote": "Module citation",
         "cta_banner": "Banniere CTA"
@@ -338,6 +340,7 @@
         "header": "Ajoutez un titre principal et un texte secondaire optionnel.",
         "typography": "Enregistrez du contenu HTML riche avec l editeur du CMS.",
         "gallery": "Associez une galerie reutilisable avec la mise en page voulue.",
+        "video": "Associez une video unique ou une collection reutilisable depuis la bibliotheque video.",
         "document": "Televersez un ou plusieurs documents et controlez leur ordre.",
         "quote": "Mettez en avant une citation avec son attribution.",
         "cta_banner": "Affichez un appel a l action avec son texte et son lien."
@@ -356,6 +359,7 @@
         "textAlign": "Alignement",
         "underlineEnabled": "Soulignement optionnel",
         "gallery": "Selectionner une galerie",
+        "videoPackage": "Selectionner un package video",
         "viewMode": "Option d affichage",
         "showTitleDescription": "Afficher les titres et descriptions",
         "autoScrollEnabled": "Defilement automatique du carrousel",
@@ -378,6 +382,7 @@
         "headerDescription": "Paragraphe ou texte d accompagnement optionnel sous le titre...",
         "htmlContent": "Commencez a rediger le contenu mis en forme...",
         "gallery": "Choisir une galerie...",
+        "videoPackage": "Choisir un package video...",
         "documentDisplayName": "ex., Rapport financier annuel 2024",
         "documentDescription": "Note interne ou description publique optionnelle",
         "quoteContent": "Saisissez le texte de la citation...",
@@ -393,6 +398,7 @@
         "underlineEnabled": "Ajoute un soulignement discret sous les titres de section sur le site web.",
         "underlineUnavailable": "Passez la hierarchie en H2 Section pour activer le soulignement.",
         "gallery": "Choisissez une galerie depuis la bibliotheque media. Une meme galerie peut etre reutilisee dans plusieurs sections.",
+        "videoPackage": "Choisissez un package video enregistre depuis la bibliotheque video. Vous pouvez le reutiliser dans plusieurs sections.",
         "showTitleDescription": "Affiche le titre et la description de chaque image sur le site web.",
         "autoScrollEnabled": "Lorsque cette option est activee, les galeries en carrousel defilent automatiquement sur le site web.",
         "autoScrollUnavailable": "Passez la galerie en mode carrousel pour activer le defilement automatique.",
@@ -854,6 +860,110 @@
       "draftSaved": "Galerie enregistree comme brouillon.",
       "published": "Galerie publiee avec succes.",
       "downloadFailed": "Impossible de telecharger l'image pour le moment."
+    }
+  },
+  "videos": {
+    "types": {
+      "single": "Video unique",
+      "collection": "Collection de videos"
+    },
+    "breadcrumb": {
+      "library": "Bibliotheque video",
+      "create": "Creer un package video",
+      "edit": "Gerer le package video"
+    },
+    "library": {
+      "title": "Bibliotheque video",
+      "subtitle": "Creez et gerez des videos uniques ou des collections reutilisables pour les pages du CMS.",
+      "create": "Creer un nouveau package video",
+      "searchPlaceholder": "Rechercher des packages video...",
+      "loading": "Chargement des packages video...",
+      "empty": {
+        "title": "Aucun package video pour le moment",
+        "text": "Creez votre premier package video pour commencer a reutiliser ce contenu.",
+        "noMatchTitle": "Aucun package video ne correspond a votre recherche",
+        "noMatchText": "Aucun package video ne correspond a \"{{term}}\". Essayez une autre recherche."
+      },
+      "card": {
+        "videoCount_one": "{{count}} video",
+        "videoCount_other": "{{count}} videos",
+        "updatedAt": "Mis a jour le {{date}}",
+        "manage": "Gerer le package",
+        "delete": "Supprimer le package"
+      },
+      "delete": {
+        "title": "Supprimer le package video ?",
+        "description": "Cette action supprimera definitivement \"{{title}}\" et ses videos enregistrees.",
+        "confirm": "Supprimer le package"
+      }
+    },
+    "manager": {
+      "loading": "Chargement du package video...",
+      "createTitle": "Creer un package video",
+      "editTitle": "Gerer le package video",
+      "subtitle": "Configurez une video vedette unique ou une collection reutilisable pour les modules de page.",
+      "sectionHint": "Ajoutez le titre, le lien YouTube, l image teaser et la description de cette video.",
+      "collectionHint": "Definissez le titre principal de la collection.",
+      "savedVideosHint": "Modifiez ou supprimez les videos deja enregistrees dans cette collection.",
+      "newVideosHint": "Ajoutez une ou plusieurs nouvelles videos a cette collection.",
+      "packageTypeHint": "Choisissez si ce package contient une seule video ou une liste de videos.",
+      "currentTeaser": "Image teaser actuelle",
+      "selectedTeaser": "Teaser selectionne : {{name}}",
+      "dropLabel": "Deposez l image teaser ici ou parcourez",
+      "dropHint": "Formats pris en charge : SVG, PNG, JPG et WEBP jusqu a 5 Mo.",
+      "untitledVideo": "Video sans titre",
+      "pendingEmpty": "Ajoutez une carte video pour commencer cette collection.",
+      "sections": {
+        "packageType": "Type de package",
+        "singleVideo": "Details de la video",
+        "collectionDetails": "Details de la collection",
+        "savedVideos": "Videos enregistrees",
+        "newVideos": "Nouvelles videos"
+      },
+      "fields": {
+        "videoTitle": "Titre de la video",
+        "collectionTitle": "Titre de la collection",
+        "youtubeUrl": "Lien YouTube",
+        "description": "Description"
+      },
+      "placeholders": {
+        "videoTitle": "Saisissez un titre clair...",
+        "collectionTitle": "Saisissez un titre de collection...",
+        "youtubeUrl": "https://www.youtube.com/watch?v=...",
+        "description": "Description optionnelle..."
+      },
+      "actions": {
+        "createSingle": "Creer la video",
+        "saveSingle": "Enregistrer la video",
+        "createCollection": "Creer la collection",
+        "saveCollectionTitle": "Enregistrer le titre de la collection",
+        "addVideo": "Ajouter une autre video",
+        "addItems": "Ajouter les videos",
+        "saveItem": "Enregistrer les modifications",
+        "removeVideo": "Retirer la video",
+        "deleteItem": "Supprimer la video",
+        "deletePackage": "Supprimer le package"
+      },
+      "empty": {
+        "title": "Aucune video enregistree",
+        "text": "Utilisez la section ci-dessous pour ajouter la premiere video a cette collection."
+      },
+      "notFound": {
+        "title": "Package video indisponible",
+        "text": "Impossible de charger le package video n {{id}}. Il a peut-etre ete supprime ou vous n y avez pas acces.",
+        "back": "Retour a la bibliotheque video"
+      },
+      "delete": {
+        "title": "Supprimer le package video ?",
+        "description": "Cette action supprimera definitivement \"{{title}}\" et toutes les videos qu il contient.",
+        "confirm": "Supprimer le package"
+      }
+    },
+    "validation": {
+      "packageTitleRequired": "Le titre de la collection est requis.",
+      "videoTitleRequired": "Le titre de la video est requis.",
+      "youtubeUrlRequired": "Le lien YouTube est requis.",
+      "teaserRequired": "Une image teaser est requise."
     }
   },
   "publishing": {
