@@ -1,0 +1,274 @@
+.page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.subtitle {
+  margin: 0.5rem 0 0;
+  max-width: 54rem;
+  color: #5f6368;
+}
+
+.packageTypeBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #374151;
+  font-weight: 700;
+}
+
+.card {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.4rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 1.25rem;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.cardHeader h2,
+.videoCardHeader h3 {
+  margin: 0;
+}
+
+.cardHeader p {
+  margin: 0.45rem 0 0;
+  color: #6b7280;
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.field span {
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #374151;
+}
+
+.field input,
+.field textarea {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 0.95rem;
+  padding: 0.85rem 0.95rem;
+  font: inherit;
+  background: #fff;
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 7rem;
+}
+
+.segmentedControl {
+  display: inline-flex;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+.segmentedButton {
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  padding: 0.8rem 1rem;
+  background: #fff;
+  font: inherit;
+  font-weight: 700;
+  color: #374151;
+  cursor: pointer;
+}
+
+.segmentedButtonActive {
+  border-color: #7a1421;
+  background: #fff2f3;
+  color: #7a1421;
+}
+
+.mediaBlock {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.previewCard {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.9rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  background: #fafafa;
+}
+
+.previewLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.previewImage {
+  display: block;
+  width: 100%;
+  max-width: 18rem;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 0.9rem;
+  background: #e5e7eb;
+}
+
+.selectedFile {
+  margin: 0;
+  color: #4b5563;
+  font-size: 0.92rem;
+}
+
+.actionsRow {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.videoList {
+  display: grid;
+  gap: 1rem;
+}
+
+.videoCard {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+  background: #fcfcfd;
+}
+
+.videoCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.loaderWrap,
+.emptyState,
+.emptyStateCompact {
+  display: grid;
+  place-items: center;
+  padding: 2.5rem 1rem;
+  border: 1px dashed #cbd5e1;
+  border-radius: 1.25rem;
+  background: #fff;
+}
+
+.emptyStateCompact {
+  padding: 1.5rem 1rem;
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.emptyText {
+  margin: 0.5rem 0 0;
+  max-width: 36rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.errorText {
+  margin: 0;
+  color: #b42318;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton,
+.iconDangerButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.8rem 1.15rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primaryButton {
+  border: none;
+  background: #7a1421;
+  color: #fff;
+}
+
+.secondaryButton {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #111827;
+}
+
+.dangerButton,
+.iconDangerButton {
+  border: 1px solid #f3d0d4;
+  background: #fff5f6;
+  color: #a61b29;
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.dangerButton:disabled,
+.iconDangerButton:disabled,
+.segmentedButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+@media (max-width: 720px) {
+  .title {
+    font-size: 1.65rem;
+  }
+
+  .actionsRow {
+    flex-direction: column;
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .dangerButton {
+    width: 100%;
+  }
+}

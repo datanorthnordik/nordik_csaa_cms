@@ -51,6 +51,14 @@ vi.mock('./pages/GalleryManagerRoute', () => ({
   GalleryManagerRoute: () => <div>Gallery Manager Route</div>,
 }))
 
+vi.mock('./pages/VideoLibraryRoute', () => ({
+  VideoLibraryRoute: () => <div>Video Library Route</div>,
+}))
+
+vi.mock('./pages/VideoManagerRoute', () => ({
+  VideoManagerRoute: () => <div>Video Manager Route</div>,
+}))
+
 vi.mock('./pages/PagesListPage', () => ({
   PagesListPage: () => <div>Pages List Page</div>,
 }))

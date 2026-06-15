@@ -17,6 +17,7 @@ export type PageSectionType =
   | 'header'
   | 'typography'
   | 'gallery'
+  | 'video'
   | 'document'
   | 'quote'
   | 'cta_banner'
@@ -102,6 +103,10 @@ export type PageGallerySectionResponse = {
   auto_scroll_enabled?: boolean
 }
 
+export type PageVideoSectionResponse = {
+  video_package_id?: number | null
+}
+
 export type PageQuoteSectionResponse = {
   quote_content: string
   attribution: string
@@ -154,6 +159,7 @@ export type PageSectionResponse = {
   header?: PageHeaderSectionResponse | null
   typography?: PageTypographySectionResponse | null
   gallery?: PageGallerySectionResponse | null
+  video?: PageVideoSectionResponse | null
   quote?: PageQuoteSectionResponse | null
   cta_banner?: PageCTABannerSectionResponse | null
   documents?: PageDocumentsSectionResponse | null
@@ -244,6 +250,10 @@ export type SavePageGallerySectionPayload = {
   auto_scroll_enabled: boolean
 }
 
+export type SavePageVideoSectionPayload = {
+  video_package_id?: number | null
+}
+
 export type SavePageQuoteSectionPayload = {
   quote_content: string
   attribution: string
@@ -268,6 +278,7 @@ export type SavePageSectionPayload = {
   header?: SavePageHeaderSectionPayload
   typography?: SavePageTypographySectionPayload
   gallery?: SavePageGallerySectionPayload
+  video?: SavePageVideoSectionPayload
   quote?: SavePageQuoteSectionPayload
   cta_banner?: SavePageCTABannerSectionPayload
   documents?: SavePageDocumentsSectionPayload

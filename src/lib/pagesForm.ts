@@ -13,6 +13,7 @@ import type {
   PageQuoteSectionResponse,
   PageSectionResponse,
   PageSectionType,
+  PageVideoSectionResponse,
   PageTypographySectionResponse,
   PageTypographyTextAlign,
   PageStatus,
@@ -26,6 +27,7 @@ import type {
   SavePageQuoteSectionPayload,
   SavePageRequest,
   SavePageSectionPayload,
+  SavePageVideoSectionPayload,
   SavePageTypographySectionPayload,
   PageUploadInput,
 } from '../api/pagesApi'
@@ -71,6 +73,9 @@ export type PageSectionState = {
     viewMode: PageGalleryViewMode
     showTitleDescription: boolean
     autoScrollEnabled: boolean
+  }
+  video: {
+    videoPackageId: string
   }
   quote: {
     quoteContent: string
@@ -166,6 +171,9 @@ export function createDefaultSectionState(sectionType: PageSectionType): PageSec
       viewMode: 'grid',
       showTitleDescription: true,
       autoScrollEnabled: false,
+    },
+    video: {
+      videoPackageId: '',
     },
     quote: {
       quoteContent: '',
@@ -648,6 +656,15 @@ function buildSaveSectionPayload(
           } satisfies SavePageGallerySectionPayload,
         }
       : {}),
+    ...(section.sectionType === 'video'
+      ? {
+          video: {
+            video_package_id: section.video.videoPackageId
+              ? Number.parseInt(section.video.videoPackageId, 10)
+              : null,
+          } satisfies SavePageVideoSectionPayload,
+        }
+      : {}),
     ...(section.sectionType === 'quote'
       ? {
           quote: {
@@ -790,6 +807,7 @@ function mapSectionResponseToState(section: PageSectionResponse): PageSectionSta
   next.header = mapHeaderResponse(section.header)
   next.typography = mapTypographyResponse(section.typography)
   next.gallery = mapGalleryResponse(section.gallery)
+  next.video = mapVideoResponse(section.video)
   next.quote = mapQuoteResponse(section.quote)
   next.ctaBanner = mapCTABannerResponse(section.cta_banner)
   next.documents.items = (section.documents?.items ?? []).map(mapDocumentResponseToState)
@@ -839,6 +857,13 @@ function mapGalleryResponse(gallery?: PageGallerySectionResponse | null) {
     viewMode: gallery?.view_mode ?? 'grid',
     showTitleDescription: gallery?.show_title_description ?? true,
     autoScrollEnabled: gallery?.auto_scroll_enabled ?? false,
+  }
+}
+
+function mapVideoResponse(video?: PageVideoSectionResponse | null) {
+  return {
+    videoPackageId:
+      typeof video?.video_package_id === 'number' ? String(video.video_package_id) : '',
   }
 }
 
@@ -911,6 +936,8 @@ function defaultSectionName(sectionType: PageSectionType) {
       return 'Typography'
     case 'gallery':
       return 'Gallery Module'
+    case 'video':
+      return 'Video Module'
     case 'document':
       return 'Document Module'
     case 'quote':

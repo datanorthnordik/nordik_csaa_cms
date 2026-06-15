@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getApiErrorMessage } from '../api/apiError'
 import { mediaApi } from '../api/mediaApi'
+import { videoApi } from '../api/videoApi'
 import {
   isModulePage,
   pagesApi,
@@ -28,6 +29,7 @@ import {
   EditIcon,
   GalleryIcon,
   PagesIcon,
+  VideoIcon,
 } from '../components/icons'
 import { Loader } from '../components/Loader'
 import { UploadDropzone } from '../components/media/UploadDropzone'
@@ -84,10 +86,16 @@ type PageEditorPageProps = {
 
 type PageOptionsStatus = 'idle' | 'loading' | 'succeeded' | 'failed'
 type GalleryOptionsStatus = 'idle' | 'loading' | 'succeeded' | 'failed'
+type VideoOptionsStatus = 'idle' | 'loading' | 'succeeded' | 'failed'
 
 type PageGalleryOption = {
   id: number
   name: string
+}
+
+type PageVideoOption = {
+  id: number
+  title: string
 }
 
 type ModuleTypeOption = {
@@ -164,6 +172,10 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
   const [galleryOptionsStatus, setGalleryOptionsStatus] =
     useState<GalleryOptionsStatus>('idle')
   const [galleryOptionsError, setGalleryOptionsError] = useState<string | null>(null)
+  const [videoOptions, setVideoOptions] = useState<PageVideoOption[]>([])
+  const [videoOptionsStatus, setVideoOptionsStatus] =
+    useState<VideoOptionsStatus>('idle')
+  const [videoOptionsError, setVideoOptionsError] = useState<string | null>(null)
   const [initializedPageId, setInitializedPageId] = useState<number | null>(null)
   const [modulePickerOpen, setModulePickerOpen] = useState(false)
   const [draggedSectionClientId, setDraggedSectionClientId] = useState<string | null>(null)
@@ -235,8 +247,37 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
       }
     }
 
+    async function loadVideoOptions() {
+      setVideoOptionsStatus('loading')
+      setVideoOptionsError(null)
+
+      try {
+        const options = await videoApi.listVideoPackages()
+        if (cancelled) {
+          return
+        }
+
+        setVideoOptions(
+          options.map((item) => ({
+            id: item.id,
+            title: item.title,
+          })),
+        )
+        setVideoOptionsStatus('succeeded')
+      } catch (error) {
+        if (cancelled) {
+          return
+        }
+
+        setVideoOptions([])
+        setVideoOptionsStatus('failed')
+        setVideoOptionsError(getApiErrorMessage(error))
+      }
+    }
+
     void loadParentPageOptions()
     void loadGalleryOptions()
+    void loadVideoOptions()
 
     return () => {
       cancelled = true
@@ -338,6 +379,12 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
         label: t('pages.modules.types.gallery'),
         description: t('pages.modules.descriptions.gallery'),
         icon: <GalleryModuleIcon />,
+      },
+      {
+        type: 'video',
+        label: t('pages.modules.types.video'),
+        description: t('pages.modules.descriptions.video'),
+        icon: <VideoModuleIcon />,
       },
       {
         type: 'document',
@@ -1774,6 +1821,55 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
           </div>
         )
 
+      case 'video':
+        return (
+          <div className={styles.fieldStack}>
+            <div className={styles.fieldGrid}>
+              <label className={styles.field}>
+                <span>{t('pages.modules.fields.sectionName')}</span>
+                <input
+                  type="text"
+                  value={section.sectionName}
+                  placeholder={t('pages.modules.placeholders.sectionName')}
+                  onChange={(event) =>
+                    updateSection(section.clientId, (current) => ({
+                      ...current,
+                      sectionName: event.target.value,
+                    }))
+                  }
+                />
+              </label>
+
+              <label className={styles.field}>
+                <span>{t('pages.modules.fields.videoPackage')}</span>
+                <select
+                  value={section.video.videoPackageId}
+                  onChange={(event) =>
+                    updateSection(section.clientId, (current) => ({
+                      ...current,
+                      video: {
+                        ...current.video,
+                        videoPackageId: event.target.value,
+                      },
+                    }))
+                  }
+                  disabled={videoOptionsStatus === 'loading'}
+                >
+                  <option value="">{t('pages.modules.placeholders.videoPackage')}</option>
+                  {videoOptions.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.title}
+                    </option>
+                  ))}
+                </select>
+                <p className={styles.fieldHint}>
+                  {videoOptionsError || t('pages.modules.hints.videoPackage')}
+                </p>
+              </label>
+            </div>
+          </div>
+        )
+
       case 'document':
         return (
           <div className={styles.fieldStack}>
@@ -3132,6 +3228,10 @@ function TypographyModuleIcon() {
 
 function GalleryModuleIcon() {
   return <GalleryIcon size={16} />
+}
+
+function VideoModuleIcon() {
+  return <VideoIcon size={16} />
 }
 
 function DocumentModuleIcon() {
