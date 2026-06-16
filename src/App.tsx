@@ -23,6 +23,7 @@ import { PageEditorPage } from './pages/PageEditorPage'
 import { MenusPage } from './pages/MenusPage'
 import { MemorialEntriesListPage } from './pages/MemorialEntriesListPage'
 import { MemorialEntryEditorPage } from './pages/MemorialEntryEditorPage'
+import { BooksPage } from './pages/BooksPage'
 import './App.css'
 
 function App() {
@@ -55,6 +56,7 @@ function App() {
           <Route path="/newsletters" element={<NewslettersListPage />} />
           <Route path="/newsletters/new" element={<NewsletterEditorPage mode="create" />} />
           <Route path="/newsletters/:id/edit" element={<NewsletterEditorPage mode="edit" />} />
+          <Route path="/books" element={<BooksPage />} />
           <Route path="/press" element={<PressListPage />} />
           <Route path="/press/new" element={<PressEditorPage mode="create" />} />
           <Route path="/press/:id/edit" element={<PressEditorPage mode="edit" />} />
