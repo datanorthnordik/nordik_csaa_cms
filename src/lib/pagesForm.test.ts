@@ -787,9 +787,10 @@ describe('parent page validation', () => {
     expect(errors.sections).toBe('pages.validation.singleHeroHeader')
   })
 
-  it('returns field-level validation errors for required header, typography, and quote content', () => {
+  it('returns field-level validation errors for required header, typography, video, and quote content', () => {
     const headerSection = createDefaultSectionState('header')
     const typographySection = createDefaultSectionState('typography')
+    const videoSection = createDefaultSectionState('video')
     const quoteSection = createDefaultSectionState('quote')
 
     headerSection.header.mainHeaderText = '   '
@@ -797,7 +798,7 @@ describe('parent page validation', () => {
     quoteSection.quote.quoteContent = '   '
 
     const errors = validatePageSectionFields(
-      [headerSection, typographySection, quoteSection],
+      [headerSection, typographySection, videoSection, quoteSection],
       (key) => key,
     )
 
@@ -806,6 +807,9 @@ describe('parent page validation', () => {
     )
     expect(errors[typographySection.clientId]?.htmlContent).toBe(
       'pages.validation.typographyContentRequired',
+    )
+    expect(errors[videoSection.clientId]?.videoPackage).toBe(
+      'pages.validation.videoPackageRequired',
     )
     expect(errors[quoteSection.clientId]?.quoteContent).toBe(
       'pages.validation.quoteContentRequired',

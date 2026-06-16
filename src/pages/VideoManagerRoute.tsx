@@ -664,6 +664,7 @@ export function VideoManagerRoute() {
   }
 
   function renderSingleVideoSection() {
+    const videoPreview = renderVideoPreview(singleVideo.youtubeUrl, packageTitle)
     const teaserPreview = localPreviewUrls.single ?? storedPreviewUrls.single
 
     return (
@@ -721,11 +722,15 @@ export function VideoManagerRoute() {
         </label>
 
         <div className={styles.mediaBlock}>
-          {renderVideoPreview(singleVideo.youtubeUrl, packageTitle)}
-          {teaserPreview ? (
-            <div className={styles.previewCard}>
-              <span className={styles.previewLabel}>{t('videos.manager.teaserPreview')}</span>
-              <img src={teaserPreview} alt="" className={styles.previewImage} />
+          {videoPreview || teaserPreview ? (
+            <div className={styles.previewGrid}>
+              {videoPreview}
+              {teaserPreview ? (
+                <div className={styles.previewCard}>
+                  <span className={styles.previewLabel}>{t('videos.manager.teaserPreview')}</span>
+                  <img src={teaserPreview} alt="" className={styles.previewImage} />
+                </div>
+              ) : null}
             </div>
           ) : null}
 
@@ -787,6 +792,7 @@ export function VideoManagerRoute() {
       removeLabel: string
     },
   ) {
+    const videoPreview = renderVideoPreview(item.youtubeUrl, item.title)
     const teaserPreview = localPreviewUrls[item.clientId] ?? storedPreviewUrls[item.clientId]
 
     return (
@@ -855,11 +861,15 @@ export function VideoManagerRoute() {
         </label>
 
         <div className={styles.mediaBlock}>
-          {renderVideoPreview(item.youtubeUrl, item.title)}
-          {teaserPreview ? (
-            <div className={styles.previewCard}>
-              <span className={styles.previewLabel}>{t('videos.manager.teaserPreview')}</span>
-              <img src={teaserPreview} alt="" className={styles.previewImage} />
+          {videoPreview || teaserPreview ? (
+            <div className={styles.previewGrid}>
+              {videoPreview}
+              {teaserPreview ? (
+                <div className={styles.previewCard}>
+                  <span className={styles.previewLabel}>{t('videos.manager.teaserPreview')}</span>
+                  <img src={teaserPreview} alt="" className={styles.previewImage} />
+                </div>
+              ) : null}
             </div>
           ) : null}
 

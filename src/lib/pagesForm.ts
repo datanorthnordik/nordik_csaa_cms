@@ -121,6 +121,7 @@ export type PageSectionFieldErrors = Partial<
   Record<
     | 'mainHeaderText'
     | 'htmlContent'
+    | 'videoPackage'
     | 'quoteContent'
     | 'documents'
     | 'bannerHeading'
@@ -421,6 +422,15 @@ export function validatePageSectionFields(
           errors[section.clientId] = {
             ...errors[section.clientId],
             quoteContent: t('pages.validation.quoteContentRequired'),
+          }
+        }
+        break
+
+      case 'video':
+        if (!section.video.videoPackageId.trim()) {
+          errors[section.clientId] = {
+            ...errors[section.clientId],
+            videoPackage: t('pages.validation.videoPackageRequired'),
           }
         }
         break

@@ -1844,7 +1844,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                 <span>{t('pages.modules.fields.videoPackage')}</span>
                 <select
                   value={section.video.videoPackageId}
-                  onChange={(event) =>
+                  onChange={(event) => {
                     updateSection(section.clientId, (current) => ({
                       ...current,
                       video: {
@@ -1852,7 +1852,14 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                         videoPackageId: event.target.value,
                       },
                     }))
-                  }
+                    setSectionFieldError(
+                      section.clientId,
+                      'videoPackage',
+                      event.target.value.trim()
+                        ? undefined
+                        : t('pages.validation.videoPackageRequired'),
+                    )
+                  }}
                   disabled={videoOptionsStatus === 'loading'}
                 >
                   <option value="">{t('pages.modules.placeholders.videoPackage')}</option>
@@ -1865,6 +1872,7 @@ export function PageEditorPage({ mode = 'edit' }: PageEditorPageProps) {
                 <p className={styles.fieldHint}>
                   {videoOptionsError || t('pages.modules.hints.videoPackage')}
                 </p>
+                <FieldError message={getSectionFieldError(section.clientId, 'videoPackage')} />
               </label>
             </div>
           </div>
