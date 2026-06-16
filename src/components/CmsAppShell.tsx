@@ -49,7 +49,7 @@ export function CmsAppShell({
 
     return {
       key: item.key,
-      label: t(`nav.${item.key}`),
+      label: t(`nav.${item.key}`, { defaultValue: humanizeKey(item.key) }),
       icon: item.icon,
       active: item.key === activeKey,
       onClick,
@@ -67,4 +67,10 @@ export function CmsAppShell({
       {children}
     </CmsLayout>
   )
+}
+
+function humanizeKey(value: string) {
+  return value
+    .replace(/[_-]+/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase())
 }

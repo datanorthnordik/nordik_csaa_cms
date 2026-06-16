@@ -30,6 +30,7 @@
     "@tiptap/starter-kit": "^3.23.1",
     "axios": "^1.16.0",
     "i18next": "^26.0.8",
+    "pdf-lib": "^1.17.1",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-hook-form": "^7.75.0",

@@ -28,6 +28,28 @@ export const API_ROUTES = {
   newsletterById: (id: number | string) => `/api/newsletters/${id}`,
   newsletterMediaById: (id: number | string, mediaId: number | string) =>
     `/api/newsletters/${id}/media/${mediaId}/content`,
+  books: '/api/books',
+  bookById: (id: number | string) => `/api/books/${id}`,
+  bookVersions: (bookId: number | string) => `/api/books/${bookId}/versions`,
+  bookVersionById: (bookId: number | string, versionId: number | string) =>
+    `/api/books/${bookId}/versions/${versionId}`,
+  bookVersionActivate: (bookId: number | string, versionId: number | string) =>
+    `/api/books/${bookId}/versions/${versionId}/activate`,
+  bookVersionGenerated: (bookId: number | string, versionId: number | string) =>
+    `/api/books/${bookId}/versions/${versionId}/generated`,
+  bookVersionSourceContent: (bookId: number | string, versionId: number | string) =>
+    `/api/books/${bookId}/versions/${versionId}/source/content`,
+  bookVersionGeneratedContent: (bookId: number | string, versionId: number | string) =>
+    `/api/books/${bookId}/versions/${versionId}/generated/content`,
+  bookSubmissions: (bookId: number | string) => `/api/books/${bookId}/submissions`,
+  bookSubmissionById: (bookId: number | string, submissionId: number | string) =>
+    `/api/books/${bookId}/submissions/${submissionId}`,
+  bookSubmissionApprove: (bookId: number | string, submissionId: number | string) =>
+    `/api/books/${bookId}/submissions/${submissionId}/approve`,
+  bookSubmissionReject: (bookId: number | string, submissionId: number | string) =>
+    `/api/books/${bookId}/submissions/${submissionId}/reject`,
+  bookSubmissionImageContent: (bookId: number | string, submissionId: number | string) =>
+    `/api/books/${bookId}/submissions/${submissionId}/image/content`,
   eventDocumentById: (id: number | string) => `/api/events/${id}/document`,
   eventPhotoById: (id: number | string) => `/api/events/${id}/photo`,
   pages: '/api/pages',
