@@ -89,6 +89,7 @@ export type BookSubmission = {
   id: number
   bookId: number
   bookVersionId: number
+  bookVersionNumber: number
   targetSectionId?: number
   targetSectionName: string
   newSectionName: string
@@ -100,6 +101,14 @@ export type BookSubmission = {
   reviewedAt?: string
   rejectionReason: string
   createdAt: string
+  updatedAt: string
+}
+
+export type BookSubmissionMutation = {
+  id: number
+  status: BookSubmissionStatus
+  bookVersionId?: number
+  bookVersionNumber?: number
   updatedAt: string
 }
 
@@ -304,6 +313,7 @@ type ApiBookSubmission = {
   id: number
   book_id: number
   book_version_id: number
+  book_version_number: number
   target_section_id?: number
   target_section_name: string
   new_section_name: string
@@ -326,6 +336,8 @@ type ApiSubmissionMutationResponse = {
   submission: {
     id: number
     status: BookSubmissionStatus
+    book_version_id?: number
+    book_version_number?: number
     updated_at: string
   }
 }
@@ -407,6 +419,7 @@ function mapSubmission(item: ApiBookSubmission): BookSubmission {
     id: item.id,
     bookId: item.book_id,
     bookVersionId: item.book_version_id,
+    bookVersionNumber: item.book_version_number,
     targetSectionId: item.target_section_id,
     targetSectionName: item.target_section_name,
     newSectionName: item.new_section_name,
@@ -644,9 +657,11 @@ export const booksApi = {
     return response.data.version
   },
 
-  async listSubmissions(bookId: number, versionId: number, status = '') {
+  async listSubmissions(bookId: number, versionId = 0, status = '') {
     const params = new URLSearchParams()
-    params.set('version_id', String(versionId))
+    if (versionId > 0) {
+      params.set('version_id', String(versionId))
+    }
     if (status) {
       params.set('status', status)
     }
@@ -655,6 +670,13 @@ export const booksApi = {
       params,
     })
     return (response.data.submissions ?? []).map(mapSubmission)
+  },
+
+  async getSubmission(bookId: number, submissionId: number) {
+    const response = await apiClient.get<{ submission: ApiBookSubmission }>(
+      API_ROUTES.bookSubmissionById(bookId, submissionId),
+    )
+    return mapSubmission(response.data.submission)
   },
 
   async updateSubmission(
@@ -667,7 +689,13 @@ export const booksApi = {
       API_ROUTES.bookSubmissionById(bookId, submissionId),
       buildSubmissionPayload(input, imageFile),
     )
-    return response.data.submission
+    return {
+      id: response.data.submission.id,
+      status: response.data.submission.status,
+      bookVersionId: response.data.submission.book_version_id,
+      bookVersionNumber: response.data.submission.book_version_number,
+      updatedAt: response.data.submission.updated_at,
+    } satisfies BookSubmissionMutation
   },
 
   async approveSubmission(bookId: number, submissionId: number) {
@@ -675,7 +703,13 @@ export const booksApi = {
       API_ROUTES.bookSubmissionApprove(bookId, submissionId),
       {},
     )
-    return response.data.submission
+    return {
+      id: response.data.submission.id,
+      status: response.data.submission.status,
+      bookVersionId: response.data.submission.book_version_id,
+      bookVersionNumber: response.data.submission.book_version_number,
+      updatedAt: response.data.submission.updated_at,
+    } satisfies BookSubmissionMutation
   },
 
   async rejectSubmission(bookId: number, submissionId: number, rejectionReason: string) {
@@ -683,7 +717,13 @@ export const booksApi = {
       API_ROUTES.bookSubmissionReject(bookId, submissionId),
       { rejection_reason: rejectionReason },
     )
-    return response.data.submission
+    return {
+      id: response.data.submission.id,
+      status: response.data.submission.status,
+      bookVersionId: response.data.submission.book_version_id,
+      bookVersionNumber: response.data.submission.book_version_number,
+      updatedAt: response.data.submission.updated_at,
+    } satisfies BookSubmissionMutation
   },
 
   async fetchSubmissionImage(fetchUrl: string) {

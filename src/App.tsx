@@ -23,6 +23,9 @@ import { PageEditorPage } from './pages/PageEditorPage'
 import { MenusPage } from './pages/MenusPage'
 import { MemorialEntriesListPage } from './pages/MemorialEntriesListPage'
 import { MemorialEntryEditorPage } from './pages/MemorialEntryEditorPage'
+import { BookCreatePage } from './pages/BookCreatePage'
+import { BooksListPage } from './pages/BooksListPage'
+import { BookRequestReviewPage } from './pages/BookRequestReviewPage'
 import { BooksPage } from './pages/BooksPage'
 import './App.css'
 
@@ -56,7 +59,10 @@ function App() {
           <Route path="/newsletters" element={<NewslettersListPage />} />
           <Route path="/newsletters/new" element={<NewsletterEditorPage mode="create" />} />
           <Route path="/newsletters/:id/edit" element={<NewsletterEditorPage mode="edit" />} />
-          <Route path="/books" element={<BooksPage />} />
+          <Route path="/books" element={<BooksListPage />} />
+          <Route path="/books/new" element={<BookCreatePage />} />
+          <Route path="/books/requests/:bookId/:submissionId" element={<BookRequestReviewPage />} />
+          <Route path="/books/:id" element={<BooksPage />} />
           <Route path="/press" element={<PressListPage />} />
           <Route path="/press/new" element={<PressEditorPage mode="create" />} />
           <Route path="/press/:id/edit" element={<PressEditorPage mode="edit" />} />

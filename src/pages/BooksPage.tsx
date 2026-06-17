@@ -1,20 +1,19 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
-import { Breadcrumb } from '../components/Breadcrumb'
-import { CmsAppShell } from '../components/CmsAppShell'
-import { Loader } from '../components/Loader'
-import { RichTextEditor } from '../components/cms/RichTextEditor'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
   booksApi,
   type BookDetail,
-  type BookSummary,
   type BookFieldInputType,
   type BookFieldPlacement,
-  type BookSubmission,
-  type BookSubmissionSaveInput,
   type BookVersionDetail,
   type BookVersionSaveInput,
+  type BookVersionSection,
 } from '../api/booksApi'
+import { Breadcrumb } from '../components/Breadcrumb'
+import { CmsAppShell } from '../components/CmsAppShell'
+import { Loader } from '../components/Loader'
+import { Toggle } from '../components/Toggle'
 import { generateBookPdf } from '../lib/bookPdf'
 import styles from '../styles/BooksPage.module.css'
 
@@ -68,12 +67,6 @@ const DEFAULT_LAYOUT_SETTINGS = {
   },
 }
 
-type BookFormState = {
-  title: string
-  description: string
-  adminEmails: string
-}
-
 type EditableSection = {
   id?: number
   name: string
@@ -92,174 +85,143 @@ type EditableField = {
 }
 
 type VersionFormState = {
-  id?: number
   sourcePageCount: string
   contentTemplatePageNumber: string
   sectionTemplatePageNumber: string
   allowPageImage: boolean
   allowNewSections: boolean
-  activateImmediately: boolean
   layoutSettingsText: string
   sections: EditableSection[]
   fields: EditableField[]
   sourcePdfFile: File | null
 }
 
-type SubmissionCardProps = {
-  submission: BookSubmission
-  versionDetail: BookVersionDetail
-  busy: boolean
-  onSave: (submissionId: number, input: BookSubmissionSaveInput, imageFile?: File | null) => Promise<void>
-  onApprove: (submissionId: number) => Promise<void>
-  onReject: (submissionId: number, rejectionReason: string) => Promise<void>
-}
-
 export function BooksPage() {
-  const [books, setBooks] = useState<BookSummary[]>([])
-  const [selectedBookId, setSelectedBookId] = useState<number | null>(null)
+  const navigate = useNavigate()
+  const { id } = useParams()
+  const selectedBookId = id ? Number.parseInt(id, 10) : Number.NaN
+
   const [selectedBook, setSelectedBook] = useState<BookDetail | null>(null)
   const [selectedVersionId, setSelectedVersionId] = useState<number | null>(null)
   const [selectedVersion, setSelectedVersion] = useState<BookVersionDetail | null>(null)
-  const [submissions, setSubmissions] = useState<BookSubmission[]>([])
-  const [submissionStatusFilter, setSubmissionStatusFilter] = useState('')
-  const [bookForm, setBookForm] = useState<BookFormState>({
+  const [bookForm, setBookForm] = useState({
     title: '',
     description: '',
-    adminEmails: '',
   })
   const [versionForm, setVersionForm] = useState<VersionFormState>(buildEmptyVersionForm())
-  const [isCreatingNewVersion, setIsCreatingNewVersion] = useState(false)
-  const [isBooksLoading, setIsBooksLoading] = useState(true)
+  const [isBookLoading, setIsBookLoading] = useState(true)
   const [isBookSaving, setIsBookSaving] = useState(false)
-  const [isVersionSaving, setIsVersionSaving] = useState(false)
   const [isVersionLoading, setIsVersionLoading] = useState(false)
-  const [isSubmissionsLoading, setIsSubmissionsLoading] = useState(false)
+  const [isVersionSaving, setIsVersionSaving] = useState(false)
   const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
-  const [busySubmissionId, setBusySubmissionId] = useState<number | null>(null)
 
   const selectedVersionSummary = useMemo(
     () => selectedBook?.versions.find((version) => version.id === selectedVersionId) ?? null,
     [selectedBook, selectedVersionId],
   )
+  const activeVersionSummary = useMemo(
+    () =>
+      selectedBook?.activeVersionId
+        ? selectedBook.versions.find((version) => version.id === selectedBook.activeVersionId) ?? null
+        : null,
+    [selectedBook],
+  )
+  const pendingSubmissionCount = useMemo(
+    () => selectedBook?.versions.reduce((total, version) => total + version.pendingSubmissionCount, 0) ?? 0,
+    [selectedBook],
+  )
+  const hasVersions = (selectedBook?.versions.length ?? 0) > 0
 
   useEffect(() => {
-    void loadBooks()
-  }, [])
-
-  useEffect(() => {
-    if (!selectedBookId) {
+    if (Number.isNaN(selectedBookId)) {
+      setSelectedBook(null)
+      setSelectedVersion(null)
+      setSelectedVersionId(null)
+      setIsBookLoading(false)
       return
     }
-    void loadBookDetail(selectedBookId, { preserveVersionSelection: true })
+
+    void loadBookDetail(selectedBookId, { preserveSelection: true })
   }, [selectedBookId])
 
   useEffect(() => {
-    if (!selectedBookId || !selectedVersionId || !selectedBook) {
+    if (!selectedBook?.id || !selectedVersionId) {
       return
     }
-    void loadVersionDetail(selectedBookId, selectedVersionId)
-  }, [selectedBookId, selectedVersionId, submissionStatusFilter])
 
-  async function loadBooks() {
-    try {
-      setIsBooksLoading(true)
-      const bookSummaries = await booksApi.listBooks()
-      setBooks(bookSummaries)
-
-      const nextSelectedBookId = selectedBookId ?? bookSummaries[0]?.id ?? null
-      if (nextSelectedBookId) {
-        setSelectedBookId(nextSelectedBookId)
-      } else {
-        setSelectedBook(null)
-        setSelectedVersion(null)
-        setSelectedVersionId(null)
-      }
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unable to load books.')
-    } finally {
-      setIsBooksLoading(false)
-    }
-  }
+    void loadVersionDetail(selectedBook.id, selectedVersionId)
+  }, [selectedBook?.id, selectedVersionId])
 
   async function loadBookDetail(
     bookId: number,
-    options: { preserveVersionSelection?: boolean } = {},
+    options: { preserveSelection?: boolean; preferredVersionId?: number | null } = {},
   ) {
     try {
+      setIsBookLoading(true)
       const detail = await booksApi.getBook(bookId)
       setSelectedBook(detail)
       setBookForm({
         title: detail.title,
         description: detail.description,
-        adminEmails: detail.adminNotificationEmails.join(', '),
       })
 
+      if (detail.versions.length === 0) {
+        setSelectedVersion(null)
+        setSelectedVersionId(null)
+        setVersionForm(buildEmptyVersionForm())
+        return
+      }
+
       const nextVersionId =
-        options.preserveVersionSelection && selectedVersionId && detail.versions.some((item) => item.id === selectedVersionId)
-          ? selectedVersionId
-          : detail.activeVersionId ?? detail.versions[0]?.id ?? null
+        options.preferredVersionId && detail.versions.some((version) => version.id === options.preferredVersionId)
+          ? options.preferredVersionId
+          : options.preserveSelection && selectedVersionId && detail.versions.some((version) => version.id === selectedVersionId)
+            ? selectedVersionId
+            : detail.activeVersionId ?? detail.versions[0]?.id ?? null
 
       setSelectedVersionId(nextVersionId)
       if (!nextVersionId) {
         setSelectedVersion(null)
-        setVersionForm(buildEmptyVersionForm())
-        setSubmissions([])
       }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Unable to load the selected book.')
+    } finally {
+      setIsBookLoading(false)
     }
   }
 
   async function loadVersionDetail(bookId: number, versionId: number) {
     try {
       setIsVersionLoading(true)
-      setIsSubmissionsLoading(true)
       const detail = await booksApi.getVersion(bookId, versionId)
       setSelectedVersion(detail)
-      setSubmissions(
-        submissionStatusFilter
-          ? await booksApi.listSubmissions(bookId, versionId, submissionStatusFilter)
-          : await booksApi.listSubmissions(bookId, versionId),
-      )
-      if (!isCreatingNewVersion) {
-        setVersionForm(versionDetailToForm(detail))
-      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Unable to load the selected version.')
     } finally {
       setIsVersionLoading(false)
-      setIsSubmissionsLoading(false)
     }
   }
 
   async function handleSaveBook() {
+    if (!selectedBook?.id) {
+      return
+    }
+
+    const title = bookForm.title.trim()
+    const description = bookForm.description.trim()
+    if (!title) {
+      toast.error('Book title is required.')
+      return
+    }
+
     try {
       setIsBookSaving(true)
-      const payload = {
-        title: bookForm.title.trim(),
-        description: bookForm.description.trim(),
-        adminNotificationEmails: bookForm.adminEmails
-          .split(',')
-          .map((item) => item.trim())
-          .filter(Boolean),
-      }
-
-      if (!payload.title) {
-        toast.error('Book title is required.')
-        return
-      }
-
-      let bookId = selectedBook?.id ?? null
-      if (bookId) {
-        await booksApi.updateBook(bookId, payload)
-      } else {
-        const created = await booksApi.createBook(payload)
-        bookId = created.id
-        setSelectedBookId(bookId)
-      }
-
-      await loadBooks()
-      await loadBookDetail(bookId)
+      await booksApi.updateBook(selectedBook.id, {
+        title,
+        description,
+        adminNotificationEmails: selectedBook.adminNotificationEmails,
+      })
+      await loadBookDetail(selectedBook.id, { preserveSelection: true })
       toast.success('Book details saved.')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Unable to save book details.')
@@ -268,42 +230,32 @@ export function BooksPage() {
     }
   }
 
-  async function handleSaveVersion() {
+  async function handleCreateInitialVersion() {
     if (!selectedBook?.id) {
-      toast.error('Save the book first before configuring versions.')
+      toast.error('Save the book before creating the initial version.')
+      return
+    }
+
+    const payload = buildVersionPayload(versionForm)
+    if (!payload) {
+      return
+    }
+    if (!versionForm.sourcePdfFile) {
+      toast.error('A source PDF is required for the initial version.')
       return
     }
 
     try {
       setIsVersionSaving(true)
-      const payload = buildVersionPayload(versionForm)
-      if (!payload) {
-        return
-      }
-
-      if (isCreatingNewVersion || !versionForm.id) {
-        const sourcePdfFile =
-          versionForm.sourcePdfFile ?? (await buildSourcePdfCloneFile(selectedBook.id, selectedVersion))
-        if (!sourcePdfFile) {
-          toast.error('A source PDF is required for a new version.')
-          return
-        }
-
-        const created = await booksApi.createVersion(selectedBook.id, payload, sourcePdfFile)
-        setIsCreatingNewVersion(false)
-        await loadBooks()
-        await loadBookDetail(selectedBook.id)
-        setSelectedVersionId(created.id)
-        toast.success(`Version ${created.version_number} created.`)
-      } else {
-        await booksApi.updateVersion(selectedBook.id, versionForm.id, payload, versionForm.sourcePdfFile)
-        await loadBooks()
-        await loadBookDetail(selectedBook.id)
-        await loadVersionDetail(selectedBook.id, versionForm.id)
-        toast.success('Version updated.')
-      }
+      const created = await booksApi.createVersion(selectedBook.id, payload, versionForm.sourcePdfFile)
+      await loadBookDetail(selectedBook.id, {
+        preserveSelection: true,
+        preferredVersionId: created.id,
+      })
+      await loadVersionDetail(selectedBook.id, created.id)
+      toast.success('Initial version created and set active.')
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unable to save the version.')
+      toast.error(error instanceof Error ? error.message : 'Unable to create the initial version.')
     } finally {
       setIsVersionSaving(false)
     }
@@ -313,10 +265,10 @@ export function BooksPage() {
     if (!selectedBook?.id) {
       return
     }
+
     try {
       await booksApi.activateVersion(selectedBook.id, versionId)
-      await loadBooks()
-      await loadBookDetail(selectedBook.id)
+      await loadBookDetail(selectedBook.id, { preserveSelection: true, preferredVersionId: versionId })
       await loadVersionDetail(selectedBook.id, versionId)
       toast.success('Version activated.')
     } catch (error) {
@@ -325,13 +277,13 @@ export function BooksPage() {
   }
 
   async function handleGeneratePdf(versionOverride?: BookVersionDetail) {
-    if (!selectedBook?.id || !selectedVersionId) {
+    if (!selectedBook?.id || (!selectedVersionId && !versionOverride)) {
       return
     }
 
     try {
       setIsGeneratingPdf(true)
-      const detail = versionOverride ?? (await booksApi.getVersion(selectedBook.id, selectedVersionId))
+      const detail = versionOverride ?? (await booksApi.getVersion(selectedBook.id, selectedVersionId as number))
       const sourceBlob = await booksApi.fetchSourcePdfBlob(selectedBook.id, detail.id)
       const sourceBytes = new Uint8Array(await sourceBlob.arrayBuffer())
       const generatedBlob = await generateBookPdf({
@@ -345,10 +297,10 @@ export function BooksPage() {
           return new Uint8Array(await blob.arrayBuffer())
         },
       })
+
       const fileName = `${slugify(selectedBook.title)}-version-${detail.versionNumber}.pdf`
       await booksApi.uploadGeneratedPdf(selectedBook.id, detail.id, generatedBlob, fileName)
-      await loadBooks()
-      await loadBookDetail(selectedBook.id)
+      await loadBookDetail(selectedBook.id, { preserveSelection: true, preferredVersionId: detail.id })
       await loadVersionDetail(selectedBook.id, detail.id)
       toast.success('Generated PDF uploaded.')
     } catch (error) {
@@ -358,164 +310,79 @@ export function BooksPage() {
     }
   }
 
-  function handleCreateNewBook() {
-    setSelectedBookId(null)
-    setSelectedBook(null)
-    setSelectedVersionId(null)
-    setSelectedVersion(null)
-    setSubmissions([])
-    setBookForm({
-      title: '',
-      description: '',
-      adminEmails: '',
-    })
-    setVersionForm(buildEmptyVersionForm())
-    setIsCreatingNewVersion(false)
-  }
-
-  function handleCreateNewVersion() {
-    setIsCreatingNewVersion(true)
-    setVersionForm(buildEmptyVersionForm(selectedVersion))
-  }
-
-  async function handleSaveSubmission(
-    submissionId: number,
-    input: BookSubmissionSaveInput,
-    imageFile?: File | null,
-  ) {
-    if (!selectedBook?.id || !selectedVersionId) {
-      return
-    }
-    try {
-      setBusySubmissionId(submissionId)
-      await booksApi.updateSubmission(selectedBook.id, submissionId, input, imageFile)
-      await loadVersionDetail(selectedBook.id, selectedVersionId)
-      toast.success('Submission updated.')
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unable to update the submission.')
-    } finally {
-      setBusySubmissionId(null)
-    }
-  }
-
-  async function handleApproveSubmission(submissionId: number) {
-    if (!selectedBook?.id || !selectedVersionId) {
-      return
-    }
-    try {
-      setBusySubmissionId(submissionId)
-      await booksApi.approveSubmission(selectedBook.id, submissionId)
-      const refreshedVersion = await booksApi.getVersion(selectedBook.id, selectedVersionId)
-      await handleGeneratePdf(refreshedVersion)
-      await loadVersionDetail(selectedBook.id, selectedVersionId)
-      toast.success('Submission approved and PDF regenerated.')
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unable to approve the submission.')
-    } finally {
-      setBusySubmissionId(null)
-    }
-  }
-
-  async function handleRejectSubmission(submissionId: number, rejectionReason: string) {
-    if (!selectedBook?.id || !selectedVersionId) {
-      return
-    }
-    try {
-      setBusySubmissionId(submissionId)
-      await booksApi.rejectSubmission(selectedBook.id, submissionId, rejectionReason)
-      await loadVersionDetail(selectedBook.id, selectedVersionId)
-      toast.success('Submission rejected.')
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unable to reject the submission.')
-    } finally {
-      setBusySubmissionId(null)
-    }
-  }
-
   return (
     <CmsAppShell activeKey="books">
       <div className={styles.page}>
-        <Breadcrumb items={[{ label: 'Books' }]} />
+        <Breadcrumb
+          items={[
+            { label: 'Books', to: '/books' },
+            { label: selectedBook?.title || 'Book Workspace' },
+          ]}
+        />
 
-        <div className={styles.hero}>
+        <header className={styles.header}>
           <div>
-            <h1 className={styles.title}>Book Builder</h1>
+            <h1 className={styles.title}>{selectedBook?.title || 'Book Workspace'}</h1>
             <p className={styles.subtitle}>
-              Manage book metadata, version schemas, section mappings, survivor submissions,
-              and generated PDFs from one CMS workspace.
+              Manage the one-time initial version setup here, then review later versions created from
+              approved website requests and switch the active version whenever needed.
             </p>
           </div>
-          <div className={styles.heroActions}>
-            <button type="button" className={styles.secondaryButton} onClick={() => void loadBooks()}>
-              Refresh
+
+          <div className={styles.headerActions}>
+            <button type="button" className={styles.secondaryButton} onClick={() => navigate('/books?tab=requests')}>
+              Open Requests
             </button>
-            <button type="button" className={styles.primaryButton} onClick={handleCreateNewBook}>
-              New Book
+            <button type="button" className={styles.secondaryButton} onClick={() => navigate('/books')}>
+              Back to Books
             </button>
           </div>
-        </div>
+        </header>
 
-        <div className={styles.layout}>
-          <aside className={styles.sidebar}>
-            <div className={styles.panelHeader}>
-              <h2>Books</h2>
-              <span>{books.length}</span>
-            </div>
+        {isBookLoading ? (
+          <div className={styles.loaderWrap}>
+            <Loader />
+          </div>
+        ) : !selectedBook ? (
+          <section className={styles.errorPanel}>
+            <h2>Book not found</h2>
+            <p>The requested book could not be loaded.</p>
+          </section>
+        ) : (
+          <>
+            <section className={styles.summaryGrid}>
+              <article className={styles.summaryCard}>
+                <span className={styles.summaryLabel}>Pending Requests</span>
+                <strong>{pendingSubmissionCount}</strong>
+                <p>Website requests waiting for review.</p>
+              </article>
 
-            {isBooksLoading ? (
-              <div className={styles.loaderPanel}>
-                <Loader />
-              </div>
-            ) : books.length > 0 ? (
-              <div className={styles.bookList}>
-                {books
-                  .slice()
-                  .sort((left, right) => left.title.localeCompare(right.title))
-                  .map((book) => (
-                    <button
-                      key={book.id}
-                      type="button"
-                      className={`${styles.bookListItem} ${selectedBookId === book.id ? styles.bookListItemActive : ''}`}
-                      onClick={() => {
-                        setSelectedBookId(book.id)
-                        setIsCreatingNewVersion(false)
-                      }}
-                    >
-                      <strong>{book.title}</strong>
-                      <span>{book.pendingSubmissionCount} pending</span>
-                      <span>
-                        {book.activeVersionNumber
-                          ? `Active version ${book.activeVersionNumber}`
-                          : 'No active version'}
-                      </span>
-                    </button>
-                  ))}
-              </div>
-            ) : (
-              <div className={styles.emptyState}>
-                <p>No books have been created yet.</p>
-              </div>
-            )}
-          </aside>
+              <article className={styles.summaryCard}>
+                <span className={styles.summaryLabel}>Versions</span>
+                <strong>{selectedBook.versions.length}</strong>
+                <p>Initial setup plus automatically created approval versions.</p>
+              </article>
 
-          <div className={styles.content}>
+              <article className={styles.summaryCard}>
+                <span className={styles.summaryLabel}>Active Version</span>
+                <strong>{activeVersionSummary ? `Version ${activeVersionSummary.versionNumber}` : 'None'}</strong>
+                <p>{activeVersionSummary ? 'Currently visible on the website.' : 'No website version is active yet.'}</p>
+              </article>
+            </section>
+
             <section className={styles.card}>
               <div className={styles.cardHeader}>
                 <div>
                   <h2>Book Details</h2>
-                  <p>Title, description, and who should get submission notifications.</p>
+                  <p>Update the title and description used across the CMS and website.</p>
                 </div>
-                <button
-                  type="button"
-                  className={styles.primaryButton}
-                  onClick={() => void handleSaveBook()}
-                  disabled={isBookSaving}
-                >
-                  {isBookSaving ? 'Saving...' : selectedBook ? 'Save Book' : 'Create Book'}
+
+                <button type="button" className={styles.primaryButton} onClick={() => void handleSaveBook()} disabled={isBookSaving}>
+                  {isBookSaving ? 'Saving...' : 'Save Book'}
                 </button>
               </div>
 
-              <div className={styles.formGrid}>
+              <div className={styles.fieldStack}>
                 <label className={styles.field}>
                   <span>Book Title</span>
                   <input
@@ -525,259 +392,167 @@ export function BooksPage() {
                   />
                 </label>
 
-                <label className={`${styles.field} ${styles.fieldFull}`}>
+                <label className={styles.field}>
                   <span>Description</span>
                   <textarea
-                    rows={3}
+                    rows={4}
                     value={bookForm.description}
                     onChange={(event) => setBookForm((current) => ({ ...current, description: event.target.value }))}
-                  />
-                </label>
-
-                <label className={`${styles.field} ${styles.fieldFull}`}>
-                  <span>Admin Notification Emails</span>
-                  <input
-                    type="text"
-                    value={bookForm.adminEmails}
-                    placeholder="admin@example.com, editor@example.com"
-                    onChange={(event) => setBookForm((current) => ({ ...current, adminEmails: event.target.value }))}
                   />
                 </label>
               </div>
             </section>
 
-            <section className={styles.card}>
-              <div className={styles.cardHeader}>
-                <div>
-                  <h2>Versions</h2>
-                  <p>Upload source PDFs, define sections and fields, and keep one active version per book.</p>
-                </div>
-                <div className={styles.cardHeaderActions}>
-                  {selectedBook ? (
-                    <button type="button" className={styles.secondaryButton} onClick={handleCreateNewVersion}>
-                      New Version
-                    </button>
-                  ) : null}
-                  <button
-                    type="button"
-                    className={styles.primaryButton}
-                    onClick={() => void handleSaveVersion()}
-                    disabled={isVersionSaving || !selectedBook}
-                  >
-                    {isVersionSaving
-                      ? 'Saving...'
-                      : isCreatingNewVersion || !versionForm.id
-                        ? 'Create Version'
-                        : 'Save Version'}
-                  </button>
-                </div>
-              </div>
-
-              {selectedBook?.versions.length ? (
-                <div className={styles.versionPills}>
-                  {selectedBook.versions.map((version) => (
-                    <button
-                      key={version.id}
-                      type="button"
-                      className={`${styles.versionPill} ${selectedVersionId === version.id && !isCreatingNewVersion ? styles.versionPillActive : ''}`}
-                      onClick={() => {
-                        setIsCreatingNewVersion(false)
-                        setSelectedVersionId(version.id)
-                      }}
-                    >
-                      <strong>V{version.versionNumber}</strong>
-                      <span>{version.isActive ? 'Active' : 'CMS only'}</span>
-                      <span>{version.pendingSubmissionCount} pending</span>
-                    </button>
-                  ))}
-                </div>
-              ) : null}
-
-              {!selectedBook ? (
-                <div className={styles.emptyState}>
-                  <p>Create a book before configuring versions.</p>
-                </div>
-              ) : isVersionLoading ? (
-                <div className={styles.loaderPanel}>
-                  <Loader />
-                </div>
-              ) : (
-                <div className={styles.stack}>
-                  <div className={styles.formGrid}>
-                    <label className={styles.field}>
-                      <span>Source Page Count</span>
-                      <input
-                        type="number"
-                        min="1"
-                        value={versionForm.sourcePageCount}
-                        onChange={(event) => updateVersionForm('sourcePageCount', event.target.value)}
-                      />
-                    </label>
-
-                    <label className={styles.field}>
-                      <span>Content Template Page</span>
-                      <input
-                        type="number"
-                        min="1"
-                        value={versionForm.contentTemplatePageNumber}
-                        onChange={(event) =>
-                          updateVersionForm('contentTemplatePageNumber', event.target.value)
-                        }
-                      />
-                    </label>
-
-                    <label className={styles.field}>
-                      <span>Section Divider Template Page</span>
-                      <input
-                        type="number"
-                        min="1"
-                        value={versionForm.sectionTemplatePageNumber}
-                        onChange={(event) =>
-                          updateVersionForm('sectionTemplatePageNumber', event.target.value)
-                        }
-                      />
-                    </label>
-
-                    <label className={styles.fileField}>
-                      <span>Source PDF {isCreatingNewVersion || !versionForm.id ? '(Required)' : '(Optional replace)'}</span>
-                      <input
-                        type="file"
-                        accept="application/pdf"
-                        onChange={(event) => updateVersionForm('sourcePdfFile', event.target.files?.[0] ?? null)}
-                      />
-                    </label>
+            {!hasVersions ? (
+              <section className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <div>
+                    <h2>Initial Version Setup</h2>
+                    <p>
+                      This schema is configured once in CMS. After it is created, later versions come
+                      only from approved website requests.
+                    </p>
                   </div>
+                </div>
 
-                  <div className={styles.toggleRow}>
-                    <label className={styles.checkboxLabel}>
-                      <input
-                        type="checkbox"
-                        checked={versionForm.allowPageImage}
-                        onChange={(event) => updateVersionForm('allowPageImage', event.target.checked)}
-                      />
-                      Allow optional page images
-                    </label>
+                <div className={styles.setupHint}>
+                  <span className={styles.metaTag}>One-time setup</span>
+                  <p>
+                    Configure the source PDF, template pages, section ranges, and survivor submission
+                    schema here. This setup is locked after the first version is saved.
+                  </p>
+                </div>
 
-                    <label className={styles.checkboxLabel}>
-                      <input
-                        type="checkbox"
-                        checked={versionForm.allowNewSections}
-                        onChange={(event) => updateVersionForm('allowNewSections', event.target.checked)}
-                      />
-                      Allow website requests for new sections
-                    </label>
+                <div className={styles.formGrid}>
+                  <label className={styles.field}>
+                    <span>Source Page Count</span>
+                    <input
+                      type="number"
+                      min="1"
+                      value={versionForm.sourcePageCount}
+                      onChange={(event) => updateVersionForm('sourcePageCount', event.target.value)}
+                    />
+                  </label>
 
-                    <label className={styles.checkboxLabel}>
-                      <input
-                        type="checkbox"
-                        checked={versionForm.activateImmediately}
-                        onChange={(event) => updateVersionForm('activateImmediately', event.target.checked)}
-                      />
-                      Activate this version immediately
-                    </label>
-                  </div>
+                  <label className={styles.field}>
+                    <span>Content Template Page</span>
+                    <input
+                      type="number"
+                      min="1"
+                      value={versionForm.contentTemplatePageNumber}
+                      onChange={(event) => updateVersionForm('contentTemplatePageNumber', event.target.value)}
+                    />
+                  </label>
 
-                  <div className={styles.dualPanels}>
-                    <div className={styles.inlineCard}>
-                      <div className={styles.inlineCardHeader}>
-                        <h3>Sections</h3>
-                        <button
-                          type="button"
-                          className={styles.ghostButton}
-                          onClick={() =>
-                            updateVersionForm('sections', [
-                              ...versionForm.sections,
-                              { name: '', sourceStartPage: '', sourceEndPage: '' },
-                            ])
-                          }
-                        >
-                          Add Section
-                        </button>
+                  <label className={styles.field}>
+                    <span>Section Divider Template Page</span>
+                    <input
+                      type="number"
+                      min="1"
+                      value={versionForm.sectionTemplatePageNumber}
+                      onChange={(event) => updateVersionForm('sectionTemplatePageNumber', event.target.value)}
+                    />
+                  </label>
+
+                  <label className={`${styles.field} ${styles.fieldFull}`}>
+                    <span>Source PDF</span>
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(event) => updateVersionForm('sourcePdfFile', event.target.files?.[0] ?? null)}
+                    />
+                  </label>
+                </div>
+
+                <div className={styles.featureToggleRow}>
+                  <label className={styles.featureToggle}>
+                    <span>Allow optional page images</span>
+                    <Toggle
+                      checked={versionForm.allowPageImage}
+                      onChange={(checked) => updateVersionForm('allowPageImage', checked)}
+                    />
+                  </label>
+
+                  <label className={styles.featureToggle}>
+                    <span>Allow website requests for new sections</span>
+                    <Toggle
+                      checked={versionForm.allowNewSections}
+                      onChange={(checked) => updateVersionForm('allowNewSections', checked)}
+                    />
+                  </label>
+                </div>
+
+                <div className={styles.twoColumn}>
+                  <article className={styles.inlineCard}>
+                    <div className={styles.inlineCardHeader}>
+                      <div>
+                        <h4>Sections</h4>
+                        <p>Define the named source PDF sections that website requests can target.</p>
                       </div>
-
-                      <div className={styles.collection}>
-                        {versionForm.sections.map((section, index) => (
-                          <div key={`section-${section.id ?? index}`} className={styles.collectionRow}>
-                            <input
-                              type="text"
-                              placeholder="Section name"
-                              value={section.name}
-                              onChange={(event) =>
-                                updateSection(index, { ...section, name: event.target.value })
-                              }
-                            />
-                            <input
-                              type="number"
-                              min="1"
-                              placeholder="Start page"
-                              value={section.sourceStartPage}
-                              onChange={(event) =>
-                                updateSection(index, {
-                                  ...section,
-                                  sourceStartPage: event.target.value,
-                                })
-                              }
-                            />
-                            <input
-                              type="number"
-                              min="1"
-                              placeholder="End page"
-                              value={section.sourceEndPage}
-                              onChange={(event) =>
-                                updateSection(index, {
-                                  ...section,
-                                  sourceEndPage: event.target.value,
-                                })
-                              }
-                            />
-                            <button
-                              type="button"
-                              className={styles.removeButton}
-                              onClick={() => removeSection(index)}
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        ))}
-                      </div>
+                      <button type="button" className={styles.secondaryButton} onClick={addSection}>
+                        Add Section
+                      </button>
                     </div>
 
-                    <div className={styles.inlineCard}>
-                      <div className={styles.inlineCardHeader}>
-                        <h3>Submission Fields</h3>
-                        <button
-                          type="button"
-                          className={styles.ghostButton}
-                          onClick={() =>
-                            updateVersionForm('fields', [
-                              ...versionForm.fields,
-                              {
-                                label: '',
-                                inputType: 'single_line',
-                                placement: 'body',
-                                showLabel: true,
-                                isRequired: false,
-                                isEmailField: false,
-                              },
-                            ])
-                          }
-                        >
-                          Add Field
-                        </button>
-                      </div>
+                    <div className={styles.collectionStack}>
+                      {versionForm.sections.map((section, index) => (
+                        <div key={`${section.id ?? 'new'}-${index}`} className={styles.collectionRow}>
+                          <input
+                            type="text"
+                            value={section.name}
+                            placeholder="Section name"
+                            onChange={(event) => updateSection(index, { ...section, name: event.target.value })}
+                          />
+                          <input
+                            type="number"
+                            min="1"
+                            value={section.sourceStartPage}
+                            placeholder="Start"
+                            onChange={(event) =>
+                              updateSection(index, { ...section, sourceStartPage: event.target.value })
+                            }
+                          />
+                          <input
+                            type="number"
+                            min="1"
+                            value={section.sourceEndPage}
+                            placeholder="End"
+                            onChange={(event) =>
+                              updateSection(index, { ...section, sourceEndPage: event.target.value })
+                            }
+                          />
+                          <button type="button" className={styles.dangerButton} onClick={() => removeSection(index)}>
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </article>
 
-                      <div className={styles.fieldCollection}>
-                        {versionForm.fields.map((field, index) => (
-                          <div key={`field-${field.id ?? index}`} className={styles.fieldCollectionRow}>
+                  <article className={styles.inlineCard}>
+                    <div className={styles.inlineCardHeader}>
+                      <div>
+                        <h4>Submission Fields</h4>
+                        <p>Define the configurable heading and body fields contributors will submit.</p>
+                      </div>
+                      <button type="button" className={styles.secondaryButton} onClick={addField}>
+                        Add Field
+                      </button>
+                    </div>
+
+                    <div className={styles.collectionStack}>
+                      {versionForm.fields.map((field, index) => (
+                        <div key={`${field.id ?? 'new'}-${index}`} className={styles.fieldCollectionItem}>
+                          <div className={styles.fieldRow1}>
                             <input
                               type="text"
-                              placeholder="Label"
                               value={field.label}
-                              onChange={(event) =>
-                                updateField(index, { ...field, label: event.target.value })
-                              }
+                              placeholder="Field label"
+                              onChange={(event) => updateField(index, { ...field, label: event.target.value })}
                             />
+                          </div>
 
+                          <div className={styles.fieldRow2}>
                             <select
                               value={field.inputType}
                               onChange={(event) =>
@@ -803,154 +578,209 @@ export function BooksPage() {
                               <option value="heading">Heading</option>
                               <option value="body">Body</option>
                             </select>
+                          </div>
 
-                            <label className={styles.inlineCheckbox}>
-                              <input
-                                type="checkbox"
+                          <div className={styles.fieldRow3}>
+                            <label className={styles.toggleLabel}>
+                              <span>Show label</span>
+                              <Toggle
                                 checked={field.showLabel}
-                                onChange={(event) =>
-                                  updateField(index, { ...field, showLabel: event.target.checked })
-                                }
+                                onChange={(checked) => updateField(index, { ...field, showLabel: checked })}
                               />
-                              Label
                             </label>
 
-                            <label className={styles.inlineCheckbox}>
-                              <input
-                                type="checkbox"
+                            <label className={styles.toggleLabel}>
+                              <span>Required</span>
+                              <Toggle
                                 checked={field.isRequired}
-                                onChange={(event) =>
-                                  updateField(index, { ...field, isRequired: event.target.checked })
-                                }
+                                onChange={(checked) => updateField(index, { ...field, isRequired: checked })}
                               />
-                              Required
                             </label>
 
-                            <label className={styles.inlineCheckbox}>
-                              <input
-                                type="checkbox"
+                            <label className={styles.toggleLabel}>
+                              <span>Email field</span>
+                              <Toggle
                                 checked={field.isEmailField}
-                                onChange={(event) =>
-                                  updateField(index, { ...field, isEmailField: event.target.checked })
-                                }
+                                onChange={(checked) => updateField(index, { ...field, isEmailField: checked })}
                               />
-                              Email field
                             </label>
 
-                            <button
-                              type="button"
-                              className={styles.removeButton}
-                              onClick={() => removeField(index)}
-                            >
+                            <button type="button" className={styles.dangerButton} onClick={() => removeField(index)}>
                               Remove
                             </button>
                           </div>
-                        ))}
+                        </div>
+                      ))}
+                    </div>
+                  </article>
+                </div>
+
+                <div className={styles.formFooter}>
+                  <button
+                    type="button"
+                    className={styles.primaryButton}
+                    onClick={() => void handleCreateInitialVersion()}
+                    disabled={isVersionSaving}
+                  >
+                    {isVersionSaving ? 'Creating...' : 'Create Initial Version'}
+                  </button>
+                </div>
+              </section>
+            ) : (
+              <section className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <div>
+                    <h2>Versions</h2>
+                    <p>
+                      The initial setup is now locked. Every approved website request creates the next
+                      active version automatically, and you can still switch back to earlier versions here.
+                    </p>
+                  </div>
+                </div>
+
+                <div className={styles.workspace}>
+                  <aside className={styles.versionRail}>
+                    {selectedBook.versions.map((version) => (
+                      <button
+                        key={version.id}
+                        type="button"
+                        className={[
+                          styles.versionCard,
+                          selectedVersionId === version.id ? styles.versionCardActive : '',
+                        ].join(' ')}
+                        onClick={() => setSelectedVersionId(version.id)}
+                      >
+                        <div className={styles.versionCardTop}>
+                          <strong>Version {version.versionNumber}</strong>
+                          {version.isActive ? <span className={styles.statusBadge}>Active</span> : null}
+                        </div>
+                        <p>{version.pendingSubmissionCount} pending request{version.pendingSubmissionCount === 1 ? '' : 's'}</p>
+                        <small>Updated {formatDate(version.updatedAt)}</small>
+                      </button>
+                    ))}
+                  </aside>
+
+                  <div className={styles.versionPanel}>
+                    {isVersionLoading ? (
+                      <div className={styles.loaderWrap}>
+                        <Loader />
                       </div>
-                    </div>
+                    ) : selectedVersion ? (
+                      <>
+                        <div className={styles.versionHeader}>
+                          <div>
+                            <div className={styles.versionTitleRow}>
+                              <h3>Version {selectedVersion.versionNumber}</h3>
+                              <span className={styles.metaPill}>
+                                {selectedVersion.isActive ? 'Active on website' : 'Inactive version'}
+                              </span>
+                            </div>
+                            <p className={styles.versionCopy}>
+                              Approval creates the latest live version automatically. Use this page if
+                              you want to switch the website back to a previous version later.
+                            </p>
+                          </div>
+
+                          <div className={styles.actionRow}>
+                            {!selectedVersion.isActive ? (
+                              <button
+                                type="button"
+                                className={styles.secondaryButton}
+                                onClick={() => void handleActivateVersion(selectedVersion.id)}
+                              >
+                                Make Active
+                              </button>
+                            ) : null}
+                            <button
+                              type="button"
+                              className={styles.primaryButton}
+                              onClick={() => void handleGeneratePdf()}
+                              disabled={isGeneratingPdf}
+                            >
+                              {isGeneratingPdf ? 'Generating...' : 'Generate PDF'}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className={styles.infoGrid}>
+                          <InfoTile label="Source Page Count" value={String(selectedVersion.sourcePageCount)} />
+                          <InfoTile label="Content Template Page" value={String(selectedVersion.contentTemplatePageNumber)} />
+                          <InfoTile label="Section Divider Page" value={String(selectedVersion.sectionTemplatePageNumber)} />
+                          <InfoTile label="Approved Requests" value={String(selectedVersion.approvedSubmissions.length)} />
+                        </div>
+
+                        <div className={styles.metaRow}>
+                          <span className={styles.metaTag}>
+                            {selectedVersion.allowPageImage ? 'Optional page images enabled' : 'No optional page images'}
+                          </span>
+                          <span className={styles.metaTag}>
+                            {selectedVersion.allowNewSections ? 'New sections allowed' : 'New sections disabled'}
+                          </span>
+                          {selectedVersionSummary?.lastGeneratedAt ? (
+                            <span className={styles.metaTag}>Generated {formatDateTime(selectedVersionSummary.lastGeneratedAt)}</span>
+                          ) : null}
+                        </div>
+
+                        <div className={styles.twoColumn}>
+                          <article className={styles.inlineCard}>
+                            <div className={styles.inlineCardHeader}>
+                              <div>
+                                <h4>Sections</h4>
+                                <p>These ranges are fixed from the initial setup and updated by approvals.</p>
+                              </div>
+                            </div>
+
+                            <div className={styles.listStack}>
+                              {selectedVersion.sections.map((section) => (
+                                <div key={section.id} className={styles.listRow}>
+                                  <strong>{section.name}</strong>
+                                  <span>{formatSectionPages(section)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </article>
+
+                          <article className={styles.inlineCard}>
+                            <div className={styles.inlineCardHeader}>
+                              <div>
+                                <h4>Submission Fields</h4>
+                                <p>The website form for this version is based on the original CMS setup.</p>
+                              </div>
+                            </div>
+
+                            <div className={styles.listStack}>
+                              {selectedVersion.fields.map((field) => (
+                                <div key={field.id} className={styles.fieldRow}>
+                                  <div>
+                                    <strong>{field.label}</strong>
+                                    <span>
+                                      {field.inputType === 'rich_text' ? 'Rich text' : 'Single line'} /{' '}
+                                      {field.placement === 'heading' ? 'Heading' : 'Body'}
+                                    </span>
+                                  </div>
+                                  <div className={styles.badgeRow}>
+                                    {field.isRequired ? <span className={styles.smallBadge}>Required</span> : null}
+                                    {field.isEmailField ? <span className={styles.smallBadge}>Email</span> : null}
+                                    {!field.showLabel ? <span className={styles.smallBadgeMuted}>Label hidden</span> : null}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </article>
+                        </div>
+                      </>
+                    ) : (
+                      <div className={styles.emptyState}>
+                        <h3>Select a version</h3>
+                        <p>Choose a version from the left to review its locked setup and live content.</p>
+                      </div>
+                    )}
                   </div>
-
-                  <label className={`${styles.field} ${styles.fieldFull}`}>
-                    <span>Layout Settings JSON</span>
-                    <textarea
-                      className={styles.layoutEditor}
-                      rows={18}
-                      value={versionForm.layoutSettingsText}
-                      onChange={(event) => updateVersionForm('layoutSettingsText', event.target.value)}
-                    />
-                  </label>
-
-                  <div className={styles.versionMetaRow}>
-                    <div className={styles.versionMeta}>
-                      <span>
-                        {selectedVersionSummary?.isActive ? 'Active on website' : 'CMS-only version'}
-                      </span>
-                      {selectedVersion ? (
-                        <span>
-                          Current section ranges already account for approved pages and new sections.
-                        </span>
-                      ) : null}
-                    </div>
-
-                    <div className={styles.cardHeaderActions}>
-                      {selectedVersion && !selectedVersion.isActive ? (
-                        <button
-                          type="button"
-                          className={styles.secondaryButton}
-                          onClick={() => void handleActivateVersion(selectedVersion.id)}
-                        >
-                          Make Active
-                        </button>
-                      ) : null}
-                      {selectedVersion ? (
-                        <button
-                          type="button"
-                          className={styles.primaryButton}
-                          onClick={() => void handleGeneratePdf()}
-                          disabled={isGeneratingPdf}
-                        >
-                          {isGeneratingPdf ? 'Generating...' : 'Generate PDF'}
-                        </button>
-                      ) : null}
-                    </div>
-                  </div>
                 </div>
-              )}
-            </section>
-
-            <section className={styles.card}>
-              <div className={styles.cardHeader}>
-                <div>
-                  <h2>Submission Review</h2>
-                  <p>Edit survivor submissions, approve them, or reject with a reason when needed.</p>
-                </div>
-
-                <div className={styles.filterGroup}>
-                  <label className={styles.filterField}>
-                    <span>Status</span>
-                    <select
-                      value={submissionStatusFilter}
-                      onChange={(event) => setSubmissionStatusFilter(event.target.value)}
-                    >
-                      <option value="">All</option>
-                      <option value="pending">Pending</option>
-                      <option value="approved">Approved</option>
-                      <option value="rejected">Rejected</option>
-                    </select>
-                  </label>
-                </div>
-              </div>
-
-              {!selectedVersion ? (
-                <div className={styles.emptyState}>
-                  <p>Select a version to review submissions.</p>
-                </div>
-              ) : isSubmissionsLoading || isVersionLoading ? (
-                <div className={styles.loaderPanel}>
-                  <Loader />
-                </div>
-              ) : submissions.length > 0 ? (
-                <div className={styles.submissionList}>
-                  {submissions.map((submission) => (
-                    <SubmissionCard
-                      key={`${submission.id}-${submission.updatedAt}`}
-                      submission={submission}
-                      versionDetail={selectedVersion}
-                      busy={busySubmissionId === submission.id}
-                      onSave={handleSaveSubmission}
-                      onApprove={handleApproveSubmission}
-                      onReject={handleRejectSubmission}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className={styles.emptyState}>
-                  <p>No submissions match the current filter.</p>
-                </div>
-              )}
-            </section>
-          </div>
-        </div>
+              </section>
+            )}
+          </>
+        )}
       </div>
     </CmsAppShell>
   )
@@ -959,10 +789,17 @@ export function BooksPage() {
     setVersionForm((current) => ({ ...current, [key]: value }))
   }
 
+  function addSection() {
+    setVersionForm((current) => ({
+      ...current,
+      sections: [...current.sections, { name: '', sourceStartPage: '', sourceEndPage: '' }],
+    }))
+  }
+
   function updateSection(index: number, nextSection: EditableSection) {
     setVersionForm((current) => ({
       ...current,
-      sections: current.sections.map((item, itemIndex) => (itemIndex === index ? nextSection : item)),
+      sections: current.sections.map((section, itemIndex) => (itemIndex === index ? nextSection : section)),
     }))
   }
 
@@ -973,10 +810,27 @@ export function BooksPage() {
     }))
   }
 
+  function addField() {
+    setVersionForm((current) => ({
+      ...current,
+      fields: [
+        ...current.fields,
+        {
+          label: '',
+          inputType: 'single_line',
+          placement: 'body',
+          showLabel: true,
+          isRequired: false,
+          isEmailField: false,
+        },
+      ],
+    }))
+  }
+
   function updateField(index: number, nextField: EditableField) {
     setVersionForm((current) => ({
       ...current,
-      fields: current.fields.map((item, itemIndex) => (itemIndex === index ? nextField : item)),
+      fields: current.fields.map((field, itemIndex) => (itemIndex === index ? nextField : field)),
     }))
   }
 
@@ -988,291 +842,34 @@ export function BooksPage() {
   }
 }
 
-function SubmissionCard({
-  submission,
-  versionDetail,
-  busy,
-  onSave,
-  onApprove,
-  onReject,
-}: SubmissionCardProps) {
-  const [targetMode, setTargetMode] = useState<'existing' | 'new'>(
-    submission.targetSectionId ? 'existing' : 'new',
-  )
-  const [targetSectionId, setTargetSectionId] = useState<number | ''>(submission.targetSectionId ?? '')
-  const [newSectionName, setNewSectionName] = useState(submission.newSectionName)
-  const [fieldValues, setFieldValues] = useState<Record<number, string>>(
-    Object.fromEntries(submission.fieldValues.map((value) => [value.fieldId, value.value])),
-  )
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [removeImage, setRemoveImage] = useState(false)
-  const [rejectionReason, setRejectionReason] = useState(submission.rejectionReason)
-
-  const orderedFields = useMemo(
-    () => [...versionDetail.fields].sort((left, right) => left.sortOrder - right.sortOrder || left.id - right.id),
-    [versionDetail.fields],
-  )
-
-  const existingTargetName =
-    versionDetail.sections.find((section) => section.id === submission.targetSectionId)?.name ??
-    submission.targetSectionName
-
-  const payload = useMemo<BookSubmissionSaveInput>(
-    () => ({
-      targetSectionId:
-        targetMode === 'existing' &&
-        typeof targetSectionId === 'number' &&
-        Number.isFinite(targetSectionId)
-          ? targetSectionId
-          : undefined,
-      newSectionName: targetMode === 'new' ? newSectionName.trim() : '',
-      removeImage,
-      fieldValues: orderedFields.map((field) => ({
-        fieldId: field.id,
-        value: fieldValues[field.id] ?? '',
-      })),
-    }),
-    [fieldValues, newSectionName, orderedFields, removeImage, targetMode, targetSectionId],
-  )
-
+function InfoTile({ label, value }: { label: string; value: string }) {
   return (
-    <article className={styles.submissionCard}>
-      <div className={styles.submissionHeader}>
-        <div>
-          <h3>Submission #{submission.id}</h3>
-          <p>
-            Current status: <strong>{submission.status}</strong>
-          </p>
-          <p>
-            {submission.submitterEmail
-              ? `Submitter email: ${submission.submitterEmail}`
-              : 'Submitter email not provided.'}
-          </p>
-        </div>
-
-        <div className={styles.statusPillRow}>
-          <span className={styles.statusPill}>{submission.targetSectionName || existingTargetName || 'No section'}</span>
-          <span className={styles.statusPill}>{new Date(submission.createdAt).toLocaleString()}</span>
-        </div>
-      </div>
-
-      <div className={styles.toggleRow}>
-        <label className={styles.checkboxLabel}>
-          <input
-            type="radio"
-            name={`target-mode-${submission.id}`}
-            checked={targetMode === 'existing'}
-            onChange={() => setTargetMode('existing')}
-          />
-          Existing section
-        </label>
-
-        {versionDetail.allowNewSections ? (
-          <label className={styles.checkboxLabel}>
-            <input
-              type="radio"
-              name={`target-mode-${submission.id}`}
-              checked={targetMode === 'new'}
-              onChange={() => setTargetMode('new')}
-            />
-            New section
-          </label>
-        ) : null}
-      </div>
-
-      {targetMode === 'existing' ? (
-        <label className={styles.field}>
-          <span>Target Section</span>
-          <select
-            value={typeof targetSectionId === 'number' ? String(targetSectionId) : ''}
-            onChange={(event) =>
-              setTargetSectionId(
-                event.target.value ? Number.parseInt(event.target.value, 10) : '',
-              )
-            }
-          >
-            <option value="">Select section</option>
-            {versionDetail.sections.map((section) => (
-              <option key={section.id} value={section.id}>
-                {section.name}
-              </option>
-            ))}
-          </select>
-        </label>
-      ) : (
-        <label className={styles.field}>
-          <span>New Section Name</span>
-          <input
-            type="text"
-            value={newSectionName}
-            onChange={(event) => setNewSectionName(event.target.value)}
-          />
-        </label>
-      )}
-
-      <div className={styles.submissionFields}>
-        {orderedFields.map((field) => (
-          <div key={field.id} className={styles.field}>
-            <span>
-              {field.label}
-              {field.isRequired ? ' *' : ''}
-            </span>
-            {field.inputType === 'rich_text' ? (
-              <RichTextEditor
-                value={fieldValues[field.id] ?? ''}
-                onChange={(value) =>
-                  setFieldValues((current) => ({ ...current, [field.id]: value }))
-                }
-              />
-            ) : (
-              <input
-                type="text"
-                value={fieldValues[field.id] ?? ''}
-                onChange={(event) =>
-                  setFieldValues((current) => ({ ...current, [field.id]: event.target.value }))
-                }
-              />
-            )}
-          </div>
-        ))}
-      </div>
-
-      {versionDetail.allowPageImage ? (
-        <div className={styles.imagePanel}>
-          <div>
-            <strong>Optional image</strong>
-            <p>
-              {submission.image?.fileName
-                ? `Current image: ${submission.image.fileName}`
-                : 'No image attached.'}
-            </p>
-          </div>
-          <div className={styles.imagePanelControls}>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(event: ChangeEvent<HTMLInputElement>) =>
-                setImageFile(event.target.files?.[0] ?? null)
-              }
-            />
-            <label className={styles.checkboxLabel}>
-              <input
-                type="checkbox"
-                checked={removeImage}
-                onChange={(event) => setRemoveImage(event.target.checked)}
-              />
-              Remove current image
-            </label>
-          </div>
-        </div>
-      ) : null}
-
-      <label className={styles.field}>
-        <span>Rejection Reason</span>
-        <textarea
-          rows={3}
-          value={rejectionReason}
-          onChange={(event) => setRejectionReason(event.target.value)}
-        />
-      </label>
-
-      <div className={styles.cardHeaderActions}>
-        <button
-          type="button"
-          className={styles.secondaryButton}
-          disabled={busy}
-          onClick={() => void onSave(submission.id, payload, imageFile)}
-        >
-          {busy ? 'Working...' : 'Save Changes'}
-        </button>
-
-        {submission.status !== 'approved' ? (
-          <button
-            type="button"
-            className={styles.primaryButton}
-            disabled={busy}
-            onClick={() =>
-              void (async () => {
-                await onSave(submission.id, payload, imageFile)
-                await onApprove(submission.id)
-              })()
-            }
-          >
-            {busy ? 'Working...' : 'Approve'}
-          </button>
-        ) : null}
-
-        <button
-          type="button"
-          className={styles.dangerButton}
-          disabled={busy || !rejectionReason.trim()}
-          onClick={() => void onReject(submission.id, rejectionReason)}
-        >
-          {busy ? 'Working...' : 'Reject'}
-        </button>
-      </div>
+    <article className={styles.infoTile}>
+      <span>{label}</span>
+      <strong>{value}</strong>
     </article>
   )
 }
 
-function buildEmptyVersionForm(detail?: BookVersionDetail | null): VersionFormState {
-  if (!detail) {
-    return {
-      sourcePageCount: '',
-      contentTemplatePageNumber: '',
-      sectionTemplatePageNumber: '',
-      allowPageImage: true,
-      allowNewSections: true,
-      activateImmediately: false,
-      layoutSettingsText: JSON.stringify(DEFAULT_LAYOUT_SETTINGS, null, 2),
-      sections: [{ name: '', sourceStartPage: '', sourceEndPage: '' }],
-      fields: [
-        {
-          label: '',
-          inputType: 'single_line',
-          placement: 'heading',
-          showLabel: false,
-          isRequired: true,
-          isEmailField: false,
-        },
-      ],
-      sourcePdfFile: null,
-    }
-  }
-
+function buildEmptyVersionForm(): VersionFormState {
   return {
-    ...versionDetailToForm(detail),
-    id: undefined,
-    activateImmediately: false,
-    sourcePdfFile: null,
-  }
-}
-
-function versionDetailToForm(detail: BookVersionDetail): VersionFormState {
-  return {
-    id: detail.id,
-    sourcePageCount: String(detail.sourcePageCount),
-    contentTemplatePageNumber: String(detail.contentTemplatePageNumber),
-    sectionTemplatePageNumber: String(detail.sectionTemplatePageNumber),
-    allowPageImage: detail.allowPageImage,
-    allowNewSections: detail.allowNewSections,
-    activateImmediately: detail.isActive,
-    layoutSettingsText: JSON.stringify(detail.layoutSettings ?? DEFAULT_LAYOUT_SETTINGS, null, 2),
-    sections: detail.sections.map((section) => ({
-      id: section.id,
-      name: section.name,
-      sourceStartPage: section.sourceStartPage ? String(section.sourceStartPage) : '',
-      sourceEndPage: section.sourceEndPage ? String(section.sourceEndPage) : '',
-    })),
-    fields: detail.fields.map((field) => ({
-      id: field.id,
-      label: field.label,
-      inputType: field.inputType,
-      placement: field.placement,
-      showLabel: field.showLabel,
-      isRequired: field.isRequired,
-      isEmailField: field.isEmailField,
-    })),
+    sourcePageCount: '',
+    contentTemplatePageNumber: '',
+    sectionTemplatePageNumber: '',
+    allowPageImage: true,
+    allowNewSections: true,
+    layoutSettingsText: JSON.stringify(DEFAULT_LAYOUT_SETTINGS, null, 2),
+    sections: [{ name: '', sourceStartPage: '', sourceEndPage: '' }],
+    fields: [
+      {
+        label: '',
+        inputType: 'single_line',
+        placement: 'heading',
+        showLabel: false,
+        isRequired: true,
+        isEmailField: false,
+      },
+    ],
     sourcePdfFile: null,
   }
 }
@@ -1286,7 +883,7 @@ function buildVersionPayload(form: VersionFormState): BookVersionSaveInput | nul
       sectionTemplatePageNumber: Number.parseInt(form.sectionTemplatePageNumber, 10),
       allowPageImage: form.allowPageImage,
       allowNewSections: form.allowNewSections,
-      activateImmediately: form.activateImmediately,
+      activateImmediately: true,
       layoutSettings,
       sections: form.sections.map((section) => ({
         id: section.id,
@@ -1310,20 +907,11 @@ function buildVersionPayload(form: VersionFormState): BookVersionSaveInput | nul
   }
 }
 
-async function buildSourcePdfCloneFile(
-  bookId: number,
-  versionDetail: BookVersionDetail | null,
-) {
-  if (!versionDetail) {
-    return null
+function formatSectionPages(section: BookVersionSection) {
+  if (section.sourceStartPage != null && section.sourceEndPage != null) {
+    return `Source pages ${section.sourceStartPage}-${section.sourceEndPage}`
   }
-
-  const sourceBlob = await booksApi.fetchSourcePdfBlob(bookId, versionDetail.id)
-  return new File(
-    [sourceBlob],
-    `book-version-${versionDetail.versionNumber}-source.pdf`,
-    { type: 'application/pdf' },
-  )
+  return 'Generated section from approved requests'
 }
 
 function parseOptionalInteger(value: string) {
@@ -1333,6 +921,34 @@ function parseOptionalInteger(value: string) {
   }
   const parsed = Number.parseInt(trimmed, 10)
   return Number.isNaN(parsed) ? undefined : parsed
+}
+
+function formatDate(value: string) {
+  const parsed = Date.parse(value)
+  if (Number.isNaN(parsed)) {
+    return value
+  }
+
+  return new Intl.DateTimeFormat('en-CA', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+  }).format(new Date(parsed))
+}
+
+function formatDateTime(value: string) {
+  const parsed = Date.parse(value)
+  if (Number.isNaN(parsed)) {
+    return value
+  }
+
+  return new Intl.DateTimeFormat('en-CA', {
+    month: 'short',
+    day: '2-digit',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(new Date(parsed))
 }
 
 function slugify(value: string) {

@@ -1,0 +1,374 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cms-page-gap);
+  height: calc(100svh - var(--cms-page-viewport-offset));
+  overflow: hidden;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--cms-page-header-gap);
+}
+
+.title {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: var(--cms-page-subtitle-gap) 0 0;
+  max-width: 70ch;
+  color: var(--color-text-muted);
+}
+
+.headerActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.tabBar {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  width: fit-content;
+}
+
+.tabButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 0.95rem;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.tabButton:hover {
+  background: var(--color-surface-alt);
+}
+
+.tabButtonActive {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.tabCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.35rem;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.18);
+  font-size: 0.75rem;
+}
+
+.tableCard,
+.mobileCard {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.tableCard {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.tableToolbar {
+  flex-shrink: 0;
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.filterCardTop {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.searchField {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0 0.875rem;
+  min-height: 2.75rem;
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  transition: border-color 0.15s ease;
+}
+
+.searchField:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.searchField input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+}
+
+.searchField input::placeholder {
+  color: var(--color-text-placeholder);
+}
+
+.searchIcon {
+  color: var(--color-text-muted);
+}
+
+.totalCount {
+  margin: 0;
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.tableWrap {
+  flex: 1;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.table th {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.row {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.row:hover {
+  background: var(--color-surface-alt);
+}
+
+.primaryCell {
+  min-width: 240px;
+}
+
+.primaryStack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.primaryStack strong,
+.mobileCardTitle {
+  color: var(--color-text);
+}
+
+.primaryStack span,
+.mobileCardText,
+.mobileMeta span {
+  color: var(--color-text-muted);
+}
+
+.metaPill,
+.badgeAlert,
+.badgeMuted {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  padding: 0.28rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.metaPill,
+.badgeMuted {
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+}
+
+.badgeAlert {
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+}
+
+.iconButton {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.iconButton:hover {
+  background: var(--color-surface-alt);
+  color: var(--color-primary);
+}
+
+.loaderWrap,
+.emptyState {
+  padding: 3rem 1.5rem;
+  text-align: center;
+}
+
+.emptyState h2 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.emptyState p {
+  margin: 0.45rem 0 0;
+  color: var(--color-text-muted);
+}
+
+.cardList {
+  display: none;
+}
+
+.mobileCard {
+  padding: 1rem;
+}
+
+.mobileCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.mobileCardTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.mobileCardText {
+  margin: 0.35rem 0 0;
+}
+
+.mobileMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.85rem;
+}
+
+.mobileActions {
+  margin-top: 1rem;
+}
+
+.primaryButton,
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.primaryButton {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+
+.primaryButton:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.secondaryButton {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.secondaryButton:hover:not(:disabled) {
+  background: var(--color-surface-alt);
+}
+
+@media (max-width: 980px) {
+  .pageHeader,
+  .filterCardTop {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .totalCount {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 780px) {
+  .page {
+    height: auto;
+    overflow: visible;
+  }
+
+  .tableWrap {
+    display: none;
+  }
+
+  .cardList {
+    display: grid;
+    gap: 0.85rem;
+    padding: 1rem;
+  }
+}
