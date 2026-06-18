@@ -32,6 +32,13 @@ describe('cmsNav', () => {
     })
   })
 
+  it('includes a knowledge center entry that links to its review queue', () => {
+    expect(cmsNavItems.find((item) => item.key === 'knowledgeCenter')).toMatchObject({
+      key: 'knowledgeCenter',
+      path: '/knowledge-center',
+    })
+  })
+
   it('includes a videos entry that links to the video library', () => {
     expect(cmsNavItems.find((item) => item.key === 'videos')).toMatchObject({
       key: 'videos',

@@ -12,7 +12,6 @@ import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
 import { RichTextEditor } from '../components/cms/RichTextEditor'
-import { generateBookPdf } from '../lib/bookPdf'
 import styles from '../styles/BookRequestReviewPage.module.css'
 
 type SubmissionValuesState = Record<number, string>
@@ -158,18 +157,7 @@ export function BookRequestReviewPage() {
         throw new Error('Approval did not return the created version.')
       }
 
-      const createdVersion = await booksApi.getVersion(book.id, approved.bookVersionId)
-
-      try {
-        await generateAndUploadVersionPdf(book.id, book.title, createdVersion)
-        toast.success(
-          `Request approved. Version ${approved.bookVersionNumber ?? createdVersion.versionNumber} is now active.`,
-        )
-      } catch {
-        toast.error(
-          'Request was approved and activated, but the PDF could not be regenerated automatically. Open the book page and run Generate PDF.',
-        )
-      }
+      toast.success(`Request approved. Version ${approved.bookVersionNumber ?? approved.bookVersionId} is now active.`)
 
       navigate(`/books/${book.id}`)
     } catch (error) {
@@ -551,25 +539,6 @@ export function BookRequestReviewPage() {
   )
 }
 
-async function generateAndUploadVersionPdf(bookId: number, bookTitle: string, version: BookVersionDetail) {
-  const sourceBlob = await booksApi.fetchSourcePdfBlob(bookId, version.id)
-  const sourceBytes = new Uint8Array(await sourceBlob.arrayBuffer())
-  const generatedBlob = await generateBookPdf({
-    version,
-    sourcePdfBytes: sourceBytes,
-    fetchImageBytes: async (submission) => {
-      if (!submission.image?.fetchUrl) {
-        return null
-      }
-      const blob = await booksApi.fetchSubmissionImage(submission.image.fetchUrl)
-      return new Uint8Array(await blob.arrayBuffer())
-    },
-  })
-
-  const fileName = `${slugify(bookTitle)}-version-${version.versionNumber}.pdf`
-  await booksApi.uploadGeneratedPdf(bookId, version.id, generatedBlob, fileName)
-}
-
 function stripHtml(value: string) {
   return value.replace(/<[^>]*>/g, ' ')
 }
@@ -587,11 +556,4 @@ function formatDateTime(value: string) {
     hour: 'numeric',
     minute: '2-digit',
   }).format(new Date(parsed))
-}
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
 }
