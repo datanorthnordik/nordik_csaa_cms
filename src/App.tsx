@@ -27,6 +27,8 @@ import { BookCreatePage } from './pages/BookCreatePage'
 import { BooksListPage } from './pages/BooksListPage'
 import { BookRequestReviewPage } from './pages/BookRequestReviewPage'
 import { BooksPage } from './pages/BooksPage'
+import { KnowledgeCenterListPage } from './pages/KnowledgeCenterListPage'
+import { KnowledgeCenterReviewPage } from './pages/KnowledgeCenterReviewPage'
 import './App.css'
 
 function App() {
@@ -63,6 +65,8 @@ function App() {
           <Route path="/books/new" element={<BookCreatePage />} />
           <Route path="/books/requests/:bookId/:submissionId" element={<BookRequestReviewPage />} />
           <Route path="/books/:id" element={<BooksPage />} />
+          <Route path="/knowledge-center" element={<KnowledgeCenterListPage />} />
+          <Route path="/knowledge-center/:id" element={<KnowledgeCenterReviewPage />} />
           <Route path="/press" element={<PressListPage />} />
           <Route path="/press/new" element={<PressEditorPage mode="create" />} />
           <Route path="/press/:id/edit" element={<PressEditorPage mode="edit" />} />

@@ -162,10 +162,16 @@ export type BookVersionSaveInput = {
   sectionTemplatePageNumber: number
   allowPageImage: boolean
   allowNewSections: boolean
-  layoutSettings: Record<string, unknown>
   sections: BookVersionSectionInput[]
   fields: BookVersionFieldInput[]
   activateImmediately: boolean
+}
+
+export type BookVersionTemplateFiles = {
+  sourcePdfFile: File
+  contentTemplatePdfFile: File
+  contentImageTemplatePdfFile: File
+  sectionTemplatePdfFile: File
 }
 
 export type BookSubmissionSaveInput = {
@@ -487,14 +493,13 @@ function resolveApiPath(pathname: string) {
   return `${API_BASE_URL}/${trimmed.replace(/^\/+/, '')}`
 }
 
-function buildVersionPayload(input: BookVersionSaveInput, sourcePdfFile?: File | null) {
+function buildVersionPayload(input: BookVersionSaveInput, templateFiles?: Partial<BookVersionTemplateFiles> | null) {
   const payload = {
     source_page_count: input.sourcePageCount,
     content_template_page_number: input.contentTemplatePageNumber,
     section_template_page_number: input.sectionTemplatePageNumber,
     allow_page_image: input.allowPageImage,
     allow_new_sections: input.allowNewSections,
-    layout_settings: input.layoutSettings,
     sections: input.sections.map((section) => ({
       id: section.id,
       name: section.name,
@@ -511,24 +516,60 @@ function buildVersionPayload(input: BookVersionSaveInput, sourcePdfFile?: File |
       is_email_field: field.isEmailField,
     })),
     activate_immediately: input.activateImmediately,
-    source_pdf: sourcePdfFile
+    source_pdf: templateFiles?.sourcePdfFile
       ? {
-          file_name: sourcePdfFile.name,
-          mime_type: sourcePdfFile.type || 'application/pdf',
-          file_size: sourcePdfFile.size,
+          file_name: templateFiles.sourcePdfFile.name,
+          mime_type: templateFiles.sourcePdfFile.type || 'application/pdf',
+          file_size: templateFiles.sourcePdfFile.size,
+        }
+      : undefined,
+    content_template_pdf: templateFiles?.contentTemplatePdfFile
+      ? {
+          file_name: templateFiles.contentTemplatePdfFile.name,
+          mime_type: templateFiles.contentTemplatePdfFile.type || 'application/pdf',
+          file_size: templateFiles.contentTemplatePdfFile.size,
+        }
+      : undefined,
+    content_image_template_pdf: templateFiles?.contentImageTemplatePdfFile
+      ? {
+          file_name: templateFiles.contentImageTemplatePdfFile.name,
+          mime_type: templateFiles.contentImageTemplatePdfFile.type || 'application/pdf',
+          file_size: templateFiles.contentImageTemplatePdfFile.size,
+        }
+      : undefined,
+    section_template_pdf: templateFiles?.sectionTemplatePdfFile
+      ? {
+          file_name: templateFiles.sectionTemplatePdfFile.name,
+          mime_type: templateFiles.sectionTemplatePdfFile.type || 'application/pdf',
+          file_size: templateFiles.sectionTemplatePdfFile.size,
         }
       : undefined,
   }
 
-  if (!sourcePdfFile) {
+  if (!templateFiles?.sourcePdfFile) {
     return payload
   }
 
   return buildMultipartPayload(payload, [
     {
       fieldName: 'source_pdf_file',
-      file: sourcePdfFile,
-      fileName: sourcePdfFile.name,
+      file: templateFiles.sourcePdfFile,
+      fileName: templateFiles.sourcePdfFile.name,
+    },
+    {
+      fieldName: 'content_template_pdf_file',
+      file: templateFiles.contentTemplatePdfFile,
+      fileName: templateFiles.contentTemplatePdfFile?.name,
+    },
+    {
+      fieldName: 'content_image_template_pdf_file',
+      file: templateFiles.contentImageTemplatePdfFile,
+      fileName: templateFiles.contentImageTemplatePdfFile?.name,
+    },
+    {
+      fieldName: 'section_template_pdf_file',
+      file: templateFiles.sectionTemplatePdfFile,
+      fileName: templateFiles.sectionTemplatePdfFile?.name,
     },
   ])
 }
@@ -600,10 +641,10 @@ export const booksApi = {
     return mapVersionDetail(response.data.version)
   },
 
-  async createVersion(bookId: number, input: BookVersionSaveInput, sourcePdfFile: File) {
+  async createVersion(bookId: number, input: BookVersionSaveInput, templateFiles: BookVersionTemplateFiles) {
     const response = await apiClient.post<ApiBookVersionMutationResponse>(
       API_ROUTES.bookVersions(bookId),
-      buildVersionPayload(input, sourcePdfFile),
+      buildVersionPayload(input, templateFiles),
     )
     return response.data.version
   },
@@ -616,7 +657,7 @@ export const booksApi = {
   ) {
     const response = await apiClient.put<ApiBookVersionMutationResponse>(
       API_ROUTES.bookVersionById(bookId, versionId),
-      buildVersionPayload(input, sourcePdfFile),
+      buildVersionPayload(input, sourcePdfFile ? { sourcePdfFile } : undefined),
     )
     return response.data.version
   },

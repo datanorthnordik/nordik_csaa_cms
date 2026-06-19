@@ -19,6 +19,11 @@ export const API_ROUTES = {
   resources: '/api/resources',
   resourceById: (id: number | string) => `/api/resources/${id}`,
   resourceContentById: (id: number | string) => `/api/resources/${id}/content`,
+  knowledgeCenterSubmissions: '/api/knowledge-center/submissions',
+  knowledgeCenterSubmissionById: (id: number | string) =>
+    `/api/knowledge-center/submissions/${id}`,
+  knowledgeCenterSubmissionComplete: (id: number | string) =>
+    `/api/knowledge-center/submissions/${id}/complete`,
   memorial: '/api/memorial',
   memorialById: (id: number | string) => `/api/memorial/${id}`,
   memorialPortraitById: (id: number | string) => `/api/memorial/${id}/portrait/content`,

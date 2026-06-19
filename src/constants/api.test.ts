@@ -24,6 +24,15 @@ describe('API_ROUTES', () => {
     expect(API_ROUTES.resources).toBe('/api/resources')
     expect(API_ROUTES.resourceById(8)).toBe('/api/resources/8')
     expect(API_ROUTES.resourceContentById(8)).toBe('/api/resources/8/content')
+    expect(API_ROUTES.knowledgeCenterSubmissions).toBe(
+      '/api/knowledge-center/submissions',
+    )
+    expect(API_ROUTES.knowledgeCenterSubmissionById(8)).toBe(
+      '/api/knowledge-center/submissions/8',
+    )
+    expect(API_ROUTES.knowledgeCenterSubmissionComplete(8)).toBe(
+      '/api/knowledge-center/submissions/8/complete',
+    )
     expect(API_ROUTES.memorial).toBe('/api/memorial')
     expect(API_ROUTES.memorialById(8)).toBe('/api/memorial/8')
     expect(API_ROUTES.memorialPortraitById(8)).toBe('/api/memorial/8/portrait/content')

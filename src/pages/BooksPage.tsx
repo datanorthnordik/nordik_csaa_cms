@@ -9,63 +9,13 @@ import {
   type BookVersionDetail,
   type BookVersionSaveInput,
   type BookVersionSection,
+  type BookVersionTemplateFiles,
 } from '../api/booksApi'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { Loader } from '../components/Loader'
 import { Toggle } from '../components/Toggle'
-import { generateBookPdf } from '../lib/bookPdf'
 import styles from '../styles/BooksPage.module.css'
-
-const DEFAULT_LAYOUT_SETTINGS = {
-  content_mask: {
-    x: 54,
-    y: 92,
-    width: 392,
-    height: 484,
-    background_color: '#ffffff',
-  },
-  heading_area: {
-    x: 78,
-    y: 114,
-    width: 316,
-    height: 86,
-    font_size: 19,
-    line_height: 1.2,
-    text_align: 'left',
-  },
-  body_area: {
-    x: 78,
-    y: 214,
-    width: 280,
-    height: 314,
-    font_size: 11,
-    line_height: 1.35,
-    text_align: 'left',
-  },
-  image_area: {
-    x: 316,
-    y: 422,
-    width: 108,
-    height: 108,
-  },
-  section_mask: {
-    x: 70,
-    y: 228,
-    width: 360,
-    height: 114,
-    background_color: '#ffffff',
-  },
-  section_title_area: {
-    x: 90,
-    y: 248,
-    width: 320,
-    height: 74,
-    font_size: 28,
-    line_height: 1.1,
-    text_align: 'center',
-  },
-}
 
 type EditableSection = {
   id?: number
@@ -90,10 +40,12 @@ type VersionFormState = {
   sectionTemplatePageNumber: string
   allowPageImage: boolean
   allowNewSections: boolean
-  layoutSettingsText: string
   sections: EditableSection[]
   fields: EditableField[]
   sourcePdfFile: File | null
+  contentTemplatePdfFile: File | null
+  contentImageTemplatePdfFile: File | null
+  sectionTemplatePdfFile: File | null
 }
 
 export function BooksPage() {
@@ -113,7 +65,6 @@ export function BooksPage() {
   const [isBookSaving, setIsBookSaving] = useState(false)
   const [isVersionLoading, setIsVersionLoading] = useState(false)
   const [isVersionSaving, setIsVersionSaving] = useState(false)
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false)
 
   const selectedVersionSummary = useMemo(
     () => selectedBook?.versions.find((version) => version.id === selectedVersionId) ?? null,
@@ -244,10 +195,28 @@ export function BooksPage() {
       toast.error('A source PDF is required for the initial version.')
       return
     }
+    if (!versionForm.contentTemplatePdfFile) {
+      toast.error('A blank content template PDF is required.')
+      return
+    }
+    if (!versionForm.contentImageTemplatePdfFile) {
+      toast.error('A blank content template PDF without bottom artwork is required for image pages.')
+      return
+    }
+    if (!versionForm.sectionTemplatePdfFile) {
+      toast.error('A blank section divider template PDF is required.')
+      return
+    }
 
     try {
       setIsVersionSaving(true)
-      const created = await booksApi.createVersion(selectedBook.id, payload, versionForm.sourcePdfFile)
+      const templateFiles: BookVersionTemplateFiles = {
+        sourcePdfFile: versionForm.sourcePdfFile,
+        contentTemplatePdfFile: versionForm.contentTemplatePdfFile,
+        contentImageTemplatePdfFile: versionForm.contentImageTemplatePdfFile,
+        sectionTemplatePdfFile: versionForm.sectionTemplatePdfFile,
+      }
+      const created = await booksApi.createVersion(selectedBook.id, payload, templateFiles)
       await loadBookDetail(selectedBook.id, {
         preserveSelection: true,
         preferredVersionId: created.id,
@@ -273,40 +242,6 @@ export function BooksPage() {
       toast.success('Version activated.')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Unable to activate the version.')
-    }
-  }
-
-  async function handleGeneratePdf(versionOverride?: BookVersionDetail) {
-    if (!selectedBook?.id || (!selectedVersionId && !versionOverride)) {
-      return
-    }
-
-    try {
-      setIsGeneratingPdf(true)
-      const detail = versionOverride ?? (await booksApi.getVersion(selectedBook.id, selectedVersionId as number))
-      const sourceBlob = await booksApi.fetchSourcePdfBlob(selectedBook.id, detail.id)
-      const sourceBytes = new Uint8Array(await sourceBlob.arrayBuffer())
-      const generatedBlob = await generateBookPdf({
-        version: detail,
-        sourcePdfBytes: sourceBytes,
-        fetchImageBytes: async (submission) => {
-          if (!submission.image?.fetchUrl) {
-            return null
-          }
-          const blob = await booksApi.fetchSubmissionImage(submission.image.fetchUrl)
-          return new Uint8Array(await blob.arrayBuffer())
-        },
-      })
-
-      const fileName = `${slugify(selectedBook.title)}-version-${detail.versionNumber}.pdf`
-      await booksApi.uploadGeneratedPdf(selectedBook.id, detail.id, generatedBlob, fileName)
-      await loadBookDetail(selectedBook.id, { preserveSelection: true, preferredVersionId: detail.id })
-      await loadVersionDetail(selectedBook.id, detail.id)
-      toast.success('Generated PDF uploaded.')
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Unable to generate the PDF.')
-    } finally {
-      setIsGeneratingPdf(false)
     }
   }
 
@@ -460,6 +395,39 @@ export function BooksPage() {
                       type="file"
                       accept="application/pdf"
                       onChange={(event) => updateVersionForm('sourcePdfFile', event.target.files?.[0] ?? null)}
+                    />
+                  </label>
+
+                  <label className={`${styles.field} ${styles.fieldFull}`}>
+                    <span>Blank Content Template PDF</span>
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(event) =>
+                        updateVersionForm('contentTemplatePdfFile', event.target.files?.[0] ?? null)
+                      }
+                    />
+                  </label>
+
+                  <label className={`${styles.field} ${styles.fieldFull}`}>
+                    <span>Blank Content Template PDF Without Bottom Artwork</span>
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(event) =>
+                        updateVersionForm('contentImageTemplatePdfFile', event.target.files?.[0] ?? null)
+                      }
+                    />
+                  </label>
+
+                  <label className={`${styles.field} ${styles.fieldFull}`}>
+                    <span>Blank Section Divider Template PDF</span>
+                    <input
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(event) =>
+                        updateVersionForm('sectionTemplatePdfFile', event.target.files?.[0] ?? null)
+                      }
                     />
                   </label>
                 </div>
@@ -681,8 +649,8 @@ export function BooksPage() {
                             </p>
                           </div>
 
-                          <div className={styles.actionRow}>
-                            {!selectedVersion.isActive ? (
+                          {!selectedVersion.isActive ? (
+                            <div className={styles.actionRow}>
                               <button
                                 type="button"
                                 className={styles.secondaryButton}
@@ -690,16 +658,8 @@ export function BooksPage() {
                               >
                                 Make Active
                               </button>
-                            ) : null}
-                            <button
-                              type="button"
-                              className={styles.primaryButton}
-                              onClick={() => void handleGeneratePdf()}
-                              disabled={isGeneratingPdf}
-                            >
-                              {isGeneratingPdf ? 'Generating...' : 'Generate PDF'}
-                            </button>
-                          </div>
+                            </div>
+                          ) : null}
                         </div>
 
                         <div className={styles.infoGrid}>
@@ -858,7 +818,6 @@ function buildEmptyVersionForm(): VersionFormState {
     sectionTemplatePageNumber: '',
     allowPageImage: true,
     allowNewSections: true,
-    layoutSettingsText: JSON.stringify(DEFAULT_LAYOUT_SETTINGS, null, 2),
     sections: [{ name: '', sourceStartPage: '', sourceEndPage: '' }],
     fields: [
       {
@@ -871,39 +830,35 @@ function buildEmptyVersionForm(): VersionFormState {
       },
     ],
     sourcePdfFile: null,
+    contentTemplatePdfFile: null,
+    contentImageTemplatePdfFile: null,
+    sectionTemplatePdfFile: null,
   }
 }
 
 function buildVersionPayload(form: VersionFormState): BookVersionSaveInput | null {
-  try {
-    const layoutSettings = JSON.parse(form.layoutSettingsText)
-    return {
-      sourcePageCount: Number.parseInt(form.sourcePageCount, 10),
-      contentTemplatePageNumber: Number.parseInt(form.contentTemplatePageNumber, 10),
-      sectionTemplatePageNumber: Number.parseInt(form.sectionTemplatePageNumber, 10),
-      allowPageImage: form.allowPageImage,
-      allowNewSections: form.allowNewSections,
-      activateImmediately: true,
-      layoutSettings,
-      sections: form.sections.map((section) => ({
-        id: section.id,
-        name: section.name.trim(),
-        sourceStartPage: parseOptionalInteger(section.sourceStartPage),
-        sourceEndPage: parseOptionalInteger(section.sourceEndPage),
-      })),
-      fields: form.fields.map((field) => ({
-        id: field.id,
-        label: field.label.trim(),
-        inputType: field.inputType,
-        placement: field.placement,
-        showLabel: field.showLabel,
-        isRequired: field.isRequired,
-        isEmailField: field.isEmailField,
-      })),
-    }
-  } catch {
-    toast.error('Layout settings must be valid JSON.')
-    return null
+  return {
+    sourcePageCount: Number.parseInt(form.sourcePageCount, 10),
+    contentTemplatePageNumber: Number.parseInt(form.contentTemplatePageNumber, 10),
+    sectionTemplatePageNumber: Number.parseInt(form.sectionTemplatePageNumber, 10),
+    allowPageImage: form.allowPageImage,
+    allowNewSections: form.allowNewSections,
+    activateImmediately: true,
+    sections: form.sections.map((section) => ({
+      id: section.id,
+      name: section.name.trim(),
+      sourceStartPage: parseOptionalInteger(section.sourceStartPage),
+      sourceEndPage: parseOptionalInteger(section.sourceEndPage),
+    })),
+    fields: form.fields.map((field) => ({
+      id: field.id,
+      label: field.label.trim(),
+      inputType: field.inputType,
+      placement: field.placement,
+      showLabel: field.showLabel,
+      isRequired: field.isRequired,
+      isEmailField: field.isEmailField,
+    })),
   }
 }
 
@@ -949,11 +904,4 @@ function formatDateTime(value: string) {
     hour: 'numeric',
     minute: '2-digit',
   }).format(new Date(parsed))
-}
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
 }
