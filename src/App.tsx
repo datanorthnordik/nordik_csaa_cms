@@ -16,6 +16,8 @@ import { NewslettersListPage } from './pages/NewslettersListPage'
 import { NewsletterEditorPage } from './pages/NewsletterEditorPage'
 import { PressListPage } from './pages/PressListPage'
 import { PressEditorPage } from './pages/PressEditorPage'
+import { BlogsListPage } from './pages/BlogsListPage'
+import { BlogEditorPage } from './pages/BlogEditorPage'
 import { ResourcesListPage } from './pages/ResourcesListPage'
 import { ResourceEditorPage } from './pages/ResourceEditorPage'
 import { PagesListPage } from './pages/PagesListPage'
@@ -49,6 +51,10 @@ function App() {
           <Route path="/pages/new" element={<PageEditorPage />} />
           <Route path="/pages/:id" element={<PageEditorPage mode="view" />} />
           <Route path="/pages/:id/edit" element={<PageEditorPage />} />
+          <Route path="/blogs" element={<BlogsListPage />} />
+          <Route path="/blogs/new" element={<BlogEditorPage />} />
+          <Route path="/blogs/:id" element={<BlogEditorPage mode="view" />} />
+          <Route path="/blogs/:id/edit" element={<BlogEditorPage />} />
           <Route path="/events" element={<EventsListPage />} />
           <Route path="/events/new" element={<EventEditorPage />} />
           <Route path="/events/:id" element={<EventEditorPage mode="view" />} />
