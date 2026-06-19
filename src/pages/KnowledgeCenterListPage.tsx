@@ -281,7 +281,6 @@ export function KnowledgeCenterListPage() {
                         <td className={booksStyles.primaryCell}>
                           <div className={booksStyles.primaryStack}>
                             <strong>{item.submitterName}</strong>
-                            <span>{previewText(item.message)}</span>
                           </div>
                         </td>
                         <td>{formatSubmissionType(item.submissionType)}</td>
@@ -338,9 +337,6 @@ export function KnowledgeCenterListPage() {
                       <div>
                         <p className={booksStyles.mobileCardTitle}>
                           {item.submitterName}
-                        </p>
-                        <p className={booksStyles.mobileCardText}>
-                          {previewText(item.message)}
                         </p>
                       </div>
                       <span className={booksStyles.metaPill}>
@@ -407,14 +403,6 @@ export function KnowledgeCenterListPage() {
       </div>
     </CmsAppShell>
   )
-}
-
-function previewText(value: string) {
-  const trimmed = value.trim()
-  if (trimmed.length <= 120) {
-    return trimmed
-  }
-  return `${trimmed.slice(0, 117)}...`
 }
 
 function formatSubmissionType(value: KnowledgeCenterSubmission['submissionType']) {
