@@ -890,6 +890,41 @@
   margin-top: 0.15rem;
 }
 
+.animationItemCard {
+  align-items: flex-start;
+}
+
+.animationItemContent {
+  flex: 1 1 auto;
+  width: 100%;
+  gap: 1rem;
+}
+
+.animationItemFields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.animationItemDescriptionField {
+  grid-column: 1 / -1;
+}
+
+.animationItemMedia {
+  width: min(100%, 16rem);
+}
+
+.animationItemPreview {
+  max-height: 240px;
+}
+
+.animationItemActions {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  justify-content: flex-end;
+}
+
 .documentActionRow {
   max-width: 100%;
   justify-content: flex-end;
@@ -945,6 +980,10 @@
     grid-template-columns: 1fr;
   }
 
+  .animationItemFields {
+    grid-template-columns: 1fr;
+  }
+
   .moduleHeaderActions {
     justify-content: flex-start;
   }
@@ -987,5 +1026,13 @@
 
   .documentPreviewFrame {
     min-height: 7rem;
+  }
+
+  .animationItemMedia {
+    width: 100%;
+  }
+
+  .animationItemActions {
+    justify-content: flex-start;
   }
 }

@@ -983,60 +983,71 @@ export function BlogEditorPage({ mode = 'edit' }: BlogEditorPageProps) {
 
                               <div className={styles.fieldStack}>
                                 {section.animation.items.map((item, itemIndex) => (
-                                  <div key={item.clientId} className={styles.optionCard}>
-                                    <div className={styles.optionCardContent}>
+                                  <div
+                                    key={item.clientId}
+                                    className={[styles.optionCard, styles.animationItemCard].join(' ')}
+                                  >
+                                    <div
+                                      className={[styles.optionCardContent, styles.animationItemContent].join(' ')}
+                                    >
                                       <div className={styles.optionCardHeader}>
                                         <p className={styles.optionCardTitle}>Animation item {itemIndex + 1}</p>
                                       </div>
 
-                                      <label className={styles.field}>
-                                        <span>Heading</span>
-                                        <input
-                                          type="text"
-                                          value={item.heading}
-                                          onChange={(event) =>
-                                            updateAnimationItem(section.clientId, item.clientId, (current) => ({
-                                              ...current,
-                                              heading: event.target.value,
-                                            }))
-                                          }
-                                        />
-                                      </label>
+                                      <div className={styles.animationItemFields}>
+                                        <label className={styles.field}>
+                                          <span>Heading</span>
+                                          <input
+                                            type="text"
+                                            value={item.heading}
+                                            onChange={(event) =>
+                                              updateAnimationItem(section.clientId, item.clientId, (current) => ({
+                                                ...current,
+                                                heading: event.target.value,
+                                              }))
+                                            }
+                                          />
+                                        </label>
 
-                                      <label className={styles.field}>
-                                        <span>Sub heading</span>
-                                        <input
-                                          type="text"
-                                          value={item.subHeading}
-                                          onChange={(event) =>
-                                            updateAnimationItem(section.clientId, item.clientId, (current) => ({
-                                              ...current,
-                                              subHeading: event.target.value,
-                                            }))
-                                          }
-                                        />
-                                      </label>
+                                        <label className={styles.field}>
+                                          <span>Sub heading</span>
+                                          <input
+                                            type="text"
+                                            value={item.subHeading}
+                                            onChange={(event) =>
+                                              updateAnimationItem(section.clientId, item.clientId, (current) => ({
+                                                ...current,
+                                                subHeading: event.target.value,
+                                              }))
+                                            }
+                                          />
+                                        </label>
 
-                                      <label className={styles.field}>
-                                        <span>Description</span>
-                                        <textarea
-                                          rows={3}
-                                          value={item.description}
-                                          onChange={(event) =>
-                                            updateAnimationItem(section.clientId, item.clientId, (current) => ({
-                                              ...current,
-                                              description: event.target.value,
-                                            }))
-                                          }
-                                        />
-                                      </label>
+                                        <label
+                                          className={[styles.field, styles.animationItemDescriptionField].join(' ')}
+                                        >
+                                          <span>Description</span>
+                                          <textarea
+                                            rows={3}
+                                            value={item.description}
+                                            onChange={(event) =>
+                                              updateAnimationItem(section.clientId, item.clientId, (current) => ({
+                                                ...current,
+                                                description: event.target.value,
+                                              }))
+                                            }
+                                          />
+                                        </label>
+                                      </div>
 
                                       {item.file || item.existingImageUrl ? (
-                                        <div className={styles.heroPreviewCard}>
+                                        <div
+                                          className={[styles.heroPreviewCard, styles.animationItemMedia].join(' ')}
+                                        >
                                           <img
                                             src={item.file ? URL.createObjectURL(item.file) : item.existingImageUrl}
                                             alt={item.heading || 'Animation item image'}
-                                            className={styles.heroPreview}
+                                            className={[styles.heroPreview, styles.animationItemPreview].join(' ')}
                                           />
                                           {!isReadOnlyMode && (
                                             <div className={styles.heroActions}>
@@ -1058,27 +1069,29 @@ export function BlogEditorPage({ mode = 'edit' }: BlogEditorPageProps) {
                                           )}
                                         </div>
                                       ) : (
-                                        <UploadDropzone
-                                          label="Upload item image"
-                                          hint="PNG, JPG, or WebP."
-                                          accept={IMAGE_ACCEPT}
-                                          icon={<CloudUploadIcon size={26} />}
-                                          onFiles={(files) =>
-                                            files[0] &&
-                                            updateAnimationItem(section.clientId, item.clientId, (current) => ({
-                                              ...current,
-                                              file: files[0],
-                                              existingImageUrl: '',
-                                              existingObjectKey: '',
-                                            }))
-                                          }
-                                          disabled={isReadOnlyMode}
-                                        />
+                                        <div className={styles.animationItemMedia}>
+                                          <UploadDropzone
+                                            label="Upload item image"
+                                            hint="PNG, JPG, or WebP."
+                                            accept={IMAGE_ACCEPT}
+                                            icon={<CloudUploadIcon size={26} />}
+                                            onFiles={(files) =>
+                                              files[0] &&
+                                              updateAnimationItem(section.clientId, item.clientId, (current) => ({
+                                                ...current,
+                                                file: files[0],
+                                                existingImageUrl: '',
+                                                existingObjectKey: '',
+                                              }))
+                                            }
+                                            disabled={isReadOnlyMode}
+                                          />
+                                        </div>
                                       )}
                                     </div>
 
                                     {!isReadOnlyMode && (
-                                      <div className={styles.actionRow}>
+                                      <div className={[styles.actionRow, styles.animationItemActions].join(' ')}>
                                         <button
                                           type="button"
                                           className={styles.iconButton}
