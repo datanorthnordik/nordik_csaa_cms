@@ -5,6 +5,7 @@ import {
   buildSaveEventRequest,
   createDefaultEventFormState,
   toInputDate,
+  toInputTime,
   validateEventForm,
 } from './eventsForm'
 
@@ -62,6 +63,16 @@ describe('toInputDate', () => {
       toInputDate('2026-05-07T00:00:00Z', { preserveCalendarDate: true }),
     ).toBe('2026-05-07')
   })
+
+  it('keeps the raw API date portion for timed timestamps', () => {
+    expect(toInputDate('2026-06-23T09:00:00Z')).toBe('2026-06-23')
+  })
+})
+
+describe('toInputTime', () => {
+  it('keeps the raw API time portion for timed timestamps', () => {
+    expect(toInputTime('2026-06-23T09:00:00Z')).toBe('09:00')
+  })
 })
 
 describe('buildEventFormStateFromDetail', () => {
@@ -88,6 +99,43 @@ describe('buildEventFormStateFromDetail', () => {
     expect(form.endDate).toBe('2026-05-09')
     expect(form.scheduledOccurrences[0]?.startDate).toBe('2026-05-12')
     expect(form.scheduledOccurrences[0]?.endDate).toBe('2026-05-14')
+  })
+
+  it('keeps timed event hours stable when hydrating the edit form', () => {
+    const detail = createEventDetail('multi_day_partial', {
+      start_at: '2026-06-23T09:00:00Z',
+      end_at: '2026-06-24T16:00:00Z',
+      registration_enabled: true,
+      registration_start_at: '2026-06-10T08:30:00Z',
+      registration_end_at: '2026-06-22T17:15:00Z',
+      repeat_enabled: true,
+      recurrence_type: 'scheduled',
+      occurrences: [
+        {
+          id: 10,
+          event_id: 1,
+          occurrence_start_at: '2026-06-25T09:00:00Z',
+          occurrence_end_at: '2026-06-25T16:00:00Z',
+          occurrence_kind: 'scheduled',
+          created_at: '2026-05-01T12:00:00Z',
+          updated_at: '2026-05-02T12:00:00Z',
+        },
+      ],
+    })
+
+    const form = buildEventFormStateFromDetail(detail)
+
+    expect(form.startDate).toBe('2026-06-23')
+    expect(form.endDate).toBe('2026-06-24')
+    expect(form.startTime).toBe('09:00')
+    expect(form.endTime).toBe('16:00')
+    expect(form.registrationStartDate).toBe('2026-06-10')
+    expect(form.registrationStartTime).toBe('08:30')
+    expect(form.registrationEndDate).toBe('2026-06-22')
+    expect(form.registrationEndTime).toBe('17:15')
+    expect(form.scheduledOccurrences[0]?.startDate).toBe('2026-06-25')
+    expect(form.scheduledOccurrences[0]?.startTime).toBe('09:00')
+    expect(form.scheduledOccurrences[0]?.endTime).toBe('16:00')
   })
 })
 

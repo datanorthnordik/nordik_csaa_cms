@@ -579,11 +579,9 @@ export function toInputDate(
     return ''
   }
 
-  if (options.preserveCalendarDate) {
-    const matchedDate = value.match(/^(\d{4}-\d{2}-\d{2})/)
-    if (matchedDate) {
-      return matchedDate[1]
-    }
+  const matchedDate = value.match(/^(\d{4}-\d{2}-\d{2})/)
+  if (matchedDate && (options.preserveCalendarDate || looksLikeIsoDateTime(value))) {
+    return matchedDate[1]
   }
 
   const date = new Date(value)
@@ -601,6 +599,11 @@ export function toInputDate(
 export function toInputTime(value?: string | null) {
   if (!value) {
     return ''
+  }
+
+  const matchedTime = value.match(/T(\d{2}:\d{2})/)
+  if (matchedTime) {
+    return matchedTime[1]
   }
 
   const date = new Date(value)
@@ -780,6 +783,10 @@ function toLocalIsoString(dateValue: string, timeValue: string) {
 
 function pad(value: number) {
   return String(value).padStart(2, '0')
+}
+
+function looksLikeIsoDateTime(value: string) {
+  return /^\d{4}-\d{2}-\d{2}T/.test(value)
 }
 
 function nextOccurrenceId() {
