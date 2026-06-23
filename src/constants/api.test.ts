@@ -1,11 +1,30 @@
-import { describe, expect, it } from 'vitest'
-import { API_BASE_URL, API_ROUTES } from './api'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { API_BASE_URL, API_ROUTES, resolveApiBaseUrl } from './api'
 
 describe('API_ROUTES', () => {
-  it('exposes the configured API base URL', () => {
+  afterEach(() => {
+    window.__APP_CONFIG__ = undefined
+    vi.unstubAllEnvs()
+  })
+
+  it('falls back to the default API base URL', () => {
     expect(API_BASE_URL).toBe(
       'https://nordikcsaaapi-724838782318.us-west1.run.app',
     )
+  })
+
+  it('prefers the Cloud Run runtime API base URL when present', () => {
+    window.__APP_CONFIG__ = {
+      API_BASE_URL: 'https://api.example.com/',
+    }
+
+    expect(resolveApiBaseUrl()).toBe('https://api.example.com')
+  })
+
+  it('falls back to the Vite API base URL for local builds', () => {
+    vi.stubEnv('VITE_API_BASE_URL', 'https://local.example.com/')
+
+    expect(resolveApiBaseUrl()).toBe('https://local.example.com')
   })
 
   it('builds route paths for the CMS APIs', () => {

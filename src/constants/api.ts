@@ -1,5 +1,29 @@
-export const API_BASE_URL =
+const DEFAULT_API_BASE_URL =
   'https://nordikcsaaapi-724838782318.us-west1.run.app'
+
+const normalizeApiBaseUrl = (value: string | undefined) => {
+  const trimmed = value?.trim()
+  if (!trimmed) {
+    return undefined
+  }
+
+  return trimmed.replace(/\/+$/, '')
+}
+
+const getRuntimeApiBaseUrl = () => {
+  if (typeof window === 'undefined') {
+    return undefined
+  }
+
+  return window.__APP_CONFIG__?.API_BASE_URL
+}
+
+export const resolveApiBaseUrl = () =>
+  normalizeApiBaseUrl(getRuntimeApiBaseUrl()) ??
+  normalizeApiBaseUrl(import.meta.env.VITE_API_BASE_URL) ??
+  DEFAULT_API_BASE_URL
+
+export const API_BASE_URL = resolveApiBaseUrl()
 
 export const API_ROUTES = {
   login: '/api/user/login',
