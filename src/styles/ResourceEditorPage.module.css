@@ -148,8 +148,14 @@
 
 .fieldError {
   margin: 0;
+  min-height: 1.1rem;
   font-size: 13px;
+  line-height: 1.35;
   color: var(--color-error-strong);
+}
+
+.fieldErrorHidden {
+  visibility: hidden;
 }
 
 .errorSummary {

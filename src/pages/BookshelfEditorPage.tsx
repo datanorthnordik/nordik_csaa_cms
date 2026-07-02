@@ -712,7 +712,7 @@ export function BookshelfEditorPage({ mode = 'create' }: BookshelfEditorPageProp
                     placeholder="Enter the book author"
                     onChange={(event) => updateField('author', event.target.value)}
                   />
-                  {errors.author ? <p className={styles.fieldError}>{errors.author}</p> : null}
+                  {renderFieldError(errors.author)}
                 </label>
 
                 <label className={styles.field}>
@@ -723,7 +723,7 @@ export function BookshelfEditorPage({ mode = 'create' }: BookshelfEditorPageProp
                     placeholder="Enter the book title"
                     onChange={(event) => updateField('title', event.target.value)}
                   />
-                  {errors.title ? <p className={styles.fieldError}>{errors.title}</p> : null}
+                  {renderFieldError(errors.title)}
                 </label>
 
                 <label className={`${styles.field} ${styles.fieldFull}`}>
@@ -734,9 +734,7 @@ export function BookshelfEditorPage({ mode = 'create' }: BookshelfEditorPageProp
                     placeholder="Add a short preview line for the bookshelf listing"
                     onChange={(event) => updateField('bookTeaser', event.target.value)}
                   />
-                  {errors.bookTeaser ? (
-                    <p className={styles.fieldError}>{errors.bookTeaser}</p>
-                  ) : null}
+                  {renderFieldError(errors.bookTeaser)}
                 </label>
 
                 <label className={`${styles.field} ${styles.fieldFull}`}>
@@ -747,7 +745,7 @@ export function BookshelfEditorPage({ mode = 'create' }: BookshelfEditorPageProp
                     placeholder="https://example.com/buy-the-book"
                     onChange={(event) => updateField('bookLink', event.target.value)}
                   />
-                  {errors.bookLink ? <p className={styles.fieldError}>{errors.bookLink}</p> : null}
+                  {renderFieldError(errors.bookLink)}
                 </label>
 
                 <label className={`${styles.field} ${styles.fieldFull}`}>
@@ -758,9 +756,7 @@ export function BookshelfEditorPage({ mode = 'create' }: BookshelfEditorPageProp
                     placeholder="Add the full description for this book"
                     onChange={(event) => updateField('description', event.target.value)}
                   />
-                  {errors.description ? (
-                    <p className={styles.fieldError}>{errors.description}</p>
-                  ) : null}
+                  {renderFieldError(errors.description)}
                 </label>
               </div>
             </section>
@@ -780,7 +776,7 @@ export function BookshelfEditorPage({ mode = 'create' }: BookshelfEditorPageProp
                     placeholder="Add a short author biography"
                     onChange={(event) => updateField('authorBio', event.target.value)}
                   />
-                  {errors.authorBio ? <p className={styles.fieldError}>{errors.authorBio}</p> : null}
+                  {renderFieldError(errors.authorBio)}
                 </label>
               </div>
 
@@ -1117,6 +1113,18 @@ export function BookshelfEditorPage({ mode = 'create' }: BookshelfEditorPageProp
         </div>
       </div>
     </CmsAppShell>
+  )
+}
+
+function renderFieldError(message?: string) {
+  return (
+    <p
+      className={`${styles.fieldError} ${message ? '' : styles.fieldErrorHidden}`}
+      aria-live="polite"
+      aria-hidden={!message}
+    >
+      {message || '\u00A0'}
+    </p>
   )
 }
 

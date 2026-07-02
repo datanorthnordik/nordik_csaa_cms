@@ -256,6 +256,34 @@
   color: var(--color-text);
 }
 
+.compactCell {
+  max-width: 260px;
+}
+
+.compactText,
+.compactCell .fileTitle {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tableLink {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.tableLink:hover {
+  text-decoration: underline;
+}
+
+.mutedCell {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
 .categoryPill {
   display: inline-flex;
   align-items: center;
