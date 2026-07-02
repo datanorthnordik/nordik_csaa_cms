@@ -1,4 +1,4 @@
-const DEFAULT_API_BASE_URL =
+﻿const DEFAULT_API_BASE_URL =
   'https://nordikcsaaapi-724838782318.us-west1.run.app'
 
 const normalizeApiBaseUrl = (value: string | undefined) => {
@@ -46,6 +46,12 @@ export const API_ROUTES = {
   resources: '/api/resources',
   resourceById: (id: number | string) => `/api/resources/${id}`,
   resourceContentById: (id: number | string) => `/api/resources/${id}/content`,
+  bookshelf: '/api/bookshelf',
+  bookshelfById: (id: number | string) => `/api/bookshelf/${id}`,
+  bookshelfBookContentById: (id: number | string) => `/api/bookshelf/${id}/book/content`,
+  bookshelfAuthorImageContentById: (id: number | string) =>
+    `/api/bookshelf/${id}/author-image/content`,
+  bookshelfCoverContentById: (id: number | string) => `/api/bookshelf/${id}/cover/content`,
   knowledgeCenterSubmissions: '/api/knowledge-center/submissions',
   knowledgeCenterSubmissionById: (id: number | string) =>
     `/api/knowledge-center/submissions/${id}`,

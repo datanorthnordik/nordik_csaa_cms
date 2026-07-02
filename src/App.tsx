@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+﻿import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { GuestRoute } from './components/GuestRoute'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage'
@@ -31,6 +31,8 @@ import { BookRequestReviewPage } from './pages/BookRequestReviewPage'
 import { BooksPage } from './pages/BooksPage'
 import { KnowledgeCenterListPage } from './pages/KnowledgeCenterListPage'
 import { KnowledgeCenterReviewPage } from './pages/KnowledgeCenterReviewPage'
+import { BookshelfListPage } from './pages/BookshelfListPage'
+import { BookshelfEditorPage } from './pages/BookshelfEditorPage'
 import './App.css'
 
 function App() {
@@ -82,6 +84,9 @@ function App() {
           <Route path="/resources" element={<ResourcesListPage />} />
           <Route path="/resources/new" element={<ResourceEditorPage mode="create" />} />
           <Route path="/resources/:id/edit" element={<ResourceEditorPage mode="edit" />} />
+          <Route path="/bookshelf" element={<BookshelfListPage />} />
+          <Route path="/bookshelf/new" element={<BookshelfEditorPage mode="create" />} />
+          <Route path="/bookshelf/:id/edit" element={<BookshelfEditorPage mode="edit" />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
