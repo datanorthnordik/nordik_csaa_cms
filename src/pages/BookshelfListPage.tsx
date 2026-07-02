@@ -19,7 +19,7 @@ const PAGE_SIZE = 10
 
 export function BookshelfListPage() {
   const navigate = useNavigate()
-  const { items, pagination, summary, loading, error, fetch, remove } = useBookshelf(PAGE_SIZE)
+  const { items, pagination, loading, error, fetch, remove } = useBookshelf(PAGE_SIZE)
   const [filters, setFilters] = useState<BookshelfListFilters>({
     ...defaultBookshelfListFilters,
     pageSize: PAGE_SIZE,
@@ -133,7 +133,7 @@ export function BookshelfListPage() {
             <input
               type="search"
               value={filters.searchTerm}
-              placeholder="Search by title, author, teaser, description, or file name..."
+              placeholder="Search by title, author, link, or file name..."
               aria-label="Search bookshelf"
               onChange={(event) => updateFilters({ searchTerm: event.target.value, page: 1 })}
             />
@@ -145,28 +145,6 @@ export function BookshelfListPage() {
             </span>
             <strong>{totalItems} books</strong>
           </div>
-        </div>
-
-        <div className={styles.categoryGrid}>
-          <article className={styles.categoryCard}>
-            <span className={styles.categoryIcon}>
-              <CoverIcon />
-            </span>
-            <span className={styles.categoryTitle}>
-              With Cover
-              <span className={styles.categoryMeta}> ({summary.withCoverCount})</span>
-            </span>
-          </article>
-
-          <article className={styles.categoryCard}>
-            <span className={styles.categoryIcon}>
-              <DocumentIcon />
-            </span>
-            <span className={styles.categoryTitle}>
-              No Cover
-              <span className={styles.categoryMeta}> ({summary.withoutCoverCount})</span>
-            </span>
-          </article>
         </div>
 
         <section className={styles.resultsPanel}>
@@ -188,34 +166,35 @@ export function BookshelfListPage() {
                     <tr>
                       <th>Title</th>
                       <th>Author</th>
-                      <th>Updated</th>
-                      <th>Book File</th>
-                      <th>Media</th>
+                      <th>Created</th>
+                      <th>Link</th>
                       <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {items.map((item) => (
                       <tr key={item.id}>
-                        <td>
-                          <div className={styles.nameCell}>
-                            <span className={styles.fileBadge}>{resolveFileBadge(item.bookFileName)}</span>
-                            <div className={styles.nameStack}>
-                              <span className={styles.fileTitle}>{item.title}</span>
-                              <span>{buildTitleMeta(item)}</span>
-                            </div>
-                          </div>
+                        <td className={styles.compactCell}>
+                          <span className={styles.fileTitle}>{item.title}</span>
                         </td>
-                        <td>
-                          <div className={styles.nameStack}>
-                            <span className={styles.fileTitle}>{item.author}</span>
-                            <span>{summarizeText(item.authorBio, 96)}</span>
-                          </div>
+                        <td className={styles.compactCell}>
+                          <span className={styles.compactText}>{item.author}</span>
                         </td>
-                        <td>{formatDate(item.updatedAt, dateFormatter)}</td>
-                        <td>{buildFileMeta(item.bookFileName, item.bookFileSize)}</td>
+                        <td>{formatDate(item.createdAt, dateFormatter)}</td>
                         <td>
-                          <span className={styles.categoryPill}>{resolveMediaStatus(item)}</span>
+                          {item.bookLink.trim() ? (
+                            <a
+                              href={item.bookLink}
+                              target="_blank"
+                              rel="noreferrer"
+                              className={styles.tableLink}
+                              title={item.bookLink}
+                            >
+                              Open link
+                            </a>
+                          ) : (
+                            <span className={styles.mutedCell}>No link</span>
+                          )}
                         </td>
                         <td>
                           <div className={styles.actionsCell}>
@@ -311,61 +290,6 @@ function formatDate(value: string, formatter: Intl.DateTimeFormat) {
   return formatter.format(new Date(parsed))
 }
 
-function buildFileMeta(fileName: string, fileSize: number) {
-  const parts = [fileName]
-  if (fileSize > 0) {
-    parts.push(formatFileSize(fileSize))
-  }
-  return parts.join(' | ')
-}
-
-function buildTitleMeta(item: BookshelfEntry) {
-  const summary = item.bookTeaser.trim() || item.description.trim() || 'No teaser added yet.'
-  return item.bookLink.trim() ? `${summary} | Purchase link ready` : summary
-}
-
-function formatFileSize(size: number) {
-  if (size < 1024) {
-    return `${size} B`
-  }
-  if (size < 1024 * 1024) {
-    return `${(size / 1024).toFixed(1)} KB`
-  }
-  return `${(size / (1024 * 1024)).toFixed(1)} MB`
-}
-
-function resolveFileBadge(fileName: string) {
-  const extension = fileName.split('.').pop()?.trim().toUpperCase() ?? ''
-  if (!extension) {
-    return 'BOOK'
-  }
-  return extension.length > 5 ? extension.slice(0, 5) : extension
-}
-
-function resolveMediaStatus(item: BookshelfEntry) {
-  if (item.hasAuthorImage && item.hasCoverImage) {
-    return 'Author + Cover'
-  }
-  if (item.hasAuthorImage) {
-    return 'Author'
-  }
-  if (item.hasCoverImage) {
-    return 'Cover'
-  }
-  return 'None'
-}
-
-function summarizeText(value: string, maxLength: number) {
-  const normalized = value.trim()
-  if (!normalized) {
-    return 'Author bio not added yet.'
-  }
-  if (normalized.length <= maxLength) {
-    return normalized
-  }
-  return `${normalized.slice(0, maxLength - 1).trimEnd()}...`
-}
-
 function triggerFileDownload(url: string, fileName: string) {
   const link = globalThis.document.createElement('a')
   link.href = url
@@ -396,25 +320,6 @@ function BooksIcon() {
     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
       <path d="M6 4.5h11v14H8.2A2.2 2.2 0 0 1 6 16.3V4.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
       <path d="M9 8h5M9 11h6M9 14h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function CoverIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-      <rect x="4" y="5" width="16" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M7 16l3.2-3.2 2.3 2.3 2.8-3.1L18 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="9" cy="9" r="1.2" fill="currentColor" />
-    </svg>
-  )
-}
-
-function DocumentIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-      <path d="M7 3.5h7l3 3V20.5H7z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-      <path d="M14 3.5v3h3M9.5 11h5M9.5 14h5M9.5 17h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
