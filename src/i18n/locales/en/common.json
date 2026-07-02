@@ -1,4 +1,4 @@
-{
+﻿{
   "languageSwitcher": {
     "label": "Select language"
   },
@@ -120,6 +120,7 @@
     "memorial": "Memorial Entries",
     "knowledgeCenter": "Knowledge Center",
     "resources": "Resources",
+    "bookshelf": "Bookshelf",
     "media": "Media Library",
     "videos": "Videos",
     "settings": "Settings",
@@ -834,11 +835,11 @@
       "close": "Close selected image panel",
       "uploadedBy": "Uploaded by {{name}}",
       "uploadedAt": "Uploaded {{date}}",
-      "uploadedLine": "Uploaded by {{name}} • {{date}}",
+      "uploadedLine": "Uploaded by {{name}} â€¢ {{date}}",
       "specs": {
         "title": "Technical Specs",
         "dimensions": "Dimensions",
-        "dimensionsValue": "{{width}} × {{height}} px",
+        "dimensionsValue": "{{width}} Ã— {{height}} px",
         "fileSize": "File Size",
         "format": "Format"
       },
@@ -1095,7 +1096,7 @@
       "titleCreate": "Create New Newsletter",
       "titleEdit": "Edit Newsletter",
       "subtitle": "Compose, schedule, and publish newsletter editions.",
-      "backToList": "← Back to newsletters",
+      "backToList": "â† Back to newsletters",
       "notFoundTitle": "Newsletter not found",
       "notFoundText": "This newsletter may have been deleted or never existed.",
       "deleteConfirmBody": "This will permanently delete \"{{title}}\". This action cannot be undone.",
@@ -1203,7 +1204,7 @@
         "titleCreate": "Create New Press Entry",
         "titleEdit": "Edit Press Entry",
         "subtitle": "Compose, edit, and publish official press releases.",
-      "backToList": "← Back to entries",
+      "backToList": "â† Back to entries",
       "notFoundTitle": "Press entry not found",
       "notFoundText": "This press entry may have been deleted or never existed.",
       "categoryPrompt": "New category name",
@@ -1315,7 +1316,7 @@
       "createTitle": "Create New Memorial Entry",
       "editTitle": "Edit Memorial Entry",
       "subtitle": "Compose and publish a tribute entry.",
-      "backToEntries": "← Back to memorial entries",
+      "backToEntries": "â† Back to memorial entries",
       "sections": {
         "biography": "Biography",
         "media": "Media & Portrait",

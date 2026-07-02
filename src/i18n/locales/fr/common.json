@@ -1,4 +1,4 @@
-{
+﻿{
   "languageSwitcher": {
     "label": "Choisir la langue"
   },
@@ -120,6 +120,7 @@
     "memorial": "Entrees memorial",
     "knowledgeCenter": "Centre de connaissances",
     "resources": "Ressources",
+    "bookshelf": "Bibliotheque",
     "media": "Bibliotheque multimedia",
     "videos": "Videos",
     "settings": "Parametres",
@@ -831,11 +832,11 @@
       "close": "Fermer le panneau de l image",
       "uploadedBy": "Televersee par {{name}}",
       "uploadedAt": "Televersee le {{date}}",
-      "uploadedLine": "Televersee par {{name}} • {{date}}",
+      "uploadedLine": "Televersee par {{name}} â€¢ {{date}}",
       "specs": {
         "title": "Specifications techniques",
         "dimensions": "Dimensions",
-        "dimensionsValue": "{{width}} × {{height}} px",
+        "dimensionsValue": "{{width}} Ã— {{height}} px",
         "fileSize": "Taille du fichier",
         "format": "Format"
       },
@@ -1092,7 +1093,7 @@
       "titleCreate": "Creer un bulletin",
       "titleEdit": "Modifier le bulletin",
       "subtitle": "Composez, planifiez et publiez vos editions de bulletin.",
-      "backToList": "← Retour aux bulletins",
+      "backToList": "â† Retour aux bulletins",
       "notFoundTitle": "Bulletin introuvable",
       "notFoundText": "Ce bulletin a peut-etre ete supprime ou n a jamais existe.",
       "deleteConfirmBody": "Cela supprimera definitivement \"{{title}}\". Cette action est irreversible.",
@@ -1200,7 +1201,7 @@
       "titleCreate": "Creer une entree de presse",
       "titleEdit": "Modifier l entree",
       "subtitle": "Composez, modifiez et publiez les communiques officiels.",
-      "backToList": "← Retour a la liste",
+      "backToList": "â† Retour a la liste",
       "notFoundTitle": "Entree introuvable",
       "notFoundText": "Cette entree a peut-etre ete supprimee ou n a jamais existe.",
       "categoryPrompt": "Nom de la nouvelle categorie",
@@ -1259,28 +1260,28 @@
   },
   "memorial": {
     "breadcrumb": {
-      "entries": "Entrées mémorielles",
-      "createNew": "Créer une entrée"
+      "entries": "EntrÃ©es mÃ©morielles",
+      "createNew": "CrÃ©er une entrÃ©e"
     },
     "list": {
-      "title": "Entrées mémorielles",
-      "subtitle": "Gérez et publiez des hommages aux membres.",
-      "create": "Ajouter une entrée",
+      "title": "EntrÃ©es mÃ©morielles",
+      "subtitle": "GÃ©rez et publiez des hommages aux membres.",
+      "create": "Ajouter une entrÃ©e",
       "columns": {
         "entryName": "Nom",
-        "category": "Catégorie",
+        "category": "CatÃ©gorie",
         "status": "Statut",
         "dateAdded": "Date d'ajout",
         "actions": "Actions"
       },
-      "emptyTitle": "Aucune entrée trouvée",
-      "emptyText": "Créez votre première entrée pour commencer.",
-      "resultsLabel": "Affichage de {{start}} à {{end}} sur {{total}} entrées",
-      "edit": "Modifier l'entrée",
-      "delete": "Supprimer l'entrée",
-      "deleteDialogTitle": "Supprimer l'entrée mémorielle ?",
-      "deleteDialogDescription": "Voulez-vous vraiment supprimer <entryName>{{title}}</entryName> ? Cette action est irréversible.",
-      "deleteDialogDescriptionPlain": "Voulez-vous vraiment supprimer \"{{title}}\" ? Cette action est irréversible.",
+      "emptyTitle": "Aucune entrÃ©e trouvÃ©e",
+      "emptyText": "CrÃ©ez votre premiÃ¨re entrÃ©e pour commencer.",
+      "resultsLabel": "Affichage de {{start}} Ã  {{end}} sur {{total}} entrÃ©es",
+      "edit": "Modifier l'entrÃ©e",
+      "delete": "Supprimer l'entrÃ©e",
+      "deleteDialogTitle": "Supprimer l'entrÃ©e mÃ©morielle ?",
+      "deleteDialogDescription": "Voulez-vous vraiment supprimer <entryName>{{title}}</entryName> ? Cette action est irrÃ©versible.",
+      "deleteDialogDescriptionPlain": "Voulez-vous vraiment supprimer \"{{title}}\" ? Cette action est irrÃ©versible.",
       "cancelDelete": "Annuler",
       "confirmDelete": "Supprimer"
     },
@@ -1288,80 +1289,80 @@
       "search": "Rechercher",
       "searchPlaceholder": "Rechercher par nom ou affiliation...",
       "status": "Statut",
-      "category": "Catégorie",
-      "allCategories": "Toutes les catégories"
+      "category": "CatÃ©gorie",
+      "allCategories": "Toutes les catÃ©gories"
     },
     "statusFilter": {
       "all": "Tous les statuts",
-      "published": "Publié",
+      "published": "PubliÃ©",
       "draft": "Brouillon",
-      "review": "En révision"
+      "review": "En rÃ©vision"
     },
     "status": {
-      "published": "Publié",
+      "published": "PubliÃ©",
       "draft": "Brouillon",
-      "review": "En révision"
+      "review": "En rÃ©vision"
     },
     "category": {
-      "alumnus": "Ancien élève",
-      "veteran": "Vétéran",
+      "alumnus": "Ancien Ã©lÃ¨ve",
+      "veteran": "VÃ©tÃ©ran",
       "founder": "Fondateur",
       "friend": "Ami"
     },
     "editor": {
-      "createTitle": "Créer une entrée mémorielle",
-      "editTitle": "Modifier l'entrée mémorielle",
-      "subtitle": "Rédigez et publiez un hommage.",
-      "backToEntries": "← Retour aux entrées",
+      "createTitle": "CrÃ©er une entrÃ©e mÃ©morielle",
+      "editTitle": "Modifier l'entrÃ©e mÃ©morielle",
+      "subtitle": "RÃ©digez et publiez un hommage.",
+      "backToEntries": "â† Retour aux entrÃ©es",
       "sections": {
         "biography": "Biographie",
-        "media": "Médias et portrait",
+        "media": "MÃ©dias et portrait",
         "featuredPortrait": "Portrait principal",
-        "featuredPortraitHint": "Format conseillé 1200 x 1500 px ou plus",
+        "featuredPortraitHint": "Format conseillÃ© 1200 x 1500 px ou plus",
         "lifeGallery": "Galerie de vie",
         "publishing": "Publication",
-        "entryDetails": "Détails de l'entrée",
+        "entryDetails": "DÃ©tails de l'entrÃ©e",
         "lifeTimeline": "Chronologie de vie",
         "removePortrait": "Supprimer le portrait",
         "replacePortrait": "Remplacer le portrait",
-        "portraitSelected": "Portrait sélectionné",
-        "addGallery": "Ajouter des photos à la galerie",
-        "addGalleryHint": "Téléversez une ou plusieurs images",
+        "portraitSelected": "Portrait sÃ©lectionnÃ©",
+        "addGallery": "Ajouter des photos Ã  la galerie",
+        "addGalleryHint": "TÃ©lÃ©versez une ou plusieurs images",
         "galleryCount": "{{count}} images",
         "galleryEmptyTitle": "Aucune photo de galerie pour le moment",
-        "galleryEmptyText": "Téléversez des souvenirs, des photos de famille ou des images hommage pour enrichir la galerie.",
+        "galleryEmptyText": "TÃ©lÃ©versez des souvenirs, des photos de famille ou des images hommage pour enrichir la galerie.",
         "removeGalleryImage": "Retirer l'image"
       },
       "fields": {
         "fullName": "Nom complet",
-        "fullNamePlaceholder": "Entrez le nom légal complet...",
-        "biographyPlaceholder": "Commencez à écrire l'histoire de leur vie...",
+        "fullNamePlaceholder": "Entrez le nom lÃ©gal complet...",
+        "biographyPlaceholder": "Commencez Ã  Ã©crire l'histoire de leur vie...",
         "status": "Statut",
-        "category": "Catégorie",
-        "categoryPlaceholder": "Sélectionner une catégorie...",
+        "category": "CatÃ©gorie",
+        "categoryPlaceholder": "SÃ©lectionner une catÃ©gorie...",
         "affiliation": "Affiliation / Promotion",
         "affiliationPlaceholder": "ex. Promotion 1984",
         "dateOfBirth": "Date de naissance",
-        "dateOfPassing": "Date de décès"
+        "dateOfPassing": "Date de dÃ©cÃ¨s"
       },
       "actions": {
-        "publish": "Publier l'entrée",
-        "saveDraft": "Enregistrer l'entrée"
+        "publish": "Publier l'entrÃ©e",
+        "saveDraft": "Enregistrer l'entrÃ©e"
       },
       "validation": {
         "fullNameRequired": "Le nom complet est obligatoire.",
-        "categoryRequired": "La catégorie est obligatoire.",
-        "summary": "Veuillez corriger les champs mémoriels mis en évidence."
+        "categoryRequired": "La catÃ©gorie est obligatoire.",
+        "summary": "Veuillez corriger les champs mÃ©moriels mis en Ã©vidence."
       }
     },
     "feedback": {
-      "created": "Entrée mémorielle créée.",
-      "updated": "Entrée mémorielle mise à jour.",
-      "deleted": "Entrée mémorielle supprimée.",
-      "deleteError": "Échec de la suppression.",
-      "fetchError": "Échec du chargement.",
-      "loadError": "Impossible de charger cette entrée mémorielle.",
-      "saveError": "Impossible d'enregistrer cette entrée mémorielle."
+      "created": "EntrÃ©e mÃ©morielle crÃ©Ã©e.",
+      "updated": "EntrÃ©e mÃ©morielle mise Ã  jour.",
+      "deleted": "EntrÃ©e mÃ©morielle supprimÃ©e.",
+      "deleteError": "Ã‰chec de la suppression.",
+      "fetchError": "Ã‰chec du chargement.",
+      "loadError": "Impossible de charger cette entrÃ©e mÃ©morielle.",
+      "saveError": "Impossible d'enregistrer cette entrÃ©e mÃ©morielle."
     },
     "common": {
       "loading": "Chargement..."

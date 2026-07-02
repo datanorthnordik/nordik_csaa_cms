@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+﻿import type { ReactNode } from 'react'
 import {
   DashboardIcon,
   MenusIcon,
@@ -31,6 +31,7 @@ export const cmsNavItems: CmsNavItemConfig[] = [
   { key: 'press', icon: <PressIcon />, path: '/press' },
   { key: 'memorial', icon: <MemorialIcon />, path: '/memorial' },
   { key: 'resources', icon: <ResourcesIcon />, path: '/resources' },
+  { key: 'bookshelf', icon: <ResourcesIcon />, path: '/bookshelf' },
   { key: 'media', icon: <MediaIcon />, path: '/media-library' },
   { key: 'videos', icon: <VideoIcon />, path: '/videos' },
 ]
