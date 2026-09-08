@@ -59,7 +59,7 @@ beforeEach(async () => {
 const baseGallery: GalleryDetail = {
   id: 1,
   name: 'Summer Collection 2024',
-  assetLimit: 20,
+  assetLimit: 50,
   assets: [],
 }
 
@@ -91,7 +91,7 @@ describe('GalleryManagerPage', () => {
       gallery: { ...baseGallery, assets: [makeAsset(9, 'a.jpg')] },
     })
     expect(screen.getByDisplayValue('Summer Collection 2024')).toBeDefined()
-    expect(screen.getByText(/1 \/ 20 assets in this gallery/i)).toBeDefined()
+    expect(screen.getByText(/1 \/ 50 assets in this gallery/i)).toBeDefined()
   })
 
   it('renders an empty description textarea when description is missing', () => {
@@ -311,13 +311,14 @@ describe('GalleryManagerPage', () => {
     expect(arg[1].linkUrl).toBeUndefined()
   })
 
-  it('enforces the asset limit by clamping dropped files', () => {
-    const fullAssets = Array.from({ length: 19 }, (_, index) =>
+  it('allows the 50th asset and rejects extra files, including while it is pending', () => {
+    const fullAssets = Array.from({ length: 49 }, (_, index) =>
       makeAsset(index + 1, `asset_${index + 1}.jpg`),
     )
+    const onUploadAssets = vi.fn()
     renderPage({
       gallery: { ...baseGallery, assets: fullAssets },
-      onUploadAssets: vi.fn(),
+      onUploadAssets,
     })
 
     const fileInputs = document.querySelectorAll('input[type="file"]')
@@ -338,10 +339,28 @@ describe('GalleryManagerPage', () => {
     expect(
       screen.getAllByRole('textbox', { name: /image details for/i }),
     ).toHaveLength(1)
+
+    fireEvent.change(dropInput, {
+      target: { files: [fileFromName('d.jpg')] },
+    })
+    expect(
+      screen.getAllByRole('textbox', { name: /image title for/i }),
+    ).toHaveLength(1)
+
+    fireEvent.change(
+      screen.getByRole('textbox', { name: /image details for a\.jpg/i }),
+      { target: { value: 'The final gallery image' } },
+    )
+    const submit = screen.getByRole('button', { name: /^upload$/i })
+    expect((submit as HTMLButtonElement).disabled).toBe(false)
+    fireEvent.click(submit)
+    expect(onUploadAssets).toHaveBeenCalledTimes(1)
+    expect(onUploadAssets.mock.calls[0][0]).toHaveLength(1)
+    expect(onUploadAssets.mock.calls[0][0][0].file.name).toBe('a.jpg')
   })
 
-  it('disables the dropzone input when the gallery is already full', () => {
-    const fullAssets = Array.from({ length: 20 }, (_, index) =>
+  it('disables the dropzone input when the gallery already has 50 assets', () => {
+    const fullAssets = Array.from({ length: 50 }, (_, index) =>
       makeAsset(index + 1, `asset_${index + 1}.jpg`),
     )
     renderPage({
@@ -361,9 +380,9 @@ describe('GalleryManagerPage', () => {
     })
 
     expect(screen.getByText(/^published$/i)).toBeDefined()
-    expect(screen.getByText(/maximum 20 images per gallery/i)).toBeDefined()
+    expect(screen.getByText(/maximum 50 images per gallery/i)).toBeDefined()
     expect(screen.queryByRole('heading', { name: /^actions$/i })).toBeNull()
-    expect(screen.queryByText(/max 20 uploads/i)).toBeNull()
+    expect(screen.queryByText(/max 50 uploads/i)).toBeNull()
   })
 
   it('does not render a Save changes button', () => {
