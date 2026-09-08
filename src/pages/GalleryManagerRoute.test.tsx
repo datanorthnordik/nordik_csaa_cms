@@ -85,7 +85,7 @@ describe('GalleryManagerRoute', () => {
     const gallery: GalleryDetail = {
       id: 1,
       name: 'Summer Collection 2024',
-      assetLimit: 20,
+      assetLimit: 50,
       visibility: 'draft',
       assets: [],
     }

@@ -77,7 +77,7 @@ export function useMockMediaStore() {
       name: input.name.trim(),
       description: trimmedDescription || undefined,
       visibility: input.visibility,
-      assetLimit: 20,
+      assetLimit: 50,
       updatedAt: nowIso(),
       coverImage: input.frontImage
         ? assetFromFile(input.frontImage, nextId++)
