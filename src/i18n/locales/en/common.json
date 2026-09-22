@@ -123,6 +123,7 @@
     "bookshelf": "Bookshelf",
     "media": "Media Library",
     "videos": "Videos",
+    "recordings": "Recordings",
     "settings": "Settings",
     "logout": "Logout",
     "submitTicket": "Submit Ticket"
@@ -972,6 +973,94 @@
       "videoTitleRequired": "Video title is required.",
       "youtubeUrlRequired": "YouTube link is required.",
       "teaserRequired": "A teaser image is required."
+    }
+  },
+  "recordings": {
+    "breadcrumb": {
+      "library": "Recordings",
+      "create": "Create Recording Collection",
+      "edit": "Manage Recording Collection"
+    },
+    "library": {
+      "title": "Recordings",
+      "subtitle": "Create reusable recording collections to display across different areas of the website.",
+      "create": "Create New Recording Collection",
+      "searchPlaceholder": "Search recording collections...",
+      "loading": "Loading recording collections...",
+      "empty": {
+        "title": "No recording collections yet",
+        "text": "Create your first recording collection to start adding recording items.",
+        "noMatchTitle": "No recording collections match your search",
+        "noMatchText": "We couldn't find recording collections matching \"{{term}}\". Try a different search."
+      },
+      "card": {
+        "eyebrow": "Recording Collection",
+        "itemCount_one": "{{count}} item",
+        "itemCount_other": "{{count}} items",
+        "updatedAt": "Updated {{date}}",
+        "manage": "Manage Collection",
+        "delete": "Delete Collection"
+      },
+      "delete": {
+        "title": "Delete recording collection?",
+        "description": "This will permanently delete <collectionName>\"{{name}}\"</collectionName> and its saved items. This action cannot be undone.",
+        "confirm": "Delete Collection"
+      }
+    },
+    "manager": {
+      "loading": "Loading recording collection...",
+      "createTitle": "Create Recording Collection",
+      "editTitle": "Manage Recording Collection",
+      "subtitle": "Give the collection a name, then add items with a title and description. Recordings can be attached later.",
+      "savedItemsHint": "Edit or remove the items already saved in this collection.",
+      "newItemsHint": "Add one or more new items to this collection.",
+      "sections": {
+        "collectionDetails": "Collection Details",
+        "savedItems": "Saved Items",
+        "newItems": "New Items"
+      },
+      "fields": {
+        "collectionName": "Collection Name",
+        "itemTitle": "Title",
+        "description": "Description"
+      },
+      "placeholders": {
+        "collectionName": "Enter a collection name...",
+        "itemTitle": "Enter an item title...",
+        "description": "Optional supporting description..."
+      },
+      "actions": {
+        "createCollection": "Create Collection",
+        "saveCollectionName": "Save Collection Name",
+        "addItem": "Add Another Item",
+        "addItems": "Add Items",
+        "saveItem": "Save Item",
+        "removeItem": "Remove Item",
+        "deleteItem": "Delete Item",
+        "deleteCollection": "Delete Collection"
+      },
+      "empty": {
+        "text": "No items saved yet. Use the section below to add the first item."
+      },
+      "notFound": {
+        "title": "Recording collection unavailable",
+        "text": "This recording collection may have been removed or you may not have access.",
+        "back": "Back to Recordings"
+      },
+      "delete": {
+        "title": "Delete recording collection?",
+        "description": "This will permanently delete <collectionName>\"{{name}}\"</collectionName> and every item saved inside it. This action cannot be undone.",
+        "confirm": "Delete Collection"
+      },
+      "deleteItem": {
+        "title": "Delete recording item?",
+        "description": "This will permanently delete this item from the collection. This action cannot be undone.",
+        "confirm": "Delete Item"
+      }
+    },
+    "validation": {
+      "collectionNameRequired": "Collection name is required.",
+      "itemTitleRequired": "Each item needs a title."
     }
   },
   "publishing": {

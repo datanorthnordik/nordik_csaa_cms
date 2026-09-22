@@ -123,6 +123,7 @@
     "bookshelf": "Bibliotheque",
     "media": "Bibliotheque multimedia",
     "videos": "Videos",
+    "recordings": "Enregistrements",
     "settings": "Parametres",
     "logout": "Deconnexion",
     "submitTicket": "Soumettre un ticket"
@@ -969,6 +970,94 @@
       "videoTitleRequired": "Le titre de la video est requis.",
       "youtubeUrlRequired": "Le lien YouTube est requis.",
       "teaserRequired": "Une image teaser est requise."
+    }
+  },
+  "recordings": {
+    "breadcrumb": {
+      "library": "Enregistrements",
+      "create": "Creer une collection d enregistrements",
+      "edit": "Gerer la collection d enregistrements"
+    },
+    "library": {
+      "title": "Enregistrements",
+      "subtitle": "Creez des collections d enregistrements reutilisables a afficher dans differentes sections du site.",
+      "create": "Creer une nouvelle collection d enregistrements",
+      "searchPlaceholder": "Rechercher des collections d enregistrements...",
+      "loading": "Chargement des collections d enregistrements...",
+      "empty": {
+        "title": "Aucune collection d enregistrements pour le moment",
+        "text": "Creez votre premiere collection pour commencer a ajouter des elements.",
+        "noMatchTitle": "Aucune collection ne correspond a votre recherche",
+        "noMatchText": "Aucune collection ne correspond a \"{{term}}\". Essayez une autre recherche."
+      },
+      "card": {
+        "eyebrow": "Collection d enregistrements",
+        "itemCount_one": "{{count}} element",
+        "itemCount_other": "{{count}} elements",
+        "updatedAt": "Mis a jour le {{date}}",
+        "manage": "Gerer la collection",
+        "delete": "Supprimer la collection"
+      },
+      "delete": {
+        "title": "Supprimer la collection d enregistrements ?",
+        "description": "Cette action supprimera definitivement <collectionName>\"{{name}}\"</collectionName> et ses elements enregistres.",
+        "confirm": "Supprimer la collection"
+      }
+    },
+    "manager": {
+      "loading": "Chargement de la collection d enregistrements...",
+      "createTitle": "Creer une collection d enregistrements",
+      "editTitle": "Gerer la collection d enregistrements",
+      "subtitle": "Donnez un nom a la collection, puis ajoutez des elements avec un titre et une description. Les enregistrements pourront etre ajoutes plus tard.",
+      "savedItemsHint": "Modifiez ou supprimez les elements deja enregistres dans cette collection.",
+      "newItemsHint": "Ajoutez un ou plusieurs nouveaux elements a cette collection.",
+      "sections": {
+        "collectionDetails": "Details de la collection",
+        "savedItems": "Elements enregistres",
+        "newItems": "Nouveaux elements"
+      },
+      "fields": {
+        "collectionName": "Nom de la collection",
+        "itemTitle": "Titre",
+        "description": "Description"
+      },
+      "placeholders": {
+        "collectionName": "Saisissez un nom de collection...",
+        "itemTitle": "Saisissez un titre...",
+        "description": "Description optionnelle..."
+      },
+      "actions": {
+        "createCollection": "Creer la collection",
+        "saveCollectionName": "Enregistrer le nom de la collection",
+        "addItem": "Ajouter un autre element",
+        "addItems": "Ajouter les elements",
+        "saveItem": "Enregistrer l element",
+        "removeItem": "Retirer l element",
+        "deleteItem": "Supprimer l element",
+        "deleteCollection": "Supprimer la collection"
+      },
+      "empty": {
+        "text": "Aucun element enregistre. Utilisez la section ci-dessous pour ajouter le premier element."
+      },
+      "notFound": {
+        "title": "Collection d enregistrements indisponible",
+        "text": "Cette collection a peut-etre ete supprimee ou vous n y avez pas acces.",
+        "back": "Retour aux enregistrements"
+      },
+      "delete": {
+        "title": "Supprimer la collection d enregistrements ?",
+        "description": "Cette action supprimera definitivement <collectionName>\"{{name}}\"</collectionName> et tous les elements qu elle contient.",
+        "confirm": "Supprimer la collection"
+      },
+      "deleteItem": {
+        "title": "Supprimer l element ?",
+        "description": "Cet element sera definitivement supprime de la collection.",
+        "confirm": "Supprimer l element"
+      }
+    },
+    "validation": {
+      "collectionNameRequired": "Le nom de la collection est requis.",
+      "itemTitleRequired": "Chaque element doit avoir un titre."
     }
   },
   "publishing": {

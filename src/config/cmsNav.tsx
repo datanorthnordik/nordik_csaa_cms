@@ -34,6 +34,7 @@ export const cmsNavItems: CmsNavItemConfig[] = [
   { key: 'bookshelf', icon: <ResourcesIcon />, path: '/bookshelf' },
   { key: 'media', icon: <MediaIcon />, path: '/media-library' },
   { key: 'videos', icon: <VideoIcon />, path: '/videos' },
+  { key: 'recordings', icon: <VideoIcon />, path: '/recordings' },
 ]
 
 export const cmsFooterItems: CmsNavItemConfig[] = [
