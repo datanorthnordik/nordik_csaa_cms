@@ -55,6 +55,7 @@ const existingDetail = {
       recordingCollectionId: 9,
       title: 'Spring Town Hall',
       description: 'Notes',
+      recordingUrl: 'https://api.example.com/api/recordings/9/items/14/content',
       sortOrder: 0,
       createdAt: '2026-06-15T00:00:00Z',
       updatedAt: '2026-06-15T01:00:00Z',
@@ -90,14 +91,14 @@ describe('RecordingCollectionEditorPage', () => {
     updateRecordingItemMock.mockReset()
   })
 
-  it('creates a collection with a name and title/description items only', async () => {
+  it('creates a collection with a required recording file', async () => {
     createRecordingCollectionMock.mockResolvedValue({
       message: 'Recording collection created successfully',
       recording: { id: 9, name: 'Weekly Updates' },
     })
     getRecordingCollectionMock.mockResolvedValue(existingDetail)
 
-    renderRoute('/recordings/new')
+    const { container } = renderRoute('/recordings/new')
 
     fireEvent.change(screen.getByPlaceholderText(/enter a collection name/i), {
       target: { value: '  Weekly Updates  ' },
@@ -109,6 +110,10 @@ describe('RecordingCollectionEditorPage', () => {
     fireEvent.change(screen.getByPlaceholderText(/optional supporting description/i), {
       target: { value: 'Kickoff recording' },
     })
+    const recordingFile = new File(['audio'], 'week-1.mp3', { type: 'audio/mpeg' })
+    const fileInput = container.querySelector<HTMLInputElement>('input[type="file"]')
+    expect(fileInput).not.toBeNull()
+    fireEvent.change(fileInput!, { target: { files: [recordingFile] } })
 
     fireEvent.click(screen.getByRole('button', { name: /create collection/i }))
 
@@ -116,6 +121,7 @@ describe('RecordingCollectionEditorPage', () => {
       expect(createRecordingCollectionMock).toHaveBeenCalledWith({
         name: 'Weekly Updates',
         items: [{ title: 'Week 1', description: 'Kickoff recording' }],
+        recordingFiles: [recordingFile],
       })
     })
   })
@@ -146,6 +152,23 @@ describe('RecordingCollectionEditorPage', () => {
     expect(createRecordingCollectionMock).not.toHaveBeenCalled()
   })
 
+  it('rejects a titled new item without a recording file', async () => {
+    renderRoute('/recordings/new')
+
+    fireEvent.change(screen.getByPlaceholderText(/enter a collection name/i), {
+      target: { value: 'Weekly Updates' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /add another item/i }))
+    fireEvent.change(screen.getByPlaceholderText(/enter an item title/i), {
+      target: { value: 'Week 1' },
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /create collection/i }))
+
+    expect(await screen.findByText('Each item needs a recording file.')).toBeTruthy()
+    expect(createRecordingCollectionMock).not.toHaveBeenCalled()
+  })
+
   it('loads a saved collection and updates a single item', async () => {
     getRecordingCollectionMock.mockResolvedValue(existingDetail)
     updateRecordingItemMock.mockResolvedValue({
@@ -155,6 +178,7 @@ describe('RecordingCollectionEditorPage', () => {
         recordingCollectionId: 9,
         title: 'Renamed Item',
         description: 'Notes',
+        recordingUrl: 'https://api.example.com/api/recordings/9/items/14/content',
         sortOrder: 0,
         createdAt: '2026-06-15T00:00:00Z',
         updatedAt: '2026-06-15T02:00:00Z',
@@ -172,6 +196,39 @@ describe('RecordingCollectionEditorPage', () => {
       expect(updateRecordingItemMock).toHaveBeenCalledWith(9, 14, {
         title: 'Renamed Item',
         description: 'Notes',
+        recordingFile: null,
+      })
+    })
+  })
+
+  it('replaces the recording while editing a saved item', async () => {
+    getRecordingCollectionMock.mockResolvedValue(existingDetail)
+    updateRecordingItemMock.mockResolvedValue({
+      message: 'Recording item updated successfully',
+      item: {
+        ...existingDetail.items[0],
+        recordingUrl: 'https://api.example.com/api/recordings/9/items/14/content',
+      },
+    })
+
+    const { container } = renderRoute('/recordings/9')
+    await screen.findByDisplayValue('Spring Town Hall')
+
+    const replacementFile = new File(['new audio'], 'replacement.wav', {
+      type: 'audio/wav',
+    })
+    const fileInput = container.querySelector<HTMLInputElement>('input[type="file"]')
+    expect(fileInput).not.toBeNull()
+    fireEvent.change(fileInput!, { target: { files: [replacementFile] } })
+    expect(await screen.findByText(/replacement\.wav/)).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: /save item/i }))
+
+    await waitFor(() => {
+      expect(updateRecordingItemMock).toHaveBeenCalledWith(9, 14, {
+        title: 'Spring Town Hall',
+        description: 'Notes',
+        recordingFile: replacementFile,
       })
     })
   })

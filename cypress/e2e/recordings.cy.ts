@@ -12,7 +12,7 @@ const authState = {
 }
 
 describe('Recordings administration', () => {
-  it('creates a collection containing a title and description without a recording', () => {
+  it('requires audio and creates an item with an uploaded recording', () => {
     cy.intercept('GET', '**/api/recordings', {
       statusCode: 200,
       body: { items: [] },
@@ -35,8 +35,8 @@ describe('Recordings administration', () => {
             id: 11,
             recording_collection_id: 7,
             title: 'September gathering',
-            description: 'The recording will be added later.',
-            recording_url: '',
+            description: 'A community oral history.',
+            recording_url: '/api/recordings/7/items/11/content',
             sort_order: 0,
             created_at: '2026-09-20T10:00:00Z',
             updated_at: '2026-09-20T10:00:00Z',
@@ -62,23 +62,29 @@ describe('Recordings administration', () => {
     cy.get('button').contains('Add Another Item').click()
     cy.get('input[placeholder="Enter an item title..."]').type('September gathering')
     cy.get('textarea[placeholder="Optional supporting description..."]').type(
-      'The recording will be added later.',
+      'A community oral history.',
     )
+    cy.get('button').contains(/^Create Collection$/).click()
+    cy.contains('Each item needs a recording file.').should('be.visible')
+
+    cy.get('input[type="file"]').selectFile(
+      {
+        contents: Cypress.Buffer.from('ID3 fake audio data'),
+        fileName: 'september-gathering.mp3',
+        mimeType: 'audio/mpeg',
+      },
+      { force: true },
+    )
+    cy.contains('Selected recording: september-gathering.mp3').should('be.visible')
     cy.get('button').contains(/^Create Collection$/).click()
 
     cy.wait('@createRecordingCollection').then(({ request }) => {
-      expect(request.body).to.deep.equal({
-        name: 'Community Gatherings',
-        items: [
-          {
-            title: 'September gathering',
-            description: 'The recording will be added later.',
-          },
-        ],
-      })
+      expect(request.headers['content-type']).to.contain('multipart/form-data')
     })
     cy.wait('@getRecordingCollection')
     cy.location('pathname').should('eq', '/recordings/7')
     cy.get('input[value="September gathering"]').should('be.visible')
+    cy.get('audio[controls]').should('have.attr', 'src').and('contain', '/api/recordings/7/items/11/content')
+    cy.contains('Drop a replacement recording here or browse').should('be.visible')
   })
 })

@@ -11,8 +11,16 @@ import {
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
 import { ConfirmDialog } from '../components/cms/ConfirmDialog'
-import { AddIcon, DeleteIcon } from '../components/icons'
+import { AddIcon, CloudUploadIcon, DeleteIcon } from '../components/icons'
 import { Loader } from '../components/Loader'
+import { UploadDropzone } from '../components/media/UploadDropzone'
+import {
+  getRecordingUploadValidationErrorMessage,
+  RECORDING_FILE_ACCEPT,
+  RECORDING_UPLOAD_MAX_FILE_SIZE_MB,
+  RECORDING_UPLOAD_SUPPORTED_FORMATS_LABEL,
+  validateRecordingUploadFile,
+} from '../lib/recordingUpload'
 import styles from '../styles/RecordingCollectionEditorPage.module.css'
 
 type RecordingItemDraft = {
@@ -20,6 +28,8 @@ type RecordingItemDraft = {
   id?: number
   title: string
   description: string
+  recordingFile: File | null
+  recordingUrl?: string
 }
 
 function createDraftId(prefix: string) {
@@ -30,7 +40,12 @@ function createDraftId(prefix: string) {
 }
 
 function createEmptyItemDraft(): RecordingItemDraft {
-  return { clientId: createDraftId('recording-item'), title: '', description: '' }
+  return {
+    clientId: createDraftId('recording-item'),
+    title: '',
+    description: '',
+    recordingFile: null,
+  }
 }
 
 function draftFromItem(item: RecordingItem): RecordingItemDraft {
@@ -39,6 +54,8 @@ function draftFromItem(item: RecordingItem): RecordingItemDraft {
     id: item.id,
     title: item.title,
     description: item.description,
+    recordingFile: null,
+    recordingUrl: item.recordingUrl,
   }
 }
 
@@ -116,11 +133,36 @@ export function RecordingCollectionEditorPage() {
   }
 
   function collectPendingItems() {
-    return pendingItems.filter((item) => item.title.trim() || item.description.trim())
+    return pendingItems.filter(
+      (item) => item.title.trim() || item.description.trim() || item.recordingFile,
+    )
   }
 
   function allPendingItemsHaveTitles(items: RecordingItemDraft[]) {
     return items.every((item) => item.title.trim().length > 0)
+  }
+
+  function allPendingItemsHaveRecordings(items: RecordingItemDraft[]) {
+    return items.every((item) => Boolean(item.recordingFile))
+  }
+
+  function handleRecordingFile(
+    setter: Dispatch<SetStateAction<RecordingItemDraft[]>>,
+    clientId: string,
+    file?: File,
+  ) {
+    if (!file) {
+      return
+    }
+
+    const validationError = validateRecordingUploadFile(file)
+    if (validationError) {
+      setError(getRecordingUploadValidationErrorMessage(validationError))
+      return
+    }
+
+    setError(null)
+    updateItemDraft(setter, clientId, { recordingFile: file })
   }
 
   async function handleCreate() {
@@ -135,6 +177,10 @@ export function RecordingCollectionEditorPage() {
       setError(t('recordings.validation.itemTitleRequired'))
       return
     }
+    if (!allPendingItemsHaveRecordings(items)) {
+      setError(t('recordings.validation.recordingRequired'))
+      return
+    }
 
     setBusy(true)
     setError(null)
@@ -142,6 +188,7 @@ export function RecordingCollectionEditorPage() {
       const result = await recordingsApi.createRecordingCollection({
         name: trimmedName,
         items: items.map(toItemInput),
+        recordingFiles: items.map((item) => item.recordingFile),
       })
       toast.success(result.message)
       navigate(`/recordings/${result.recording.id}`)
@@ -181,12 +228,17 @@ export function RecordingCollectionEditorPage() {
       setError(t('recordings.validation.itemTitleRequired'))
       return
     }
+    if (!allPendingItemsHaveRecordings(items)) {
+      setError(t('recordings.validation.recordingRequired'))
+      return
+    }
 
     setBusy(true)
     setError(null)
     try {
       const result = await recordingsApi.addRecordingItems(numericId, {
         items: items.map(toItemInput),
+        recordingFiles: items.map((item) => item.recordingFile),
       })
       toast.success(result.message)
       setPendingItems([])
@@ -206,16 +258,29 @@ export function RecordingCollectionEditorPage() {
       setError(t('recordings.validation.itemTitleRequired'))
       return
     }
+    if (!item.recordingUrl && !item.recordingFile) {
+      setError(t('recordings.validation.recordingRequired'))
+      return
+    }
 
     setItemBusyId(item.id)
     setError(null)
     try {
-      const result = await recordingsApi.updateRecordingItem(numericId, item.id, toItemInput(item))
+      const result = await recordingsApi.updateRecordingItem(numericId, item.id, {
+        ...toItemInput(item),
+        recordingFile: item.recordingFile,
+      })
       toast.success(result.message)
       setExistingItems((previous) =>
         previous.map((candidate) =>
           candidate.clientId === item.clientId
-            ? { ...candidate, title: result.item.title, description: result.item.description }
+            ? {
+                ...candidate,
+                title: result.item.title,
+                description: result.item.description,
+                recordingFile: null,
+                recordingUrl: result.item.recordingUrl,
+              }
             : candidate,
         ),
       )
@@ -393,6 +458,47 @@ export function RecordingCollectionEditorPage() {
                         rows={3}
                       />
                     </label>
+                    <div className={styles.recordingField}>
+                      <span className={styles.fieldLabel}>
+                        {t('recordings.manager.fields.recording')}
+                      </span>
+                      {item.recordingUrl ? (
+                        <audio
+                          className={styles.audioPreview}
+                          controls
+                          preload="none"
+                          src={item.recordingUrl}
+                          aria-label={t('recordings.manager.currentRecording', {
+                            title: item.title,
+                          })}
+                        />
+                      ) : null}
+                      <UploadDropzone
+                        accept={RECORDING_FILE_ACCEPT}
+                        variant="compact"
+                        icon={<CloudUploadIcon size={18} />}
+                        label={t(
+                          item.recordingUrl
+                            ? 'recordings.manager.replaceRecording'
+                            : 'recordings.manager.uploadRecording',
+                        )}
+                        hint={t('recordings.manager.recordingHint', {
+                          formats: RECORDING_UPLOAD_SUPPORTED_FORMATS_LABEL,
+                          maxSize: RECORDING_UPLOAD_MAX_FILE_SIZE_MB,
+                        })}
+                        disabled={busy}
+                        onFiles={(files) =>
+                          handleRecordingFile(setExistingItems, item.clientId, files[0])
+                        }
+                      />
+                      {item.recordingFile ? (
+                        <p className={styles.selectedFile}>
+                          {t('recordings.manager.selectedRecording', {
+                            name: item.recordingFile.name,
+                          })}
+                        </p>
+                      ) : null}
+                    </div>
                     <div className={styles.itemActions}>
                       <button
                         type="button"
@@ -458,6 +564,32 @@ export function RecordingCollectionEditorPage() {
                     rows={3}
                   />
                 </label>
+                <div className={styles.recordingField}>
+                  <span className={styles.fieldLabel}>
+                    {t('recordings.manager.fields.recording')}
+                  </span>
+                  <UploadDropzone
+                    accept={RECORDING_FILE_ACCEPT}
+                    variant="compact"
+                    icon={<CloudUploadIcon size={18} />}
+                    label={t('recordings.manager.uploadRecording')}
+                    hint={t('recordings.manager.recordingHint', {
+                      formats: RECORDING_UPLOAD_SUPPORTED_FORMATS_LABEL,
+                      maxSize: RECORDING_UPLOAD_MAX_FILE_SIZE_MB,
+                    })}
+                    disabled={busy}
+                    onFiles={(files) =>
+                      handleRecordingFile(setPendingItems, item.clientId, files[0])
+                    }
+                  />
+                  {item.recordingFile ? (
+                    <p className={styles.selectedFile}>
+                      {t('recordings.manager.selectedRecording', {
+                        name: item.recordingFile.name,
+                      })}
+                    </p>
+                  ) : null}
+                </div>
                 <div className={styles.itemActions}>
                   <button
                     type="button"

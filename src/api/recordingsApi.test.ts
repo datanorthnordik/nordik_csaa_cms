@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { API_ROUTES } from '../constants/api'
+import { API_BASE_URL, API_ROUTES } from '../constants/api'
 
 const { deleteMock, getMock, patchMock, postMock, putMock } = vi.hoisted(() => ({
   deleteMock: vi.fn(),
@@ -130,7 +130,7 @@ describe('recordingsApi', () => {
     })
   })
 
-  it('creates a recording collection with its items as a JSON payload', async () => {
+  it('creates a recording collection with item audio as multipart data', async () => {
     postMock.mockResolvedValue({
       data: {
         message: 'Recording collection created successfully',
@@ -138,15 +138,22 @@ describe('recordingsApi', () => {
       },
     })
 
+    const recordingFile = new File(['audio'], 'week-1.mp3', { type: 'audio/mpeg' })
     const response = await recordingsApi.createRecordingCollection({
       name: 'Weekly Updates',
       items: [{ title: 'Week 1', description: 'Kickoff' }],
+      recordingFiles: [recordingFile],
     })
 
-    expect(postMock).toHaveBeenCalledWith(API_ROUTES.recordings, {
+    expect(postMock).toHaveBeenCalledWith(API_ROUTES.recordings, expect.any(FormData))
+    const formData = postMock.mock.calls[0][1] as FormData
+    expect(JSON.parse(String(formData.get('payload')))).toEqual({
       name: 'Weekly Updates',
       items: [{ title: 'Week 1', description: 'Kickoff' }],
     })
+    const uploadedFile = formData.get('items[0].recording_file') as File
+    expect(uploadedFile.name).toBe('week-1.mp3')
+    expect(uploadedFile.type).toBe('audio/mpeg')
     expect(response.recording).toEqual({ id: 9, name: 'Weekly Updates' })
   })
 
@@ -212,21 +219,28 @@ describe('recordingsApi', () => {
       },
     })
 
+    const replacementFile = new File(['replacement'], 'updated.m4a', { type: 'audio/mp4' })
     const response = await recordingsApi.updateRecordingItem(9, 14, {
       title: 'Updated Item',
       description: 'Updated description',
+      recordingFile: replacementFile,
     })
 
-    expect(patchMock).toHaveBeenCalledWith(API_ROUTES.recordingItemById(9, 14), {
+    expect(patchMock).toHaveBeenCalledWith(API_ROUTES.recordingItemById(9, 14), expect.any(FormData))
+    const formData = patchMock.mock.calls[0][1] as FormData
+    expect(JSON.parse(String(formData.get('payload')))).toEqual({
       title: 'Updated Item',
       description: 'Updated description',
     })
+    const uploadedFile = formData.get('recording_file') as File
+    expect(uploadedFile.name).toBe('updated.m4a')
+    expect(uploadedFile.type).toBe('audio/mp4')
     expect(response.item).toEqual({
       id: 14,
       recordingCollectionId: 9,
       title: 'Updated Item',
       description: 'Updated description',
-      recordingUrl: '/api/recordings/9/items/14/content',
+      recordingUrl: `${API_BASE_URL}/api/recordings/9/items/14/content`,
       storageUri: 'gs://bucket/recordings/9/items/14.m4a',
       objectKey: 'recordings/9/items/14.m4a',
       sortOrder: 1,

@@ -1011,7 +1011,7 @@
       "loading": "Loading recording collection...",
       "createTitle": "Create Recording Collection",
       "editTitle": "Manage Recording Collection",
-      "subtitle": "Give the collection a name, then add items with a title and description. Recordings can be attached later.",
+      "subtitle": "Give the collection a name, then add items with a title, description, and recording file.",
       "savedItemsHint": "Edit or remove the items already saved in this collection.",
       "newItemsHint": "Add one or more new items to this collection.",
       "sections": {
@@ -1022,13 +1022,19 @@
       "fields": {
         "collectionName": "Collection Name",
         "itemTitle": "Title",
-        "description": "Description"
+        "description": "Description",
+        "recording": "Recording file"
       },
       "placeholders": {
         "collectionName": "Enter a collection name...",
         "itemTitle": "Enter an item title...",
         "description": "Optional supporting description..."
       },
+      "uploadRecording": "Drop a recording here or browse",
+      "replaceRecording": "Drop a replacement recording here or browse",
+      "recordingHint": "Required. {{formats}}, up to {{maxSize}}MB.",
+      "selectedRecording": "Selected recording: {{name}}",
+      "currentRecording": "Current recording for {{title}}",
       "actions": {
         "createCollection": "Create Collection",
         "saveCollectionName": "Save Collection Name",
@@ -1060,7 +1066,8 @@
     },
     "validation": {
       "collectionNameRequired": "Collection name is required.",
-      "itemTitleRequired": "Each item needs a title."
+      "itemTitleRequired": "Each item needs a title.",
+      "recordingRequired": "Each item needs a recording file."
     }
   },
   "publishing": {
