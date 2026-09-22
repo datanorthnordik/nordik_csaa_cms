@@ -22,6 +22,7 @@ import Image from '@mui/icons-material/Image'
 import LinkIconMui from '@mui/icons-material/Link'
 import Logout from '@mui/icons-material/Logout'
 import Menu from '@mui/icons-material/Menu'
+import Mic from '@mui/icons-material/Mic'
 import Newspaper from '@mui/icons-material/Newspaper'
 import Notifications from '@mui/icons-material/Notifications'
 import Search from '@mui/icons-material/Search'
@@ -95,6 +96,10 @@ export function MediaIcon({ size = 18, className }: IconProps) {
 
 export function VideoIcon({ size = 18, className }: IconProps) {
   return <SmartDisplay style={getIconStyle(size)} className={className} />
+}
+
+export function RecordingIcon({ size = 18, className }: IconProps) {
+  return <Mic style={getIconStyle(size)} className={className} />
 }
 
 export function SettingsIcon({ size = 18, className }: IconProps) {

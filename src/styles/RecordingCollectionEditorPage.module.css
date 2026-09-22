@@ -1,0 +1,200 @@
+.page {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.title {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.subtitle {
+  margin: 0.5rem 0 0;
+  max-width: 52rem;
+  color: #5f6368;
+}
+
+.card {
+  display: grid;
+  gap: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 1.25rem;
+  background: #fff;
+  padding: 1.25rem;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.sectionHint {
+  margin: -0.5rem 0 0;
+  color: #6b7280;
+  font-size: 0.92rem;
+}
+
+.sectionActions,
+.itemActions,
+.footer {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.footer {
+  justify-content: flex-end;
+}
+
+.field {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.fieldLabel {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.75rem;
+  font: inherit;
+  background: #fff;
+  resize: vertical;
+}
+
+.itemList {
+  display: grid;
+  gap: 1rem;
+}
+
+.itemCard {
+  display: grid;
+  gap: 0.85rem;
+  border: 1px solid #eef0f3;
+  border-radius: 1rem;
+  background: #fafbfc;
+  padding: 1rem;
+}
+
+.loaderWrap {
+  display: grid;
+  place-items: center;
+  padding: 3rem 1rem;
+}
+
+.emptyState {
+  display: grid;
+  place-items: center;
+  padding: 3rem 1rem;
+  border: 1px dashed #cbd5e1;
+  border-radius: 1.25rem;
+  background: #fff;
+  gap: 0.5rem;
+}
+
+.emptyTitle {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.emptyText {
+  margin: 0;
+  color: #6b7280;
+}
+
+.errorText {
+  margin: 0;
+  color: #b42318;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton,
+.ghostButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  padding: 0.7rem 1.1rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.primaryButton {
+  border: none;
+  background: #7a1421;
+  color: #fff;
+  box-shadow: 0 12px 24px rgba(122, 20, 33, 0.22);
+}
+
+.secondaryButton {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #111827;
+}
+
+.dangerButton {
+  border: 1px solid #f3d0d4;
+  background: #fff5f6;
+  color: #a61b29;
+}
+
+.ghostButton {
+  border: none;
+  background: transparent;
+  color: #6b7280;
+}
+
+.primaryButton:hover,
+.secondaryButton:hover,
+.dangerButton:hover,
+.ghostButton:hover {
+  transform: translateY(-1px);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.dangerButton:disabled,
+.ghostButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (max-width: 720px) {
+  .title {
+    font-size: 1.6rem;
+  }
+
+  .sectionActions,
+  .itemActions,
+  .footer {
+    flex-direction: column;
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .dangerButton {
+    width: 100%;
+  }
+}

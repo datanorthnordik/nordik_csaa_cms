@@ -112,4 +112,11 @@ export const API_ROUTES = {
     `/api/videos/${id}/items/${itemId}`,
   videoItemTeaserById: (id: number | string, itemId: number | string) =>
     `/api/videos/${id}/items/${itemId}/teaser/content`,
+  recordings: '/api/recordings',
+  recordingById: (id: number | string) => `/api/recordings/${id}`,
+  recordingItemsById: (id: number | string) => `/api/recordings/${id}/items`,
+  recordingItemById: (id: number | string, itemId: number | string) =>
+    `/api/recordings/${id}/items/${itemId}`,
+  recordingItemContentById: (id: number | string, itemId: number | string) =>
+    `/api/recordings/${id}/items/${itemId}/content`,
 } as const

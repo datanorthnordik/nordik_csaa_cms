@@ -12,6 +12,8 @@ import { MediaLibraryRoute } from './pages/MediaLibraryRoute'
 import { GalleryManagerRoute } from './pages/GalleryManagerRoute'
 import { VideoLibraryRoute } from './pages/VideoLibraryRoute'
 import { VideoManagerRoute } from './pages/VideoManagerRoute'
+import { RecordingsListPage } from './pages/RecordingsListPage'
+import { RecordingCollectionEditorPage } from './pages/RecordingCollectionEditorPage'
 import { NewslettersListPage } from './pages/NewslettersListPage'
 import { NewsletterEditorPage } from './pages/NewsletterEditorPage'
 import { PressListPage } from './pages/PressListPage'
@@ -66,6 +68,9 @@ function App() {
           <Route path="/videos" element={<VideoLibraryRoute />} />
           <Route path="/videos/new" element={<VideoManagerRoute />} />
           <Route path="/videos/:videoId" element={<VideoManagerRoute />} />
+          <Route path="/recordings" element={<RecordingsListPage />} />
+          <Route path="/recordings/new" element={<RecordingCollectionEditorPage />} />
+          <Route path="/recordings/:collectionId" element={<RecordingCollectionEditorPage />} />
           <Route path="/newsletters" element={<NewslettersListPage />} />
           <Route path="/newsletters/new" element={<NewsletterEditorPage mode="create" />} />
           <Route path="/newsletters/:id/edit" element={<NewsletterEditorPage mode="edit" />} />
