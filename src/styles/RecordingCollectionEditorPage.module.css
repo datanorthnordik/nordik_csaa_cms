@@ -92,6 +92,23 @@
   padding: 1rem;
 }
 
+.recordingField {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.audioPreview {
+  width: min(100%, 36rem);
+}
+
+.selectedFile {
+  margin: 0;
+  color: #374151;
+  font-size: 0.88rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
 .loaderWrap {
   display: grid;
   place-items: center;

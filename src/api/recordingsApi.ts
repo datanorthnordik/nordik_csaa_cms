@@ -1,5 +1,7 @@
-import { API_ROUTES } from '../constants/api'
+import { API_BASE_URL, API_ROUTES } from '../constants/api'
+import { assertValidRecordingUploadFile } from '../lib/recordingUpload'
 import { apiClient } from './apiClient'
+import { buildMultipartPayload } from './multipartForm'
 
 type ApiRecordingCollectionSummary = {
   id: number
@@ -68,6 +70,8 @@ export type RecordingCollectionDetail = {
 export type RecordingItemInput = {
   title: string
   description?: string
+  file_name?: string
+  mime_type?: string
   recording_url?: string
   storage_uri?: string
   object_key?: string
@@ -79,6 +83,10 @@ export type CreateRecordingCollectionPayload = {
   items?: RecordingItemInput[]
 }
 
+export type CreateRecordingCollectionRequest = CreateRecordingCollectionPayload & {
+  recordingFiles?: Array<File | null | undefined>
+}
+
 export type UpdateRecordingCollectionPayload = {
   name: string
 }
@@ -87,7 +95,15 @@ export type AddRecordingItemsPayload = {
   items: RecordingItemInput[]
 }
 
+export type AddRecordingItemsRequest = AddRecordingItemsPayload & {
+  recordingFiles?: Array<File | null | undefined>
+}
+
 export type UpdateRecordingItemPayload = RecordingItemInput
+
+export type UpdateRecordingItemRequest = UpdateRecordingItemPayload & {
+  recordingFile?: File | null
+}
 
 export type RecordingCollectionMutationResponse = {
   message: string
@@ -129,12 +145,15 @@ function mapRecordingCollectionSummary(
 }
 
 function mapRecordingItem(item: ApiRecordingItem): RecordingItem {
+  const recordingUrl = item.recording_url?.trim()
   return {
     id: item.id,
     recordingCollectionId: item.recording_collection_id,
     title: item.title,
     description: item.description || '',
-    recordingUrl: item.recording_url || undefined,
+    recordingUrl: recordingUrl
+      ? new URL(recordingUrl.replace(/^\/+/, ''), `${API_BASE_URL}/`).toString()
+      : undefined,
     storageUri: item.storage_uri || undefined,
     objectKey: item.gcp_object_key || undefined,
     sortOrder: item.sort_order,
@@ -156,6 +175,50 @@ function mapRecordingCollectionDetail(
   }
 }
 
+function recordingItemFileField(index: number) {
+  return `items[${index}].recording_file`
+}
+
+function buildItemsBody<T extends { recordingFiles?: Array<File | null | undefined> }>(
+  request: T,
+) {
+  const { recordingFiles, ...payload } = request
+  recordingFiles?.forEach((file) => {
+    if (file) {
+      assertValidRecordingUploadFile(file)
+    }
+  })
+
+  if (!recordingFiles?.some(Boolean)) {
+    return payload
+  }
+
+  return buildMultipartPayload(
+    payload,
+    recordingFiles.map((file, index) => ({
+      fieldName: recordingItemFileField(index),
+      file,
+      fileName: file?.name,
+    })),
+  )
+}
+
+function buildUpdateItemBody(request: UpdateRecordingItemRequest) {
+  const { recordingFile, ...payload } = request
+  if (!recordingFile) {
+    return payload
+  }
+
+  assertValidRecordingUploadFile(recordingFile)
+  return buildMultipartPayload(payload, [
+    {
+      fieldName: 'recording_file',
+      file: recordingFile,
+      fileName: recordingFile.name,
+    },
+  ])
+}
+
 export const recordingsApi = {
   async listRecordingCollections() {
     const response = await apiClient.get<RecordingCollectionListResponse>(API_ROUTES.recordings)
@@ -169,10 +232,10 @@ export const recordingsApi = {
     return mapRecordingCollectionDetail(response.data)
   },
 
-  async createRecordingCollection(payload: CreateRecordingCollectionPayload) {
+  async createRecordingCollection(request: CreateRecordingCollectionRequest) {
     const response = await apiClient.post<RecordingCollectionMutationResponse>(
       API_ROUTES.recordings,
-      payload,
+      buildItemsBody(request),
     )
     return response.data
   },
@@ -192,10 +255,10 @@ export const recordingsApi = {
     return response.data
   },
 
-  async addRecordingItems(id: number, payload: AddRecordingItemsPayload) {
+  async addRecordingItems(id: number, request: AddRecordingItemsRequest) {
     const response = await apiClient.post<RecordingItemsUploadResponse>(
       API_ROUTES.recordingItemsById(id),
-      payload,
+      buildItemsBody(request),
     )
     return response.data
   },
@@ -203,11 +266,11 @@ export const recordingsApi = {
   async updateRecordingItem(
     collectionId: number,
     itemId: number,
-    payload: UpdateRecordingItemPayload,
+    request: UpdateRecordingItemRequest,
   ) {
     const response = await apiClient.patch<{ message: string; item: ApiRecordingItem }>(
       API_ROUTES.recordingItemById(collectionId, itemId),
-      payload,
+      buildUpdateItemBody(request),
     )
 
     return {

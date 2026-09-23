@@ -1008,7 +1008,7 @@
       "loading": "Chargement de la collection d enregistrements...",
       "createTitle": "Creer une collection d enregistrements",
       "editTitle": "Gerer la collection d enregistrements",
-      "subtitle": "Donnez un nom a la collection, puis ajoutez des elements avec un titre et une description. Les enregistrements pourront etre ajoutes plus tard.",
+      "subtitle": "Donnez un nom a la collection, puis ajoutez des elements avec un titre, une description et un fichier audio.",
       "savedItemsHint": "Modifiez ou supprimez les elements deja enregistres dans cette collection.",
       "newItemsHint": "Ajoutez un ou plusieurs nouveaux elements a cette collection.",
       "sections": {
@@ -1019,13 +1019,19 @@
       "fields": {
         "collectionName": "Nom de la collection",
         "itemTitle": "Titre",
-        "description": "Description"
+        "description": "Description",
+        "recording": "Fichier audio"
       },
       "placeholders": {
         "collectionName": "Saisissez un nom de collection...",
         "itemTitle": "Saisissez un titre...",
         "description": "Description optionnelle..."
       },
+      "uploadRecording": "Deposez un enregistrement ici ou parcourez vos fichiers",
+      "replaceRecording": "Deposez un nouvel enregistrement ici ou parcourez vos fichiers",
+      "recordingHint": "Obligatoire. {{formats}}, jusqu a {{maxSize}} Mo.",
+      "selectedRecording": "Enregistrement selectionne : {{name}}",
+      "currentRecording": "Enregistrement actuel pour {{title}}",
       "actions": {
         "createCollection": "Creer la collection",
         "saveCollectionName": "Enregistrer le nom de la collection",
@@ -1057,7 +1063,8 @@
     },
     "validation": {
       "collectionNameRequired": "Le nom de la collection est requis.",
-      "itemTitleRequired": "Chaque element doit avoir un titre."
+      "itemTitleRequired": "Chaque element doit avoir un titre.",
+      "recordingRequired": "Chaque element doit avoir un fichier audio."
     }
   },
   "publishing": {
