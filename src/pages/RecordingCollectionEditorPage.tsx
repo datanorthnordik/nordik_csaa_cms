@@ -32,6 +32,9 @@ type RecordingItemDraft = {
   recordingUrl?: string
 }
 
+const RECORDING_ITEM_TITLE_MAX_LENGTH = 250
+const RECORDING_ITEM_DESCRIPTION_MAX_LENGTH = 1000
+
 function createDraftId(prefix: string) {
   if (typeof globalThis.crypto?.randomUUID === 'function') {
     return `${prefix}-${globalThis.crypto.randomUUID()}`
@@ -71,10 +74,12 @@ export function RecordingCollectionEditorPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { collectionId } = useParams()
-  const isCreateMode = !collectionId
-  const numericId = collectionId ? Number.parseInt(collectionId, 10) : Number.NaN
+  const routeCollectionId = collectionId ? Number.parseInt(collectionId, 10) : Number.NaN
+  const [createdCollectionId, setCreatedCollectionId] = useState<number | null>(null)
+  const numericId = createdCollectionId ?? routeCollectionId
+  const isCreateMode = !Number.isFinite(numericId)
 
-  const [loading, setLoading] = useState(!isCreateMode)
+  const [loading, setLoading] = useState(Boolean(collectionId))
   const [busy, setBusy] = useState(false)
   const [itemBusyId, setItemBusyId] = useState<number | null>(null)
   const [pendingItemBusyId, setPendingItemBusyId] = useState<string | null>(null)
@@ -139,12 +144,29 @@ export function RecordingCollectionEditorPage() {
     )
   }
 
-  function allPendingItemsHaveTitles(items: RecordingItemDraft[]) {
-    return items.every((item) => item.title.trim().length > 0)
-  }
-
-  function allPendingItemsHaveRecordings(items: RecordingItemDraft[]) {
-    return items.every((item) => Boolean(item.recordingFile))
+  function getItemValidationMessage(
+    item: RecordingItemDraft,
+    hasRecording: boolean,
+  ) {
+    const title = item.title.trim()
+    const description = item.description.trim()
+    if (!title) {
+      return t('recordings.validation.itemTitleRequired')
+    }
+    if (title.length > RECORDING_ITEM_TITLE_MAX_LENGTH) {
+      return t('recordings.validation.itemTitleTooLong', {
+        max: RECORDING_ITEM_TITLE_MAX_LENGTH,
+      })
+    }
+    if (description.length > RECORDING_ITEM_DESCRIPTION_MAX_LENGTH) {
+      return t('recordings.validation.descriptionTooLong', {
+        max: RECORDING_ITEM_DESCRIPTION_MAX_LENGTH,
+      })
+    }
+    if (!hasRecording) {
+      return t('recordings.validation.recordingRequired')
+    }
+    return null
   }
 
   function handleRecordingFile(
@@ -174,12 +196,11 @@ export function RecordingCollectionEditorPage() {
     }
 
     const items = collectPendingItems()
-    if (!allPendingItemsHaveTitles(items)) {
-      setError(t('recordings.validation.itemTitleRequired'))
-      return
-    }
-    if (!allPendingItemsHaveRecordings(items)) {
-      setError(t('recordings.validation.recordingRequired'))
+    const itemValidationMessage = items
+      .map((item) => getItemValidationMessage(item, Boolean(item.recordingFile)))
+      .find(Boolean)
+    if (itemValidationMessage) {
+      setError(itemValidationMessage)
       return
     }
 
@@ -225,12 +246,11 @@ export function RecordingCollectionEditorPage() {
     if (items.length === 0) {
       return
     }
-    if (!allPendingItemsHaveTitles(items)) {
-      setError(t('recordings.validation.itemTitleRequired'))
-      return
-    }
-    if (!allPendingItemsHaveRecordings(items)) {
-      setError(t('recordings.validation.recordingRequired'))
+    const itemValidationMessage = items
+      .map((item) => getItemValidationMessage(item, Boolean(item.recordingFile)))
+      .find(Boolean)
+    if (itemValidationMessage) {
+      setError(itemValidationMessage)
       return
     }
 
@@ -252,21 +272,41 @@ export function RecordingCollectionEditorPage() {
   }
 
   async function handleSavePendingItem(item: RecordingItemDraft) {
-    if (!Number.isFinite(numericId)) {
+    const validationMessage = getItemValidationMessage(item, Boolean(item.recordingFile))
+    if (validationMessage) {
+      setError(validationMessage)
       return
     }
-    if (!item.title.trim()) {
-      setError(t('recordings.validation.itemTitleRequired'))
-      return
-    }
-    if (!item.recordingFile) {
-      setError(t('recordings.validation.recordingRequired'))
+
+    const trimmedName = collectionName.trim()
+    if (isCreateMode && !trimmedName) {
+      setError(t('recordings.validation.collectionNameRequired'))
       return
     }
 
     setPendingItemBusyId(item.clientId)
     setError(null)
     try {
+      if (isCreateMode) {
+        const result = await recordingsApi.createRecordingCollection({
+          name: trimmedName,
+          items: [toItemInput(item)],
+          recordingFiles: [item.recordingFile],
+        })
+        setPendingItems((previous) =>
+          previous.filter((candidate) => candidate.clientId !== item.clientId),
+        )
+        setCollectionName(trimmedName)
+        setCreatedCollectionId(result.recording.id)
+        window.history.replaceState(
+          window.history.state,
+          '',
+          `/recordings/${result.recording.id}`,
+        )
+        toast.success(result.message)
+        return
+      }
+
       const result = await recordingsApi.addRecordingItems(numericId, {
         items: [toItemInput(item)],
         recordingFiles: [item.recordingFile],
@@ -289,12 +329,12 @@ export function RecordingCollectionEditorPage() {
     if (!item.id) {
       return
     }
-    if (!item.title.trim()) {
-      setError(t('recordings.validation.itemTitleRequired'))
-      return
-    }
-    if (!item.recordingUrl && !item.recordingFile) {
-      setError(t('recordings.validation.recordingRequired'))
+    const validationMessage = getItemValidationMessage(
+      item,
+      Boolean(item.recordingUrl || item.recordingFile),
+    )
+    if (validationMessage) {
+      setError(validationMessage)
       return
     }
 
@@ -469,6 +509,7 @@ export function RecordingCollectionEditorPage() {
                         type="text"
                         className={styles.input}
                         value={item.title}
+                        maxLength={RECORDING_ITEM_TITLE_MAX_LENGTH}
                         onChange={(event) =>
                           updateItemDraft(setExistingItems, item.clientId, {
                             title: event.target.value,
@@ -476,6 +517,9 @@ export function RecordingCollectionEditorPage() {
                         }
                         placeholder={t('recordings.manager.placeholders.itemTitle')}
                       />
+                      <span className={styles.characterCount}>
+                        {item.title.length}/{RECORDING_ITEM_TITLE_MAX_LENGTH}
+                      </span>
                     </label>
                     <label className={styles.field}>
                       <span className={styles.fieldLabel}>
@@ -484,6 +528,7 @@ export function RecordingCollectionEditorPage() {
                       <textarea
                         className={styles.textarea}
                         value={item.description}
+                        maxLength={RECORDING_ITEM_DESCRIPTION_MAX_LENGTH}
                         onChange={(event) =>
                           updateItemDraft(setExistingItems, item.clientId, {
                             description: event.target.value,
@@ -492,6 +537,9 @@ export function RecordingCollectionEditorPage() {
                         placeholder={t('recordings.manager.placeholders.description')}
                         rows={3}
                       />
+                      <span className={styles.characterCount}>
+                        {item.description.length}/{RECORDING_ITEM_DESCRIPTION_MAX_LENGTH}
+                      </span>
                     </label>
                     <div className={styles.recordingField}>
                       <span className={styles.fieldLabel}>
@@ -581,6 +629,7 @@ export function RecordingCollectionEditorPage() {
                     type="text"
                     className={styles.input}
                     value={item.title}
+                    maxLength={RECORDING_ITEM_TITLE_MAX_LENGTH}
                     onChange={(event) =>
                       updateItemDraft(setPendingItems, item.clientId, {
                         title: event.target.value,
@@ -588,6 +637,9 @@ export function RecordingCollectionEditorPage() {
                     }
                     placeholder={t('recordings.manager.placeholders.itemTitle')}
                   />
+                  <span className={styles.characterCount}>
+                    {item.title.length}/{RECORDING_ITEM_TITLE_MAX_LENGTH}
+                  </span>
                 </label>
                 <label className={styles.field}>
                   <span className={styles.fieldLabel}>
@@ -596,6 +648,7 @@ export function RecordingCollectionEditorPage() {
                   <textarea
                     className={styles.textarea}
                     value={item.description}
+                    maxLength={RECORDING_ITEM_DESCRIPTION_MAX_LENGTH}
                     onChange={(event) =>
                       updateItemDraft(setPendingItems, item.clientId, {
                         description: event.target.value,
@@ -604,6 +657,9 @@ export function RecordingCollectionEditorPage() {
                     placeholder={t('recordings.manager.placeholders.description')}
                     rows={3}
                   />
+                  <span className={styles.characterCount}>
+                    {item.description.length}/{RECORDING_ITEM_DESCRIPTION_MAX_LENGTH}
+                  </span>
                 </label>
                 <div className={styles.recordingField}>
                   <span className={styles.fieldLabel}>
@@ -632,18 +688,16 @@ export function RecordingCollectionEditorPage() {
                   ) : null}
                 </div>
                 <div className={styles.itemActions}>
-                  {!isCreateMode ? (
-                    <button
-                      type="button"
-                      className={styles.primaryButton}
-                      onClick={() => void handleSavePendingItem(item)}
-                      disabled={busy || pendingItemBusyId !== null}
-                    >
-                      {pendingItemBusyId === item.clientId
-                        ? t('recordings.manager.actions.savingItem')
-                        : t('recordings.manager.actions.saveItem')}
-                    </button>
-                  ) : null}
+                  <button
+                    type="button"
+                    className={styles.primaryButton}
+                    onClick={() => void handleSavePendingItem(item)}
+                    disabled={busy || pendingItemBusyId !== null}
+                  >
+                    {pendingItemBusyId === item.clientId
+                      ? t('recordings.manager.actions.savingItem')
+                      : t('recordings.manager.actions.saveItem')}
+                  </button>
                   <button
                     type="button"
                     className={styles.ghostButton}

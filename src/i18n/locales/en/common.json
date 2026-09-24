@@ -1069,6 +1069,8 @@
     "validation": {
       "collectionNameRequired": "Collection name is required.",
       "itemTitleRequired": "Each item needs a title.",
+      "itemTitleTooLong": "Recording titles must be {{max}} characters or fewer.",
+      "descriptionTooLong": "Recording descriptions must be {{max}} characters or fewer.",
       "recordingRequired": "Each item needs a recording file."
     }
   },
@@ -1222,7 +1224,7 @@
         "displayName": "Display name",
         "displayNameFor": "Display name for {{name}}",
         "displayNamePlaceholder": "Name shown on the website tab",
-        "saveNewsletterFirstHint": "Save the newsletter first to upload each book independently, or save the newsletter to upload all pending books together.",
+        "saveNewsletterFirstHint": "Uploading an individual book will automatically save the newsletter as a draft.",
         "uploadBook": "Upload Book",
         "saveBook": "Save Book Changes",
         "savingBook": "Saving...",

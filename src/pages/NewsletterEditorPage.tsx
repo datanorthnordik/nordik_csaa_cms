@@ -111,6 +111,7 @@ export function NewsletterEditorPage({
   const [currentEntry, setCurrentEntry] = useState<NewsletterEntry | undefined>(
     undefined,
   )
+  const isPersistedEntry = isEditMode || Boolean(currentEntry)
   const [isLoadingEntry, setIsLoadingEntry] = useState(isEditMode)
   const [isMissingEntry, setIsMissingEntry] = useState(false)
   const [loadErrorMessage, setLoadErrorMessage] = useState<string | null>(null)
@@ -397,7 +398,7 @@ export function NewsletterEditorPage({
       const payload = buildPersistedShape(form, targetStatus)
       const pendingUploads = [...pendingMedia]
 
-      if (isEditMode && currentEntry) {
+      if (currentEntry) {
         let nextEntry = await update(currentEntry.id, payload)
         const displayNamesChanged = await updateChangedMediaDisplayNames(
           nextEntry.id,
@@ -509,11 +510,6 @@ export function NewsletterEditorPage({
   }
 
   async function handleSaveMedia(mediaItem: NewsletterMediaListItem) {
-    if (!currentEntry) {
-      toast.error(t('newsletters.editor.validation.saveNewsletterFirst'))
-      return
-    }
-
     const displayName = mediaItem.displayName.trim()
     if (!displayName) {
       setErrors((current) => ({
@@ -524,6 +520,15 @@ export function NewsletterEditorPage({
       return
     }
 
+    if (!currentEntry) {
+      const validationErrors = validate(form, t)
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors)
+        toast.error(t('newsletters.editor.validation.summary'))
+        return
+      }
+    }
+
     setActiveDocumentAction((current) => ({
       ...current,
       [mediaItem.id]: 'save',
@@ -531,9 +536,20 @@ export function NewsletterEditorPage({
     clearError('media')
 
     try {
+      let entry = currentEntry
+      if (!entry) {
+        entry = await create(buildPersistedShape(form, 'draft'))
+        setCurrentEntry(entry)
+        window.history.replaceState(
+          window.history.state,
+          '',
+          `/newsletters/${entry.id}/edit`,
+        )
+      }
+
       if (mediaItem.isPending && mediaItem.file) {
         await addNewsletterMedia(
-          currentEntry.id,
+          entry.id,
           [mediaItem.file],
           [{ display_name: displayName, file_name: mediaItem.file.name }],
         )
@@ -541,11 +557,11 @@ export function NewsletterEditorPage({
           current.filter((item) => item.id !== mediaItem.id),
         )
 
-        const refreshed = await fetchNewsletterEntry(currentEntry.id)
+        const refreshed = await fetchNewsletterEntry(entry.id)
         setCurrentEntry(refreshed)
         setForm((current) => ({ ...current, media: refreshed.media }))
       } else {
-        const updatedMedia = await updateNewsletterMedia(currentEntry.id, mediaItem.id, {
+        const updatedMedia = await updateNewsletterMedia(entry.id, mediaItem.id, {
           display_name: displayName,
         })
         const replaceMedia = (media: NewsletterEntry['media']) =>
@@ -732,7 +748,7 @@ export function NewsletterEditorPage({
           items={[
             { label: t('newsletters.breadcrumb.entries'), to: '/newsletters' },
             {
-              label: isEditMode
+              label: isPersistedEntry
                 ? t('newsletters.breadcrumb.edit')
                 : t('newsletters.breadcrumb.create'),
             },
@@ -742,7 +758,7 @@ export function NewsletterEditorPage({
         <div className={styles.header}>
           <div className={styles.headerText}>
             <h1>
-              {isEditMode
+              {isPersistedEntry
                 ? t('newsletters.editor.titleEdit')
                 : t('newsletters.editor.titleCreate')}
             </h1>
@@ -918,22 +934,20 @@ export function NewsletterEditorPage({
                                 <p className={styles.documentMeta}>{documentMeta}</p>
                               ) : null}
                               <div className={styles.documentPreviewActions}>
-                                {currentEntry ? (
-                                  <button
-                                    type="button"
-                                    className={styles.actionButtonPrimary}
-                                    disabled={activeDocumentAction[mediaItem.id] !== undefined}
-                                    onClick={() => void handleSaveMedia(mediaItem)}
-                                  >
-                                    {activeDocumentAction[mediaItem.id] === 'save'
-                                      ? t('newsletters.editor.media.savingBook')
-                                      : t(
-                                          mediaItem.isPending
-                                            ? 'newsletters.editor.media.uploadBook'
-                                            : 'newsletters.editor.media.saveBook',
-                                        )}
-                                  </button>
-                                ) : null}
+                                <button
+                                  type="button"
+                                  className={styles.actionButtonPrimary}
+                                  disabled={activeDocumentAction[mediaItem.id] !== undefined}
+                                  onClick={() => void handleSaveMedia(mediaItem)}
+                                >
+                                  {activeDocumentAction[mediaItem.id] === 'save'
+                                    ? t('newsletters.editor.media.savingBook')
+                                    : t(
+                                        mediaItem.isPending
+                                          ? 'newsletters.editor.media.uploadBook'
+                                          : 'newsletters.editor.media.saveBook',
+                                      )}
+                                </button>
                                 {canPreview ? (
                                   <button
                                     type="button"
@@ -986,7 +1000,7 @@ export function NewsletterEditorPage({
               onPublish={() => void handleSave('published')}
               isSubmitting={isSubmitting}
               isDeleting={isDeleting}
-              onDelete={isEditMode ? () => void handleDelete() : undefined}
+              onDelete={currentEntry ? () => void handleDelete() : undefined}
               deleteConfirmTitle={t('newsletters.list.deleteDialogTitle')}
               deleteConfirmBody={t('newsletters.editor.deleteConfirmBody', {
                 title: form.title || t('newsletters.list.untitled'),

@@ -67,6 +67,12 @@
   color: #374151;
 }
 
+.characterCount {
+  justify-self: end;
+  color: #6b7280;
+  font-size: 0.78rem;
+}
+
 .input,
 .textarea {
   width: 100%;

@@ -1066,6 +1066,8 @@
     "validation": {
       "collectionNameRequired": "Le nom de la collection est requis.",
       "itemTitleRequired": "Chaque element doit avoir un titre.",
+      "itemTitleTooLong": "Les titres d enregistrement doivent contenir au maximum {{max}} caracteres.",
+      "descriptionTooLong": "Les descriptions d enregistrement doivent contenir au maximum {{max}} caracteres.",
       "recordingRequired": "Chaque element doit avoir un fichier audio."
     }
   },
@@ -1219,7 +1221,7 @@
         "displayName": "Nom d affichage",
         "displayNameFor": "Nom d affichage pour {{name}}",
         "displayNamePlaceholder": "Nom affiche dans l onglet du site Web",
-        "saveNewsletterFirstHint": "Enregistrez d abord le bulletin pour televerser chaque livre separement, ou enregistrez le bulletin pour televerser tous les livres en attente.",
+        "saveNewsletterFirstHint": "Le televersement d un livre enregistre automatiquement le bulletin comme brouillon.",
         "uploadBook": "Televerser le livre",
         "saveBook": "Enregistrer les modifications du livre",
         "savingBook": "Enregistrement...",

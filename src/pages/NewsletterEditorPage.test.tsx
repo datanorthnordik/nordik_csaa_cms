@@ -428,6 +428,84 @@ describe('NewsletterEditorPage', () => {
     })
   })
 
+  it('creates a draft from an individual book upload and keeps other books pending', async () => {
+    const createdEntry: NewsletterEntry = {
+      id: '77',
+      title: 'Monthly Update',
+      category: 'csaa',
+      sendDate: '2026-08-20',
+      contentHtml: '',
+      status: 'draft',
+      visibility: 'public',
+      publishAt: null,
+      media: [],
+      createdAt: '2026-08-01T00:00:00Z',
+      updatedAt: '2026-08-01T00:00:00Z',
+    }
+    const savedBook = {
+      id: '92',
+      displayName: 'English Edition',
+      fileName: 'english.pdf',
+      mimeType: 'application/pdf',
+      fileSize: 2048,
+    }
+    mockCreate.mockResolvedValue(createdEntry)
+    mockedAddNewsletterMedia.mockResolvedValue({
+      message: 'uploaded',
+      uploadedCount: 1,
+    })
+    mockedFetchNewsletterEntry.mockResolvedValue({
+      ...createdEntry,
+      media: [savedBook],
+    })
+
+    const { container } = renderPage()
+    fireEvent.change(screen.getByLabelText('Newsletter title'), {
+      target: { value: 'Monthly Update' },
+    })
+    fireEvent.change(screen.getByLabelText('Category'), {
+      target: { value: 'csaa' },
+    })
+    const dateInput = container.querySelector('input[type="date"]') as HTMLInputElement
+    fireEvent.change(dateInput, { target: { value: '2026-08-20' } })
+
+    const firstFile = new File(['english'], 'english.pdf', { type: 'application/pdf' })
+    const secondFile = new File(['french'], 'french.pdf', { type: 'application/pdf' })
+    const label = screen.getByText('Drag and drop newsletter books here').closest('label')
+    const input = label?.querySelector('input[type="file"]') as HTMLInputElement
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [firstFile, secondFile],
+    })
+    fireEvent.change(input)
+
+    fireEvent.change(await screen.findByLabelText('Display name for english'), {
+      target: { value: 'English Edition' },
+    })
+    const uploadButtons = screen.getAllByRole('button', { name: 'Upload Book' })
+    expect(uploadButtons).toHaveLength(2)
+    fireEvent.click(uploadButtons[0])
+
+    await waitFor(() => {
+      expect(mockCreate).toHaveBeenCalledWith({
+        title: 'Monthly Update',
+        category: 'csaa',
+        sendDate: '2026-08-20',
+        contentHtml: '',
+        visibility: 'public',
+        publishAt: null,
+        status: 'draft',
+      })
+      expect(mockedAddNewsletterMedia).toHaveBeenCalledWith(
+        '77',
+        [firstFile],
+        [{ display_name: 'English Edition', file_name: 'english.pdf' }],
+      )
+    })
+    expect(screen.getByDisplayValue('french')).toBeTruthy()
+    expect(screen.getAllByRole('button', { name: 'Upload Book' })).toHaveLength(1)
+  })
+
   it('rejects unsupported newsletter document uploads with the press validation message', async () => {
     renderPage()
 
