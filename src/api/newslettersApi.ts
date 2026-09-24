@@ -130,6 +130,7 @@ function normalizeDateOnly(value: string) {
 export function newsletterApiMediaToLocal(media: NewsletterApiMedia): NewsletterMedia {
   return {
     id: String(media.id),
+    displayName: media.display_name || media.file_name || `Newsletter book ${media.id}`,
     fileName: media.file_name || media.display_name || `newsletter-media-${media.id}`,
     fileUrl: media.file_url,
     mimeType: media.mime_type,

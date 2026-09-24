@@ -9,6 +9,7 @@ import {
   deleteNewsletterMedia,
   fetchNewsletterEntry,
   getNewsletterMediaContent,
+  updateNewsletterMedia,
 } from '../api/newslettersApi'
 import i18n from '../i18n'
 import { RESOURCE_UPLOAD_MAX_FILE_SIZE_BYTES } from '../lib/resourceUpload'
@@ -54,6 +55,7 @@ vi.mock('../api/newslettersApi', () => ({
   deleteNewsletterMedia: vi.fn(),
   fetchNewsletterEntry: vi.fn(),
   getNewsletterMediaContent: vi.fn(),
+  updateNewsletterMedia: vi.fn(),
 }))
 
 vi.mock('../components/CmsAppShell', () => ({
@@ -160,6 +162,7 @@ const mockedFetchNewsletterEntry = vi.mocked(fetchNewsletterEntry)
 const mockedAddNewsletterMedia = vi.mocked(addNewsletterMedia)
 const mockedDeleteNewsletterMedia = vi.mocked(deleteNewsletterMedia)
 const mockedGetNewsletterMediaContent = vi.mocked(getNewsletterMediaContent)
+const mockedUpdateNewsletterMedia = vi.mocked(updateNewsletterMedia)
 
 const sampleEntry: NewsletterEntry = {
   id: '18',
@@ -173,6 +176,7 @@ const sampleEntry: NewsletterEntry = {
   media: [
     {
       id: '91',
+      displayName: 'July English Edition',
       fileName: 'digest.pdf',
       mimeType: 'application/pdf',
       fileSize: 4096,
@@ -292,6 +296,7 @@ describe('NewsletterEditorPage', () => {
     mockedAddNewsletterMedia.mockReset()
     mockedDeleteNewsletterMedia.mockReset()
     mockedGetNewsletterMediaContent.mockReset()
+    mockedUpdateNewsletterMedia.mockReset()
     await i18n.changeLanguage('en')
 
     if (!('createObjectURL' in URL)) {
@@ -367,7 +372,7 @@ describe('NewsletterEditorPage', () => {
     fireEvent.change(dateInput, { target: { value: '2026-08-20' } })
 
     uploadFileForLabel(
-      'Drag and drop files here',
+      'Drag and drop newsletter books here',
       new File(['newsletter'], 'newsletter-preview.pdf', {
         type: 'application/pdf',
       }),
@@ -376,6 +381,10 @@ describe('NewsletterEditorPage', () => {
     await screen.findByText('newsletter-preview')
     expect(screen.getByText(/pending upload/i)).toBeDefined()
     await screen.findByTitle('newsletter-preview')
+
+    fireEvent.change(screen.getByLabelText('Display name for newsletter-preview'), {
+      target: { value: 'Community Stories' },
+    })
 
     fireEvent.click(screen.getByRole('button', { name: /preview/i }))
     expect(window.open).toHaveBeenCalledWith(
@@ -409,7 +418,7 @@ describe('NewsletterEditorPage', () => {
     expect((files[0] as File).name).toBe('newsletter-preview.pdf')
     expect(metadata).toEqual([
       {
-        display_name: 'newsletter-preview.pdf',
+        display_name: 'Community Stories',
         file_name: 'newsletter-preview.pdf',
       },
     ])
@@ -423,7 +432,7 @@ describe('NewsletterEditorPage', () => {
     renderPage()
 
     uploadFileForLabel(
-      'Drag and drop files here',
+      'Drag and drop newsletter books here',
       new File(['legacy'], 'legacy-newsletter.doc', { type: 'application/msword' }),
     )
 
@@ -451,7 +460,7 @@ describe('NewsletterEditorPage', () => {
       value: RESOURCE_UPLOAD_MAX_FILE_SIZE_BYTES + 1,
     })
 
-    uploadFileForLabel('Drag and drop files here', largePdf)
+    uploadFileForLabel('Drag and drop newsletter books here', largePdf)
 
     expect((await screen.findAllByText('This file exceeds the 20MB limit.')).length).toBeGreaterThan(0)
     expect(toastError).toHaveBeenCalledWith('This file exceeds the 20MB limit.')
@@ -485,7 +494,9 @@ describe('NewsletterEditorPage', () => {
     )
     const dateInput = container.querySelector('input[type="date"]') as HTMLInputElement
     expect(dateInput.value).toBe('2026-07-10')
-    expect(mockedGetNewsletterMediaContent).toHaveBeenCalledWith('18', '91')
+    await waitFor(() => {
+      expect(mockedGetNewsletterMediaContent).toHaveBeenCalledWith('18', '91')
+    })
 
     await screen.findByTitle('digest')
 
@@ -515,6 +526,36 @@ describe('NewsletterEditorPage', () => {
     })
     expect(toastSuccess).toHaveBeenCalledWith('Newsletter deleted')
     expect(mockNavigate).toHaveBeenCalledWith('/newsletters', { replace: true })
+  })
+
+  it('updates the display name of an existing newsletter book when saving', async () => {
+    mockedFetchNewsletterEntry
+      .mockResolvedValueOnce(sampleEntry)
+      .mockResolvedValueOnce({
+        ...sampleEntry,
+        media: [{ ...sampleEntry.media[0], displayName: 'Community Stories' }],
+      })
+    mockedGetNewsletterMediaContent.mockResolvedValue(
+      new Blob(['server-pdf'], { type: 'application/pdf' }),
+    )
+    mockedUpdateNewsletterMedia.mockResolvedValue({
+      ...sampleEntry.media[0],
+      displayName: 'Community Stories',
+    })
+    mockUpdate.mockResolvedValue(sampleEntry)
+
+    renderPage('/newsletters/18/edit')
+
+    const displayNameInput = await screen.findByLabelText('Display name for digest')
+    fireEvent.change(displayNameInput, { target: { value: 'Community Stories' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Save Draft Action' }))
+
+    await waitFor(() => {
+      expect(mockedUpdateNewsletterMedia).toHaveBeenCalledWith('18', '91', {
+        display_name: 'Community Stories',
+      })
+    })
+    expect(mockedFetchNewsletterEntry).toHaveBeenCalledTimes(2)
   })
 
   it('shows a not found state for missing edit entries', async () => {

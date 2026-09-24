@@ -1196,7 +1196,7 @@
       "sections": {
         "details": "Details du bulletin",
         "content": "Editeur de contenu",
-        "attachments": "Pieces jointes",
+        "attachments": "Livres du bulletin",
         "attachmentsLimit": "20 Mo max / fichier"
       },
       "fields": {
@@ -1210,8 +1210,11 @@
         "contentPlaceholder": "Redigez le contenu de votre bulletin ici..."
       },
       "media": {
-        "dropLabel": "Glissez-deposez les fichiers ici",
-        "dropHint": "ou cliquez pour parcourir",
+        "dropLabel": "Glissez-deposez les livres du bulletin ici",
+        "dropHint": "ou cliquez pour parcourir; plusieurs livres sont pris en charge",
+        "displayName": "Nom d affichage",
+        "displayNameFor": "Nom d affichage pour {{name}}",
+        "displayNamePlaceholder": "Nom affiche dans l onglet du site Web",
         "remove": "Retirer le fichier",
         "pendingUploadShort": "Televersement en attente"
       },
@@ -1231,7 +1234,8 @@
       "validation": {
         "summary": "Veuillez corriger les champs en rouge.",
         "titleRequired": "Le titre est obligatoire.",
-        "sendDateRequired": "La date d'envoi est obligatoire."
+        "sendDateRequired": "La date d'envoi est obligatoire.",
+        "displayNameRequired": "Chaque livre du bulletin doit avoir un nom d affichage."
       }
     }
   },

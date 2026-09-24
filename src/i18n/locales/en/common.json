@@ -1199,7 +1199,7 @@
       "sections": {
         "details": "Newsletter Details",
         "content": "Content Editor",
-        "attachments": "Attachments",
+        "attachments": "Newsletter Books",
         "attachmentsLimit": "Max 20MB / file"
       },
       "fields": {
@@ -1213,8 +1213,11 @@
         "contentPlaceholder": "Write your newsletter content here..."
       },
       "media": {
-        "dropLabel": "Drag and drop files here",
-        "dropHint": "or click to browse from your device",
+        "dropLabel": "Drag and drop newsletter books here",
+        "dropHint": "or click to browse from your device; multiple books are supported",
+        "displayName": "Display name",
+        "displayNameFor": "Display name for {{name}}",
+        "displayNamePlaceholder": "Name shown on the website tab",
         "remove": "Remove file",
         "pendingUploadShort": "Pending upload"
       },
@@ -1234,7 +1237,8 @@
       "validation": {
         "summary": "Please correct the highlighted fields.",
         "titleRequired": "Title is required.",
-        "sendDateRequired": "Send date is required."
+        "sendDateRequired": "Send date is required.",
+        "displayNameRequired": "Every newsletter book needs a display name."
       }
     }
   },

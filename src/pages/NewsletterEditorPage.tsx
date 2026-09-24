@@ -8,6 +8,7 @@ import {
   deleteNewsletterMedia,
   fetchNewsletterEntry,
   getNewsletterMediaContent,
+  updateNewsletterMedia,
 } from '../api/newslettersApi'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CmsAppShell } from '../components/CmsAppShell'
@@ -36,10 +37,12 @@ import styles from '../styles/NewsletterEditorPage.module.css'
 type PendingNewsletterMedia = {
   id: string
   file: File
+  displayName: string
 }
 
 type NewsletterMediaListItem = {
   id: string
+  displayName: string
   fileName: string
   mimeType: string
   fileSize?: number
@@ -167,6 +170,7 @@ export function NewsletterEditorPage({
     () => [
       ...form.media.map((mediaItem) => ({
         id: mediaItem.id,
+        displayName: mediaItem.displayName,
         fileName: mediaItem.fileName,
         mimeType: mediaItem.mimeType ?? '',
         fileSize: mediaItem.fileSize,
@@ -174,6 +178,7 @@ export function NewsletterEditorPage({
       })),
       ...pendingMedia.map((mediaItem) => ({
         id: mediaItem.id,
+        displayName: mediaItem.displayName,
         fileName: mediaItem.file.name,
         mimeType: mediaItem.file.type,
         fileSize: mediaItem.file.size,
@@ -343,15 +348,44 @@ export function NewsletterEditorPage({
       entryId,
       mediaEntries.map((item) => item.file),
       mediaEntries.map((item) => ({
-        display_name: item.file.name,
+        display_name: item.displayName.trim(),
         file_name: item.file.name,
       })),
     )
   }
 
+  async function updateChangedMediaDisplayNames(
+    entryId: string,
+    media: NewsletterEntry['media'],
+  ) {
+    const originalNames = new Map(
+      (currentEntry?.media ?? []).map((item) => [item.id, item.displayName]),
+    )
+    const changedMedia = media.filter(
+      (item) => item.displayName.trim() !== (originalNames.get(item.id) ?? '').trim(),
+    )
+
+    await Promise.all(
+      changedMedia.map((item) =>
+        updateNewsletterMedia(entryId, item.id, {
+          display_name: item.displayName.trim(),
+        }),
+      ),
+    )
+
+    return changedMedia.length > 0
+  }
+
   async function handleSave(targetStatus: NewsletterStatus) {
     const validationErrors: NewsletterFormErrors = {
       ...validate(form, t),
+    }
+
+    const hasBlankDisplayName =
+      form.media.some((item) => !item.displayName.trim()) ||
+      pendingMedia.some((item) => !item.displayName.trim())
+    if (hasBlankDisplayName) {
+      validationErrors.media = t('newsletters.editor.validation.displayNameRequired')
     }
 
     if (errors.media) {
@@ -372,8 +406,12 @@ export function NewsletterEditorPage({
 
       if (isEditMode && currentEntry) {
         let nextEntry = await update(currentEntry.id, payload)
+        const displayNamesChanged = await updateChangedMediaDisplayNames(
+          nextEntry.id,
+          form.media,
+        )
         await uploadPendingMedia(nextEntry.id, pendingUploads)
-        if (pendingUploads.length > 0) {
+        if (pendingUploads.length > 0 || displayNamesChanged) {
           nextEntry = await fetchNewsletterEntry(nextEntry.id)
         }
         setCurrentEntry(nextEntry)
@@ -443,6 +481,7 @@ export function NewsletterEditorPage({
         ...validFiles.map((file) => ({
           id: makePendingMediaId(),
           file,
+          displayName: stripFileExtension(file.name),
         })),
       ])
       clearError('media')
@@ -452,6 +491,25 @@ export function NewsletterEditorPage({
       const message = validationMessage
       setErrors((current) => ({ ...current, media: message }))
       toast.error(message)
+    }
+  }
+
+  function handleMediaDisplayNameChange(mediaId: string, displayName: string) {
+    if (mediaId.startsWith('pending:')) {
+      setPendingMedia((current) =>
+        current.map((item) => (item.id === mediaId ? { ...item, displayName } : item)),
+      )
+    } else {
+      setForm((current) => ({
+        ...current,
+        media: current.media.map((item) =>
+          item.id === mediaId ? { ...item, displayName } : item,
+        ),
+      }))
+    }
+
+    if (displayName.trim()) {
+      clearError('media')
     }
   }
 
@@ -776,6 +834,23 @@ export function NewsletterEditorPage({
                             </div>
                             <div className={styles.documentPreviewContent}>
                               <h4 className={styles.documentName}>{documentTitle}</h4>
+                              <label className={styles.documentDisplayNameField}>
+                                <span>{t('newsletters.editor.media.displayName')}</span>
+                                <input
+                                  type="text"
+                                  value={mediaItem.displayName}
+                                  aria-label={t('newsletters.editor.media.displayNameFor', {
+                                    name: documentTitle,
+                                  })}
+                                  placeholder={t('newsletters.editor.media.displayNamePlaceholder')}
+                                  onChange={(event) =>
+                                    handleMediaDisplayNameChange(
+                                      mediaItem.id,
+                                      event.target.value,
+                                    )
+                                  }
+                                />
+                              </label>
                               {documentMeta ? (
                                 <p className={styles.documentMeta}>{documentMeta}</p>
                               ) : null}
