@@ -120,7 +120,7 @@ export function NewsletterEditorPage({
     Record<string, string>
   >({})
   const [activeDocumentAction, setActiveDocumentAction] = useState<
-    Record<string, 'preview' | 'download' | undefined>
+    Record<string, 'preview' | 'download' | 'save' | undefined>
   >({})
   const documentPreviewUrlsRef = useRef<Record<string, string>>({})
   const [errors, setErrors] = useState<NewsletterFormErrors>({})
@@ -139,6 +139,8 @@ export function NewsletterEditorPage({
         setLoadErrorMessage(null)
         const entry = await fetchNewsletterEntry(id)
         setCurrentEntry(entry)
+        setForm(entryToFormState(entry))
+        setPendingMedia([])
       } catch (err) {
         if (axios.isAxiosError(err) && err.response?.status === 404) {
           setIsMissingEntry(true)
@@ -156,15 +158,6 @@ export function NewsletterEditorPage({
 
     void loadEntry()
   }, [id, isEditMode, t])
-
-  useEffect(() => {
-    if (isEditMode && !currentEntry) {
-      return
-    }
-
-    setForm(currentEntry ? entryToFormState(currentEntry) : emptyFormState())
-    setPendingMedia([])
-  }, [currentEntry, isEditMode])
 
   const mediaItems = useMemo<NewsletterMediaListItem[]>(
     () => [
@@ -415,6 +408,8 @@ export function NewsletterEditorPage({
           nextEntry = await fetchNewsletterEntry(nextEntry.id)
         }
         setCurrentEntry(nextEntry)
+        setForm(entryToFormState(nextEntry))
+        setPendingMedia([])
         toast.success(
           targetStatus === 'published'
             ? t('newsletters.feedback.published')
@@ -513,6 +508,68 @@ export function NewsletterEditorPage({
     }
   }
 
+  async function handleSaveMedia(mediaItem: NewsletterMediaListItem) {
+    if (!currentEntry) {
+      toast.error(t('newsletters.editor.validation.saveNewsletterFirst'))
+      return
+    }
+
+    const displayName = mediaItem.displayName.trim()
+    if (!displayName) {
+      setErrors((current) => ({
+        ...current,
+        media: t('newsletters.editor.validation.displayNameRequired'),
+      }))
+      toast.error(t('newsletters.editor.validation.displayNameRequired'))
+      return
+    }
+
+    setActiveDocumentAction((current) => ({
+      ...current,
+      [mediaItem.id]: 'save',
+    }))
+    clearError('media')
+
+    try {
+      if (mediaItem.isPending && mediaItem.file) {
+        await addNewsletterMedia(
+          currentEntry.id,
+          [mediaItem.file],
+          [{ display_name: displayName, file_name: mediaItem.file.name }],
+        )
+        setPendingMedia((current) =>
+          current.filter((item) => item.id !== mediaItem.id),
+        )
+
+        const refreshed = await fetchNewsletterEntry(currentEntry.id)
+        setCurrentEntry(refreshed)
+        setForm((current) => ({ ...current, media: refreshed.media }))
+      } else {
+        const updatedMedia = await updateNewsletterMedia(currentEntry.id, mediaItem.id, {
+          display_name: displayName,
+        })
+        const replaceMedia = (media: NewsletterEntry['media']) =>
+          media.map((item) => (item.id === mediaItem.id ? updatedMedia : item))
+
+        setForm((current) => ({ ...current, media: replaceMedia(current.media) }))
+        setCurrentEntry((current) =>
+          current ? { ...current, media: replaceMedia(current.media) } : current,
+        )
+      }
+
+      toast.success(t('newsletters.feedback.bookSaved'))
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : t('newsletters.feedback.bookSaveError'),
+      )
+    } finally {
+      setActiveDocumentAction((current) => ({
+        ...current,
+        [mediaItem.id]: undefined,
+      }))
+    }
+  }
+
   async function handleRemoveMedia(mediaId: string) {
     if (mediaId.startsWith('pending:')) {
       setPendingMedia((current) => current.filter((item) => item.id !== mediaId))
@@ -532,6 +589,7 @@ export function NewsletterEditorPage({
       await deleteNewsletterMedia(currentEntry.id, [numericMediaID])
       const refreshed = await fetchNewsletterEntry(currentEntry.id)
       setCurrentEntry(refreshed)
+      setForm((current) => ({ ...current, media: refreshed.media }))
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : t('newsletters.feedback.deleteError'),
@@ -788,6 +846,11 @@ export function NewsletterEditorPage({
                   hint={t('newsletters.editor.media.dropHint')}
                   onFiles={handleAddMedia}
                 />
+                {!currentEntry ? (
+                  <p className={styles.documentSaveHint}>
+                    {t('newsletters.editor.media.saveNewsletterFirstHint')}
+                  </p>
+                ) : null}
                 {errors.media && <p className={styles.fieldError}>{errors.media}</p>}
 
                 {mediaItems.length > 0 && (
@@ -855,6 +918,22 @@ export function NewsletterEditorPage({
                                 <p className={styles.documentMeta}>{documentMeta}</p>
                               ) : null}
                               <div className={styles.documentPreviewActions}>
+                                {currentEntry ? (
+                                  <button
+                                    type="button"
+                                    className={styles.actionButtonPrimary}
+                                    disabled={activeDocumentAction[mediaItem.id] !== undefined}
+                                    onClick={() => void handleSaveMedia(mediaItem)}
+                                  >
+                                    {activeDocumentAction[mediaItem.id] === 'save'
+                                      ? t('newsletters.editor.media.savingBook')
+                                      : t(
+                                          mediaItem.isPending
+                                            ? 'newsletters.editor.media.uploadBook'
+                                            : 'newsletters.editor.media.saveBook',
+                                        )}
+                                  </button>
+                                ) : null}
                                 {canPreview ? (
                                   <button
                                     type="button"

@@ -77,6 +77,7 @@ export function RecordingCollectionEditorPage() {
   const [loading, setLoading] = useState(!isCreateMode)
   const [busy, setBusy] = useState(false)
   const [itemBusyId, setItemBusyId] = useState<number | null>(null)
+  const [pendingItemBusyId, setPendingItemBusyId] = useState<string | null>(null)
   const [notFound, setNotFound] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [collectionName, setCollectionName] = useState('')
@@ -247,6 +248,40 @@ export function RecordingCollectionEditorPage() {
       setError(getApiErrorMessage(addError))
     } finally {
       setBusy(false)
+    }
+  }
+
+  async function handleSavePendingItem(item: RecordingItemDraft) {
+    if (!Number.isFinite(numericId)) {
+      return
+    }
+    if (!item.title.trim()) {
+      setError(t('recordings.validation.itemTitleRequired'))
+      return
+    }
+    if (!item.recordingFile) {
+      setError(t('recordings.validation.recordingRequired'))
+      return
+    }
+
+    setPendingItemBusyId(item.clientId)
+    setError(null)
+    try {
+      const result = await recordingsApi.addRecordingItems(numericId, {
+        items: [toItemInput(item)],
+        recordingFiles: [item.recordingFile],
+      })
+      setPendingItems((previous) =>
+        previous.filter((candidate) => candidate.clientId !== item.clientId),
+      )
+      toast.success(result.message)
+
+      const detail = await recordingsApi.getRecordingCollection(numericId)
+      setExistingItems(detail.items.map(draftFromItem))
+    } catch (saveError) {
+      setError(getApiErrorMessage(saveError))
+    } finally {
+      setPendingItemBusyId(null)
     }
   }
 
@@ -527,7 +562,13 @@ export function RecordingCollectionEditorPage() {
 
         <section className={styles.card}>
           <h2 className={styles.sectionTitle}>{t('recordings.manager.sections.newItems')}</h2>
-          <p className={styles.sectionHint}>{t('recordings.manager.newItemsHint')}</p>
+          <p className={styles.sectionHint}>
+            {t(
+              isCreateMode
+                ? 'recordings.manager.newItemsCreateHint'
+                : 'recordings.manager.newItemsHint',
+            )}
+          </p>
 
           <div className={styles.itemList}>
             {pendingItems.map((item) => (
@@ -591,6 +632,18 @@ export function RecordingCollectionEditorPage() {
                   ) : null}
                 </div>
                 <div className={styles.itemActions}>
+                  {!isCreateMode ? (
+                    <button
+                      type="button"
+                      className={styles.primaryButton}
+                      onClick={() => void handleSavePendingItem(item)}
+                      disabled={busy || pendingItemBusyId !== null}
+                    >
+                      {pendingItemBusyId === item.clientId
+                        ? t('recordings.manager.actions.savingItem')
+                        : t('recordings.manager.actions.saveItem')}
+                    </button>
+                  ) : null}
                   <button
                     type="button"
                     className={styles.ghostButton}
@@ -599,6 +652,7 @@ export function RecordingCollectionEditorPage() {
                         previous.filter((candidate) => candidate.clientId !== item.clientId),
                       )
                     }
+                    disabled={busy || pendingItemBusyId !== null}
                   >
                     {t('recordings.manager.actions.removeItem')}
                   </button>
@@ -621,7 +675,9 @@ export function RecordingCollectionEditorPage() {
                 type="button"
                 className={styles.primaryButton}
                 onClick={() => void handleAddItems()}
-                disabled={busy || collectPendingItems().length === 0}
+                disabled={
+                  busy || pendingItemBusyId !== null || collectPendingItems().length === 0
+                }
               >
                 {t('recordings.manager.actions.addItems')}
               </button>

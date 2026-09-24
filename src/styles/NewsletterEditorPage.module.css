@@ -264,6 +264,12 @@
   color: var(--color-text-muted);
 }
 
+.documentSaveHint {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
 .documentPreviewActions {
   display: flex;
   flex-wrap: wrap;
@@ -271,6 +277,7 @@
 }
 
 .actionButton,
+.actionButtonPrimary,
 .actionButtonDanger {
   border-radius: 999px;
   font: inherit;
@@ -281,6 +288,16 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+}
+
+.actionButtonPrimary {
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.actionButtonPrimary:hover {
+  background: color-mix(in srgb, var(--color-primary) 88%, black 12%);
 }
 
 .actionButton {
@@ -305,6 +322,7 @@
 }
 
 .actionButton:disabled,
+.actionButtonPrimary:disabled,
 .actionButtonDanger:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -385,6 +403,7 @@
   }
 
   .actionButton,
+  .actionButtonPrimary,
   .actionButtonDanger {
     width: 100%;
   }

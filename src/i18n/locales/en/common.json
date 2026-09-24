@@ -1013,7 +1013,8 @@
       "editTitle": "Manage Recording Collection",
       "subtitle": "Give the collection a name, then add items with a title, description, and recording file.",
       "savedItemsHint": "Edit or remove the items already saved in this collection.",
-      "newItemsHint": "Add one or more new items to this collection.",
+      "newItemsHint": "Add new items and save each recording independently, or save them all together.",
+      "newItemsCreateHint": "Create the collection first to save recordings independently, or add items now and create everything together.",
       "sections": {
         "collectionDetails": "Collection Details",
         "savedItems": "Saved Items",
@@ -1039,8 +1040,9 @@
         "createCollection": "Create Collection",
         "saveCollectionName": "Save Collection Name",
         "addItem": "Add Another Item",
-        "addItems": "Add Items",
+        "addItems": "Save All Items",
         "saveItem": "Save Item",
+        "savingItem": "Saving Item...",
         "removeItem": "Remove Item",
         "deleteItem": "Delete Item",
         "deleteCollection": "Delete Collection"
@@ -1184,7 +1186,9 @@
       "saveError": "Could not save this newsletter.",
       "deleteError": "Could not delete this newsletter.",
       "documentPreviewFailed": "Could not preview this document.",
-      "documentDownloadFailed": "Could not download this document."
+      "documentDownloadFailed": "Could not download this document.",
+      "bookSaved": "Newsletter book saved",
+      "bookSaveError": "Could not save this newsletter book."
     },
     "editor": {
       "loading": "Loading...",
@@ -1218,6 +1222,10 @@
         "displayName": "Display name",
         "displayNameFor": "Display name for {{name}}",
         "displayNamePlaceholder": "Name shown on the website tab",
+        "saveNewsletterFirstHint": "Save the newsletter first to upload each book independently, or save the newsletter to upload all pending books together.",
+        "uploadBook": "Upload Book",
+        "saveBook": "Save Book Changes",
+        "savingBook": "Saving...",
         "remove": "Remove file",
         "pendingUploadShort": "Pending upload"
       },
@@ -1238,7 +1246,8 @@
         "summary": "Please correct the highlighted fields.",
         "titleRequired": "Title is required.",
         "sendDateRequired": "Send date is required.",
-        "displayNameRequired": "Every newsletter book needs a display name."
+        "displayNameRequired": "Every newsletter book needs a display name.",
+        "saveNewsletterFirst": "Save the newsletter before uploading an individual book."
       }
     }
   },

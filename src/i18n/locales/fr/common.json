@@ -1010,7 +1010,8 @@
       "editTitle": "Gerer la collection d enregistrements",
       "subtitle": "Donnez un nom a la collection, puis ajoutez des elements avec un titre, une description et un fichier audio.",
       "savedItemsHint": "Modifiez ou supprimez les elements deja enregistres dans cette collection.",
-      "newItemsHint": "Ajoutez un ou plusieurs nouveaux elements a cette collection.",
+      "newItemsHint": "Ajoutez de nouveaux elements et enregistrez chaque audio separement, ou enregistrez-les tous ensemble.",
+      "newItemsCreateHint": "Creez d abord la collection pour enregistrer les audios separement, ou ajoutez-les maintenant et creez tout ensemble.",
       "sections": {
         "collectionDetails": "Details de la collection",
         "savedItems": "Elements enregistres",
@@ -1036,8 +1037,9 @@
         "createCollection": "Creer la collection",
         "saveCollectionName": "Enregistrer le nom de la collection",
         "addItem": "Ajouter un autre element",
-        "addItems": "Ajouter les elements",
+        "addItems": "Enregistrer tous les elements",
         "saveItem": "Enregistrer l element",
+        "savingItem": "Enregistrement...",
         "removeItem": "Retirer l element",
         "deleteItem": "Supprimer l element",
         "deleteCollection": "Supprimer la collection"
@@ -1181,7 +1183,9 @@
       "saveError": "Impossible d enregistrer ce bulletin.",
       "deleteError": "Impossible de supprimer ce bulletin.",
       "documentPreviewFailed": "Impossible d afficher un apercu de ce document.",
-      "documentDownloadFailed": "Impossible de telecharger ce document."
+      "documentDownloadFailed": "Impossible de telecharger ce document.",
+      "bookSaved": "Livre du bulletin enregistre",
+      "bookSaveError": "Impossible d enregistrer ce livre du bulletin."
     },
     "editor": {
       "loading": "Chargement...",
@@ -1215,6 +1219,10 @@
         "displayName": "Nom d affichage",
         "displayNameFor": "Nom d affichage pour {{name}}",
         "displayNamePlaceholder": "Nom affiche dans l onglet du site Web",
+        "saveNewsletterFirstHint": "Enregistrez d abord le bulletin pour televerser chaque livre separement, ou enregistrez le bulletin pour televerser tous les livres en attente.",
+        "uploadBook": "Televerser le livre",
+        "saveBook": "Enregistrer les modifications du livre",
+        "savingBook": "Enregistrement...",
         "remove": "Retirer le fichier",
         "pendingUploadShort": "Televersement en attente"
       },
@@ -1235,7 +1243,8 @@
         "summary": "Veuillez corriger les champs en rouge.",
         "titleRequired": "Le titre est obligatoire.",
         "sendDateRequired": "La date d'envoi est obligatoire.",
-        "displayNameRequired": "Chaque livre du bulletin doit avoir un nom d affichage."
+        "displayNameRequired": "Chaque livre du bulletin doit avoir un nom d affichage.",
+        "saveNewsletterFirst": "Enregistrez le bulletin avant de televerser un livre individuellement."
       }
     }
   },

@@ -558,6 +558,76 @@ describe('NewsletterEditorPage', () => {
     expect(mockedFetchNewsletterEntry).toHaveBeenCalledTimes(2)
   })
 
+  it('uploads one newsletter book and keeps the other pending book unchanged', async () => {
+    const savedBook = {
+      id: '92',
+      displayName: 'English Edition',
+      fileName: 'english.pdf',
+      mimeType: 'application/pdf',
+      fileSize: 2048,
+    }
+    mockedFetchNewsletterEntry
+      .mockResolvedValueOnce(sampleEntry)
+      .mockResolvedValueOnce({ ...sampleEntry, media: [...sampleEntry.media, savedBook] })
+    mockedGetNewsletterMediaContent.mockResolvedValue(
+      new Blob(['server-pdf'], { type: 'application/pdf' }),
+    )
+    mockedAddNewsletterMedia.mockResolvedValue({
+      message: 'uploaded',
+      uploadedCount: 1,
+    })
+
+    renderPage('/newsletters/18/edit')
+    await screen.findByDisplayValue('July Digest')
+
+    const firstFile = new File(['english'], 'english.pdf', { type: 'application/pdf' })
+    const secondFile = new File(['french'], 'french.pdf', { type: 'application/pdf' })
+    const label = screen.getByText('Drag and drop newsletter books here').closest('label')
+    const input = label?.querySelector('input[type="file"]') as HTMLInputElement
+    Object.defineProperty(input, 'files', {
+      configurable: true,
+      value: [firstFile, secondFile],
+    })
+    fireEvent.change(input)
+
+    const uploadButtons = await screen.findAllByRole('button', { name: 'Upload Book' })
+    fireEvent.click(uploadButtons[0])
+
+    await waitFor(() => {
+      expect(mockedAddNewsletterMedia).toHaveBeenCalledWith(
+        '18',
+        [firstFile],
+        [{ display_name: 'english', file_name: 'english.pdf' }],
+      )
+    })
+    expect(screen.queryByDisplayValue('english')).toBeNull()
+    expect(screen.getByDisplayValue('french')).toBeTruthy()
+  })
+
+  it('saves one existing newsletter book without saving newsletter details', async () => {
+    mockedFetchNewsletterEntry.mockResolvedValue(sampleEntry)
+    mockedGetNewsletterMediaContent.mockResolvedValue(
+      new Blob(['server-pdf'], { type: 'application/pdf' }),
+    )
+    mockedUpdateNewsletterMedia.mockResolvedValue({
+      ...sampleEntry.media[0],
+      displayName: 'Updated Edition',
+    })
+
+    renderPage('/newsletters/18/edit')
+
+    const displayNameInput = await screen.findByLabelText('Display name for digest')
+    fireEvent.change(displayNameInput, { target: { value: 'Updated Edition' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Save Book Changes' }))
+
+    await waitFor(() => {
+      expect(mockedUpdateNewsletterMedia).toHaveBeenCalledWith('18', '91', {
+        display_name: 'Updated Edition',
+      })
+    })
+    expect(mockUpdate).not.toHaveBeenCalled()
+  })
+
   it('shows a not found state for missing edit entries', async () => {
     mockedFetchNewsletterEntry.mockRejectedValueOnce({
       response: { status: 404 },
