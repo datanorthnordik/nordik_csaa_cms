@@ -126,6 +126,58 @@ describe('RecordingCollectionEditorPage', () => {
     })
   })
 
+  it('creates the collection from an individual item save and keeps other items pending', async () => {
+    const createdDetail = {
+      ...existingDetail,
+      name: 'Weekly Updates',
+      items: [
+        {
+          ...existingDetail.items[0],
+          title: 'First new recording',
+          description: '',
+        },
+      ],
+    }
+    createRecordingCollectionMock.mockResolvedValue({
+      message: 'Recording collection created successfully',
+      recording: { id: 9, name: 'Weekly Updates' },
+    })
+    getRecordingCollectionMock.mockResolvedValue(createdDetail)
+
+    const { container } = renderRoute('/recordings/new')
+
+    fireEvent.change(screen.getByPlaceholderText(/enter a collection name/i), {
+      target: { value: 'Weekly Updates' },
+    })
+    fireEvent.click(screen.getByRole('button', { name: /add another item/i }))
+    fireEvent.click(screen.getByRole('button', { name: /add another item/i }))
+
+    const titleInputs = screen.getAllByPlaceholderText(/enter an item title/i)
+    fireEvent.change(titleInputs[0], { target: { value: 'First new recording' } })
+    fireEvent.change(titleInputs[1], { target: { value: 'Second new recording' } })
+
+    const firstFile = new File(['audio'], 'first.mp3', { type: 'audio/mpeg' })
+    const secondFile = new File(['audio'], 'second.mp3', { type: 'audio/mpeg' })
+    const fileInputs = container.querySelectorAll<HTMLInputElement>('input[type="file"]')
+    fireEvent.change(fileInputs[0], { target: { files: [firstFile] } })
+    fireEvent.change(fileInputs[1], { target: { files: [secondFile] } })
+
+    const saveButtons = screen.getAllByRole('button', { name: /^save item$/i })
+    expect(saveButtons).toHaveLength(2)
+    fireEvent.click(saveButtons[0])
+
+    await waitFor(() => {
+      expect(createRecordingCollectionMock).toHaveBeenCalledWith({
+        name: 'Weekly Updates',
+        items: [{ title: 'First new recording', description: undefined }],
+        recordingFiles: [firstFile],
+      })
+    })
+    expect(addRecordingItemsMock).not.toHaveBeenCalled()
+    expect(await screen.findByDisplayValue('Second new recording')).toBeTruthy()
+    expect(screen.queryByDisplayValue('First new recording')).toBeNull()
+  })
+
   it('blocks creation when the collection name is blank', async () => {
     renderRoute('/recordings/new')
 
@@ -199,6 +251,68 @@ describe('RecordingCollectionEditorPage', () => {
         recordingFile: null,
       })
     })
+  })
+
+  it('enforces recording title and description character limits', async () => {
+    getRecordingCollectionMock.mockResolvedValue(existingDetail)
+
+    renderRoute('/recordings/9')
+
+    const titleInput = await screen.findByDisplayValue('Spring Town Hall')
+    const descriptionInput = screen.getByDisplayValue('Notes')
+    expect(titleInput.getAttribute('maxlength')).toBe('250')
+    expect(descriptionInput.getAttribute('maxlength')).toBe('1000')
+
+    fireEvent.change(titleInput, { target: { value: 't'.repeat(251) } })
+    fireEvent.click(screen.getByRole('button', { name: /^save item$/i }))
+    expect(
+      await screen.findByText('Recording titles must be 250 characters or fewer.'),
+    ).toBeTruthy()
+    expect(updateRecordingItemMock).not.toHaveBeenCalled()
+
+    fireEvent.change(titleInput, { target: { value: 'Valid title' } })
+    fireEvent.change(descriptionInput, { target: { value: 'd'.repeat(1001) } })
+    fireEvent.click(screen.getByRole('button', { name: /^save item$/i }))
+    expect(
+      await screen.findByText('Recording descriptions must be 1000 characters or fewer.'),
+    ).toBeTruthy()
+    expect(updateRecordingItemMock).not.toHaveBeenCalled()
+  })
+
+  it('saves one new recording without submitting the other pending items', async () => {
+    getRecordingCollectionMock.mockResolvedValue(existingDetail)
+    addRecordingItemsMock.mockResolvedValue({
+      message: 'Recording item added successfully',
+      uploadedCount: 1,
+    })
+
+    const { container } = renderRoute('/recordings/9')
+    await screen.findByDisplayValue('Spring Town Hall')
+
+    fireEvent.click(screen.getByRole('button', { name: /add another item/i }))
+    fireEvent.click(screen.getByRole('button', { name: /add another item/i }))
+
+    const titleInputs = screen.getAllByPlaceholderText(/enter an item title/i)
+    fireEvent.change(titleInputs[1], { target: { value: 'First new recording' } })
+    fireEvent.change(titleInputs[2], { target: { value: 'Second new recording' } })
+
+    const firstFile = new File(['audio'], 'first.mp3', { type: 'audio/mpeg' })
+    const secondFile = new File(['audio'], 'second.mp3', { type: 'audio/mpeg' })
+    const fileInputs = container.querySelectorAll<HTMLInputElement>('input[type="file"]')
+    fireEvent.change(fileInputs[1], { target: { files: [firstFile] } })
+    fireEvent.change(fileInputs[2], { target: { files: [secondFile] } })
+
+    const saveButtons = screen.getAllByRole('button', { name: /^save item$/i })
+    fireEvent.click(saveButtons[1])
+
+    await waitFor(() => {
+      expect(addRecordingItemsMock).toHaveBeenCalledWith(9, {
+        items: [{ title: 'First new recording', description: undefined }],
+        recordingFiles: [firstFile],
+      })
+    })
+    expect(screen.queryByDisplayValue('First new recording')).toBeNull()
+    expect(screen.getByDisplayValue('Second new recording')).toBeTruthy()
   })
 
   it('replaces the recording while editing a saved item', async () => {
