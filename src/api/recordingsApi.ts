@@ -17,8 +17,6 @@ type ApiRecordingItem = {
   title: string
   description: string | null
   recording_url?: string | null
-  storage_uri?: string | null
-  gcp_object_key?: string | null
   sort_order: number
   created_at: string
   updated_at: string
@@ -51,8 +49,6 @@ export type RecordingItem = {
   title: string
   description: string
   recordingUrl?: string
-  storageUri?: string
-  objectKey?: string
   sortOrder: number
   createdAt: string
   updatedAt: string
@@ -154,8 +150,6 @@ function mapRecordingItem(item: ApiRecordingItem): RecordingItem {
     recordingUrl: recordingUrl
       ? new URL(recordingUrl.replace(/^\/+/, ''), `${API_BASE_URL}/`).toString()
       : undefined,
-    storageUri: item.storage_uri || undefined,
-    objectKey: item.gcp_object_key || undefined,
     sortOrder: item.sort_order,
     createdAt: item.created_at,
     updatedAt: item.updated_at,
