@@ -105,6 +105,7 @@ describe('newslettersApi converters', () => {
 
     expect(local).toEqual({
       id: '17',
+      displayName: 'Newsletter PDF',
       fileName: 'july-newsletter.pdf',
       fileUrl: 'gs://bucket/news-letters/documents/july-newsletter.pdf',
       mimeType: 'application/pdf',
@@ -125,7 +126,9 @@ describe('newslettersApi converters', () => {
     })
 
     expect(fromDisplayName.fileName).toBe('Newsletter PDF')
+    expect(fromDisplayName.displayName).toBe('Newsletter PDF')
     expect(fallback.fileName).toBe('newsletter-media-55')
+    expect(fallback.displayName).toBe('Newsletter book 55')
   })
 
   it('maps detail entries including media', () => {
@@ -134,6 +137,7 @@ describe('newslettersApi converters', () => {
     expect(local.media).toHaveLength(1)
     expect(local.media[0]).toMatchObject({
       id: '17',
+      displayName: 'Newsletter PDF',
       fileName: 'july-newsletter.pdf',
     })
   })

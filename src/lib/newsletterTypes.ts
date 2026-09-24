@@ -7,6 +7,7 @@ export type NewsletterCategory = 'csaa' | 'cst' | ''
 
 export type NewsletterMedia = {
   id: string
+  displayName: string
   fileName: string
   fileUrl?: string
   mimeType?: string
