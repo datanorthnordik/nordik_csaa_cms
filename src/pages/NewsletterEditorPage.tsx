@@ -124,6 +124,10 @@ export function NewsletterEditorPage({
     Record<string, 'preview' | 'download' | 'save' | undefined>
   >({})
   const documentPreviewUrlsRef = useRef<Record<string, string>>({})
+  const documentPreviewSourceKeysRef = useRef<Record<string, string>>({})
+  const documentPreviewSourcesRef = useRef<
+    Array<{ id: string; file?: File; sourceKey: string }>
+  >([])
   const [errors, setErrors] = useState<NewsletterFormErrors>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -210,35 +214,55 @@ export function NewsletterEditorPage({
           id: source.id,
           sourceKey: source.sourceKey,
         })),
-      ),
+    ),
     [documentPreviewSources],
   )
+
+  useEffect(() => {
+    documentPreviewSourcesRef.current = documentPreviewSources
+  }, [documentPreviewSources])
 
   useEffect(() => {
     let cancelled = false
 
     async function loadDocumentPreviews() {
+      const previewSources = documentPreviewSourcesRef.current
+      const previewSourceById = new Map(
+        previewSources.map((source) => [source.id, source]),
+      )
+      const reusableUrls = Object.fromEntries(
+        previewSources.flatMap((source) => {
+          const existingUrl = documentPreviewUrlsRef.current[source.id]
+          return existingUrl &&
+            documentPreviewSourceKeysRef.current[source.id] === source.sourceKey
+            ? [[source.id, existingUrl] as const]
+            : []
+        }),
+      )
+      const sourcesToLoad = previewSources.filter(
+        (source) => !reusableUrls[source.id],
+      )
       const nextEntries = await Promise.all(
-        documentPreviewSources.map(async (source) => {
+        sourcesToLoad.map(async (source) => {
           try {
             if (source.file) {
-              return [source.id, URL.createObjectURL(source.file)] as const
+              return [source.id, source.sourceKey, URL.createObjectURL(source.file)] as const
             }
 
             if (!currentEntry?.id) {
-              return [source.id, ''] as const
+              return [source.id, source.sourceKey, ''] as const
             }
 
             const blob = await getNewsletterMediaContent(currentEntry.id, source.id)
-            return [source.id, URL.createObjectURL(blob)] as const
+            return [source.id, source.sourceKey, URL.createObjectURL(blob)] as const
           } catch {
-            return [source.id, ''] as const
+            return [source.id, source.sourceKey, ''] as const
           }
         }),
       )
 
       if (cancelled) {
-        nextEntries.forEach(([, url]) => {
+        nextEntries.forEach(([, , url]) => {
           if (url) {
             URL.revokeObjectURL(url)
           }
@@ -247,22 +271,37 @@ export function NewsletterEditorPage({
       }
 
       setDocumentPreviewUrls((current) => {
-        Object.values(current).forEach((url) => {
-          URL.revokeObjectURL(url)
+        const next = { ...reusableUrls }
+        nextEntries.forEach(([id, , url]) => {
+          if (url) {
+            next[id] = url
+          }
         })
 
-        const next = Object.fromEntries(nextEntries.filter(([, url]) => Boolean(url)))
+        Object.entries(current).forEach(([id, url]) => {
+          if (next[id] !== url) {
+            URL.revokeObjectURL(url)
+          }
+        })
+
         documentPreviewUrlsRef.current = next
+        documentPreviewSourceKeysRef.current = Object.fromEntries(
+          Object.keys(next).flatMap((id) => {
+            const source = previewSourceById.get(id)
+            return source ? [[id, source.sourceKey] as const] : []
+          }),
+        )
         return next
       })
     }
 
-    if (!documentPreviewSources.length) {
+    if (!documentPreviewSourcesRef.current.length) {
       setDocumentPreviewUrls((current) => {
         Object.values(current).forEach((url) => {
           URL.revokeObjectURL(url)
         })
         documentPreviewUrlsRef.current = {}
+        documentPreviewSourceKeysRef.current = {}
         return {}
       })
       return
@@ -273,7 +312,7 @@ export function NewsletterEditorPage({
     return () => {
       cancelled = true
     }
-  }, [currentEntry?.id, documentPreviewSignature, documentPreviewSources])
+  }, [currentEntry?.id, documentPreviewSignature])
 
   useEffect(() => {
     return () => {
@@ -281,6 +320,7 @@ export function NewsletterEditorPage({
         URL.revokeObjectURL(url)
       })
       documentPreviewUrlsRef.current = {}
+      documentPreviewSourceKeysRef.current = {}
     }
   }, [])
 
@@ -858,8 +898,17 @@ export function NewsletterEditorPage({
                   multiple
                   accept={RESOURCE_FILE_ACCEPT}
                   icon={<AddPhotoIcon />}
-                  label={t('newsletters.editor.media.dropLabel')}
-                  hint={t('newsletters.editor.media.dropHint')}
+                  label={t(
+                    mediaItems.length
+                      ? 'newsletters.editor.media.addAnotherBook'
+                      : 'newsletters.editor.media.dropLabel',
+                  )}
+                  hint={t(
+                    mediaItems.length
+                      ? 'newsletters.editor.media.addAnotherBookHint'
+                      : 'newsletters.editor.media.dropHint',
+                  )}
+                  variant={mediaItems.length ? 'compact' : 'default'}
                   onFiles={handleAddMedia}
                 />
                 {!currentEntry ? (
