@@ -1218,6 +1218,8 @@
       "media": {
         "dropLabel": "Glissez-deposez les livres du bulletin ici",
         "dropHint": "ou cliquez pour parcourir; plusieurs livres sont pris en charge",
+        "addAnotherBook": "Ajouter un autre livre",
+        "addAnotherBookHint": "Choisissez ou deposez le prochain livre de ce bulletin",
         "displayName": "Nom d affichage",
         "displayNameFor": "Nom d affichage pour {{name}}",
         "displayNamePlaceholder": "Nom affiche dans l onglet du site Web",

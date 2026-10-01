@@ -1221,6 +1221,8 @@
       "media": {
         "dropLabel": "Drag and drop newsletter books here",
         "dropHint": "or click to browse from your device; multiple books are supported",
+        "addAnotherBook": "Add another book",
+        "addAnotherBookHint": "Choose or drop the next book for this newsletter",
         "displayName": "Display name",
         "displayNameFor": "Display name for {{name}}",
         "displayNamePlaceholder": "Name shown on the website tab",

@@ -636,6 +636,48 @@ describe('NewsletterEditorPage', () => {
     expect(mockedFetchNewsletterEntry).toHaveBeenCalledTimes(2)
   })
 
+  it('keeps existing PDF previews mounted while text changes and another book is added', async () => {
+    mockedFetchNewsletterEntry.mockResolvedValue(sampleEntry)
+    mockedGetNewsletterMediaContent.mockResolvedValue(
+      new Blob(['server-pdf'], { type: 'application/pdf' }),
+    )
+
+    renderPage('/newsletters/18/edit')
+
+    const displayNameInput = await screen.findByLabelText('Display name for digest')
+    await waitFor(() => {
+      expect(mockedGetNewsletterMediaContent).toHaveBeenCalledTimes(1)
+      expect(screen.getByTitle('digest').getAttribute('src')).toBe(
+        'blob:newsletter-1',
+      )
+    })
+
+    fireEvent.change(screen.getByLabelText('Newsletter title'), {
+      target: { value: 'July Digest revised' },
+    })
+    fireEvent.change(screen.getByLabelText('Rich text editor'), {
+      target: { value: '<p>Updated summary</p>' },
+    })
+    fireEvent.change(displayNameInput, {
+      target: { value: 'Updated English Edition' },
+    })
+    uploadFileForLabel(
+      'Add another book',
+      new File(['second-book'], 'second-book.pdf', {
+        type: 'application/pdf',
+      }),
+    )
+
+    await screen.findByTitle('second-book')
+
+    expect(screen.getByTitle('digest').getAttribute('src')).toBe(
+      'blob:newsletter-1',
+    )
+    expect(mockedGetNewsletterMediaContent).toHaveBeenCalledTimes(1)
+    expect(URL.createObjectURL).toHaveBeenCalledTimes(2)
+    expect(URL.revokeObjectURL).not.toHaveBeenCalled()
+  })
+
   it('uploads one newsletter book and keeps the other pending book unchanged', async () => {
     const savedBook = {
       id: '92',
@@ -660,7 +702,7 @@ describe('NewsletterEditorPage', () => {
 
     const firstFile = new File(['english'], 'english.pdf', { type: 'application/pdf' })
     const secondFile = new File(['french'], 'french.pdf', { type: 'application/pdf' })
-    const label = screen.getByText('Drag and drop newsletter books here').closest('label')
+    const label = screen.getByText('Add another book').closest('label')
     const input = label?.querySelector('input[type="file"]') as HTMLInputElement
     Object.defineProperty(input, 'files', {
       configurable: true,
