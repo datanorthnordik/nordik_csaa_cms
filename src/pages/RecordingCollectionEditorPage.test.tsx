@@ -174,8 +174,22 @@ describe('RecordingCollectionEditorPage', () => {
       })
     })
     expect(addRecordingItemsMock).not.toHaveBeenCalled()
-    expect(await screen.findByDisplayValue('Second new recording')).toBeTruthy()
-    expect(screen.queryByDisplayValue('First new recording')).toBeNull()
+    await waitFor(() => {
+      expect(getRecordingCollectionMock).toHaveBeenCalledWith(9)
+    })
+
+    const savedItemsSection = screen
+      .getByRole('heading', { name: /saved items/i })
+      .closest('section')
+    const newItemsSection = screen
+      .getByRole('heading', { name: /new items/i })
+      .closest('section')
+
+    expect(savedItemsSection).not.toBeNull()
+    expect(newItemsSection).not.toBeNull()
+    expect(within(savedItemsSection!).getByDisplayValue('First new recording')).toBeTruthy()
+    expect(within(newItemsSection!).getByDisplayValue('Second new recording')).toBeTruthy()
+    expect(within(newItemsSection!).queryByDisplayValue('First new recording')).toBeNull()
   })
 
   it('blocks creation when the collection name is blank', async () => {
